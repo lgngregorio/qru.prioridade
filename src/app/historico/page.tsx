@@ -77,7 +77,9 @@ export default function HistoricoPage() {
             </Link>
           </Button>
           <div>
-            <h1 className="text-2xl font-bold text-foreground">Histórico de Ocorrências</h1>
+            <h1 className="text-3xl font-bold text-primary font-headline tracking-wide">
+              Histórico de Ocorrências
+            </h1>
             <p className="text-muted-foreground mt-1 text-sm">
               Visualize, edite ou apague os relatórios salvos.
             </p>
