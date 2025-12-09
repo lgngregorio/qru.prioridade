@@ -547,9 +547,9 @@ function VeiculoAbandonadoForm({ categorySlug }: { categorySlug: string }) {
                     </SelectTrigger>
                     <SelectContent>
                         <SelectItem value="faixa_rolamento">Faixa de Rolamento</SelectItem>
-                        <SelectItem value="terceira_faixa">Terceira Faixa</SelectItem>
                         <SelectItem value="acostamento">Acostamento</SelectItem>
                         <SelectItem value="area_dominio">Área de Domínio</SelectItem>
+                        <SelectItem value="terceira_faixa">Terceira Faixa</SelectItem>
                     </SelectContent>
                 </Select>
             </Field>
@@ -618,7 +618,7 @@ function VeiculoAbandonadoForm({ categorySlug }: { categorySlug: string }) {
                                 <SelectItem value="on">ON</SelectItem>
                                 <SelectItem value="car">CAR</SelectItem>
                                 <SelectItem value="ca-romeu-julieta">CA/ ROMEU E JULIETA</SelectItem>
-                                <SelectItem value="carretinha-reboque">CARETINHA/ REBOQUE</SelectItem>
+                                <SelectItem value="carretinha-reboque">CARRETINHA/ REBOQUE</SelectItem>
                             </SelectContent>
                         </Select>
                     </Field>
@@ -721,7 +721,7 @@ export default function ReportPage() {
         </div>
         <Card className="w-full max-w-4xl mx-auto shadow-none rounded-none border-0 bg-transparent">
           <CardHeader className="text-center px-4 pb-4 md:px-6 md:pb-6">
-            <CardTitle className="text-3xl font-bold text-primary tracking-wide">
+            <CardTitle className="text-3xl font-bold text-primary font-headline tracking-wide">
               {title}
             </CardTitle>
             <CardDescription className="text-base mt-1 text-muted-foreground">
