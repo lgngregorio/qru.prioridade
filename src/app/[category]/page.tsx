@@ -1,8 +1,9 @@
 'use client';
 
-import { notFound } from 'next/navigation';
+import { notFound, useParams } from 'next/navigation';
 import Link from 'next/link';
 import { ArrowLeft, Send } from 'lucide-react';
+import { cn } from '@/lib/utils';
 
 import { eventCategories } from '@/lib/events';
 import { Button } from '@/components/ui/button';
@@ -40,8 +41,15 @@ function Field({ label, children, className }: { label?: string, children: React
 }
 
 function CheckboxGroup({ items, columns = 2 }: { items: string[], columns?: number }) {
+  const gridCols = {
+    1: 'grid-cols-1',
+    2: 'grid-cols-2',
+    3: 'grid-cols-3',
+    4: 'grid-cols-4',
+  }[columns] || 'grid-cols-2';
+  
   return (
-    <div className={`grid grid-cols-${columns} gap-2`}>
+    <div className={`grid ${gridCols} gap-2`}>
       {items.map(item => (
         <div key={item} className="flex items-center space-x-2">
           <Checkbox id={item.toLowerCase().replace(/ /g, '-')} />
@@ -138,34 +146,34 @@ function ReportForm() {
           <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
               <div>
                   <h4 className="font-bold mb-2 text-xs">TRAUMA</h4>
-                  <CheckboxGroup items={["ACIDENTE AUTOMOBILÍSTICO", "QUEIMADURA", "ATROPELAMENTO", "QUEDA DE ALTURA"]} />
+                  <CheckboxGroup items={["ACIDENTE AUTOMOBILÍSTICO", "QUEIMADURA", "ATROPELAMENTO", "QUEDA DE ALTURA"]} columns={1} />
                   <Field label="OUTROS:"><Input /></Field>
               </div>
               <div>
                   <h4 className="font-bold mb-2 text-xs">ATENDIMENTO CLÍNICO</h4>
-                  <CheckboxGroup items={["MAL SÚBITO", "INTOXICAÇÃO EXÓGENA", "ASSISTÊNCIA AO PARTO", "CONVULSÃO", "DISTÚRBIO PSIQUIÁRICO"]} />
+                  <CheckboxGroup items={["MAL SÚBITO", "INTOXICAÇÃO EXÓGENA", "ASSISTÊNCIA AO PARTO", "CONVULSÃO", "DISTÚRBIO PSIQUIÁRICO"]} columns={1} />
                    <Field label="OUTROS:"><Input /></Field>
               </div>
               <div>
                   <h4 className="font-bold mb-2 text-xs">CONDIÇÕES DE SEGURANÇA</h4>
-                  <CheckboxGroup items={["CINTO DE SEGURANÇA", "CADEIRINHA", "AIR BAG", "CAPACETE"]} />
+                  <CheckboxGroup items={["CINTO DE SEGURANÇA", "CADEIRINHA", "AIR BAG", "CAPACETE"]} columns={1} />
                    <Field label="OUTROS:"><Input /></Field>
               </div>
                <div>
                   <h4 className="font-bold mb-2 text-xs">VEÍCULO</h4>
-                  <CheckboxGroup items={["BICICLETA", "MOTO", "CARRO/UTILITÁRIA", "ÔNIBUS", "CAMINHÃO", "CARRETA"]} />
+                  <CheckboxGroup items={["BICICLETA", "MOTO", "CARRO/UTILITÁRIA", "ÔNIBUS", "CAMINHÃO", "CARRETA"]} columns={1} />
                    <Field label="PLACA:"><Input /></Field>
               </div>
           </div>
           <Field label="CINEMÁTICA:"><Input /></Field>
-          <div className="grid grid-cols-1 md:grid-cols-6 gap-2">
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-2">
               <h4 className="font-bold text-xs col-span-full">CONDIÇÃO INICIAL:</h4>
-              <CheckboxGroup items={["ALERTA", "VERBALIZA", "ESTÍMULO DOLOROSO", "INCONSCIENTE", "DEAMBULANDO", "AO SOLO", "EJETADO", "ENCARCERADO/RETIDO"]} columns={4}/>
+              <CheckboxGroup items={["ALERTA", "VERBALIZA", "ESTÍMULO DOLOROSO", "INCONSCIENTE", "DEAMBULANDO", "AO SOLO", "EJETADO", "ENCARCERADO/RETIDO"]} columns={4} />
           </div>
       </FormSection>
 
       <FormSection title="AVALIAÇÕES">
-        <div className="grid grid-cols-2 gap-x-4 gap-y-2">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-x-4 gap-y-2">
           {/* Avaliação Primária */}
           <div className="border p-2 rounded-md">
             <h4 className="font-bold text-xs mb-2 text-center">AVALIAÇÃO PRIMÁRIA</h4>
@@ -265,15 +273,15 @@ function ReportForm() {
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-xs">
             <div>
                 <h4 className="font-bold mb-2">ABERTURA OCULAR</h4>
-                <CheckboxGroup items={["(04) ESPONTÂNEA", "(03) ESTÍMULO VERBAL", "(02) ESTÍMULO DOLOROSO", "(01) AUSENTE"]} />
+                <CheckboxGroup items={["(04) ESPONTÂNEA", "(03) ESTÍMulo VERBAL", "(02) ESTÍMulo DOLOROSO", "(01) AUSENTE"]} columns={1} />
             </div>
             <div>
                 <h4 className="font-bold mb-2">RESPOSTA VERBAL</h4>
-                <CheckboxGroup items={["(05) ORIENTADO", "(04) CONFUSO", "(03) PALAVRAS INAPROPRIADAS", "(02) SONS INCOMPREENSÍVEIS", "(01) AUSENTE"]} />
+                <CheckboxGroup items={["(05) ORIENTADO", "(04) CONFUSO", "(03) PALAVRAS INAPROPRIADAS", "(02) SONS INCOMPREENSÍVEIS", "(01) AUSENTE"]} columns={1} />
             </div>
              <div>
                 <h4 className="font-bold mb-2">RESPOSTA MOTORA</h4>
-                <CheckboxGroup items={["(06) OBEDECE A COMANDOS", "(05) LOCALIZA A DOR", "(04) RETIRA O MEMBRO À DOR", "(03) DECORTICAÇÃO (FLEXÃO ANORMAL)", "(02) DESCEREBRAÇÃO (EXTENSÃO ANORMAL)", "(01) AUSENTE"]} />
+                <CheckboxGroup items={["(06) OBEDECE A COMANDOS", "(05) LOCALIZA A DOR", "(04) RETIRA O MEMBRO À DOR", "(03) DECORTICAÇÃO (FLEXÃO ANORMAL)", "(02) DESCEREBRAÇÃO (EXTENSÃO ANORMAL)", "(01) AUSENTE"]} columns={1} />
             </div>
         </div>
       </FormSection>
@@ -324,11 +332,8 @@ function ReportForm() {
   );
 }
 
-export default function ReportPage({
-  params,
-}: {
-  params: { category: string };
-}) {
+export default function ReportPage() {
+  const params = useParams<{ category: string }>();
   const category = eventCategories.find((c) => c.slug === params.category);
 
   if (!category) {
@@ -370,5 +375,3 @@ export default function ReportPage({
     </main>
   );
 }
-
-    
