@@ -2,7 +2,7 @@
 
 import { notFound, useParams } from 'next/navigation';
 import Link from 'next/link';
-import { ArrowLeft, Send } from 'lucide-react';
+import { ArrowLeft, Send, PlusCircle, Share, Save } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 import { eventCategories } from '@/lib/events';
@@ -21,6 +21,8 @@ import { Textarea } from '@/components/ui/textarea';
 import { SidebarTrigger } from '@/components/ui/sidebar';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Checkbox } from '@/components/ui/checkbox';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+
 
 function FormSection({ title, children, className }: { title: string, children: React.ReactNode, className?: string }) {
   return (
@@ -332,6 +334,163 @@ function ReportForm() {
   );
 }
 
+
+function VeiculoAbandonadoForm() {
+  return (
+    <div className="w-full max-w-2xl mx-auto p-4 sm:p-6 bg-background text-foreground">
+      <form className="space-y-8">
+        {/* Informações Gerais */}
+        <div className="space-y-4">
+          <h2 className="text-lg font-semibold text-primary border-b-2 border-primary pb-2">Informações Gerais</h2>
+          <div className="grid grid-cols-1 gap-4">
+            <Field label="RODOVIA">
+                <Select>
+                    <SelectTrigger>
+                        <SelectValue placeholder="Selecione a rodovia" />
+                    </SelectTrigger>
+                    <SelectContent>
+                        <SelectItem value="br-163">BR-163</SelectItem>
+                        <SelectItem value="ms-306">MS-306</SelectItem>
+                    </SelectContent>
+                </Select>
+            </Field>
+            <Field label="OCORRÊNCIA">
+                <Input defaultValue="TO 01" disabled />
+            </Field>
+            <Field label="TIPO DE PANE">
+                 <Select>
+                    <SelectTrigger>
+                        <SelectValue placeholder="Selecione o tipo de pane" />
+                    </SelectTrigger>
+                    <SelectContent>
+                        <SelectItem value="mecanica">Mecânica</SelectItem>
+                        <SelectItem value="eletrica">Elétrica</SelectItem>
+                        <SelectItem value="pneu">Pneu furado</SelectItem>
+                        <SelectItem value="combustivel">Falta de combustível</SelectItem>
+                        <SelectItem value="outra">Outra</SelectItem>
+                    </SelectContent>
+                </Select>
+            </Field>
+            <Field label="QTH (LOCAL)">
+                <Input placeholder="Ex: km 125 da MS-112" />
+            </Field>
+             <Field label="SENTIDO">
+                <Select>
+                    <SelectTrigger>
+                        <SelectValue placeholder="Selecione o sentido" />
+                    </SelectTrigger>
+                    <SelectContent>
+                        <SelectItem value="norte">Norte</SelectItem>
+                        <SelectItem value="sul">Sul</SelectItem>
+                    </SelectContent>
+                </Select>
+            </Field>
+            <Field label="LOCAL/ÁREA">
+                <Select>
+                    <SelectTrigger>
+                        <SelectValue placeholder="Selecione o local/área" />
+                    </SelectTrigger>
+                    <SelectContent>
+                        <SelectItem value="acostamento">Acostamento</SelectItem>
+                        <SelectItem value="faixa_rolamento">Faixa de Rolamento</SelectItem>
+                        <SelectItem value="ponto_onibus">Ponto de Ônibus</SelectItem>
+                    </SelectContent>
+                </Select>
+            </Field>
+          </div>
+        </div>
+
+        {/* Dados do Veículo */}
+        <div className="space-y-4">
+          <h2 className="text-lg font-semibold text-primary border-b-2 border-primary pb-2">Dados do Veículo</h2>
+           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <Field label="MARCA"><Input placeholder="Ex: VW" /></Field>
+                <Field label="MODELO"><Input placeholder="Ex: Gol" /></Field>
+                <Field label="ANO"><Input placeholder="Ex: 2020" /></Field>
+                <Field label="COR"><Input placeholder="Ex: Branco" /></Field>
+                <Field label="PLACA"><Input placeholder="Ex: ABC-1234" /></Field>
+                <Field label="CIDADE EMPLACAMENTO"><Input placeholder="Ex: São Paulo" /></Field>
+                <Field label="VINDO DE"><Input placeholder="Ex: Rio de Janeiro" /></Field>
+                <Field label="INDO PARA"><Input placeholder="Ex: Belo Horizonte" /></Field>
+                <Field label="QUANTIDADE DE EIXOS">
+                    <Select>
+                        <SelectTrigger><SelectValue placeholder="Selecione os eixos" /></SelectTrigger>
+                        <SelectContent>
+                            <SelectItem value="2">2</SelectItem>
+                            <SelectItem value="3">3</SelectItem>
+                            <SelectItem value="4">4</SelectItem>
+                            <SelectItem value="5">5 ou mais</SelectItem>
+                        </SelectContent>
+                    </Select>
+                </Field>
+                <Field label="TIPO DE VEÍCULO">
+                     <Select>
+                        <SelectTrigger><SelectValue placeholder="Selecione o tipo" /></SelectTrigger>
+                        <SelectContent>
+                            <SelectItem value="carro">Carro de Passeio</SelectItem>
+                            <SelectItem value="moto">Motocicleta</SelectItem>
+                            <SelectItem value="caminhao">Caminhão</SelectItem>
+                             <SelectItem value="onibus">Ônibus</SelectItem>
+                        </SelectContent>
+                    </Select>
+                </Field>
+                <Field label="ESTADO DO PNEU">
+                    <Select>
+                        <SelectTrigger><SelectValue placeholder="Selecione o estado do pneu" /></SelectTrigger>
+                        <SelectContent>
+                            <SelectItem value="bom">Bom</SelectItem>
+                            <SelectItem value="regular">Regular</SelectItem>
+                            <SelectItem value="ruim">Ruim</SelectItem>
+                        </SelectContent>
+                    </Select>
+                </Field>
+                <Field label="TIPO DE CARGA"><Input placeholder="Ex: Vazio, Soja" /></Field>
+           </div>
+        </div>
+
+        {/* Condutor */}
+        <div className="space-y-4">
+            <h2 className="text-lg font-semibold text-primary border-b-2 border-primary pb-2">Condutor</h2>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                 <Field label="QRA DO CONDUTOR(A)"><Input placeholder="Nome do condutor" /></Field>
+                 <Field label="BAIXA FREQUÊNCIA"><Input placeholder="(000) 00000-0000" /></Field>
+                 <Field label="OCUPANTES"><Input placeholder="Ex: 2 adultos, 1 criança" /></Field>
+            </div>
+            <Button variant="outline" className="w-full">
+                <PlusCircle className="mr-2 h-4 w-4" />
+                Adicionar Veículo
+            </Button>
+        </div>
+
+        {/* Outras Informações */}
+        <div className="space-y-4">
+          <h2 className="text-lg font-semibold text-primary border-b-2 border-primary pb-2">Outras Informações</h2>
+          <Field label="AUXÍLIOS/PR">
+            <Textarea placeholder="Descreva os auxílios prestados" />
+          </Field>
+          <Field label="OBSERVAÇÕES">
+            <Textarea placeholder="Descreva detalhes adicionais sobre a ocorrência" />
+          </Field>
+           <Field label="NÚMERO DA OCORRÊNCIA">
+            <Input placeholder="Número de controle interno" />
+          </Field>
+        </div>
+
+        <div className="flex flex-col sm:flex-row gap-4 pt-6">
+          <Button size="lg" className="flex-1 bg-green-600 hover:bg-green-700">
+            <Share className="mr-2 h-4 w-4" />
+            Compartilhar WhatsApp
+          </Button>
+          <Button size="lg" className="flex-1 bg-primary hover:bg-primary/90">
+            <Save className="mr-2 h-4 w-4" />
+            Salvar
+          </Button>
+        </div>
+      </form>
+    </div>
+  );
+}
+
 export default function ReportPage() {
   const params = useParams<{ category: string }>();
   const category = eventCategories.find((c) => c.slug === params.category);
@@ -341,14 +500,20 @@ export default function ReportPage() {
   }
   
   const isAph = category.slug === 'qud-aph';
-  const title = "FICHA DE ATENDIMENTO PRÉ-HOSPITALAR";
-  const description = " ";
+  const isTo01 = category.slug === 'to-01';
+  
+  let title = "FICHA DE ATENDIMENTO PRÉ-HOSPITALAR";
+  let description = " ";
 
+  if (isTo01) {
+    title = "VEÍCULO ABANDONADO";
+    description = "Preencha os campos abaixo e envie o relatório completo.";
+  }
 
   return (
-    <main className="flex min-h-screen flex-col items-center justify-start p-4 md:p-8">
+    <main className="flex flex-col items-center">
       <div className="w-full">
-        <div className="mb-6 flex items-center gap-4">
+        <div className="p-4 md:p-6 mb-2 flex items-center gap-4">
           <SidebarTrigger className="md:hidden" />
           <Button asChild variant="outline" className="rounded-full">
             <Link href="/">
@@ -358,17 +523,16 @@ export default function ReportPage() {
           </Button>
         </div>
         <Card className="w-full shadow-none rounded-none border-0 bg-transparent">
-          <CardHeader className="text-center p-0 md:p-4">
-            <CardTitle className="text-3xl font-bold">
+          <CardHeader className="text-center px-4 pb-4 md:px-6 md:pb-6">
+            <CardTitle className="text-3xl font-bold text-primary">
               {title}
             </CardTitle>
-            <CardDescription className="text-base mt-1">
+            <CardDescription className="text-base mt-1 text-muted-foreground">
              {description}
             </CardDescription>
           </CardHeader>
-          <Separator />
-          <CardContent className="p-0 md:p-8">
-            <ReportForm />
+          <CardContent className="p-0 md:px-6 md:pb-6">
+            {isTo01 ? <VeiculoAbandonadoForm /> : <ReportForm />}
           </CardContent>
         </Card>
       </div>
