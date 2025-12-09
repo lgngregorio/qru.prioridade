@@ -1,9 +1,8 @@
+'use client';
+
 import { notFound } from 'next/navigation';
 import Link from 'next/link';
-import {
-  ArrowLeft,
-  Send,
-} from 'lucide-react';
+import { ArrowLeft, Send } from 'lucide-react';
 
 import { eventCategories } from '@/lib/events';
 import { Button } from '@/components/ui/button';
@@ -18,6 +17,7 @@ import { Separator } from '@/components/ui/separator';
 import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
+import { SidebarTrigger } from '@/components/ui/sidebar';
 
 function ReportForm() {
   return (
@@ -40,7 +40,7 @@ function ReportForm() {
       <div className="space-y-2">
         <Label htmlFor="picture">Anexar foto</Label>
         <Input id="picture" type="file" />
-         <p className="text-sm text-muted-foreground">
+        <p className="text-sm text-muted-foreground">
           Uma imagem pode ajudar as equipes de emergência.
         </p>
       </div>
@@ -66,7 +66,8 @@ export default function ReportPage({
   return (
     <main className="flex min-h-screen flex-col items-center justify-start p-4 pt-12 md:p-12 lg:p-24">
       <div className="w-full max-w-3xl">
-        <div className="mb-6">
+        <div className="mb-6 flex items-center gap-4">
+          <SidebarTrigger className="md:hidden" />
           <Button asChild variant="outline" className="rounded-full">
             <Link href="/">
               <ArrowLeft className="mr-2 h-4 w-4" />
@@ -79,7 +80,9 @@ export default function ReportPage({
             <div className="mx-auto bg-primary/10 p-4 rounded-full w-fit mb-4">
               <category.icon className="h-12 w-12 text-primary" />
             </div>
-            <CardTitle className="text-3xl font-bold">{category.name}</CardTitle>
+            <CardTitle className="text-3xl font-bold">
+              {category.name}
+            </CardTitle>
             <CardDescription className="text-base mt-1">
               {category.description}
             </CardDescription>

@@ -18,10 +18,10 @@ export default function EventCategoryGrid({
   }
 
   return (
-    <div className="grid grid-cols-4 gap-3">
+    <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
       {categories.map((category) => (
         <Link href={`/${category.slug}`} key={category.slug} className="group">
-          <Card className="h-full text-center shadow-sm rounded-lg border">
+          <Card className="h-full text-center shadow-sm rounded-lg border bg-card">
             <CardHeader className="flex flex-col items-center justify-center p-3 aspect-square">
               <div
                 className="w-10 h-10 rounded-full mb-2 flex items-center justify-center"
