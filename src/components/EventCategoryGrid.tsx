@@ -18,16 +18,19 @@ export default function EventCategoryGrid({
   }
 
   return (
-    <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4 md:gap-6">
+    <div className="grid grid-cols-4 gap-3">
       {categories.map((category) => (
         <Link href={`/${category.slug}`} key={category.slug} className="group">
-          <Card className="h-full text-center shadow-sm rounded-2xl hover:shadow-xl transition-all duration-300 ease-in-out transform hover:-translate-y-1.5 border-2 border-transparent hover:border-primary/50">
-            <CardHeader className="flex flex-col items-center justify-center p-6">
-              <div className="bg-primary/10 p-4 rounded-full mb-4 transition-colors duration-300 group-hover:bg-primary/20">
-                <category.icon className="h-10 w-10 text-primary" />
+          <Card className="h-full text-center shadow-sm rounded-lg border">
+            <CardHeader className="flex flex-col items-center justify-center p-3 aspect-square">
+              <div
+                className="w-10 h-10 rounded-full mb-2 flex items-center justify-center"
+                style={{ backgroundColor: category.color }}
+              >
+                <category.icon className="h-6 w-6 text-white" />
               </div>
-              <CardTitle className="text-lg font-semibold text-card-foreground">
-                {category.name}
+              <CardTitle className="text-xs font-medium text-card-foreground leading-tight">
+                {category.name.split(' ').map((word, index) => <div key={index}>{word}</div>)}
               </CardTitle>
             </CardHeader>
           </Card>
