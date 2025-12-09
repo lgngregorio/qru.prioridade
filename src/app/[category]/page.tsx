@@ -22,6 +22,7 @@ import { SidebarTrigger } from '@/components/ui/sidebar';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import React from 'react';
 
 
 function FormSection({ title, children, className }: { title: string, children: React.ReactNode, className?: string }) {
@@ -336,8 +337,28 @@ function ReportForm() {
 
 
 function VeiculoAbandonadoForm() {
+  const [phoneNumber, setPhoneNumber] = React.useState('');
+
+  const handlePhoneChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    let value = e.target.value.replace(/\D/g, '');
+    if (value.length > 11) {
+      value = value.substring(0, 11);
+    }
+    let formattedValue = '';
+    if (value.length > 0) {
+      formattedValue = '(' + value.substring(0, 2);
+    }
+    if (value.length > 2) {
+      formattedValue += ') ' + value.substring(2, 7);
+    }
+    if (value.length > 7) {
+      formattedValue += '-' + value.substring(7);
+    }
+    setPhoneNumber(formattedValue || value);
+  };
+
   return (
-    <div className="w-full max-w-2xl mx-auto p-4 sm:p-6 text-foreground">
+    <div className="w-full max-w-2xl mx-auto p-4 sm:p-6">
       <form className="space-y-8">
         {/* Informações Gerais */}
         <div className="space-y-4">
@@ -446,10 +467,14 @@ function VeiculoAbandonadoForm() {
                      <Select>
                         <SelectTrigger><SelectValue placeholder="Selecione o tipo" /></SelectTrigger>
                         <SelectContent>
-                            <SelectItem value="carro">Carro de Passeio</SelectItem>
-                            <SelectItem value="moto">Motocicleta</SelectItem>
-                            <SelectItem value="caminhao">Caminhão</SelectItem>
-                             <SelectItem value="onibus">Ônibus</SelectItem>
+                            <SelectItem value="mo">MO</SelectItem>
+                            <SelectItem value="ap">AP</SelectItem>
+                            <SelectItem value="utilitaria">UTILITÁRIA</SelectItem>
+                            <SelectItem value="ca">CA</SelectItem>
+                            <SelectItem value="on">ON</SelectItem>
+                            <SelectItem value="car">CAR</SelectItem>
+                            <SelectItem value="ca-romeu-julieta">CA/ ROMEU E JULIETA</SelectItem>
+                            <SelectItem value="carretinha-reboque">CARETINHA/ REBOQUE</SelectItem>
                         </SelectContent>
                     </Select>
                 </Field>
@@ -472,7 +497,14 @@ function VeiculoAbandonadoForm() {
             <h2 className="text-lg font-semibold text-primary border-b-2 border-primary pb-2">Condutor</h2>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                  <Field label="QRA DO CONDUTOR(A)"><Input placeholder="Nome do condutor" /></Field>
-                 <Field label="BAIXA FREQUÊNCIA"><Input placeholder="(000) 00000-0000" /></Field>
+                 <Field label="BAIXA FREQUÊNCIA">
+                    <Input 
+                      placeholder="(000) 00000-0000" 
+                      value={phoneNumber}
+                      onChange={handlePhoneChange}
+                      maxLength={15}
+                    />
+                 </Field>
                  <Field label="OCUPANTES"><Input placeholder="Ex: 2 adultos, 1 criança" /></Field>
             </div>
             <Button variant="outline" className="w-full">
