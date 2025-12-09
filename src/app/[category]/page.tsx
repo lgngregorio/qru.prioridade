@@ -1,6 +1,6 @@
 'use client';
 
-import { notFound, useParams } from 'next/navigation';
+import { useParams } from 'next/navigation';
 import Link from 'next/link';
 import { ArrowLeft, Send, PlusCircle, Share, Save } from 'lucide-react';
 import { cn } from '@/lib/utils';
@@ -153,7 +153,7 @@ function ReportForm() {
               </div>
               <div>
                   <h4 className="font-bold mb-2 text-xs">ATENDIMENTO CLÍNICO</h4>
-                  <CheckboxGroup items={["MAL SÚBITO", "INTOXICAÇÃO EXÓGENA", "ASSISTÊNCIA AO PARTO", "CONVULSÃO", "DISTÚRBIO PSIQUIÁRICO"]} columns={1} />
+                  <CheckboxGroup items={["MAL SÚBITO", "INTOXICAÇÃO EXÓGENA", "ASSISTÊNCIA AO PARTO", "CONVULSÃO", "DISTÚRBIO PSIQUIÁTRICO"]} columns={1} />
                    <Field label="OUTROS:"><Input /></Field>
               </div>
               <div>
@@ -349,8 +349,10 @@ function VeiculoAbandonadoForm() {
                         <SelectValue placeholder="Selecione a rodovia" />
                     </SelectTrigger>
                     <SelectContent>
-                        <SelectItem value="br-163">BR-163</SelectItem>
+                        <SelectItem value="ms-112">MS-112</SelectItem>
+                        <SelectItem value="br-158">BR-158</SelectItem>
                         <SelectItem value="ms-306">MS-306</SelectItem>
+                        <SelectItem value="br-163">BR-163</SelectItem>
                     </SelectContent>
                 </Select>
             </Field>
@@ -496,10 +498,9 @@ export default function ReportPage() {
   const category = eventCategories.find((c) => c.slug === params.category);
 
   if (!category) {
-    notFound();
+    return null;
   }
   
-  const isAph = category.slug === 'qud-aph';
   const isTo01 = category.slug === 'to-01';
   
   let title = "FICHA DE ATENDIMENTO PRÉ-HOSPITALAR";
@@ -522,7 +523,7 @@ export default function ReportPage() {
             </Link>
           </Button>
         </div>
-        <Card className="w-full shadow-none rounded-none border-0 bg-transparent">
+        <Card className="w-full max-w-4xl mx-auto shadow-none rounded-none border-0 bg-transparent">
           <CardHeader className="text-center px-4 pb-4 md:px-6 md:pb-6">
             <CardTitle className="text-3xl font-bold text-primary">
               {title}
