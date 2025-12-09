@@ -77,7 +77,7 @@ export default function HistoricoPage() {
             </Link>
           </Button>
           <div>
-            <h1 className="text-3xl font-bold text-primary font-headline tracking-wide">
+            <h1 className="text-3xl font-bold text-primary tracking-wide">
               Histórico de Ocorrências
             </h1>
             <p className="text-muted-foreground mt-1 text-sm">

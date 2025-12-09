@@ -721,7 +721,7 @@ export default function ReportPage() {
         </div>
         <Card className="w-full max-w-4xl mx-auto shadow-none rounded-none border-0 bg-transparent">
           <CardHeader className="text-center px-4 pb-4 md:px-6 md:pb-6">
-            <CardTitle className="text-3xl font-bold text-primary font-headline tracking-wide">
+            <CardTitle className="text-3xl font-bold text-primary tracking-wide">
               {title}
             </CardTitle>
             <CardDescription className="text-base mt-1 text-muted-foreground">
