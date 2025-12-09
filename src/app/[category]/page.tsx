@@ -2,8 +2,9 @@
 
 import { useParams } from 'next/navigation';
 import Link from 'next/link';
-import { ArrowLeft, Send, PlusCircle, Share, Save } from 'lucide-react';
+import { ArrowLeft, Send, PlusCircle, Share, Save, Trash2 } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { useState } from 'react';
 
 import { eventCategories } from '@/lib/events';
 import { Button } from '@/components/ui/button';
@@ -138,7 +139,7 @@ function ReportForm() {
              <div className="md:col-span-2"><Field label="ENDEREÇO:"><Input /></Field></div>
              <Field label="DN:"><Input type="date" /></Field>
              <Field label="TEL:"><Input /></Field>
-             <div className="md:col-span-2"><Field label="ACOMPANHANTE DO USUÁRIO:"><Input /></Field></div>
+             <div className="md_col-span-2"><Field label="ACOMPANHANTE DO USUÁRIO:"><Input /></Field></div>
              <Field label="CPF:"><Input /></Field>
              <Field label="RG:"><Input /></Field>
          </div>
@@ -337,24 +338,84 @@ function ReportForm() {
 
 
 function VeiculoAbandonadoForm() {
-  const [phoneNumber, setPhoneNumber] = React.useState('');
+  type Vehicle = {
+    id: number;
+    marca: string;
+    modelo: string;
+    ano: string;
+    cor: string;
+    placa: string;
+    cidade: string;
+    vindoDe: string;
+    indoPara: string;
+    eixos: string;
+    tipo: string;
+    pneu: string;
+    carga: string;
+    condutor: string;
+    telefone: string;
+    ocupantes: string;
+  };
 
-  const handlePhoneChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    let value = e.target.value.replace(/\D/g, '');
-    if (value.length > 11) {
-      value = value.substring(0, 11);
+  const [vehicles, setVehicles] = useState<Vehicle[]>([
+    {
+      id: 1,
+      marca: '',
+      modelo: '',
+      ano: '',
+      cor: '',
+      placa: '',
+      cidade: '',
+      vindoDe: '',
+      indoPara: '',
+      eixos: '',
+      tipo: '',
+      pneu: '',
+      carga: '',
+      condutor: '',
+      telefone: '',
+      ocupantes: '',
+    }
+  ]);
+
+  const handleVehicleChange = (index: number, field: keyof Vehicle, value: string) => {
+    const newVehicles = [...vehicles];
+    if (field === 'telefone') {
+      value = formatPhoneNumber(value);
+    }
+    (newVehicles[index] as any)[field] = value;
+    setVehicles(newVehicles);
+  };
+  
+  const addVehicle = () => {
+    setVehicles([...vehicles, {
+      id: vehicles.length > 0 ? Math.max(...vehicles.map(v => v.id)) + 1 : 1,
+      marca: '', modelo: '', ano: '', cor: '', placa: '', cidade: '',
+      vindoDe: '', indoPara: '', eixos: '', tipo: '', pneu: '', carga: '',
+      condutor: '', telefone: '', ocupantes: ''
+    }]);
+  };
+
+  const removeVehicle = (id: number) => {
+    setVehicles(vehicles.filter(v => v.id !== id));
+  };
+  
+  const formatPhoneNumber = (value: string) => {
+    let rawValue = value.replace(/\D/g, '');
+    if (rawValue.length > 11) {
+      rawValue = rawValue.substring(0, 11);
     }
     let formattedValue = '';
-    if (value.length > 0) {
-      formattedValue = '(' + value.substring(0, 2);
+    if (rawValue.length > 0) {
+      formattedValue = '(' + rawValue.substring(0, 2);
     }
-    if (value.length > 2) {
-      formattedValue += ') ' + value.substring(2, 7);
+    if (rawValue.length > 2) {
+      formattedValue += ') ' + rawValue.substring(2, 7);
     }
-    if (value.length > 7) {
-      formattedValue += '-' + value.substring(7);
+    if (rawValue.length > 7) {
+      formattedValue += '-' + rawValue.substring(7);
     }
-    setPhoneNumber(formattedValue || value);
+    return formattedValue || rawValue;
   };
 
   return (
@@ -425,93 +486,108 @@ function VeiculoAbandonadoForm() {
           </div>
         </div>
 
-        {/* Dados do Veículo */}
-        <div className="space-y-4">
-          <h2 className="text-lg font-semibold text-primary border-b-2 border-primary pb-2">Dados do Veículo</h2>
-           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <Field label="MARCA"><Input placeholder="Ex: VW" /></Field>
-                <Field label="MODELO"><Input placeholder="Ex: Gol" /></Field>
-                <Field label="ANO"><Input placeholder="Ex: 2020" /></Field>
-                <Field label="COR"><Input placeholder="Ex: Branco" /></Field>
-                <Field label="PLACA"><Input placeholder="Ex: ABC-1234" /></Field>
-                <Field label="CIDADE EMPLACAMENTO"><Input placeholder="Ex: São Paulo" /></Field>
-                <Field label="VINDO DE"><Input placeholder="Ex: Rio de Janeiro" /></Field>
-                <Field label="INDO PARA"><Input placeholder="Ex: Belo Horizonte" /></Field>
-                <Field label="QUANTIDADE DE EIXOS">
-                    <Select>
-                        <SelectTrigger><SelectValue placeholder="Selecione os eixos" /></SelectTrigger>
-                        <SelectContent>
-                            <SelectItem value="02">02</SelectItem>
-                            <SelectItem value="03">03</SelectItem>
-                            <SelectItem value="04">04</SelectItem>
-                            <SelectItem value="05">05</SelectItem>
-                            <SelectItem value="06">06</SelectItem>
-                            <SelectItem value="07">07</SelectItem>
-                            <SelectItem value="08">08</SelectItem>
-                            <SelectItem value="09">09</SelectItem>
-                            <SelectItem value="10">10</SelectItem>
-                            <SelectItem value="11">11</SelectItem>
-                            <SelectItem value="12">12</SelectItem>
-                            <SelectItem value="13">13</SelectItem>
-                            <SelectItem value="14">14</SelectItem>
-                            <SelectItem value="15">15</SelectItem>
-                            <SelectItem value="16">16</SelectItem>
-                            <SelectItem value="17">17</SelectItem>
-                            <SelectItem value="18">18</SelectItem>
-                            <SelectItem value="19">19</SelectItem>
-                            <SelectItem value="20">20</SelectItem>
-                        </SelectContent>
-                    </Select>
-                </Field>
-                <Field label="TIPO DE VEÍCULO">
-                     <Select>
-                        <SelectTrigger><SelectValue placeholder="Selecione o tipo" /></SelectTrigger>
-                        <SelectContent>
-                            <SelectItem value="mo">MO</SelectItem>
-                            <SelectItem value="ap">AP</SelectItem>
-                            <SelectItem value="utilitaria">UTILITÁRIA</SelectItem>
-                            <SelectItem value="ca">CA</SelectItem>
-                            <SelectItem value="on">ON</SelectItem>
-                            <SelectItem value="car">CAR</SelectItem>
-                            <SelectItem value="ca-romeu-julieta">CA/ ROMEU E JULIETA</SelectItem>
-                            <SelectItem value="carretinha-reboque">CARETINHA/ REBOQUE</SelectItem>
-                        </SelectContent>
-                    </Select>
-                </Field>
-                <Field label="ESTADO DO PNEU">
-                    <Select>
-                        <SelectTrigger><SelectValue placeholder="Selecione o estado do pneu" /></SelectTrigger>
-                        <SelectContent>
-                            <SelectItem value="bom">Bom</SelectItem>
-                            <SelectItem value="regular">Regular</SelectItem>
-                            <SelectItem value="ruim">Ruim</SelectItem>
-                        </SelectContent>
-                    </Select>
-                </Field>
-                <Field label="TIPO DE CARGA"><Input placeholder="Ex: Vazio, Soja" /></Field>
-           </div>
-        </div>
-
-        {/* Condutor */}
-        <div className="space-y-4">
-            <h2 className="text-lg font-semibold text-primary border-b-2 border-primary pb-2">Condutor</h2>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                 <Field label="QRA DO CONDUTOR(A)"><Input placeholder="Nome do condutor" /></Field>
-                 <Field label="BAIXA FREQUÊNCIA">
-                    <Input 
-                      placeholder="(000) 00000-0000" 
-                      value={phoneNumber}
-                      onChange={handlePhoneChange}
-                      maxLength={15}
-                    />
-                 </Field>
-                 <Field label="OCUPANTES"><Input placeholder="Ex: 2 adultos, 1 criança" /></Field>
+        {vehicles.map((vehicle, index) => (
+          <div key={vehicle.id} className="space-y-4 border-2 border-dashed border-primary/50 p-4 rounded-lg relative">
+             {vehicles.length > 1 && (
+              <Button 
+                variant="destructive" 
+                size="icon" 
+                className="absolute -top-4 -right-4 rounded-full h-8 w-8"
+                onClick={() => removeVehicle(vehicle.id)}
+                >
+                <Trash2 className="h-4 w-4" />
+              </Button>
+            )}
+            {/* Dados do Veículo */}
+            <div className="space-y-4">
+              <h2 className="text-lg font-semibold text-primary border-b-2 border-primary pb-2">Dados do Veículo {index + 1}</h2>
+               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <Field label="MARCA"><Input placeholder="Ex: VW" value={vehicle.marca} onChange={e => handleVehicleChange(index, 'marca', e.target.value)}/></Field>
+                    <Field label="MODELO"><Input placeholder="Ex: Gol" value={vehicle.modelo} onChange={e => handleVehicleChange(index, 'modelo', e.target.value)} /></Field>
+                    <Field label="ANO"><Input placeholder="Ex: 2020" value={vehicle.ano} onChange={e => handleVehicleChange(index, 'ano', e.target.value)}/></Field>
+                    <Field label="COR"><Input placeholder="Ex: Branco" value={vehicle.cor} onChange={e => handleVehicleChange(index, 'cor', e.target.value)}/></Field>
+                    <Field label="PLACA"><Input placeholder="Ex: ABC-1234" value={vehicle.placa} onChange={e => handleVehicleChange(index, 'placa', e.target.value)}/></Field>
+                    <Field label="CIDADE EMPLACAMENTO"><Input placeholder="Ex: São Paulo" value={vehicle.cidade} onChange={e => handleVehicleChange(index, 'cidade', e.target.value)}/></Field>
+                    <Field label="VINDO DE"><Input placeholder="Ex: Rio de Janeiro" value={vehicle.vindoDe} onChange={e => handleVehicleChange(index, 'vindoDe', e.target.value)}/></Field>
+                    <Field label="INDO PARA"><Input placeholder="Ex: Belo Horizonte" value={vehicle.indoPara} onChange={e => handleVehicleChange(index, 'indoPara', e.target.value)}/></Field>
+                    <Field label="QUANTIDADE DE EIXOS">
+                        <Select value={vehicle.eixos} onValueChange={value => handleVehicleChange(index, 'eixos', value)}>
+                            <SelectTrigger><SelectValue placeholder="Selecione os eixos" /></SelectTrigger>
+                            <SelectContent>
+                                <SelectItem value="02">02</SelectItem>
+                                <SelectItem value="03">03</SelectItem>
+                                <SelectItem value="04">04</SelectItem>
+                                <SelectItem value="05">05</SelectItem>
+                                <SelectItem value="06">06</SelectItem>
+                                <SelectItem value="07">07</SelectItem>
+                                <SelectItem value="08">08</SelectItem>
+                                <SelectItem value="09">09</SelectItem>
+                                <SelectItem value="10">10</SelectItem>
+                                <SelectItem value="11">11</SelectItem>
+                                <SelectItem value="12">12</SelectItem>
+                                <SelectItem value="13">13</SelectItem>
+                                <SelectItem value="14">14</SelectItem>
+                                <SelectItem value="15">15</SelectItem>
+                                <SelectItem value="16">16</SelectItem>
+                                <SelectItem value="17">17</SelectItem>
+                                <SelectItem value="18">18</SelectItem>
+                                <SelectItem value="19">19</SelectItem>
+                                <SelectItem value="20">20</SelectItem>
+                            </SelectContent>
+                        </Select>
+                    </Field>
+                    <Field label="TIPO DE VEÍCULO">
+                         <Select value={vehicle.tipo} onValueChange={value => handleVehicleChange(index, 'tipo', value)}>
+                            <SelectTrigger><SelectValue placeholder="Selecione o tipo" /></SelectTrigger>
+                            <SelectContent>
+                                <SelectItem value="mo">MO</SelectItem>
+                                <SelectItem value="ap">AP</SelectItem>
+                                <SelectItem value="utilitaria">UTILITÁRIA</SelectItem>
+                                <SelectItem value="ca">CA</SelectItem>
+                                <SelectItem value="on">ON</SelectItem>
+                                <SelectItem value="car">CAR</SelectItem>
+                                <SelectItem value="ca-romeu-julieta">CA/ ROMEU E JULIETA</SelectItem>
+                                <SelectItem value="carretinha-reboque">CARETINHA/ REBOQUE</SelectItem>
+                            </SelectContent>
+                        </Select>
+                    </Field>
+                    <Field label="ESTADO DO PNEU">
+                        <Select value={vehicle.pneu} onValueChange={value => handleVehicleChange(index, 'pneu', value)}>
+                            <SelectTrigger><SelectValue placeholder="Selecione o estado do pneu" /></SelectTrigger>
+                            <SelectContent>
+                                <SelectItem value="bom">Bom</SelectItem>
+                                <SelectItem value="regular">Regular</SelectItem>
+                                <SelectItem value="ruim">Ruim</SelectItem>
+                            </SelectContent>
+                        </Select>
+                    </Field>
+                    <Field label="TIPO DE CARGA"><Input placeholder="Ex: Vazio, Soja" value={vehicle.carga} onChange={e => handleVehicleChange(index, 'carga', e.target.value)}/></Field>
+               </div>
             </div>
-            <Button variant="outline" className="w-full">
-                <PlusCircle className="mr-2 h-4 w-4" />
-                Adicionar Veículo
-            </Button>
-        </div>
+
+            {/* Condutor */}
+            <div className="space-y-4">
+                <h2 className="text-lg font-semibold text-primary border-b-2 border-primary pb-2">Condutor</h2>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                     <Field label="QRA DO CONDUTOR(A)"><Input placeholder="Nome do condutor" value={vehicle.condutor} onChange={e => handleVehicleChange(index, 'condutor', e.target.value)}/></Field>
+                     <Field label="BAIXA FREQUÊNCIA">
+                        <Input 
+                          placeholder="(00) 00000-0000" 
+                          value={vehicle.telefone}
+                          onChange={e => handleVehicleChange(index, 'telefone', e.target.value)}
+                          maxLength={15}
+                        />
+                     </Field>
+                     <Field label="OCUPANTES"><Input placeholder="Ex: 2 adultos, 1 criança" value={vehicle.ocupantes} onChange={e => handleVehicleChange(index, 'ocupantes', e.target.value)}/></Field>
+                </div>
+            </div>
+          </div>
+        ))}
+        
+        <Button variant="outline" className="w-full" type="button" onClick={addVehicle}>
+          <PlusCircle className="mr-2 h-4 w-4" />
+          Adicionar Veículo
+        </Button>
 
         {/* Outras Informações */}
         <div className="space-y-4">
