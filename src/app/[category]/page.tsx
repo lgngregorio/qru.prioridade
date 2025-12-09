@@ -36,7 +36,7 @@ function ReportForm() {
     "Pupilas": ["Isocóricas", "Anisocóricas", "Fotorreagentes", "Não fotorreagentes", "Mióse", "Midríase"],
     "Sinais e Sintomas": [
       "Afundamento de crânio", "Agitação", "Amnésia", "Apneia", "Bradicardia", "Bradipneia",
-      "Bronco Aspirando", "Cefaleia", "Ciaonose", "Convulsão", "Decorticação", "Descerebração",
+      "Bronco Aspirando", "Cefaleia", "Cianose", "Convulsão", "Decorticação", "Descerebração",
       "Deformidade", "Dispneia", "Dor local", "Edema", "Enfisema subcutâneo", "Entorse",
       "Hemorragia", "Hipertensão", "Hipotensão", "Luxação", "Parada cardiorrespiratória",
       "Priapismo", "Prurido", "Saturação", "Sudorese", "Taquicardia", "Taquipneia", "TCE",
@@ -63,20 +63,64 @@ function ReportForm() {
 
   return (
     <form className="space-y-8">
-      <div className="space-y-4">
-        <h3 className="text-lg font-semibold text-primary">Paciente encontrado no local?</h3>
-        <RadioGroup defaultValue="sim" className="flex gap-4">
-          <div className="flex items-center space-x-2">
-            <RadioGroupItem value="sim" id="paciente-sim" />
-            <Label htmlFor="paciente-sim">Sim</Label>
-          </div>
-          <div className="flex items-center space-x-2">
-            <RadioGroupItem value="nao" id="paciente-nao" />
-            <Label htmlFor="paciente-nao">Não</Label>
-          </div>
-        </RadioGroup>
+
+       <div className="space-y-2">
+        <Label htmlFor="nome-paciente">Nome do Paciente</Label>
+        <Input id="nome-paciente" placeholder="Digite o nome completo" />
+      </div>
+
+       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div className="space-y-2">
+            <Label htmlFor="idade-paciente">Idade</Label>
+            <Input id="idade-paciente" type="number" placeholder="Digite a idade" />
+        </div>
+        <div className="space-y-4">
+            <h3 className="text-sm font-medium">Sexo</h3>
+            <RadioGroup defaultValue="masculino" className="flex gap-4">
+            <div className="flex items-center space-x-2">
+                <RadioGroupItem value="masculino" id="sexo-masculino" />
+                <Label htmlFor="sexo-masculino">Masculino</Label>
+            </div>
+            <div className="flex items-center space-x-2">
+                <RadioGroupItem value="feminino" id="sexo-feminino" />
+                <Label htmlFor="sexo-feminino">Feminino</Label>
+            </div>
+            </RadioGroup>
+        </div>
+       </div>
+
+      <div className="space-y-2">
+        <Label htmlFor="cpf-paciente">RG / CPF do Paciente</Label>
+        <Input id="cpf-paciente" placeholder="Digite o RG ou CPF" />
+      </div>
+
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div className="space-y-2">
+            <Label htmlFor="telefone-paciente">Telefone</Label>
+            <Input id="telefone-paciente" type="tel" placeholder="(00) 00000-0000" />
+        </div>
+        <div className="space-y-2">
+            <Label htmlFor="local-ocorrencia">Local da ocorrência</Label>
+            <Input id="local-ocorrencia" placeholder="Digite o local" />
+        </div>
       </div>
       
+      <Separator />
+
+      <h3 className="text-lg font-semibold text-primary">Acompanhante</h3>
+
+      <div className="space-y-2">
+        <Label htmlFor="nome-acompanhante">Nome</Label>
+        <Input id="nome-acompanhante" placeholder="Digite o nome do acompanhante" />
+      </div>
+
+      <div className="space-y-2">
+        <Label htmlFor="relacao-paciente">Relação</Label>
+        <Input id="relacao-paciente" placeholder="Ex: Pai, Mãe, Irmão" />
+      </div>
+      
+      <Separator />
+
       <div className="space-y-2">
         <Label htmlFor="tipo-ocorrencia">Tipo de Ocorrência</Label>
         <Select>
@@ -84,84 +128,38 @@ function ReportForm() {
             <SelectValue placeholder="Selecione o tipo" />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="clinico">Clínico</SelectItem>
-            <SelectItem value="trauma">Trauma</SelectItem>
-            <SelectItem value="psiquiatrico">Psiquiátrico</SelectItem>
+            <SelectItem value="causado-por-animais">Causado por animais</SelectItem>
+            <SelectItem value="com-meio-de-transporte">Com meio de transporte</SelectItem>
+            <SelectItem value="desmoronamento-deslizamento">Desmoronamento / Deslizamento</SelectItem>
+            <SelectItem value="emergencia-medica">Emergência médica</SelectItem>
+            <SelectItem value="queda-de-altura">Queda de altura</SelectItem>
+            <SelectItem value="tentativa-de-suicidio">Tentativa de suicídio</SelectItem>
+            <SelectItem value="queda-propria-altura">Queda própria altura</SelectItem>
+            <SelectItem value="afogamento">Afogamento</SelectItem>
+            <SelectItem value="agressao">Agressão</SelectItem>
+            <SelectItem value="atropelamento">Atropelamento</SelectItem>
+            <SelectItem value="choque-eletrico">Choque elétrico</SelectItem>
+            <SelectItem value="desabamento">Desabamento</SelectItem>
+            <SelectItem value="domestico">Doméstico</SelectItem>
+            <SelectItem value="esportivo">Esportivo</SelectItem>
+            <SelectItem value="intoxicacao">Intoxicação</SelectItem>
+            <SelectItem value="queda-de-bicicleta">Queda de bicicleta</SelectItem>
+            <SelectItem value="queda-de-moto">Queda de moto</SelectItem>
+            <SelectItem value="trabalho">Trabalho</SelectItem>
+            <SelectItem value="transferencia">Transferência</SelectItem>
+            <SelectItem value="outro">Outro</SelectItem>
           </SelectContent>
         </Select>
-      </div>
-
-      <div className="space-y-4">
-        <h3 className="text-lg font-semibold">Sexo</h3>
-        <RadioGroup defaultValue="masculino" className="flex gap-4">
-          <div className="flex items-center space-x-2">
-            <RadioGroupItem value="masculino" id="sexo-masculino" />
-            <Label htmlFor="sexo-masculino">Masculino</Label>
-          </div>
-          <div className="flex items-center space-x-2">
-            <RadioGroupItem value="feminino" id="sexo-feminino" />
-            <Label htmlFor="sexo-feminino">Feminino</Label>
-          </div>
-        </RadioGroup>
-      </div>
-
-      <div className="space-y-2">
-        <Label htmlFor="nome-paciente">Nome do Paciente</Label>
-        <Input id="nome-paciente" placeholder="Digite o nome completo" />
-      </div>
-      
-      <div className="space-y-2">
-        <Label htmlFor="idade-paciente">Idade do Paciente</Label>
-        <Input id="idade-paciente" type="number" placeholder="Digite a idade" />
-      </div>
-
-       <div className="space-y-2">
-        <Label htmlFor="cpf-paciente">CPF/RG do Paciente</Label>
-        <Input id="cpf-paciente" placeholder="Digite o CPF ou RG" />
-      </div>
-
-      <div className="space-y-2">
-        <Label htmlFor="nome-hospital">Nome do hospital</Label>
-        <Input id="nome-hospital" placeholder="Digite o nome do hospital" />
-      </div>
-
-      <div className="space-y-4">
-        <h3 className="text-lg font-semibold">Acompanhante no local?</h3>
-        <RadioGroup defaultValue="sim" className="flex gap-4">
-          <div className="flex items-center space-x-2">
-            <RadioGroupItem value="sim" id="acompanhante-sim" />
-            <Label htmlFor="acompanhante-sim">Sim</Label>
-          </div>
-          <div className="flex items-center space-x-2">
-            <RadioGroupItem value="nao" id="acompanhante-nao" />
-            <Label htmlFor="acompanhante-nao">Não</Label>
-          </div>
-        </RadioGroup>
-      </div>
-      
-      <div className="space-y-2">
-        <Label htmlFor="nome-acompanhante">Nome do acompanhante</Label>
-        <Input id="nome-acompanhante" placeholder="Digite o nome do acompanhante" />
-      </div>
-
-      <div className="space-y-2">
-        <Label htmlFor="relacao-paciente">Relação com o paciente</Label>
-        <Input id="relacao-paciente" placeholder="Ex: Pai, Mãe, Irmão" />
-      </div>
-
-      <div className="space-y-2">
-        <Label htmlFor="telefone-acompanhante">Telefone do acompanhante</Label>
-        <Input id="telefone-acompanhante" type="tel" placeholder="(00) 00000-0000" />
       </div>
 
       <Separator />
 
       <div className="space-y-6">
-        <h3 className="text-lg font-semibold text-primary">SINAIS E SINTOMAS</h3>
-        {Object.entries(checkboxItems).slice(0, 4).map(([title, items]) => (
+        <h3 className="text-lg font-semibold text-primary">Avaliação do Paciente (Glasgow)</h3>
+        {Object.entries(checkboxItems).slice(0, 3).map(([title, items]) => (
           <div key={title} className="space-y-3">
             <h4 className="font-medium">{title}</h4>
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+            <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
               {items.map(item => (
                 <div key={item} className="flex items-center space-x-2">
                   <Checkbox id={`${title}-${item}`} />
@@ -175,9 +173,23 @@ function ReportForm() {
       
       <Separator />
 
+       <div className="space-y-3">
+          <h4 className="font-medium text-primary">Sinais e Sintomas</h4>
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+            {checkboxItems["Sinais e Sintomas"].map(item => (
+              <div key={item} className="flex items-center space-x-2">
+                <Checkbox id={`sintoma-${item}`} />
+                <Label htmlFor={`sintoma-${item}`} className="font-normal">{item}</Label>
+              </div>
+            ))}
+          </div>
+        </div>
+
+      <Separator />
+
       <div className="space-y-6">
-          <h3 className="text-lg font-semibold text-primary">SINAIS VITAIS</h3>
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
+          <h3 className="text-lg font-semibold text-primary">Sinais Vitais</h3>
+          <div className="grid grid-cols-2 md:grid-cols-3 gap-6">
               <div className="space-y-2">
                   <Label>Pressão Arterial</Label>
                   <div className="flex items-center gap-2">
@@ -197,34 +209,34 @@ function ReportForm() {
                   <Input placeholder="%" />
               </div>
               <div className="space-y-2">
-                  <Label>HGT</Label>
-                  <Input placeholder="mg/dL" />
-              </div>
-              <div className="space-y-2">
                   <Label>Temperatura</Label>
                   <Input placeholder="ºC" />
               </div>
+               <div className="space-y-2">
+                  <Label>HGT</Label>
+                  <Input placeholder="mg/dL" />
+              </div>
           </div>
       </div>
-
+      
       <Separator />
 
-       <div className="space-y-3">
-          <h4 className="font-medium text-primary">Sinais e Sintomas (Checklist)</h4>
-          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-            {checkboxItems["Sinais e Sintomas"].map(item => (
-              <div key={item} className="flex items-center space-x-2">
-                <Checkbox id={`sintoma-${item}`} />
-                <Label htmlFor={`sintoma-${item}`} className="font-normal">{item}</Label>
-              </div>
-            ))}
-          </div>
+      <div className="space-y-3">
+        <h4 className="font-medium text-primary">Pupilas</h4>
+        <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+          {checkboxItems["Pupilas"].map(item => (
+            <div key={item} className="flex items-center space-x-2">
+              <Checkbox id={`pupila-${item}`} />
+              <Label htmlFor={`pupila-${item}`} className="font-normal">{item}</Label>
+            </div>
+          ))}
         </div>
+      </div>
 
       <Separator />
       
       <div className="space-y-3">
-          <h4 className="font-medium text-primary">Problemas encontrados suspeitos</h4>
+          <h4 className="font-medium text-primary">Problemas Encontrados</h4>
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
             {["Psiquiátrico", "Respiratório", "Diabetes", "Obstétrico", "Cardiovascular", "Outro"].map(item => (
               <div key={item} className="flex items-center space-x-2">
@@ -236,9 +248,16 @@ function ReportForm() {
         </div>
 
       <Separator />
+
+      <div className="space-y-2">
+        <Label htmlFor="obs-medicao">Anamnese / Observações importantes</Label>
+        <Textarea id="obs-medicao" placeholder="Descreva as informações relevantes" rows={5} />
+      </div>
+
+      <Separator />
       
       <div className="space-y-3">
-          <h4 className="font-medium text-primary">Procedimentos efetuados</h4>
+          <h4 className="font-medium text-primary">Procedimentos Efetuados</h4>
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
             {checkboxItems["Procedimentos efetuados"].map(item => (
               <div key={item} className="flex items-center space-x-2">
@@ -248,11 +267,11 @@ function ReportForm() {
             ))}
           </div>
         </div>
-
+      
       <Separator />
       
        <div className="space-y-3">
-          <h4 className="font-medium text-primary">Materiais utilizados descartáveis</h4>
+          <h4 className="font-medium text-primary">Materiais Utilizados (Descartáveis)</h4>
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
             {checkboxItems["Materiais utilizados descartáveis"].map(item => (
               <div key={item} className="flex items-center space-x-2">
@@ -266,7 +285,7 @@ function ReportForm() {
       <Separator />
 
        <div className="space-y-3">
-          <h4 className="font-medium text-primary">Materiais utilizados (deixados no hospital)</h4>
+          <h4 className="font-medium text-primary">Materiais Utilizados (Deixados no Hospital)</h4>
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
             {checkboxItems["Materiais utilizados (deixados no hospital)"].map(item => (
               <div key={item} className="flex items-center space-x-2">
@@ -279,27 +298,23 @@ function ReportForm() {
 
       <Separator />
 
+      <h3 className="text-lg font-semibold text-primary">Equipe de Atendimento</h3>
+
       <div className="space-y-2">
-        <Label htmlFor="obs-medicao">Anamnese / Observações importantes</Label>
-        <Textarea id="obs-medicao" placeholder="Descreva as informações relevantes" rows={5} />
+        <Label>MÉDICO REGULADOR</Label>
+        <Input placeholder="Nome do médico" />
+      </div>
+      <div className="space-y-2">
+        <Label>DEMANDANTE</Label>
+        <Input placeholder="Nome do demandante" />
+      </div>
+      <div className="space-y-2">
+        <Label>EQUIPE</Label>
+        <Input placeholder="Nomes da equipe" />
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <div className="space-y-2">
-          <Label>MÉDICO REGULADOR</Label>
-          <Input placeholder="Nome do médico" />
-        </div>
-        <div className="space-y-2">
-          <Label>CÓDIGO P/ OCORRÊNCIA</Label>
-          <Input placeholder="Código" />
-        </div>
-        <div className="space-y-2">
-          <Label>CÓDIGO P/ SIAS</Label>
-          <Input placeholder="Código SIAS" />
-        </div>
-      </div>
-      
-      <div className="flex flex-col md:flex-row gap-4">
+
+      <div className="flex flex-col md:flex-row gap-4 pt-8">
         <Button size="lg" className="w-full md:w-auto flex-1 bg-green-600 hover:bg-green-700 rounded-full" type="submit">
           Salvar
         </Button>
