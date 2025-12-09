@@ -420,10 +420,25 @@ function VeiculoAbandonadoForm() {
                     <Select>
                         <SelectTrigger><SelectValue placeholder="Selecione os eixos" /></SelectTrigger>
                         <SelectContent>
-                            <SelectItem value="2">2</SelectItem>
-                            <SelectItem value="3">3</SelectItem>
-                            <SelectItem value="4">4</SelectItem>
-                            <SelectItem value="5">5 ou mais</SelectItem>
+                            <SelectItem value="02">02</SelectItem>
+                            <SelectItem value="03">03</SelectItem>
+                            <SelectItem value="04">04</SelectItem>
+                            <SelectItem value="05">05</SelectItem>
+                            <SelectItem value="06">06</SelectItem>
+                            <SelectItem value="07">07</SelectItem>
+                            <SelectItem value="08">08</SelectItem>
+                            <SelectItem value="09">09</SelectItem>
+                            <SelectItem value="10">10</SelectItem>
+                            <SelectItem value="11">11</SelectItem>
+                            <SelectItem value="12">12</SelectItem>
+                            <SelectItem value="13">13</SelectItem>
+                            <SelectItem value="14">14</SelectItem>
+                            <SelectItem value="15">15</SelectItem>
+                            <SelectItem value="16">16</SelectItem>
+                            <SelectItem value="17">17</SelectItem>
+                            <SelectItem value="18">18</SelectItem>
+                            <SelectItem value="19">19</SelectItem>
+                            <SelectItem value="20">20</SelectItem>
                         </SelectContent>
                     </Select>
                 </Field>
