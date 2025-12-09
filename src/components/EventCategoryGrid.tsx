@@ -22,14 +22,14 @@ export default function EventCategoryGrid({
       {categories.map((category) => (
         <Link href={`/${category.slug}`} key={category.slug} className="group">
           <Card className="h-full text-center shadow-sm rounded-lg border bg-card">
-            <CardHeader className="flex flex-col items-center justify-center p-2 aspect-[3/4]">
+            <CardHeader className="flex flex-col items-center justify-center p-1 aspect-[3/4]">
               <div
-                className="w-8 h-8 rounded-full mb-1 flex items-center justify-center"
+                className="w-7 h-7 rounded-full mb-1 flex items-center justify-center"
                 style={{ backgroundColor: category.color }}
               >
                 <category.icon className="h-4 w-4 text-white" />
               </div>
-              <CardTitle className="text-[10px] font-medium text-card-foreground leading-tight">
+              <CardTitle className="text-[9px] font-medium text-card-foreground leading-tight">
                 {category.name.split(' ').map((word, index) => <div key={index}>{word}</div>)}
               </CardTitle>
             </CardHeader>
