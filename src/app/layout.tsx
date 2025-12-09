@@ -10,6 +10,8 @@ import {
   SidebarInset,
 } from '@/components/ui/sidebar';
 import AppSidebar from '@/components/AppSidebar';
+import { FirebaseProvider } from '@/firebase/provider';
+import FirebaseErrorListener from '@/components/FirebaseErrorListener';
 
 export default function RootLayout({
   children,
@@ -35,13 +37,16 @@ export default function RootLayout({
           'font-body antialiased min-h-screen bg-background dark'
         )}
       >
-        <SidebarProvider>
-          <Sidebar>
-            <AppSidebar />
-          </Sidebar>
-          <SidebarInset>{children}</SidebarInset>
-        </SidebarProvider>
-        <Toaster />
+        <FirebaseProvider>
+          <FirebaseErrorListener />
+          <SidebarProvider>
+            <Sidebar>
+              <AppSidebar />
+            </Sidebar>
+            <SidebarInset>{children}</SidebarInset>
+          </SidebarProvider>
+          <Toaster />
+        </FirebaseProvider>
       </body>
     </html>
   );

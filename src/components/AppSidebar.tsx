@@ -61,8 +61,8 @@ export default function AppSidebar() {
             </SidebarMenuButton>
           </SidebarMenuItem>
           <SidebarMenuItem>
-            <SidebarMenuButton asChild>
-              <Link href="#">
+            <SidebarMenuButton asChild isActive={pathname === '/historico'}>
+              <Link href="/historico">
                 <History />
                 Histórico de Ocorrências
               </Link>

@@ -1,0 +1,36 @@
+{
+  "entities": {
+    "Report": {
+      "title": "Report",
+      "description": "Represents a report submitted by a user.",
+      "type": "object",
+      "properties": {
+        "category": {
+          "type": "string",
+          "description": "The category of the report (e.g., 'to-01')."
+        },
+        "formData": {
+          "type": "object",
+          "description": "The data from the form, which can vary."
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "The timestamp when the report was created."
+        }
+      },
+      "required": ["category", "formData", "createdAt"]
+    }
+  },
+  "auth": {
+    "providers": ["anonymous"]
+  },
+  "firestore": {
+    "/reports/{reportId}": {
+      "schema": {
+        "$ref": "#/backend/entities/Report"
+      },
+      "description": "Stores individual reports."
+    }
+  }
+}

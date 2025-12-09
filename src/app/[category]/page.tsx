@@ -1,10 +1,11 @@
 'use client';
 
-import { useParams } from 'next/navigation';
+import { useParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { ArrowLeft, Send, PlusCircle, Share, Save, Trash2 } from 'lucide-react';
+import { ArrowLeft, Send, PlusCircle, Share, Save, Trash2, Edit, Loader2 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useState } from 'react';
+import { collection, addDoc, serverTimestamp } from 'firebase/firestore';
 
 import { eventCategories } from '@/lib/events';
 import { Button } from '@/components/ui/button';
@@ -24,6 +25,8 @@ import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import React from 'react';
+import { useFirestore } from '@/firebase';
+import { useToast } from '@/hooks/use-toast';
 
 
 function FormSection({ title, children, className }: { title: string, children: React.ReactNode, className?: string }) {
@@ -337,46 +340,72 @@ function ReportForm() {
 }
 
 
-function VeiculoAbandonadoForm() {
-  type Vehicle = {
-    id: number;
-    marca: string;
-    modelo: string;
-    ano: string;
-    cor: string;
-    placa: string;
-    cidade: string;
-    vindoDe: string;
-    indoPara: string;
-    eixos: string;
-    tipo: string;
-    pneu: string;
-    carga: string;
-    condutor: string;
-    telefone: string;
-    ocupantes: string;
-  };
+type GeneralInfo = {
+  rodovia: string;
+  ocorrencia: string;
+  tipoPane: string;
+  qth: string;
+  sentido: string;
+  localArea: string;
+};
+
+type Vehicle = {
+  id: number;
+  marca: string;
+  modelo: string;
+  ano: string;
+  cor: string;
+  placa: string;
+  cidade: string;
+  vindoDe: string;
+  indoPara: string;
+  eixos: string;
+  tipo: string;
+  pneu: string;
+  carga: string;
+  condutor: string;
+  telefone: string;
+  ocupantes: string;
+};
+
+type OtherInfo = {
+  auxilios: string;
+  observacoes: string;
+  numeroOcorrencia: string;
+};
+
+function VeiculoAbandonadoForm({ categorySlug }: { categorySlug: string }) {
+  const firestore = useFirestore();
+  const router = useRouter();
+  const { toast } = useToast();
+  const [isSaving, setIsSaving] = useState(false);
+
+  const [generalInfo, setGeneralInfo] = useState<GeneralInfo>({
+    rodovia: '',
+    ocorrencia: 'TO 01',
+    tipoPane: '',
+    qth: '',
+    sentido: '',
+    localArea: '',
+  });
 
   const [vehicles, setVehicles] = useState<Vehicle[]>([
     {
-      id: 1,
-      marca: '',
-      modelo: '',
-      ano: '',
-      cor: '',
-      placa: '',
-      cidade: '',
-      vindoDe: '',
-      indoPara: '',
-      eixos: '',
-      tipo: '',
-      pneu: '',
-      carga: '',
-      condutor: '',
-      telefone: '',
-      ocupantes: '',
+      id: 1, marca: '', modelo: '', ano: '', cor: '', placa: '', cidade: '',
+      vindoDe: '', indoPara: '', eixos: '', tipo: '', pneu: '', carga: '',
+      condutor: '', telefone: '', ocupantes: ''
     }
   ]);
+
+  const [otherInfo, setOtherInfo] = useState<OtherInfo>({
+    auxilios: '',
+    observacoes: '',
+    numeroOcorrencia: '',
+  });
+
+  const handleGeneralInfoChange = (field: keyof GeneralInfo, value: string) => {
+    setGeneralInfo(prev => ({ ...prev, [field]: value }));
+  };
 
   const handleVehicleChange = (index: number, field: keyof Vehicle, value: string) => {
     const newVehicles = [...vehicles];
@@ -386,7 +415,11 @@ function VeiculoAbandonadoForm() {
     (newVehicles[index] as any)[field] = value;
     setVehicles(newVehicles);
   };
-  
+
+  const handleOtherInfoChange = (field: keyof OtherInfo, value: string) => {
+    setOtherInfo(prev => ({ ...prev, [field]: value }));
+  };
+
   const addVehicle = () => {
     setVehicles([...vehicles, {
       id: vehicles.length > 0 ? Math.max(...vehicles.map(v => v.id)) + 1 : 1,
@@ -401,32 +434,69 @@ function VeiculoAbandonadoForm() {
   };
   
   const formatPhoneNumber = (value: string) => {
-    let rawValue = value.replace(/\D/g, '');
-    if (rawValue.length > 11) {
-      rawValue = rawValue.substring(0, 11);
+    if (!value) return value;
+    const phoneNumber = value.replace(/[^\d]/g, '');
+    const phoneNumberLength = phoneNumber.length;
+    if (phoneNumberLength < 3) return `(${phoneNumber}`;
+    if (phoneNumberLength < 8) {
+      return `(${phoneNumber.slice(0, 2)}) ${phoneNumber.slice(2)}`;
     }
-    let formattedValue = '';
-    if (rawValue.length > 0) {
-      formattedValue = '(' + rawValue.substring(0, 2);
+    return `(${phoneNumber.slice(0, 2)}) ${phoneNumber.slice(2, 7)}-${phoneNumber.slice(7, 11)}`;
+  };
+  
+  const handleSave = async () => {
+    if (!firestore) {
+      toast({
+        variant: "destructive",
+        title: "Erro",
+        description: "Não foi possível conectar ao banco de dados.",
+      });
+      return;
     }
-    if (rawValue.length > 2) {
-      formattedValue += ') ' + rawValue.substring(2, 7);
+
+    setIsSaving(true);
+    try {
+      const reportData = {
+        category: categorySlug,
+        formData: {
+          generalInfo,
+          vehicles,
+          otherInfo,
+        },
+        createdAt: serverTimestamp(),
+      };
+      await addDoc(collection(firestore, 'reports'), reportData);
+      
+      toast({
+        title: "Sucesso!",
+        description: "Relatório salvo com sucesso.",
+        className: "bg-green-600 text-white",
+      });
+      
+      router.push('/historico');
+
+    } catch (error) {
+      console.error("Error saving report: ", error);
+      toast({
+        variant: "destructive",
+        title: "Erro ao salvar",
+        description: "Ocorreu um erro ao salvar o relatório. Tente novamente.",
+      });
+    } finally {
+      setIsSaving(false);
     }
-    if (rawValue.length > 7) {
-      formattedValue += '-' + rawValue.substring(7);
-    }
-    return formattedValue || rawValue;
   };
 
+
   return (
-    <div className="w-full max-w-2xl mx-auto p-4 sm:p-6">
-      <form className="space-y-8">
+    <div className="w-full max-w-4xl mx-auto p-4 sm:p-6">
+      <form className="space-y-8" onSubmit={(e) => e.preventDefault()}>
         {/* Informações Gerais */}
         <div className="space-y-4">
           <h2 className="text-lg font-semibold text-primary border-b-2 border-primary pb-2">Informações Gerais</h2>
-          <div className="grid grid-cols-1 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <Field label="RODOVIA">
-                <Select>
+                <Select value={generalInfo.rodovia} onValueChange={(value) => handleGeneralInfoChange('rodovia', value)}>
                     <SelectTrigger>
                         <SelectValue placeholder="Selecione a rodovia" />
                     </SelectTrigger>
@@ -438,10 +508,10 @@ function VeiculoAbandonadoForm() {
                 </Select>
             </Field>
             <Field label="OCORRÊNCIA">
-                <Input defaultValue="TO 01" disabled />
+                <Input value={generalInfo.ocorrencia} disabled />
             </Field>
             <Field label="TIPO DE PANE">
-                 <Select>
+                 <Select value={generalInfo.tipoPane} onValueChange={(value) => handleGeneralInfoChange('tipoPane', value)}>
                     <SelectTrigger>
                         <SelectValue placeholder="Selecione o tipo de pane" />
                     </SelectTrigger>
@@ -457,10 +527,10 @@ function VeiculoAbandonadoForm() {
                 </Select>
             </Field>
             <Field label="QTH (LOCAL)">
-                <Input placeholder="Ex: km 125 da MS-112" />
+                <Input placeholder="Ex: km 125 da MS-112" value={generalInfo.qth} onChange={(e) => handleGeneralInfoChange('qth', e.target.value)}/>
             </Field>
              <Field label="SENTIDO">
-                <Select>
+                <Select value={generalInfo.sentido} onValueChange={(value) => handleGeneralInfoChange('sentido', value)}>
                     <SelectTrigger>
                         <SelectValue placeholder="Selecione o sentido" />
                     </SelectTrigger>
@@ -471,7 +541,7 @@ function VeiculoAbandonadoForm() {
                 </Select>
             </Field>
             <Field label="LOCAL/ÁREA">
-                <Select>
+                <Select value={generalInfo.localArea} onValueChange={(value) => handleGeneralInfoChange('localArea', value)}>
                     <SelectTrigger>
                         <SelectValue placeholder="Selecione o local/área" />
                     </SelectTrigger>
@@ -494,6 +564,7 @@ function VeiculoAbandonadoForm() {
                 size="icon" 
                 className="absolute -top-4 -right-4 rounded-full h-8 w-8"
                 onClick={() => removeVehicle(vehicle.id)}
+                type="button"
                 >
                 <Trash2 className="h-4 w-4" />
               </Button>
@@ -593,13 +664,13 @@ function VeiculoAbandonadoForm() {
         <div className="space-y-4">
           <h2 className="text-lg font-semibold text-primary border-b-2 border-primary pb-2">Outras Informações</h2>
           <Field label="AUXÍLIOS/PR">
-            <Textarea placeholder="Descreva os auxílios prestados" />
+            <Textarea placeholder="Descreva os auxílios prestados" value={otherInfo.auxilios} onChange={(e) => handleOtherInfoChange('auxilios', e.target.value)} />
           </Field>
           <Field label="OBSERVAÇÕES">
-            <Textarea placeholder="Descreva detalhes adicionais sobre a ocorrência" />
+            <Textarea placeholder="Descreva detalhes adicionais sobre a ocorrência" value={otherInfo.observacoes} onChange={(e) => handleOtherInfoChange('observacoes', e.target.value)} />
           </Field>
            <Field label="NÚMERO DA OCORRÊNCIA">
-            <Input placeholder="Número de controle interno" />
+            <Input placeholder="Número de controle interno" value={otherInfo.numeroOcorrencia} onChange={(e) => handleOtherInfoChange('numeroOcorrencia', e.target.value)} />
           </Field>
         </div>
 
@@ -608,9 +679,9 @@ function VeiculoAbandonadoForm() {
             <Share className="mr-2 h-4 w-4" />
             Compartilhar WhatsApp
           </Button>
-          <Button size="lg" className="flex-none w-48 bg-primary hover:bg-primary/90">
-            <Save className="mr-2 h-4 w-4" />
-            Salvar
+          <Button size="lg" className="flex-none w-48 bg-primary hover:bg-primary/90" onClick={handleSave} disabled={isSaving}>
+            {isSaving ? <Loader2 className="animate-spin" /> : <Save className="mr-2 h-4 w-4" />}
+            {isSaving ? 'Salvando...' : 'Salvar'}
           </Button>
         </div>
       </form>
@@ -658,7 +729,7 @@ export default function ReportPage() {
             </CardDescription>
           </CardHeader>
           <CardContent className="p-0 md:px-6 md:pb-6">
-            {isTo01 ? <VeiculoAbandonadoForm /> : <ReportForm />}
+            {isTo01 ? <VeiculoAbandonadoForm categorySlug={category.slug} /> : <ReportForm />}
           </CardContent>
         </Card>
       </div>
