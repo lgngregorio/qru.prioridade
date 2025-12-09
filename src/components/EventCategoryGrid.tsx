@@ -11,27 +11,15 @@ function formatCategoryName(name: string) {
   if (words.length <= 2) {
     return name;
   }
-  // This logic is simple, it can be improved if needed
-  // For now, it joins words trying to make two lines
-  if (words.length === 3) {
-    return (
-      <>
-        {words.slice(0, 2).join(' ')}
-        <br />
-        {words[2]}
-      </>
-    );
-  }
-   if (words.length === 4) {
-    return (
-      <>
-        {words.slice(0, 2).join(' ')}
-        <br />
-        {words.slice(2, 4).join(' ')}
-      </>
-    );
-  }
-  return name;
+  const firstLine = words.slice(0, 2).join(' ');
+  const secondLine = words.slice(2).join(' ');
+  return (
+    <>
+      {firstLine}
+      <br />
+      {secondLine}
+    </>
+  );
 }
 
 
