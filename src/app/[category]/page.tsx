@@ -352,7 +352,6 @@ function VeiculoAbandonadoForm() {
                         <SelectItem value="ms-112">MS-112</SelectItem>
                         <SelectItem value="br-158">BR-158</SelectItem>
                         <SelectItem value="ms-306">MS-306</SelectItem>
-                        <SelectItem value="br-163">BR-163</SelectItem>
                     </SelectContent>
                 </Select>
             </Field>
@@ -525,7 +524,7 @@ export default function ReportPage() {
         </div>
         <Card className="w-full max-w-4xl mx-auto shadow-none rounded-none border-0 bg-transparent">
           <CardHeader className="text-center px-4 pb-4 md:px-6 md:pb-6">
-            <CardTitle className="text-3xl font-bold text-primary">
+            <CardTitle className="text-3xl font-bold text-primary tracking-wide">
               {title}
             </CardTitle>
             <CardDescription className="text-base mt-1 text-muted-foreground">
