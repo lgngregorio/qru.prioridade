@@ -434,7 +434,7 @@ function VeiculoAbandonadoForm() {
                              <SelectItem value="onibus">Ônibus</SelectItem>
                         </SelectContent>
                     </Select>
-                </Field>>
+                </Field>
                 <Field label="ESTADO DO PNEU">
                     <Select>
                         <SelectTrigger><SelectValue placeholder="Selecione o estado do pneu" /></SelectTrigger>
