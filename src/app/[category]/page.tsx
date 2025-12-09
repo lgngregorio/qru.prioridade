@@ -396,7 +396,8 @@ function VeiculoAbandonadoForm() {
                     <SelectContent>
                         <SelectItem value="acostamento">Acostamento</SelectItem>
                         <SelectItem value="faixa_rolamento">Faixa de Rolamento</SelectItem>
-                        <SelectItem value="ponto_onibus">Ponto de Ônibus</SelectItem>
+                        <SelectItem value="terceira_faixa">Terceira Faixa</SelectItem>
+                        <SelectItem value="area_dominio">Área de Domínio</SelectItem>
                     </SelectContent>
                 </Select>
             </Field>
