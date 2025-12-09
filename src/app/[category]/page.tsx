@@ -159,7 +159,7 @@ function ReportForm() {
         {Object.entries(checkboxItems).slice(0, 3).map(([title, items]) => (
           <div key={title} className="space-y-3">
             <h4 className="font-medium">{title}</h4>
-            <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
               {items.map(item => (
                 <div key={item} className="flex items-center space-x-2">
                   <Checkbox id={`${title}-${item}`} />
@@ -172,22 +172,22 @@ function ReportForm() {
       </div>
       
       <Separator />
-
-       <div className="space-y-3">
-          <h4 className="font-medium text-primary">Sinais e Sintomas</h4>
-          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-            {checkboxItems["Sinais e Sintomas"].map(item => (
-              <div key={item} className="flex items-center space-x-2">
-                <Checkbox id={`sintoma-${item}`} />
-                <Label htmlFor={`sintoma-${item}`} className="font-normal">{item}</Label>
-              </div>
-            ))}
-          </div>
+      
+      <div className="space-y-3">
+        <h4 className="font-medium text-primary">Pupilas</h4>
+        <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+          {checkboxItems["Pupilas"].map(item => (
+            <div key={item} className="flex items-center space-x-2">
+              <Checkbox id={`pupila-${item}`} />
+              <Label htmlFor={`pupila-${item}`} className="font-normal">{item}</Label>
+            </div>
+          ))}
         </div>
+      </div>
 
       <Separator />
-
-      <div className="space-y-6">
+      
+       <div className="space-y-6">
           <h3 className="text-lg font-semibold text-primary">Sinais Vitais</h3>
           <div className="grid grid-cols-2 md:grid-cols-3 gap-6">
               <div className="space-y-2">
@@ -209,39 +209,39 @@ function ReportForm() {
                   <Input placeholder="%" />
               </div>
               <div className="space-y-2">
-                  <Label>Temperatura</Label>
-                  <Input placeholder="ºC" />
-              </div>
-               <div className="space-y-2">
                   <Label>HGT</Label>
                   <Input placeholder="mg/dL" />
               </div>
+               <div className="space-y-2">
+                  <Label>Temperatura</Label>
+                  <Input placeholder="ºC" />
+              </div>
           </div>
       </div>
-      
-      <Separator />
-
-      <div className="space-y-3">
-        <h4 className="font-medium text-primary">Pupilas</h4>
-        <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-          {checkboxItems["Pupilas"].map(item => (
-            <div key={item} className="flex items-center space-x-2">
-              <Checkbox id={`pupila-${item}`} />
-              <Label htmlFor={`pupila-${item}`} className="font-normal">{item}</Label>
-            </div>
-          ))}
-        </div>
-      </div>
 
       <Separator />
-      
-      <div className="space-y-3">
+
+       <div className="space-y-3">
           <h4 className="font-medium text-primary">Problemas Encontrados</h4>
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
             {["Psiquiátrico", "Respiratório", "Diabetes", "Obstétrico", "Cardiovascular", "Outro"].map(item => (
               <div key={item} className="flex items-center space-x-2">
                 <Checkbox id={`problema-${item}`} />
                 <Label htmlFor={`problema-${item}`} className="font-normal">{item}</Label>
+              </div>
+            ))}
+          </div>
+        </div>
+
+      <Separator />
+      
+      <div className="space-y-3">
+          <h4 className="font-medium text-primary">Sinais e Sintomas</h4>
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+            {checkboxItems["Sinais e Sintomas"].map(item => (
+              <div key={item} className="flex items-center space-x-2">
+                <Checkbox id={`sintoma-${item}`} />
+                <Label htmlFor={`sintoma-${item}`} className="font-normal">{item}</Label>
               </div>
             ))}
           </div>
