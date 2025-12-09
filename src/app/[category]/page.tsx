@@ -364,11 +364,13 @@ function VeiculoAbandonadoForm() {
                         <SelectValue placeholder="Selecione o tipo de pane" />
                     </SelectTrigger>
                     <SelectContent>
-                        <SelectItem value="mecanica">Mecânica</SelectItem>
-                        <SelectItem value="eletrica">Elétrica</SelectItem>
-                        <SelectItem value="pneu">Pneu furado</SelectItem>
-                        <SelectItem value="combustivel">Falta de combustível</SelectItem>
-                        <SelectItem value="outra">Outra</SelectItem>
+                        <SelectItem value="tp01">TP01</SelectItem>
+                        <SelectItem value="tp02">TP02</SelectItem>
+                        <SelectItem value="tp03">TP03</SelectItem>
+                        <SelectItem value="tp04">TP04</SelectItem>
+                        <SelectItem value="tp05">TP05</SelectItem>
+                        <SelectItem value="tp07">TP07</SelectItem>
+                        <SelectItem value="nill">NILL</SelectItem>
                     </SelectContent>
                 </Select>
             </Field>
