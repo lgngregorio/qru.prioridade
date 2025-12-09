@@ -170,7 +170,7 @@ function ReportForm() {
           <Field label="CINEMÁTICA:"><Input /></Field>
           <div className="grid grid-cols-1 md:grid-cols-4 gap-2">
               <h4 className="font-bold text-xs col-span-full">CONDIÇÃO INICIAL:</h4>
-              <CheckboxGroup items={["ALERTA", "VERBALIZA", "ESTÍMULO DOLOROSO", "INCONSCIENTE", "DEAMBULANDO", "AO SOLO", "EJETADO", "ENCARCERADO/RETIDO"]} columns={4} />
+              <CheckboxGroup items={["ALERTA", "VERBALIZA", "ESTÍMulo DOLOROSO", "INCONSCIENTE", "DEAMBULANDO", "AO SOLO", "EJETADO", "ENCARCERADO/RETIDO"]} columns={4} />
           </div>
       </FormSection>
 
@@ -337,7 +337,7 @@ function ReportForm() {
 
 function VeiculoAbandonadoForm() {
   return (
-    <div className="w-full max-w-2xl mx-auto p-4 sm:p-6 bg-background text-foreground">
+    <div className="w-full max-w-2xl mx-auto p-4 sm:p-6 text-foreground">
       <form className="space-y-8">
         {/* Informações Gerais */}
         <div className="space-y-4">
@@ -434,7 +434,7 @@ function VeiculoAbandonadoForm() {
                              <SelectItem value="onibus">Ônibus</SelectItem>
                         </SelectContent>
                     </Select>
-                </Field>
+                </Field>>
                 <Field label="ESTADO DO PNEU">
                     <Select>
                         <SelectTrigger><SelectValue placeholder="Selecione o estado do pneu" /></SelectTrigger>
