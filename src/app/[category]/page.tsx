@@ -394,9 +394,9 @@ function VeiculoAbandonadoForm() {
                         <SelectValue placeholder="Selecione o local/área" />
                     </SelectTrigger>
                     <SelectContent>
-                        <SelectItem value="acostamento">Acostamento</SelectItem>
                         <SelectItem value="faixa_rolamento">Faixa de Rolamento</SelectItem>
                         <SelectItem value="terceira_faixa">Terceira Faixa</SelectItem>
+                        <SelectItem value="acostamento">Acostamento</SelectItem>
                         <SelectItem value="area_dominio">Área de Domínio</SelectItem>
                     </SelectContent>
                 </Select>
@@ -527,7 +527,7 @@ export default function ReportPage() {
         </div>
         <Card className="w-full max-w-4xl mx-auto shadow-none rounded-none border-0 bg-transparent">
           <CardHeader className="text-center px-4 pb-4 md:px-6 md:pb-6">
-            <CardTitle className="text-3xl font-bold text-primary font-headline">
+            <CardTitle className="text-3xl font-bold text-primary font-headline tracking-wide">
               {title}
             </CardTitle>
             <CardDescription className="text-base mt-1 text-muted-foreground">
