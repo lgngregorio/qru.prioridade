@@ -346,8 +346,8 @@ export default function ReportPage() {
 
 
   return (
-    <main className="flex min-h-screen flex-col items-center justify-start p-4 pt-12 md:p-12 lg:p-24">
-      <div className="w-full max-w-5xl">
+    <main className="flex min-h-screen flex-col items-center justify-start p-4 md:p-8">
+      <div className="w-full">
         <div className="mb-6 flex items-center gap-4">
           <SidebarTrigger className="md:hidden" />
           <Button asChild variant="outline" className="rounded-full">
@@ -357,8 +357,8 @@ export default function ReportPage() {
             </Link>
           </Button>
         </div>
-        <Card className="w-full shadow-lg rounded-2xl">
-          <CardHeader className="text-center p-8">
+        <Card className="w-full shadow-none rounded-none border-0 bg-transparent">
+          <CardHeader className="text-center p-0 md:p-4">
             <CardTitle className="text-3xl font-bold">
               {title}
             </CardTitle>
@@ -367,7 +367,7 @@ export default function ReportPage() {
             </CardDescription>
           </CardHeader>
           <Separator />
-          <CardContent className="p-8">
+          <CardContent className="p-0 md:p-8">
             <ReportForm />
           </CardContent>
         </Card>
