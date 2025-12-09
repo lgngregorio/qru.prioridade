@@ -11,8 +11,12 @@ function formatCategoryName(name: string) {
   if (words.length <= 2) {
     return name;
   }
-  const firstLine = words.slice(0, 2).join(' ');
-  const secondLine = words.slice(2).join(' ');
+  
+  // Find a good split point, trying to keep lines balanced
+  const midPoint = Math.ceil(words.length / 2);
+  const firstLine = words.slice(0, midPoint).join(' ');
+  const secondLine = words.slice(midPoint).join(' ');
+
   return (
     <>
       {firstLine}
