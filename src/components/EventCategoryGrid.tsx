@@ -6,6 +6,35 @@ type EventCategoryGridProps = {
   categories: EventCategory[];
 };
 
+function formatCategoryName(name: string) {
+  const words = name.split(' ');
+  if (words.length <= 2) {
+    return name;
+  }
+  // This logic is simple, it can be improved if needed
+  // For now, it joins words trying to make two lines
+  if (words.length === 3) {
+    return (
+      <>
+        {words.slice(0, 2).join(' ')}
+        <br />
+        {words[2]}
+      </>
+    );
+  }
+   if (words.length === 4) {
+    return (
+      <>
+        {words.slice(0, 2).join(' ')}
+        <br />
+        {words.slice(2, 4).join(' ')}
+      </>
+    );
+  }
+  return name;
+}
+
+
 export default function EventCategoryGrid({
   categories,
 }: EventCategoryGridProps) {
@@ -27,10 +56,10 @@ export default function EventCategoryGrid({
                 className="w-12 h-12 rounded-full mb-1 flex items-center justify-center"
                 style={{ backgroundColor: category.color }}
               >
-                <category.icon className="h-7 w-7 text-white" />
+                <category.icon className="h-8 w-8 text-white" />
               </div>
-              <CardTitle className="text-base font-bold text-card-foreground leading-tight">
-                {category.name.split(' ').map((word, index) => <div key={index}>{word}</div>)}
+              <CardTitle className="text-lg font-bold text-card-foreground leading-tight">
+                {formatCategoryName(category.name)}
               </CardTitle>
             </CardHeader>
           </Card>
