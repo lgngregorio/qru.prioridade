@@ -3,7 +3,7 @@
 
 import { useRouter } from 'next/navigation';
 import { Save, Share, Loader2 } from 'lucide-react';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { collection, addDoc, serverTimestamp } from 'firebase/firestore';
 import React from 'react';
 
@@ -77,6 +77,12 @@ export default function TO07Form({ categorySlug }: { categorySlug: string }) {
   const handleOtherInfoChange = (field: keyof OtherInfo, value: string) => {
     setOtherInfo(prev => ({ ...prev, [field]: value }));
   };
+
+  useEffect(() => {
+    if (otherInfo.destinacaoDoObjeto !== 'pr13') {
+      setOtherInfo(prev => ({ ...prev, qthExato: '' }));
+    }
+  }, [otherInfo.destinacaoDoObjeto]);
 
   
   const fillEmptyFields = (data: any): any => {
@@ -165,7 +171,9 @@ export default function TO07Form({ categorySlug }: { categorySlug: string }) {
     message += `AUXÍLIOS/PR: ${reportData.otherInfo.auxilios}\n`;
     message += `Observações: ${reportData.otherInfo.observacoes}\n`;
     message += `Destinação do Objeto: ${reportData.otherInfo.destinacaoDoObjeto}\n`;
-    message += `QTH Exato: ${reportData.otherInfo.qthExato}\n`;
+    if (reportData.otherInfo.destinacaoDoObjeto === 'pr13') {
+      message += `QTH Exato: ${reportData.otherInfo.qthExato}\n`;
+    }
     message += `Nº Ocorrência: ${reportData.otherInfo.numeroOcorrencia}\n`;
 
     const whatsappUrl = `https://wa.me/?text=${encodeURIComponent(message)}`;
@@ -253,9 +261,11 @@ export default function TO07Form({ categorySlug }: { categorySlug: string }) {
                     </SelectContent>
                 </Select>
             </Field>
-            <Field label={otherInfo.destinacaoDoObjeto || "QTH EXATO"}>
-                <Input className="text-xl placeholder:capitalize placeholder:text-sm" placeholder="Ex: Km 123" value={otherInfo.qthExato} onChange={(e) => handleOtherInfoChange('qthExato', e.target.value)}/>
-            </Field>
+            {otherInfo.destinacaoDoObjeto === 'pr13' && (
+              <Field label="QTH EXATO">
+                  <Input className="text-xl placeholder:capitalize placeholder:text-sm" placeholder="Ex: Km 123" value={otherInfo.qthExato} onChange={(e) => handleOtherInfoChange('qthExato', e.target.value)}/>
+              </Field>
+            )}
             <Field label="NÚMERO DA OCORRÊNCIA">
               <Input className="text-xl placeholder:capitalize placeholder:text-sm" placeholder="Número de controle interno" value={otherInfo.numeroOcorrencia} onChange={(e) => handleOtherInfoChange('numeroOcorrencia', e.target.value)} />
             </Field>
