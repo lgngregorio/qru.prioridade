@@ -300,7 +300,6 @@ export default function TO33Form({ categorySlug }: { categorySlug: string }) {
                         <SelectValue placeholder="Selecione o local/área" />
                     </SelectTrigger>
                     <SelectContent>
-                        <SelectItem value="acostamento">ACOSTAMENTO</SelectItem>
                         <SelectItem value="area_dominio">ÁREA DE DOMÍNIO</SelectItem>
                         <SelectItem value="area_dominio_acostamento">ÁREA DE DOMÍNIO/ACOSTAMENTO</SelectItem>
                     </SelectContent>
