@@ -291,7 +291,7 @@ function VeiculoAbandonadoForm({ categorySlug }: { categorySlug: string }) {
                 </Select>
             </Field>
             <Field label="QTH (LOCAL)">
-                <Input className="text-lg placeholder:capitalize placeholder:text-base" placeholder="Ex: km 125 da ms-112" value={generalInfo.qth} onChange={(e) => handleGeneralInfoChange('qth', e.target.value)}/>
+                <Input className="text-lg placeholder:capitalize placeholder:text-base" placeholder="Ex: Km 125 da MS-112" value={generalInfo.qth} onChange={(e) => handleGeneralInfoChange('qth', e.target.value)}/>
             </Field>
              <Field label="SENTIDO">
                 <Select value={generalInfo.sentido} onValueChange={(value) => handleGeneralInfoChange('sentido', value)}>
@@ -469,7 +469,7 @@ export default function ReportPage() {
 
   return (
     <main className="flex flex-col items-center">
-      <div className="w-full">
+      <div className="w-full max-w-4xl">
         <div className="p-4 md:p-6 mb-2 flex items-center gap-4">
           <SidebarTrigger className="md:hidden" />
           <Button asChild variant="outline" className="rounded-full uppercase text-base">
@@ -496,3 +496,5 @@ export default function ReportPage() {
     </main>
   );
 }
+
+    
