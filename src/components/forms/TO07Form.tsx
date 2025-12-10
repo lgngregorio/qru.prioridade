@@ -33,9 +33,8 @@ type GeneralInfo = {
   qth: string;
   sentido: string;
   localArea: string;
-  animal: string;
+  tipoDeObjeto: string;
   quantidade: string;
-  situacao: string;
 };
 
 type CaracteristicasEntorno = {
@@ -69,9 +68,8 @@ export default function TO07Form({ categorySlug }: { categorySlug: string }) {
     qth: '',
     sentido: '',
     localArea: '',
-    animal: '',
+    tipoDeObjeto: '',
     quantidade: '',
-    situacao: '',
   });
   
   const [caracteristicasEntorno, setCaracteristicasEntorno] = useState<CaracteristicasEntorno>({
@@ -191,9 +189,8 @@ export default function TO07Form({ categorySlug }: { categorySlug: string }) {
     message += `QTH (Local): ${reportData.generalInfo.qth}\n`;
     message += `Sentido: ${reportData.generalInfo.sentido}\n`;
     message += `Local/Área: ${reportData.generalInfo.localArea}\n`;
-    message += `Animal: ${reportData.generalInfo.animal}\n`;
-    message += `Quantidade: ${reportData.generalInfo.quantidade}\n`;
-    message += `Situação: ${reportData.generalInfo.situacao}\n\n`;
+    message += `Tipo de Objeto: ${reportData.generalInfo.tipoDeObjeto}\n`;
+    message += `Quantidade: ${reportData.generalInfo.quantidade}\n\n`;
 
     message += `*CARACTERÍSTICAS ENTORNO*\n`;
     message += `Entorno Norte: ${reportData.caracteristicasEntorno.entornoNorte}\n`;
@@ -266,23 +263,11 @@ export default function TO07Form({ categorySlug }: { categorySlug: string }) {
                     </SelectContent>
                 </Select>
             </Field>
-            <Field label="ANIMAL">
-                <Input className="text-xl placeholder:capitalize placeholder:text-sm" placeholder="Ex: Cavalo" value={generalInfo.animal} onChange={(e) => handleGeneralInfoChange('animal', e.target.value)}/>
+            <Field label="TIPO DE OBJETO">
+                <Input className="text-xl placeholder:capitalize placeholder:text-sm" placeholder="Ex: Pneu, galho de árvore" value={generalInfo.tipoDeObjeto} onChange={(e) => handleGeneralInfoChange('tipoDeObjeto', e.target.value)}/>
             </Field>
             <Field label="QUANTIDADE">
                 <Input className="text-xl placeholder:capitalize placeholder:text-sm" placeholder="Ex: 1" value={generalInfo.quantidade} onChange={(e) => handleGeneralInfoChange('quantidade', e.target.value)}/>
-            </Field>
-            <Field label="SITUAÇÃO">
-                <Select value={generalInfo.situacao} onValueChange={(value) => handleGeneralInfoChange('situacao', value)}>
-                    <SelectTrigger className="text-xl normal-case placeholder:text-base">
-                        <SelectValue placeholder="Selecione a situação" />
-                    </SelectTrigger>
-                    <SelectContent>
-                        <SelectItem value="ileso">ILESO</SelectItem>
-                        <SelectItem value="ferido">FERIDO</SelectItem>
-                        <SelectItem value="fatal">FATAL</SelectItem>
-                    </SelectContent>
-                </Select>
             </Field>
           </div>
         </div>
@@ -376,7 +361,7 @@ export default function TO07Form({ categorySlug }: { categorySlug: string }) {
             <Field label="OBSERVAÇÕES">
               <Textarea className="text-xl placeholder:capitalize placeholder:text-sm" placeholder="Descreva detalhes adicionais sobre a ocorrência" value={otherInfo.observacoes} onChange={(e) => handleOtherInfoChange('observacoes', e.target.value)} />
             </Field>
-            <Field label="DESTINAÇÃO DO ANIMAL">
+            <Field label="DESTINAÇÃO DO OBJETO">
                 <Select value={otherInfo.destinacaoAnimal} onValueChange={(value) => handleOtherInfoChange('destinacaoAnimal', value)}>
                     <SelectTrigger className="text-xl normal-case placeholder:text-base">
                         <SelectValue placeholder="Selecione a destinação" />
@@ -411,3 +396,5 @@ export default function TO07Form({ categorySlug }: { categorySlug: string }) {
     </div>
   );
 }
+
+    
