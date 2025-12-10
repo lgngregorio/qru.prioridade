@@ -43,8 +43,8 @@ export default function AppSidebar() {
                 className="w-px h-full animate-move-dashes"
                 style={{
                   backgroundImage:
-                    'linear-gradient(to bottom, hsl(var(--sidebar-foreground)) 50%, transparent 50%)',
-                  backgroundSize: '1px 16px',
+                    'linear-gradient(to bottom, hsl(var(--sidebar-foreground)) 60%, transparent 40%)',
+                  backgroundSize: '1px 24px',
                   backgroundRepeat: 'repeat-y',
                 }}
               ></div>
