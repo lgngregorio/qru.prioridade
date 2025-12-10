@@ -64,8 +64,8 @@ export default function AppSidebar() {
             </SidebarMenuButton>
           </SidebarMenuItem>
           <SidebarMenuItem>
-            <SidebarMenuButton asChild className="text-base [&_svg]:size-5" onClick={handleLinkClick}>
-              <Link href="#">
+            <SidebarMenuButton asChild isActive={pathname === '/bloco-de-notas'} className="text-base [&_svg]:size-5" onClick={handleLinkClick}>
+              <Link href="/bloco-de-notas">
                 <Notebook />
                 Bloco de Nota
               </Link>
