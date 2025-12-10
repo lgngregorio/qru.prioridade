@@ -266,3 +266,4 @@ export default function TracadoDePistaForm({ categorySlug }: { categorySlug: str
     </div>
   );
 }
+
