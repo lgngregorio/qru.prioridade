@@ -3,7 +3,7 @@
 
 import { useRouter } from 'next/navigation';
 import { Save, Share, Loader2 } from 'lucide-react';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { collection, addDoc, serverTimestamp } from 'firebase/firestore';
 import React from 'react';
 
@@ -77,6 +77,16 @@ export default function IncendioForm({ categorySlug }: { categorySlug: string })
   const handleOtherInfoChange = (field: keyof OtherInfo, value: string) => {
     setOtherInfo(prev => ({ ...prev, [field]: value }));
   };
+
+  useEffect(() => {
+    const proporcao = parseFloat(generalInfo.proporcaoMetros);
+    if (!isNaN(proporcao)) {
+      const area = proporcao * 3; // Assumindo largura de 3 metros
+      setGeneralInfo(prev => ({ ...prev, areaTotal: area.toString() }));
+    } else {
+        setGeneralInfo(prev => ({ ...prev, areaTotal: '' }));
+    }
+  }, [generalInfo.proporcaoMetros]);
 
   
   const fillEmptyFields = (data: any): any => {
@@ -228,10 +238,10 @@ export default function IncendioForm({ categorySlug }: { categorySlug: string })
                 <Input className="text-xl placeholder:capitalize placeholder:text-sm" placeholder="Km final do incêndio" value={generalInfo.qthTermino} onChange={(e) => handleGeneralInfoChange('qthTermino', e.target.value)} />
             </Field>
             <Field label="PROPORÇÃO EM METROS">
-                <Input className="text-xl placeholder:capitalize placeholder:text-sm" placeholder="Comprimento do incêndio" value={generalInfo.proporcaoMetros} onChange={(e) => handleGeneralInfoChange('proporcaoMetros', e.target.value)} />
+                <Input type="number" className="text-xl placeholder:capitalize placeholder:text-sm" placeholder="Comprimento do incêndio" value={generalInfo.proporcaoMetros} onChange={(e) => handleGeneralInfoChange('proporcaoMetros', e.target.value)} />
             </Field>
             <Field label="ÁREA TOTAL (M²)">
-                <Input className="text-xl placeholder:capitalize placeholder:text-sm" placeholder="Área total do incêndio" value={generalInfo.areaTotal} onChange={(e) => handleGeneralInfoChange('areaTotal', e.target.value)} />
+                <Input type="number" className="text-xl placeholder:capitalize placeholder:text-sm" placeholder="Área total do incêndio" value={generalInfo.areaTotal} onChange={(e) => handleGeneralInfoChange('areaTotal', e.target.value)} />
             </Field>
           </div>
         </div>
