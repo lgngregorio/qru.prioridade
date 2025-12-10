@@ -12,6 +12,7 @@ import {
 import AppSidebar from '@/components/AppSidebar';
 import { FirebaseProvider } from '@/firebase/provider';
 import FirebaseErrorListener from '@/components/FirebaseErrorListener';
+import { ThemeProvider } from '@/components/theme-provider';
 
 export default function RootLayout({
   children,
@@ -19,7 +20,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className="h-full">
+    <html lang="en" className="h-full" suppressHydrationWarning>
       <head>
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -35,19 +36,25 @@ export default function RootLayout({
       </head>
       <body
         className={cn(
-          'font-body antialiased min-h-screen bg-background dark'
+          'font-body antialiased min-h-screen bg-background'
         )}
       >
-        <FirebaseProvider>
-          <FirebaseErrorListener />
-          <SidebarProvider>
-            <Sidebar>
-              <AppSidebar />
-            </Sidebar>
-            <SidebarInset>{children}</SidebarInset>
-          </SidebarProvider>
-          <Toaster />
-        </FirebaseProvider>
+        <ThemeProvider
+          attribute="class"
+          defaultTheme="dark"
+          enableSystem
+        >
+          <FirebaseProvider>
+            <FirebaseErrorListener />
+            <SidebarProvider>
+              <Sidebar>
+                <AppSidebar />
+              </Sidebar>
+              <SidebarInset>{children}</SidebarInset>
+            </SidebarProvider>
+            <Toaster />
+          </FirebaseProvider>
+        </ThemeProvider>
       </body>
     </html>
   );

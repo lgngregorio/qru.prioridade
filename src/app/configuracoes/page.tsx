@@ -1,14 +1,11 @@
 'use client';
 
 import Link from 'next/link';
-import { ArrowLeft, Save } from 'lucide-react';
+import { ArrowLeft, Save, Moon, Sun, Monitor } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import {
-  RadioGroup,
-  RadioGroupItem,
-} from '@/components/ui/radio-group';
+import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import {
   Select,
   SelectContent,
@@ -23,8 +20,11 @@ import {
   CardHeader,
   CardTitle,
 } from '@/components/ui/card';
+import { useTheme } from 'next-themes';
 
 export default function ConfiguracoesPage() {
+  const { theme, setTheme } = useTheme();
+
   return (
     <main className="flex flex-col items-center p-4 md:p-6">
       <div className="w-full max-w-2xl">
@@ -72,23 +72,36 @@ export default function ConfiguracoesPage() {
             <CardContent className="space-y-6">
               <div className="space-y-3">
                 <Label>TEMA</Label>
-                <RadioGroup defaultValue="escuro" className="flex flex-col space-y-2">
+                <RadioGroup
+                  defaultValue={theme}
+                  onValueChange={setTheme}
+                  className="flex flex-col space-y-2"
+                >
                   <div className="flex items-center space-x-3">
-                    <RadioGroupItem value="claro" id="theme-claro" />
-                    <Label htmlFor="theme-claro" className="font-normal text-xl">
-                      Claro
+                    <RadioGroupItem value="light" id="theme-claro" />
+                    <Label
+                      htmlFor="theme-claro"
+                      className="font-normal text-xl flex items-center gap-2"
+                    >
+                      <Sun className="h-5 w-5" /> Claro
                     </Label>
                   </div>
                   <div className="flex items-center space-x-3">
-                    <RadioGroupItem value="escuro" id="theme-escuro" />
-                    <Label htmlFor="theme-escuro" className="font-normal text-xl">
-                      Escuro
+                    <RadioGroupItem value="dark" id="theme-escuro" />
+                    <Label
+                      htmlFor="theme-escuro"
+                      className="font-normal text-xl flex items-center gap-2"
+                    >
+                      <Moon className="h-5 w-5" /> Escuro
                     </Label>
                   </div>
                   <div className="flex items-center space-x-3">
-                    <RadioGroupItem value="sistema" id="theme-sistema" />
-                    <Label htmlFor="theme-sistema" className="font-normal text-xl">
-                      Sistema
+                    <RadioGroupItem value="system" id="theme-sistema" />
+                    <Label
+                      htmlFor="theme-sistema"
+                      className="font-normal text-xl flex items-center gap-2"
+                    >
+                      <Monitor className="h-5 w-5" /> Sistema
                     </Label>
                   </div>
                 </RadioGroup>
