@@ -21,6 +21,7 @@ import {
   HardHat,
   ShieldAlert,
   Signpost,
+  Megaphone,
 } from 'lucide-react';
 
 export type EventCategory = {
@@ -202,10 +203,10 @@ export const eventCategories: EventCategory[] = [
     color: '#FF6347',
   },
   {
-    name: 'TO 38',
-    title: 'TO 38',
+    name: 'PLACAS DE PROPAGANDA',
+    title: 'PLACAS DE PROPAGANDA',
     slug: 'to-38',
-    icon: Building2,
+    icon: Megaphone,
     description: 'Relatar TO 38.',
     color: '#3CB371',
   },
