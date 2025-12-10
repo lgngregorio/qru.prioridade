@@ -33,10 +33,10 @@ type GeneralInfo = {
   qth: string;
   sentido: string;
   localArea: string;
-  qthInicio: string;
-  qthTermino: string;
   tipoDeDefeito: string;
   quantidade: string;
+  qthInicio: string;
+  qthTermino: string;
 };
 
 
@@ -58,10 +58,10 @@ export default function TO34Form({ categorySlug }: { categorySlug: string }) {
     qth: '',
     sentido: '',
     localArea: '',
-    qthInicio: '',
-    qthTermino: '',
     tipoDeDefeito: '',
     quantidade: '',
+    qthInicio: '',
+    qthTermino: '',
   });
   
   const [otherInfo, setOtherInfo] = useState<OtherInfo>({
@@ -206,6 +206,7 @@ export default function TO34Form({ categorySlug }: { categorySlug: string }) {
                         <SelectItem value="norte">NORTE</SelectItem>
                         <SelectItem value="sul">SUL</SelectItem>
                         <SelectItem value="ambos">AMBOS</SelectItem>
+                        <SelectItem value="eixo_central">EIXO CENTRAL</SelectItem>
                     </SelectContent>
                 </Select>
             </Field>
@@ -276,3 +277,5 @@ export default function TO34Form({ categorySlug }: { categorySlug: string }) {
     </div>
   );
 }
+
+    
