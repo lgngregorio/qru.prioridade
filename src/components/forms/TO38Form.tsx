@@ -167,7 +167,7 @@ export default function TO38Form({ categorySlug }: { categorySlug: string }) {
     message += `Sentido: ${reportData.generalInfo.sentido}\n`;
     message += `Local/Área: ${reportData.generalInfo.localArea}\n\n`;
 
-    message += `*SINALIZAÇÃO*\n`;
+    message += `*PLACA*\n`;
     message += `Ação: ${reportData.sinalizacaoInfo.acao}\n`;
     message += `Nome da Placa: ${reportData.sinalizacaoInfo.nomeDaPlaca}\n`;
     message += `Quantidade: ${reportData.sinalizacaoInfo.quantidade}\n\n`;
@@ -236,7 +236,7 @@ export default function TO38Form({ categorySlug }: { categorySlug: string }) {
 
         {/* Sinalização */}
         <div className="space-y-8">
-          <h2 className="text-xl font-semibold text-foreground border-b-2 border-foreground pb-2 uppercase">Sinalização</h2>
+          <h2 className="text-xl font-semibold text-foreground border-b-2 border-foreground pb-2 uppercase">PLACA</h2>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
             <Field label="AÇÃO">
                 <Select value={sinalizacaoInfo.acao} onValueChange={(value) => handleSinalizacaoInfoChange('acao', value)}>
