@@ -39,8 +39,8 @@ interface Note {
   id: string;
   title: string;
   content: string;
-  createdAt: Timestamp;
-  updatedAt?: Timestamp;
+  createdAt: Timestamp | null;
+  updatedAt?: Timestamp | null;
 }
 
 export default function NotepadPage() {
@@ -58,10 +58,16 @@ export default function NotepadPage() {
 
     const unsubscribe = onSnapshot(q, 
       (querySnapshot) => {
-        const fetchedNotes = querySnapshot.docs.map((doc) => ({
-          id: doc.id,
-          ...doc.data(),
-        })) as Note[];
+        const fetchedNotes = querySnapshot.docs.map((doc) => {
+          const data = doc.data();
+          return {
+            id: doc.id,
+            ...data,
+            // Firestore Timestamps can be null on the client briefly after creation.
+            createdAt: data.createdAt instanceof Timestamp ? data.createdAt : null,
+            updatedAt: data.updatedAt instanceof Timestamp ? data.updatedAt : null,
+          } as Note;
+        });
         setNotes(fetchedNotes);
         setLoading(false);
       },
@@ -80,19 +86,18 @@ export default function NotepadPage() {
     return () => unsubscribe();
   }, [firestore, toast]);
   
-  const handleDelete = async (noteId: string) => {
+  const handleDelete = (noteId: string) => {
     if (!firestore) return;
-    try {
-      await deleteDoc(doc(firestore, 'notes', noteId));
-      toast({ title: 'Nota apagada com sucesso!' });
-    } catch (error) {
+    deleteDoc(doc(firestore, 'notes', noteId)).then(() => {
+        toast({ title: 'Nota apagada com sucesso!' });
+    }).catch ((error) => {
       console.error('Error deleting note: ', error);
       toast({
         variant: 'destructive',
         title: 'Erro ao apagar nota.',
         description: 'Não foi possível apagar a anotação.',
       });
-    }
+    });
   };
 
   const handleShareNote = (note: Note) => {
@@ -102,12 +107,14 @@ export default function NotepadPage() {
   };
 
   const formatDate = (timestamp: Timestamp | null | undefined, options: Intl.DateTimeFormatOptions) => {
-    if (!timestamp) return 'Data indisponível';
+    if (!timestamp) return 'Carregando...';
     return timestamp.toDate().toLocaleString('pt-BR', options);
   };
   
   const groupedNotes = useMemo(() => {
+     if (loading) return {};
     return notes.reduce((acc, note) => {
+      if(!note.createdAt) return acc;
       const date = formatDate(note.createdAt, { day: '2-digit', month: '2-digit', year: 'numeric' });
       if (!acc[date]) {
         acc[date] = [];
@@ -115,7 +122,7 @@ export default function NotepadPage() {
       acc[date].push(note);
       return acc;
     }, {} as Record<string, Note[]>);
-  }, [notes]);
+  }, [notes, loading]);
 
 
   return (

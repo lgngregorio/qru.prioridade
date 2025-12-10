@@ -118,7 +118,8 @@ export default function EditarNotaPage() {
             title: 'Erro ao atualizar nota.',
             description: 'Não foi possível atualizar a anotação.',
           });
-          setIsSaving(false);
+        }).finally(() => {
+            setIsSaving(false);
         });
 
     toast({ title: 'Nota atualizada com sucesso!' });
