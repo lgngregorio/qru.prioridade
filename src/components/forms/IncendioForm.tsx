@@ -74,6 +74,23 @@ export default function IncendioForm({ categorySlug }: { categorySlug: string })
     setGeneralInfo(prev => ({ ...prev, [field]: value }));
   };
 
+  const handleProportionChange = (value: string) => {
+    let area = '';
+    const parts = value.toLowerCase().split('x');
+    if (parts.length === 2) {
+      const length = parseFloat(parts[0]);
+      const width = parseFloat(parts[1]);
+      if (!isNaN(length) && !isNaN(width)) {
+        area = (length * width).toString();
+      }
+    }
+    setGeneralInfo(prev => ({
+      ...prev,
+      proporcaoMetros: value,
+      areaTotal: area
+    }));
+  };
+
   const handleOtherInfoChange = (field: keyof OtherInfo, value: string) => {
     setOtherInfo(prev => ({ ...prev, [field]: value }));
   };
@@ -228,10 +245,10 @@ export default function IncendioForm({ categorySlug }: { categorySlug: string })
                 <Input className="text-xl placeholder:capitalize placeholder:text-sm" placeholder="Km final do incêndio" value={generalInfo.qthTermino} onChange={(e) => handleGeneralInfoChange('qthTermino', e.target.value)} />
             </Field>
             <Field label="PROPORÇÃO EM METROS">
-                <Input type="text" className="text-xl placeholder:capitalize placeholder:text-sm" placeholder="Ex: 20x200" value={generalInfo.proporcaoMetros} onChange={(e) => handleGeneralInfoChange('proporcaoMetros', e.target.value)} />
+              <Input type="text" className="text-xl placeholder:capitalize placeholder:text-sm" placeholder="Ex: 20x200" value={generalInfo.proporcaoMetros} onChange={(e) => handleProportionChange(e.target.value)} />
             </Field>
             <Field label="ÁREA TOTAL (M²)">
-                <Input type="text" className="text-xl placeholder:capitalize placeholder:text-sm" placeholder="Área total do incêndio" value={generalInfo.areaTotal} onChange={(e) => handleGeneralInfoChange('areaTotal', e.target.value)} />
+              <Input type="text" className="text-xl placeholder:capitalize placeholder:text-sm" placeholder="Área total do incêndio" value={generalInfo.areaTotal} readOnly />
             </Field>
           </div>
         </div>
@@ -266,3 +283,5 @@ export default function IncendioForm({ categorySlug }: { categorySlug: string })
     </div>
   );
 }
+
+    
