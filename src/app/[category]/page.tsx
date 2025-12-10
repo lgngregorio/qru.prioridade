@@ -29,7 +29,7 @@ import { useToast } from '@/hooks/use-toast';
 function Field({ label, children, className }: { label?: string, children: React.ReactNode, className?: string }) {
   return (
     <div className={cn('flex flex-col space-y-1', className)}>
-      {label && <Label className="text-xs font-semibold">{label}</Label>}
+      {label && <Label className="text-sm font-semibold">{label}</Label>}
       {children}
     </div>
   )
