@@ -168,7 +168,7 @@ function ReportForm() {
               </div>
                <div>
                   <h4 className="font-bold mb-2 text-xs">VEÍCULO</h4>
-                  <CheckboxGroup items={["BICICLETA", "MOTO", "CARRO/UTILITÁRIA", "ÔNIBUS", "CAMINHÃO", "CARRETA"]} columns={1} />
+                  <CheckboxGroup items={["BICICLETA", "MOTO", "CARRO/UTILITÁRIA", "ÔNIBUS", "CAMINHÃO", "CARRETA"]} columns={1_} />
                    <Field label="PLACA:"><Input /></Field>
               </div>
           </div>
@@ -618,7 +618,7 @@ function VeiculoAbandonadoForm({ categorySlug }: { categorySlug: string }) {
                                 <SelectItem value="on">ON</SelectItem>
                                 <SelectItem value="car">CAR</SelectItem>
                                 <SelectItem value="ca-romeu-julieta">CA/ ROMEU E JULIETA</SelectItem>
-                                <SelectItem value="carretinha-reboque">CARRETINHA/ REBOQUE</SelectItem>
+                                <SelectItem value="carretinha-reboque">CARRETINHA/REBOQUE</SelectItem>
                             </SelectContent>
                         </Select>
                     </Field>
