@@ -38,13 +38,13 @@ export default function AppSidebar() {
            <h1 className="text-2xl font-bold text-sidebar-foreground flex items-center justify-center gap-1">
             QRU
             <div className="flex h-6 items-center gap-1">
-              <div className="w-px h-full bg-sidebar-foreground"></div>
+              <div className="w-[1.5px] h-full bg-sidebar-foreground"></div>
               <div
-                className="w-px h-full animate-move-dashes"
+                className="w-[1.5px] h-full animate-move-dashes"
                 style={{
                   backgroundImage:
                     'linear-gradient(to bottom, hsl(var(--sidebar-foreground)) 50%, transparent 50%)',
-                  backgroundSize: '1px 20px',
+                  backgroundSize: '1.5px 20px',
                   backgroundRepeat: 'repeat-y',
                 }}
               ></div>
