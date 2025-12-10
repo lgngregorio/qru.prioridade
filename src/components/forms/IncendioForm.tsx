@@ -16,6 +16,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useFirestore } from '@/firebase';
 import { useToast } from '@/hooks/use-toast';
+import { Checkbox } from '@/components/ui/checkbox';
 
 
 function Field({ label, children, className }: { label?: string, children: React.ReactNode, className?: string }) {
@@ -42,6 +43,7 @@ type GeneralInfo = {
 
 type OtherInfo = {
   auxilios: string;
+  vtrApoio: string;
   observacoes: string;
   numeroOcorrencia: string;
 };
@@ -51,6 +53,7 @@ export default function IncendioForm({ categorySlug }: { categorySlug: string })
   const router = useRouter();
   const { toast } = useToast();
   const [isSaving, setIsSaving] = useState(false);
+  const [showVtrApoio, setShowVtrApoio] = useState(false);
 
   const [generalInfo, setGeneralInfo] = useState<GeneralInfo>({
     rodovia: '',
@@ -66,6 +69,7 @@ export default function IncendioForm({ categorySlug }: { categorySlug: string })
 
   const [otherInfo, setOtherInfo] = useState<OtherInfo>({
     auxilios: '',
+    vtrApoio: '',
     observacoes: '',
     numeroOcorrencia: '',
   });
@@ -120,6 +124,10 @@ export default function IncendioForm({ categorySlug }: { categorySlug: string })
       generalInfo: fillEmptyFields(generalInfo),
       otherInfo: fillEmptyFields(otherInfo),
     };
+
+    if (!showVtrApoio) {
+      filledData.otherInfo.vtrApoio = 'NILL';
+    }
 
     return {
       category: categorySlug,
@@ -182,6 +190,9 @@ export default function IncendioForm({ categorySlug }: { categorySlug: string })
     
     message += `*OUTRAS INFORMAÇÕES*\n`;
     message += `Auxílios/PR: ${reportData.otherInfo.auxilios}\n`;
+    if (showVtrApoio) {
+        message += `VTR de Apoio: ${reportData.otherInfo.vtrApoio}\n`;
+    }
     message += `Observações: ${reportData.otherInfo.observacoes}\n`;
     message += `Nº Ocorrência: ${reportData.otherInfo.numeroOcorrencia}\n`;
 
@@ -258,13 +269,31 @@ export default function IncendioForm({ categorySlug }: { categorySlug: string })
           <h2 className="text-xl font-semibold text-foreground border-b-2 border-foreground pb-2 uppercase">Outras Informações</h2>
           <div className="space-y-8">
             <Field label="AUXÍLIOS/PR">
-              <Textarea className="text-2xl placeholder:capitalize placeholder:text-sm" placeholder="Descreva os auxílios prestados" value={otherInfo.auxilios} onChange={(e) => handleOtherInfoChange('auxilios', e.target.value)} />
+              <Textarea className="text-xl placeholder:capitalize placeholder:text-sm" placeholder="Descreva os auxílios prestados" value={otherInfo.auxilios} onChange={(e) => handleOtherInfoChange('auxilios', e.target.value)} />
             </Field>
+            <div className="flex items-center space-x-2 pt-4">
+              <Checkbox
+                id="show-vtr-apoio"
+                checked={showVtrApoio}
+                onCheckedChange={(checked) => setShowVtrApoio(Boolean(checked))}
+              />
+              <label
+                htmlFor="show-vtr-apoio"
+                className="text-base font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+              >
+                Houve VTR de Apoio?
+              </label>
+            </div>
+            {showVtrApoio && (
+                <Field label="VTR DE APOIO">
+                  <Textarea className="text-2xl placeholder:capitalize placeholder:text-sm" placeholder="Descreva as viaturas de apoio" value={otherInfo.vtrApoio} onChange={(e) => handleOtherInfoChange('vtrApoio', e.target.value)} />
+                </Field>
+            )}
             <Field label="OBSERVAÇÕES">
-              <Textarea className="text-2xl placeholder:capitalize placeholder:text-sm" placeholder="Descreva detalhes adicionais sobre a ocorrência" value={otherInfo.observacoes} onChange={(e) => handleOtherInfoChange('observacoes', e.target.value)} />
+              <Textarea className="text-xl placeholder:capitalize placeholder:text-sm" placeholder="Descreva detalhes adicionais sobre a ocorrência" value={otherInfo.observacoes} onChange={(e) => handleOtherInfoChange('observacoes', e.target.value)} />
             </Field>
             <Field label="NÚMERO DA OCORRÊNCIA">
-              <Input className="text-2xl placeholder:capitalize placeholder:text-sm" placeholder="Número de controle interno" value={otherInfo.numeroOcorrencia} onChange={(e) => handleOtherInfoChange('numeroOcorrencia', e.target.value)} />
+              <Input className="text-xl placeholder:capitalize placeholder:text-sm" placeholder="Número de controle interno" value={otherInfo.numeroOcorrencia} onChange={(e) => handleOtherInfoChange('numeroOcorrencia', e.target.value)} />
             </Field>
           </div>
         </div>
