@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useState } from 'react';
@@ -23,8 +24,8 @@ export default function Home() {
              <h1 className="text-4xl font-bold text-foreground font-headline tracking-wider flex items-center justify-center gap-3">
                 QRU
                 <div className="flex h-10 items-center gap-2">
-                  <div className="w-0.5 h-full bg-foreground/50"></div>
-                  <div className="w-1 h-full bg-repeat-y bg-[length:4px_12px] bg-center animate-move-dashes" style={{ backgroundImage: "linear-gradient(to bottom, white 50%, transparent 50%)"}}></div>
+                  <div className="w-1 h-full bg-foreground/50"></div>
+                  <div className="w-1 h-full bg-repeat-y bg-[length:4px_20px] bg-center animate-move-dashes" style={{ backgroundImage: "linear-gradient(to bottom, white 60%, transparent 40%)"}}></div>
                 </div>
                 PRIORIDADE
               </h1>

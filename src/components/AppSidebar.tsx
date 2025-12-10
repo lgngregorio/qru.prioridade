@@ -30,11 +30,11 @@ export default function AppSidebar() {
     <>
       <SidebarHeader className="p-4">
         <div className="flex items-center justify-center space-x-2">
-           <h1 className="text-2xl font-bold text-white flex items-center gap-2">
+           <h1 className="text-2xl font-bold text-white flex items-center justify-center gap-2">
             QRU
             <div className="flex h-6 items-center gap-1.5">
-              <div className="w-px h-full bg-white/50"></div>
-              <div className="w-0.5 h-full bg-repeat-y bg-[length:3px_9px] bg-center animate-move-dashes" style={{ backgroundImage: "linear-gradient(to bottom, white 50%, transparent 50%)"}}></div>
+              <div className="w-0.5 h-full bg-white/50"></div>
+              <div className="w-0.5 h-full bg-repeat-y bg-[length:3px_15px] bg-center animate-move-dashes" style={{ backgroundImage: "linear-gradient(to bottom, white 60%, transparent 40%)"}}></div>
             </div>
             PRIORIDADE
           </h1>
