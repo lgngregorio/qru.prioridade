@@ -182,23 +182,23 @@ export default function NotepadPage() {
   };
 
   return (
-    <main className="flex flex-col items-center p-4 pt-8 md:p-6">
+    <main className="flex flex-col items-center p-4 md:p-6">
       <div className="w-full max-w-4xl">
-        <div className="mb-6 flex items-center gap-4">
+        <div className="w-full mb-6 pt-4 flex items-center">
           <Button asChild variant="outline" className="rounded-full">
             <Link href="/">
               <ArrowLeft className="mr-2 h-4 w-4" />
               Voltar
             </Link>
           </Button>
-          <div>
-            <h1 className="text-3xl font-bold text-primary font-headline tracking-wide">
+        </div>
+        <div className="text-center mb-8">
+            <h1 className="text-3xl font-bold text-foreground font-headline tracking-wide">
               Bloco de Notas
             </h1>
             <p className="text-muted-foreground mt-1 text-sm">
               Crie, edite e organize suas anotações.
             </p>
-          </div>
         </div>
 
         <Card className="mb-8">
