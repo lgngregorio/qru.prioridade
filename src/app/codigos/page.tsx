@@ -18,6 +18,7 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table';
+import { SidebarTrigger } from '@/components/ui/sidebar';
 
 const messageCodes = [
     { code: 'QAP', message: 'Na Escuta' },
@@ -146,6 +147,15 @@ const ocorrenciaCodes = [
     { code: 'TO50', message: 'Nível De Serviço, Manutenção Frota / Bases', group: 'Avarias, Panes' },
 ];
 
+const tiposPaneCodes = [
+    { code: 'TP01', message: 'Pane Mecânica' },
+    { code: 'TP02', message: 'Pane Elétrica' },
+    { code: 'TP03', message: 'Pane Pneu' },
+    { code: 'TP04', message: 'Pane Seca' },
+    { code: 'TP05', message: 'Super Aquecimento De Motor' },
+    { code: 'TP07', message: 'Bloqueio De Veículos Por Rastreador' },
+];
+
 const MessageCodesTable = () => (
   <Table>
     <TableHeader>
@@ -205,6 +215,25 @@ const OcorrenciaCodesTable = () => (
   </Table>
 );
 
+const TiposPaneTable = () => (
+  <Table>
+    <TableHeader>
+      <TableRow>
+        <TableHead className="w-[120px]">Código</TableHead>
+        <TableHead>Mensagem</TableHead>
+      </TableRow>
+    </TableHeader>
+    <TableBody>
+      {tiposPaneCodes.map((item) => (
+        <TableRow key={item.code}>
+          <TableCell className="font-medium">{item.code}</TableCell>
+          <TableCell>{item.message}</TableCell>
+        </TableRow>
+      ))}
+    </TableBody>
+  </Table>
+);
+
 
 const codeSections = [
     {
@@ -221,7 +250,7 @@ const codeSections = [
     },
     {
         title: 'Tipos de Pane',
-        content: 'Conteúdo para Tipos de Pane em breve.'
+        content: <TiposPaneTable />
     },
     {
         title: 'Outras Mensagens',
