@@ -38,8 +38,6 @@ type GeneralInfo = {
   baixaFrequencia: string;
   qtrInicio: string;
   qtrTermino: string;
-  qthInicio: string;
-  qthTermino: string;
 };
 
 
@@ -66,8 +64,6 @@ export default function TO50Form({ categorySlug }: { categorySlug: string }) {
     baixaFrequencia: '',
     qtrInicio: '',
     qtrTermino: '',
-    qthInicio: '',
-    qthTermino: '',
   });
   
   const [otherInfo, setOtherInfo] = useState<OtherInfo>({
@@ -182,9 +178,7 @@ export default function TO50Form({ categorySlug }: { categorySlug: string }) {
     message += `QRA do Responsável: ${reportData.generalInfo.qraResponsavel}\n`;
     message += `Baixa Frequência: ${reportData.generalInfo.baixaFrequencia}\n`;
     message += `QTR de Início: ${reportData.generalInfo.qtrInicio}\n`;
-    message += `QTR de Término: ${reportData.generalInfo.qtrTermino}\n`;
-    message += `QTH de Início: ${reportData.generalInfo.qthInicio}\n`;
-    message += `QTH de Término: ${reportData.generalInfo.qthTermino}\n\n`;
+    message += `QTR de Término: ${reportData.generalInfo.qtrTermino}\n\n`;
 
     message += `*OUTRAS INFORMAÇÕES*\n`;
     message += `AUXÍLIOS/PR: ${reportData.otherInfo.auxilios}\n`;
@@ -264,12 +258,6 @@ export default function TO50Form({ categorySlug }: { categorySlug: string }) {
             </Field>
             <Field label="QTR DE TÉRMINO">
                 <Input type="time" className="text-xl placeholder:capitalize placeholder:text-sm" placeholder="HH:MM" value={generalInfo.qtrTermino} onChange={(e) => handleGeneralInfoChange('qtrTermino', e.target.value)}/>
-            </Field>
-            <Field label="QTH DE INÍCIO">
-                <Input className="text-xl placeholder:capitalize placeholder:text-sm" placeholder="Km inicial" value={generalInfo.qthInicio} onChange={(e) => handleGeneralInfoChange('qthInicio', e.target.value)}/>
-            </Field>
-            <Field label="QTH DE TÉRMINO">
-                <Input className="text-xl placeholder:capitalize placeholder:text-sm" placeholder="Km final" value={generalInfo.qthTermino} onChange={(e) => handleGeneralInfoChange('qthTermino', e.target.value)}/>
             </Field>
           </div>
         </div>
