@@ -188,13 +188,13 @@ export default function NotepadPage() {
           <Button asChild variant="outline" className="rounded-full">
             <Link href="/">
               <ArrowLeft className="mr-2 h-4 w-4" />
-              Voltar
+              Voltar para o início
             </Link>
           </Button>
         </div>
         <div className="text-center mb-8">
-            <h1 className="text-3xl font-bold text-foreground font-headline tracking-wide">
-              Bloco de Notas
+            <h1 className="text-3xl font-bold text-foreground font-headline tracking-wide uppercase">
+              BLOCO DE NOTAS
             </h1>
             <p className="text-muted-foreground mt-1 text-sm">
               Crie, edite e organize suas anotações.
