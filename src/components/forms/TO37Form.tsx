@@ -3,7 +3,7 @@
 
 import { useRouter } from 'next/navigation';
 import { Save, Share, Loader2 } from 'lucide-react';
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { collection, addDoc, serverTimestamp } from 'firebase/firestore';
 import React from 'react';
 
@@ -35,6 +35,12 @@ type GeneralInfo = {
   localArea: string;
 };
 
+type SinalizacaoInfo = {
+  acao: string;
+  nomeDaPlaca: string;
+  quantidade: string;
+};
+
 
 type OtherInfo = {
   observacoes: string;
@@ -55,6 +61,12 @@ export default function TO37Form({ categorySlug }: { categorySlug: string }) {
     sentido: '',
     localArea: '',
   });
+
+  const [sinalizacaoInfo, setSinalizacaoInfo] = useState<SinalizacaoInfo>({
+    acao: '',
+    nomeDaPlaca: '',
+    quantidade: '',
+  });
   
   const [otherInfo, setOtherInfo] = useState<OtherInfo>({
     observacoes: '',
@@ -64,6 +76,10 @@ export default function TO37Form({ categorySlug }: { categorySlug: string }) {
 
   const handleGeneralInfoChange = (field: keyof GeneralInfo, value: string) => {
     setGeneralInfo(prev => ({ ...prev, [field]: value }));
+  };
+
+  const handleSinalizacaoInfoChange = (field: keyof SinalizacaoInfo, value: string) => {
+    setSinalizacaoInfo(prev => ({ ...prev, [field]: value }));
   };
 
   const handleOtherInfoChange = (field: keyof OtherInfo, value: string) => {
@@ -93,6 +109,7 @@ export default function TO37Form({ categorySlug }: { categorySlug: string }) {
   const prepareReportData = () => {
     const filledData = {
       generalInfo: fillEmptyFields(generalInfo),
+      sinalizacaoInfo: fillEmptyFields(sinalizacaoInfo),
       otherInfo: fillEmptyFields(otherInfo),
     };
 
@@ -150,6 +167,11 @@ export default function TO37Form({ categorySlug }: { categorySlug: string }) {
     message += `QTH (Local): ${reportData.generalInfo.qth}\n`;
     message += `Sentido: ${reportData.generalInfo.sentido}\n`;
     message += `Local/Área: ${reportData.generalInfo.localArea}\n\n`;
+
+    message += `*SINALIZAÇÃO*\n`;
+    message += `Ação: ${reportData.sinalizacaoInfo.acao}\n`;
+    message += `Nome da Placa: ${reportData.sinalizacaoInfo.nomeDaPlaca}\n`;
+    message += `Quantidade: ${reportData.sinalizacaoInfo.quantidade}\n\n`;
 
     message += `*OUTRAS INFORMAÇÕES*\n`;
     message += `AUXÍLIOS/PR: ${reportData.otherInfo.auxilios}\n`;
@@ -213,6 +235,31 @@ export default function TO37Form({ categorySlug }: { categorySlug: string }) {
             </Field>
           </div>
         </div>
+
+        {/* Sinalização */}
+        <div className="space-y-8">
+          <h2 className="text-xl font-semibold text-foreground border-b-2 border-foreground pb-2 uppercase">Sinalização</h2>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+            <Field label="AÇÃO">
+                <Select value={sinalizacaoInfo.acao} onValueChange={(value) => handleSinalizacaoInfoChange('acao', value)}>
+                    <SelectTrigger className="text-xl normal-case placeholder:text-base">
+                        <SelectValue placeholder="Selecione a ação" />
+                    </SelectTrigger>
+                    <SelectContent>
+                        <SelectItem value="implantar_placa">IMPLANTAR PLACA</SelectItem>
+                        <SelectItem value="retirar_placa">RETIRAR PLACA</SelectItem>
+                    </SelectContent>
+                </Select>
+            </Field>
+            <Field label="NOME DA PLACA">
+                <Input className="text-xl placeholder:capitalize placeholder:text-sm" placeholder="Ex: R-19" value={sinalizacaoInfo.nomeDaPlaca} onChange={(e) => handleSinalizacaoInfoChange('nomeDaPlaca', e.target.value)}/>
+            </Field>
+            <Field label="QUANTIDADE">
+                <Input className="text-xl placeholder:capitalize placeholder:text-sm" placeholder="Ex: 1" value={sinalizacaoInfo.quantidade} onChange={(e) => handleSinalizacaoInfoChange('quantidade', e.target.value)}/>
+            </Field>
+          </div>
+        </div>
+
 
         {/* Outras Informações */}
         <div className="space-y-8">
