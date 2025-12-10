@@ -275,7 +275,7 @@ export default function IncendioForm({ categorySlug }: { categorySlug: string })
           </div>
         </div>
 
-        <div className="flex flex-col sm:flex-row gap-4 pt-6">
+        <div className="flex sm:flex-row gap-4 pt-6">
           <Button size="lg" className="flex-1 bg-green-600 hover:bg-green-700 uppercase text-base" onClick={handleShare}>
               <Share className="mr-2 h-4 w-4" />
               Compartilhar WhatsApp
