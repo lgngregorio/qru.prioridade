@@ -55,27 +55,31 @@ export default function NovaNotaPage() {
       updatedAt: serverTimestamp(),
     };
 
-    addDoc(notesCollection, newNote).catch(async (serverError) => {
-      console.error('Error saving note: ', serverError);
-      
-      const permissionError = new FirestorePermissionError({
-          path: notesCollection.path,
-          operation: 'create',
-          requestResourceData: newNote,
+    addDoc(notesCollection, newNote)
+      .then(() => {
+        toast({ title: 'Nota salva com sucesso!' });
+        router.push('/bloco-de-notas');
+      })
+      .catch(async (serverError) => {
+        console.error('Error saving note: ', serverError);
+        
+        const permissionError = new FirestorePermissionError({
+            path: notesCollection.path,
+            operation: 'create',
+            requestResourceData: newNote,
+        });
+
+        errorEmitter.emit('permission-error', permissionError);
+
+        toast({
+          variant: 'destructive',
+          title: 'Erro ao salvar nota.',
+          description: 'Não foi possível salvar a anotação.',
+        });
+      })
+      .finally(() => {
+        setIsSaving(false);
       });
-
-      errorEmitter.emit('permission-error', permissionError);
-
-      toast({
-        variant: 'destructive',
-        title: 'Erro ao salvar nota.',
-        description: 'Não foi possível salvar a anotação.',
-      });
-       setIsSaving(false);
-    });
-
-    toast({ title: 'Nota salva com sucesso!' });
-    router.push('/bloco-de-notas');
   };
 
   return (

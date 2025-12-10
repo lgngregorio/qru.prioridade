@@ -103,6 +103,10 @@ export default function EditarNotaPage() {
       };
     
     updateDoc(noteRef, updatedData)
+        .then(() => {
+            toast({ title: 'Nota atualizada com sucesso!' });
+            router.push('/bloco-de-notas');
+        })
         .catch(async (serverError) => {
           console.error('Error updating note: ', serverError);
           const permissionError = new FirestorePermissionError({
@@ -121,9 +125,6 @@ export default function EditarNotaPage() {
         }).finally(() => {
             setIsSaving(false);
         });
-
-    toast({ title: 'Nota atualizada com sucesso!' });
-    router.push('/bloco-de-notas');
   };
 
   if (loading) {
