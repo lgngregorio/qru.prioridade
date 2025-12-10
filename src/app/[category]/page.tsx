@@ -18,6 +18,7 @@ import { SidebarTrigger } from '@/components/ui/sidebar';
 import VeiculoAbandonadoForm from '@/components/forms/VeiculoAbandonadoForm';
 import IncendioForm from '@/components/forms/IncendioForm';
 import TO03Form from '@/components/forms/TO03Form';
+import TO04Form from '@/components/forms/TO04Form';
 
 function ReportFormComponent({ categorySlug }: { categorySlug: string }) {
   switch (categorySlug) {
@@ -27,6 +28,8 @@ function ReportFormComponent({ categorySlug }: { categorySlug: string }) {
       return <IncendioForm categorySlug={categorySlug} />;
     case 'to-03':
         return <TO03Form categorySlug={categorySlug} />;
+    case 'to-04':
+        return <TO04Form categorySlug={categorySlug} />;
     default:
       // Um formulário padrão ou uma mensagem de "em breve" pode ser retornada aqui.
       return <p className="p-8 text-center">Formulário para {categorySlug} em construção.</p>;
