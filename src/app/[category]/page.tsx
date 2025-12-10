@@ -24,6 +24,7 @@ import TO06Form from '@/components/forms/TO06Form';
 import TO07Form from '@/components/forms/TO07Form';
 import TO09Form from '@/components/forms/TO09Form';
 import TO11Form from '@/components/forms/TO11Form';
+import TO15Form from '@/components/forms/TO15Form';
 
 function ReportFormComponent({ categorySlug }: { categorySlug: string }) {
   switch (categorySlug) {
@@ -45,6 +46,8 @@ function ReportFormComponent({ categorySlug }: { categorySlug: string }) {
         return <TO09Form categorySlug={categorySlug} />;
     case 'to-11':
         return <TO11Form categorySlug={categorySlug} />;
+    case 'to-15':
+        return <TO15Form categorySlug={categorySlug} />;
     default:
       // Um formulário padrão ou uma mensagem de "em breve" pode ser retornada aqui.
       return <p className="p-8 text-center">Formulário para {categorySlug} em construção.</p>;
@@ -97,3 +100,5 @@ export default function ReportPage() {
     </main>
   );
 }
+
+    
