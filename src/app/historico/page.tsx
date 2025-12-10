@@ -64,6 +64,9 @@ export default function HistoricoPage() {
      if (report.category === 'to-37' && formData?.sinalizacaoInfo?.nomeDaPlaca) {
       return `Sinalização Vertical - ${formData.sinalizacaoInfo.nomeDaPlaca}`;
     }
+     if (report.category === 'to-38' && formData?.sinalizacaoInfo?.nomeDaPlaca) {
+      return `Sinalização Vertical - ${formData.sinalizacaoInfo.nomeDaPlaca}`;
+    }
     // Add other report types here
     return `Relatório #${report.id.substring(0, 5)}`;
   };
