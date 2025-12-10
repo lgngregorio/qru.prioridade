@@ -1,8 +1,9 @@
+
 'use client';
 
 import { createContext, useContext, useState, useEffect, ReactNode, useCallback } from 'react';
 import i18n from 'i18next';
-import { initReactI18next, I18nextProvider } from 'react-i18next';
+import { initReactI18next, I18nextProvider as ReactI18nextProvider } from 'react-i18next';
 import pt from '@/locales/pt.json';
 import en from '@/locales/en.json';
 import es from '@/locales/es.json';
@@ -17,6 +18,7 @@ i18n
   .use(initReactI18next)
   .init({
     resources,
+    lng: 'pt', // default language
     fallbackLng: 'pt',
     interpolation: {
       escapeValue: false,
@@ -43,6 +45,13 @@ export function I18nProvider({ children }: { children: ReactNode }) {
       setLanguage(lng);
     };
     i18n.on('languageChanged', handleLanguageChanged);
+    
+    // Set initial language from local storage or default
+    const savedLanguage = localStorage.getItem('i18nextLng') || 'pt';
+    if (i18n.language !== savedLanguage) {
+        i18n.changeLanguage(savedLanguage);
+    }
+    
     return () => {
       i18n.off('languageChanged', handleLanguageChanged);
     };
@@ -50,9 +59,9 @@ export function I18nProvider({ children }: { children: ReactNode }) {
 
   return (
     <I18nContext.Provider value={{ changeLanguage, language }}>
-      <I18nextProvider i18n={i18n}>
+      <ReactI18nextProvider i18n={i18n}>
         {children}
-      </I18nextProvider>
+      </ReactI18nextProvider>
     </I18nContext.Provider>
   );
 }

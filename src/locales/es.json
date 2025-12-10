@@ -1,3 +1,4 @@
+
 {
     "settings": {
         "title": "CONFIGURACIÓN",
@@ -11,11 +12,15 @@
         "dark": "Oscuro",
         "system": "Sistema",
         "language": "IDIOMA",
-        "save_changes": "Guardar Cambios"
+        "save_changes": "Guardar Cambios",
+        "back_button": "Volver al Inicio",
+        "success_title": "¡Éxito!",
+        "success_description": "Tus configuraciones han sido guardadas.",
+        "saving_button": "Guardando..."
     },
     "languages": {
-        "pt-br": "Portugués (Brasil)",
-        "en-us": "Inglés (Estados Unidos)",
-        "es-es": "Español"
+        "pt": "Portugués (Brasil)",
+        "en": "Inglés (Estados Unidos)",
+        "es": "Español"
     }
 }

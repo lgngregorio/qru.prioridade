@@ -1,3 +1,4 @@
+
 'use client';
 
 import Link from 'next/link';
@@ -29,21 +30,27 @@ import { useTranslation } from 'react-i18next';
 let userProfileDB = {
   name: 'Lucas',
   email: 'lgngregorio@icloud.com',
-  language: 'pt-br',
+  language: 'pt',
+  theme: 'dark',
 };
 
 // This function simulates fetching the user profile from a database.
-const getUserProfile = () => ({ ...userProfileDB });
+const getUserProfile = () => {
+    console.log("DATABASE READ:", { ...userProfileDB });
+    return { ...userProfileDB };
+};
+
 
 // This function simulates updating the user profile in a database.
 const updateUserProfile = (profile: Partial<typeof userProfileDB>) => {
   userProfileDB = { ...userProfileDB, ...profile };
+  console.log("DATABASE WRITE:", { ...userProfileDB });
   return { ...userProfileDB };
 };
 
 
 export default function ConfiguracoesPage() {
-  const { theme: currentTheme, setTheme } = useTheme();
+  const { setTheme } = useTheme();
   const { toast } = useToast();
   const { changeLanguage } = useI18n();
   const { t, i18n } = useTranslation();
@@ -51,7 +58,7 @@ export default function ConfiguracoesPage() {
   // Temporary state for form edits
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
-  const [selectedTheme, setSelectedTheme] = useState<string | undefined>(undefined);
+  const [selectedTheme, setSelectedTheme] = useState('');
   const [selectedLanguage, setSelectedLanguage] = useState('');
 
   const [isSaving, setIsSaving] = useState(false);
@@ -62,36 +69,37 @@ export default function ConfiguracoesPage() {
     const profile = getUserProfile();
     setName(profile.name);
     setEmail(profile.email);
-    setSelectedTheme(currentTheme);
+    setSelectedTheme(profile.theme);
     setSelectedLanguage(profile.language);
     
-    // Ensure i18next language is in sync
+    // Ensure i18next language is in sync with the saved profile
     if (i18n.language !== profile.language) {
       changeLanguage(profile.language);
     }
+    // Ensure next-themes is in sync
+    setTheme(profile.theme);
 
     setIsLoaded(true);
-  }, [currentTheme, i18n.language, changeLanguage]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const handleSave = () => {
     setIsSaving(true);
     // Simulate saving to a backend
     setTimeout(() => {
       // 1. Save Profile Info
-      updateUserProfile({ name, email, language: selectedLanguage });
+      updateUserProfile({ name, email, language: selectedLanguage, theme: selectedTheme });
       
-      // 2. Apply and save Theme
-      if (selectedTheme) {
-        setTheme(selectedTheme);
-      }
-
-      // 3. Apply and save Language
+      // 2. Apply Theme
+      setTheme(selectedTheme);
+      
+      // 3. Apply Language
       changeLanguage(selectedLanguage);
 
       setIsSaving(false);
       toast({
-        title: 'Sucesso!',
-        description: 'Suas configurações foram salvas.',
+        title: t('settings.success_title'),
+        description: t('settings.success_description'),
       });
     }, 1000);
   };
@@ -132,7 +140,7 @@ export default function ConfiguracoesPage() {
           <Button asChild variant="outline" className="rounded-full">
             <Link href="/">
               <ArrowLeft className="mr-2 h-4 w-4" />
-              Voltar para o Início
+              {t('settings.back_button')}
             </Link>
           </Button>
         </div>
@@ -172,8 +180,7 @@ export default function ConfiguracoesPage() {
             <CardContent className="space-y-6">
               <div className="space-y-3">
                 <Label>{t('settings.theme')}</Label>
-                {selectedTheme && (
-                  <RadioGroup
+                <RadioGroup
                     value={selectedTheme}
                     onValueChange={setSelectedTheme}
                     className="flex flex-col space-y-2"
@@ -206,7 +213,6 @@ export default function ConfiguracoesPage() {
                       </Label>
                     </div>
                   </RadioGroup>
-                )}
               </div>
               <div className="space-y-2">
                 <Label htmlFor="language">{t('settings.language')}</Label>
@@ -215,9 +221,9 @@ export default function ConfiguracoesPage() {
                     <SelectValue placeholder="Selecione um idioma" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="pt-br">{t('languages.pt-br')}</SelectItem>
-                    <SelectItem value="en-us">{t('languages.en-us')}</SelectItem>
-                    <SelectItem value="es-es">{t('languages.es-es')}</SelectItem>
+                    <SelectItem value="pt">{t('languages.pt')}</SelectItem>
+                    <SelectItem value="en">{t('languages.en')}</SelectItem>
+                    <SelectItem value="es">{t('languages.es')}</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
@@ -228,7 +234,7 @@ export default function ConfiguracoesPage() {
         <div className="mt-8">
           <Button size="lg" className="w-full text-lg uppercase" onClick={handleSave} disabled={isSaving}>
             {isSaving ? <Loader2 className="mr-2 h-5 w-5 animate-spin" /> : <Save className="mr-2 h-5 w-5" />}
-            {isSaving ? 'Salvando...' : t('settings.save_changes')}
+            {isSaving ? t('settings.saving_button') : t('settings.save_changes')}
           </Button>
         </div>
       </div>
