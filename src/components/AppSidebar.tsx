@@ -33,8 +33,8 @@ export default function AppSidebar() {
            <h1 className="text-2xl font-bold text-white flex items-center justify-center gap-3">
             QRU
             <div className="flex h-6 items-center gap-1">
-              <div className="w-px h-full bg-white"></div>
-              <div className="w-px h-full bg-repeat-y bg-[length:1px_48px] bg-center animate-move-dashes" style={{ backgroundImage: "linear-gradient(to bottom, white 50%, transparent 50%)"}}></div>
+              <div className="w-px h-full bg-white/50"></div>
+              <div className="w-px h-full bg-repeat-y bg-[length:1px_8px] bg-center animate-move-dashes" style={{ backgroundImage: "linear-gradient(to bottom, white 50%, transparent 50%)"}}></div>
             </div>
             PRIORIDADE
           </h1>
@@ -51,8 +51,8 @@ export default function AppSidebar() {
             </SidebarMenuButton>
           </SidebarMenuItem>
           <SidebarMenuItem>
-            <SidebarMenuButton asChild className="text-base [&_svg]:size-5">
-              <Link href="#">
+            <SidebarMenuButton asChild isActive={pathname === '/codigos'} className="text-base [&_svg]:size-5">
+              <Link href="/codigos">
                 <FileCode />
                 Códigos
               </Link>
