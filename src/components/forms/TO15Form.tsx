@@ -291,6 +291,7 @@ export default function TO15Form({ categorySlug }: { categorySlug: string }) {
                     <SelectContent>
                         <SelectItem value="norte">NORTE</SelectItem>
                         <SelectItem value="sul">SUL</SelectItem>
+                        <SelectItem value="ambos">AMBOS</SelectItem>
                     </SelectContent>
                 </Select>
             </Field>
