@@ -10,7 +10,6 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from '@/components/ui/accordion';
-import { SidebarTrigger } from '@/components/ui/sidebar';
 
 const codeSections = [
     {
@@ -43,14 +42,13 @@ export default function CodigosPage() {
   return (
     <main className="flex flex-col items-center p-4 md:p-6">
       <div className="w-full max-w-4xl">
-        <div className="flex items-center justify-between w-full mb-6 pt-4">
+        <div className="w-full mb-6 pt-4">
            <Button asChild variant="outline" className="rounded-full">
             <Link href="/">
               <ArrowLeft className="mr-2 h-4 w-4" />
               Voltar
             </Link>
           </Button>
-          <SidebarTrigger className="md:hidden" />
         </div>
 
         <div className="text-center mb-8">
