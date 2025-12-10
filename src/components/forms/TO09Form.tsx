@@ -33,7 +33,7 @@ type GeneralInfo = {
   qth: string;
   sentido: string;
   localArea: string;
-  tipoDeObjeto: string;
+  tipoDeObra: string;
   quantidade: string;
 };
 
@@ -58,7 +58,7 @@ export default function TO09Form({ categorySlug }: { categorySlug: string }) {
     qth: '',
     sentido: '',
     localArea: '',
-    tipoDeObjeto: '',
+    tipoDeObra: '',
     quantidade: '',
   });
   
@@ -164,7 +164,7 @@ export default function TO09Form({ categorySlug }: { categorySlug: string }) {
     message += `QTH (Local): ${reportData.generalInfo.qth}\n`;
     message += `Sentido: ${reportData.generalInfo.sentido}\n`;
     message += `Local/Área: ${reportData.generalInfo.localArea}\n`;
-    message += `Tipo de Objeto: ${reportData.generalInfo.tipoDeObjeto}\n`;
+    message += `Tipo de Obra: ${reportData.generalInfo.tipoDeObra}\n`;
     message += `Quantidade: ${reportData.generalInfo.quantidade}\n\n`;
 
     message += `*OUTRAS INFORMAÇÕES*\n`;
@@ -231,8 +231,8 @@ export default function TO09Form({ categorySlug }: { categorySlug: string }) {
                     </SelectContent>
                 </Select>
             </Field>
-            <Field label="TIPO DE OBJETO">
-                <Input className="text-xl placeholder:capitalize placeholder:text-sm" placeholder="Ex: Pneu, galho de árvore" value={generalInfo.tipoDeObjeto} onChange={(e) => handleGeneralInfoChange('tipoDeObjeto', e.target.value)}/>
+            <Field label="TIPO DE OBRA">
+                <Input className="text-xl placeholder:capitalize placeholder:text-sm" placeholder="Ex: Pneu, galho de árvore" value={generalInfo.tipoDeObra} onChange={(e) => handleGeneralInfoChange('tipoDeObra', e.target.value)}/>
             </Field>
             <Field label="QUANTIDADE">
                 <Input className="text-xl placeholder:capitalize placeholder:text-sm" placeholder="Ex: 1" value={generalInfo.quantidade} onChange={(e) => handleGeneralInfoChange('quantidade', e.target.value)}/>
