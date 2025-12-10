@@ -303,6 +303,7 @@ export default function TO06Form({ categorySlug }: { categorySlug: string }) {
                         <SelectValue placeholder="Selecione o local/área" />
                     </SelectTrigger>
                     <SelectContent>
+                        <SelectItem value="faixa_rolamento">FAIXA DE ROLAMENTO</SelectItem>
                         <SelectItem value="terceira_faixa">TERCEIRA FAIXA</SelectItem>
                         <SelectItem value="faixa_rolamento_acostamento">FAIXA DE ROLAMENTO/ACOSTAMENTO</SelectItem>
                     </SelectContent>
@@ -449,3 +450,6 @@ export default function TO06Form({ categorySlug }: { categorySlug: string }) {
     </div>
   );
 }
+
+
+    
