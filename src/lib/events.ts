@@ -203,7 +203,7 @@ export const eventCategories: EventCategory[] = [
     color: '#FF6347',
   },
   {
-    name: 'PLACAS DE PROPAGANDA',
+    name: 'TO 38',
     title: 'PLACAS DE PROPAGANDA',
     slug: 'to-38',
     icon: Megaphone,
