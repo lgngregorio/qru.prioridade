@@ -16,6 +16,7 @@ import {
 } from '@/components/ui/card';
 import { SidebarTrigger } from '@/components/ui/sidebar';
 import VeiculoAbandonadoForm from '@/components/forms/VeiculoAbandonadoForm';
+import IncendioForm from '@/components/forms/IncendioForm';
 
 function ReportFormComponent({ categorySlug }: { categorySlug: string }) {
   // Por enquanto, apenas o formulário TO-01 está disponível.
@@ -23,6 +24,8 @@ function ReportFormComponent({ categorySlug }: { categorySlug: string }) {
   switch (categorySlug) {
     case 'to-01':
       return <VeiculoAbandonadoForm categorySlug={categorySlug} />;
+    case 'to-02':
+      return <IncendioForm categorySlug={categorySlug} />;
     // Adicione outros casos para outros formulários aqui
     // case 'to-02':
     //   return <FormTO02 categorySlug={categorySlug} />;
@@ -42,8 +45,7 @@ export default function ReportPage() {
     return null;
   }
   
-  // TODO: O título e a descrição devem ser dinâmicos com base na categoria
-  const title = "VEÍCULO ABANDONADO";
+  const title = category.name;
   const description = (
     <>
       Preencha os campos abaixo e envie o relatório <br /> completo.

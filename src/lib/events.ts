@@ -51,17 +51,17 @@ export const eventCategories: EventCategory[] = [
     color: '#FFA500',
   },
   {
-    name: 'TO 01',
+    name: 'VEÍCULO ABANDONADO',
     slug: 'to-01',
     icon: Truck,
-    description: 'Relatar TO 01.',
+    description: 'Relatório de Veículo Abandonado.',
     color: '#8B4513',
   },
   {
-    name: 'TO 02',
+    name: 'INCÊNDIO NA FAIXA DE DOMÍNIO/LINDEIRO',
     slug: 'to-02',
     icon: Flame,
-    description: 'Relatar TO 02.',
+    description: 'Relatório de Incêndio.',
     color: '#FF4500',
   },
   {
