@@ -315,28 +315,31 @@ export default function TO12Form({ categorySlug }: { categorySlug: string }) {
         </div>
         
         <SectionTitle>PROCEDIMENTOS REALIZADOS</SectionTitle>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-4">
-             {renderCheckboxes('procedimentos', 'lista', [
-                {id: 'colar_cervical', label: 'Colar Cervical'},
-                {id: 'pranchamento', label: 'Pranchamento: Decúbito/Em Pé'},
-                {id: 'extricacao_ked', label: 'Extricação com KED'},
-                {id: 'extricacao_tereza_rautek', label: 'Extricação c/ Tereza/Rautek'},
-                {id: 'desencarceramento', label: 'Desencarceramento'},
-                {id: 'retirada_capacete', label: 'Retirada de Capacete'},
-                {id: 'imobilizacao_membros', label: 'Imobilização de Membros: ( )MSE ( )MSD ( )MIE ( )MID'},
-                {id: 'imobilizacao_pelve', label: 'Imobilização de Pelve'},
-                {id: 'desobstrucao_vias_aereas', label: 'Desobstrução de Vias Aéreas'},
-                {id: 'canula_guedel', label: 'Cânula de Guedel'},
-                {id: 'oxigenio', label: 'Oxigênio: Máscara/Cateter Nasal'},
-                {id: 'ventilacao_ambu', label: 'Ventilação com Ambu'},
-                {id: 'oximetria_pulso', label: 'Oximetria de Pulso'},
-                {id: 'dea', label: 'DEA - Desfibrilador Externo Automático'},
-                {id: 'rcp', label: 'RCP - Ressuscitação Cardiopulmonar'},
-                {id: 'curativo', label: 'Curativo: Oclusivo/Compressivo'},
-                {id: 'torniquete', label: 'Torniquete'},
-                {id: 'afericao_sinais_vitais', label: 'Aferição de Sinais Vitais'},
-                {id: 'orientacoes', label: 'Orientações'},
-                {id: 'resgate_altura', label: 'Resgate em Altura'},
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-2">
+            {renderCheckboxes('procedimentos', 'lista', [
+                { id: 'colar_cervical', label: 'Colar Cervical' },
+                { id: 'pranchamento', label: 'Pranchamento: Decúbito/Em Pé' },
+                { id: 'extricacao_ked', label: 'Extricação com KED' },
+                { id: 'extricacao_tereza_rautek', label: 'Extricação c/ Tereza/Rautek' },
+                { id: 'desencarceramento', label: 'Desencarceramento' },
+                { id: 'retirada_capacete', label: 'Retirada de Capacete' },
+                { id: 'imobilizacao_mse', label: 'Imobilização de MSE' },
+                { id: 'imobilizacao_msd', label: 'Imobilização de MSD' },
+                { id: 'imobilizacao_mie', label: 'Imobilização de MIE' },
+                { id: 'imobilizacao_mid', label: 'Imobilização de MID' },
+                { id: 'imobilizacao_pelve', label: 'Imobilização de Pelve' },
+                { id: 'desobstrucao_vias_aereas', label: 'Desobstrução de Vias Aéreas' },
+                { id: 'canula_guedel', label: 'Cânula de Guedel' },
+                { id: 'oxigenio', label: 'Oxigênio: Máscara/Cateter Nasal' },
+                { id: 'ventilacao_ambu', label: 'Ventilação com Ambu' },
+                { id: 'oximetria_pulso', label: 'Oximetria de Pulso' },
+                { id: 'dea', label: 'DEA - Desfibrilador Externo Automático' },
+                { id: 'rcp', label: 'RCP - Ressuscitação Cardiopulmonar' },
+                { id: 'curativo', label: 'Curativo: Oclusivo/Compressivo' },
+                { id: 'torniquete', label: 'Torniquete' },
+                { id: 'afericao_sinais_vitais', label: 'Aferição de Sinais Vitais' },
+                { id: 'orientacoes', label: 'Orientações' },
+                { id: 'resgate_altura', label: 'Resgate em Altura' },
             ])}
         </div>
         <Field label="Outros"><Input className="text-xl" onChange={(e) => handleValueChange('procedimentos', 'outros', e.target.value)} /></Field>
