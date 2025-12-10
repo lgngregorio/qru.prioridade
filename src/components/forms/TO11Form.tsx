@@ -94,11 +94,47 @@ export default function TO11Form({ categorySlug }: { categorySlug: string }) {
   const handleGeneralInfoChange = (field: keyof GeneralInfo, value: string) => {
     setGeneralInfo(prev => ({ ...prev, [field]: value }));
   };
+  
+  const formatPhoneNumber = (value: string) => {
+    if (!value) return value;
+    const phoneNumber = value.replace(/[^\d]/g, '');
+    const phoneNumberLength = phoneNumber.length;
+    if (phoneNumberLength < 3) return `(${phoneNumber}`;
+    if (phoneNumberLength < 8) {
+      return `(${phoneNumber.slice(0, 2)}) ${phoneNumber.slice(2)}`;
+    }
+    return `(${phoneNumber.slice(0, 2)}) ${phoneNumber.slice(2, 7)}-${phoneNumber.slice(7, 11)}`;
+  };
+
+  const formatCPF = (value: string) => {
+    if (!value) return value;
+    const cpf = value.replace(/[^\d]/g, "");
+    if (cpf.length <= 3) return cpf;
+    if (cpf.length <= 6) return `${cpf.slice(0, 3)}.${cpf.slice(3)}`;
+    if (cpf.length <= 9) return `${cpf.slice(0, 3)}.${cpf.slice(3, 6)}.${cpf.slice(6)}`;
+    return `${cpf.slice(0, 3)}.${cpf.slice(3, 6)}.${cpf.slice(6, 9)}-${cpf.slice(9, 11)}`;
+  };
+
+  const formatRG = (value: string) => {
+      if (!value) return value;
+      const rg = value.replace(/[^\d]/g, "");
+      if (rg.length <= 2) return rg;
+      if (rg.length <= 5) return `${rg.slice(0, 2)}.${rg.slice(2)}`;
+      if (rg.length <= 8) return `${rg.slice(0, 2)}.${rg.slice(2, 5)}.${rg.slice(5)}`;
+      return `${rg.slice(0, 2)}.${rg.slice(2, 5)}.${rg.slice(5, 8)}-${rg.slice(8, 9)}`;
+  };
+
 
   const handleVehicleChange = (index: number, field: keyof Vehicle, value: string) => {
     const newVehicles = [...vehicles];
     if (field === 'telefone') {
       value = formatPhoneNumber(value);
+    }
+    if (field === 'cpf') {
+      value = formatCPF(value);
+    }
+    if (field === 'rg') {
+      value = formatRG(value);
     }
     (newVehicles[index] as any)[field] = value;
     setVehicles(newVehicles);
@@ -119,17 +155,6 @@ export default function TO11Form({ categorySlug }: { categorySlug: string }) {
 
   const removeVehicle = (id: number) => {
     setVehicles(vehicles.filter(v => v.id !== id));
-  };
-  
-  const formatPhoneNumber = (value: string) => {
-    if (!value) return value;
-    const phoneNumber = value.replace(/[^\d]/g, '');
-    const phoneNumberLength = phoneNumber.length;
-    if (phoneNumberLength < 3) return `(${phoneNumber}`;
-    if (phoneNumberLength < 8) {
-      return `(${phoneNumber.slice(0, 2)}) ${phoneNumber.slice(2)}`;
-    }
-    return `(${phoneNumber.slice(0, 2)}) ${phoneNumber.slice(2, 7)}-${phoneNumber.slice(7, 11)}`;
   };
   
   const fillEmptyFields = (data: any): any => {
@@ -393,8 +418,24 @@ export default function TO11Form({ categorySlug }: { categorySlug: string }) {
                           maxLength={15}
                         />
                      </Field>
-                     <Field label="RG"><Input className="text-xl placeholder:capitalize placeholder:text-sm" placeholder="Número do RG" value={vehicle.rg} onChange={e => handleVehicleChange(index, 'rg', e.target.value)}/></Field>
-                     <Field label="CPF"><Input className="text-xl placeholder:capitalize placeholder:text-sm" placeholder="Número do CPF" value={vehicle.cpf} onChange={e => handleVehicleChange(index, 'cpf', e.target.value)}/></Field>
+                     <Field label="RG">
+                        <Input 
+                            className="text-xl placeholder:capitalize placeholder:text-sm" 
+                            placeholder="00.000.000-0" 
+                            value={vehicle.rg} 
+                            onChange={e => handleVehicleChange(index, 'rg', e.target.value)}
+                            maxLength={12}
+                        />
+                     </Field>
+                     <Field label="CPF">
+                        <Input 
+                            className="text-xl placeholder:capitalize placeholder:text-sm" 
+                            placeholder="000.000.000-00" 
+                            value={vehicle.cpf} 
+                            onChange={e => handleVehicleChange(index, 'cpf', e.target.value)}
+                            maxLength={14}
+                        />
+                     </Field>
                      <Field label="ENDEREÇO"><Input className="text-xl placeholder:capitalize placeholder:text-sm" placeholder="Endereço do condutor" value={vehicle.endereco} onChange={e => handleVehicleChange(index, 'endereco', e.target.value)}/></Field>
                      <Field label="OCUPANTES"><Input className="text-xl placeholder:capitalize placeholder:text-sm" placeholder="Ex: 2 adultos, 1 criança" value={vehicle.ocupantes} onChange={e => handleVehicleChange(index, 'ocupantes', e.target.value)}/></Field>
                 </div>
