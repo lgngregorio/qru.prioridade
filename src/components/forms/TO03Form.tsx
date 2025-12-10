@@ -51,6 +51,9 @@ type TracadoPista = {
 
 type OtherInfo = {
   observacoes: string;
+  auxilios: string;
+  destinacaoAnimal: string;
+  qthExato: string;
   numeroOcorrencia: string;
 };
 
@@ -84,6 +87,9 @@ export default function TO03Form({ categorySlug }: { categorySlug: string }) {
 
   const [otherInfo, setOtherInfo] = useState<OtherInfo>({
     observacoes: '',
+    auxilios: '',
+    destinacaoAnimal: '',
+    qthExato: '',
     numeroOcorrencia: '',
   });
 
@@ -200,6 +206,9 @@ export default function TO03Form({ categorySlug }: { categorySlug: string }) {
     
     message += `*OUTRAS INFORMAÇÕES*\n`;
     message += `Observações: ${reportData.otherInfo.observacoes}\n`;
+    message += `Auxílio/PR: ${reportData.otherInfo.auxilios}\n`;
+    message += `Destinação do Animal: ${reportData.otherInfo.destinacaoAnimal}\n`;
+    message += `QTH Exato: ${reportData.otherInfo.qthExato}\n`;
     message += `Nº Ocorrência: ${reportData.otherInfo.numeroOcorrencia}\n`;
 
     const whatsappUrl = `https://wa.me/?text=${encodeURIComponent(message)}`;
@@ -364,6 +373,24 @@ export default function TO03Form({ categorySlug }: { categorySlug: string }) {
             <Field label="OBSERVAÇÕES">
               <Textarea className="text-xl placeholder:capitalize placeholder:text-sm" placeholder="Descreva detalhes adicionais sobre a ocorrência" value={otherInfo.observacoes} onChange={(e) => handleOtherInfoChange('observacoes', e.target.value)} />
             </Field>
+             <Field label="AUXÍLIO/PR">
+              <Textarea className="text-xl placeholder:capitalize placeholder:text-sm" placeholder="Descreva os auxílios prestados" value={otherInfo.auxilios} onChange={(e) => handleOtherInfoChange('auxilios', e.target.value)} />
+            </Field>
+            <Field label="DESTINAÇÃO DO ANIMAL">
+                <Select value={otherInfo.destinacaoAnimal} onValueChange={(value) => handleOtherInfoChange('destinacaoAnimal', value)}>
+                    <SelectTrigger className="text-xl normal-case placeholder:text-base">
+                        <SelectValue placeholder="Selecione a destinação" />
+                    </SelectTrigger>
+                    <SelectContent>
+                        <SelectItem value="pr05">PR05</SelectItem>
+                        <SelectItem value="pr56">PR56</SelectItem>
+                        <SelectItem value="pr13">PR13</SelectItem>
+                    </SelectContent>
+                </Select>
+            </Field>
+            <Field label="QTH EXATO">
+                <Input className="text-xl placeholder:capitalize placeholder:text-sm" placeholder="Informe o QTH exato" value={otherInfo.qthExato} onChange={(e) => handleOtherInfoChange('qthExato', e.target.value)}/>
+            </Field>
             <Field label="NÚMERO DA OCORRÊNCIA">
               <Input className="text-xl placeholder:capitalize placeholder:text-sm" placeholder="Número de controle interno" value={otherInfo.numeroOcorrencia} onChange={(e) => handleOtherInfoChange('numeroOcorrencia', e.target.value)} />
             </Field>
@@ -384,3 +411,5 @@ export default function TO03Form({ categorySlug }: { categorySlug: string }) {
     </div>
   );
 }
+
+    
