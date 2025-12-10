@@ -17,16 +17,16 @@ export default function Home() {
   return (
     <main className="flex min-h-screen flex-col items-center p-4 pt-8 md:p-6">
       <div className="w-full max-w-md">
-        <header className="text-left mb-6 flex items-center gap-4">
-           <SidebarTrigger className="md:hidden"/>
-          <div>
-            <h1 className="text-2xl font-bold text-foreground">
-              Ocorrências
-            </h1>
-            <p className="text-muted-foreground mt-1 text-sm">
-              Selecione o tipo de ocorrência para gerar o relatório.
-            </p>
-          </div>
+        <header className="text-center mb-6 w-full">
+           <div className="flex items-center gap-4 justify-center relative">
+             <SidebarTrigger className="md:hidden absolute left-0"/>
+             <h1 className="text-4xl font-bold text-foreground font-headline tracking-wider">
+                QRU <span className="font-light">|</span> PRIORIDADE
+              </h1>
+           </div>
+          <p className="text-muted-foreground mt-2 text-base">
+            Selecione o tipo de ocorrência para gerar o relatório.
+          </p>
         </header>
 
         <div className="mb-8">
