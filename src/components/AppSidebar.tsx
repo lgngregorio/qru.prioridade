@@ -34,7 +34,7 @@ export default function AppSidebar() {
             QRU
             <div className="flex h-6 items-center gap-1">
               <div className="w-0.5 h-full bg-white"></div>
-              <div className="w-0.5 h-full bg-repeat-y bg-[length:3px_18px] bg-center animate-move-dashes" style={{ backgroundImage: "linear-gradient(to bottom, white 50%, transparent 50%)"}}></div>
+              <div className="w-0.5 h-full bg-repeat-y bg-[length:3px_21px] bg-center animate-move-dashes" style={{ backgroundImage: "linear-gradient(to bottom, white 60%, transparent 40%)"}}></div>
             </div>
             PRIORIDADE
           </h1>

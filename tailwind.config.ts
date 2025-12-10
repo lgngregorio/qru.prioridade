@@ -97,7 +97,7 @@ export default {
         },
         'move-dashes': {
             '0%': { backgroundPosition: '0 0' },
-            '100%': { backgroundPosition: '0 24px' },
+            '100%': { backgroundPosition: '0 28px' },
         },
       },
       animation: {
