@@ -154,7 +154,7 @@ export const eventCategories: EventCategory[] = [
   },
   {
     name: 'TO 17',
-    title: 'PEDESTRE NA RODOVIA',
+    title: 'ANDARILHO NA RODOVIA',
     slug: 'to-17',
     icon: PersonStanding,
     description: 'Relatar TO 17.',

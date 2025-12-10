@@ -89,7 +89,7 @@ export default function ReportPage() {
         <Card className="w-full shadow-none rounded-none border-0 bg-transparent">
           <CardHeader className="text-center px-4 pb-4 md:px-6 md:pb-6">
             <CardTitle className="text-3xl font-bold text-foreground font-headline tracking-wide uppercase">
-              {category.name}
+              {title}
             </CardTitle>
             <CardDescription className="text-lg mt-1 text-muted-foreground normal-case">
              {description}
