@@ -227,7 +227,7 @@ export default function TO38Form({ categorySlug }: { categorySlug: string }) {
                         <SelectItem value="area_de_dominio">ÁREA DE DOMÍNIO</SelectItem>
                         <SelectItem value="trevo">TREVO</SelectItem>
                         <SelectItem value="rotatoria">ROTATÓRIA</SelectItem>
-                        <SelectItem value="praca_de_pedagio">PRAÇA DE PEDÁGIO</SelectItem>
+                        <SelectItem value="acostamento">ACOSTAMENTO</SelectItem>
                     </SelectContent>
                 </Select>
             </Field>
