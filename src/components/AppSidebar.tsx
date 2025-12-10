@@ -44,7 +44,7 @@ export default function AppSidebar() {
                 style={{
                   backgroundImage:
                     'linear-gradient(to bottom, hsl(var(--sidebar-foreground)) 50%, transparent 50%)',
-                  backgroundSize: '1px 48px',
+                  backgroundSize: '1px 8px',
                   backgroundRepeat: 'repeat-y',
                 }}
               ></div>
