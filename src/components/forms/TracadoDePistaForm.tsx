@@ -65,12 +65,12 @@ export default function TracadoDePistaForm({ categorySlug }: { categorySlug: str
   const renderCheckboxes = (section: string, key: string, options: { id: string, label: string }[]) => (
     <div className="flex flex-col space-y-2">
       {options.map((option) => (
-        <div key={option.id} className="flex items-center space-x-2">
+        <div key={option.id} className="flex items-center space-x-3">
           <Checkbox
             id={`${section}-${key}-${option.id}`}
             onCheckedChange={(checked) => handleCheckboxChange(section, key, option.id, !!checked)}
           />
-          <label htmlFor={`${section}-${key}-${option.id}`} className="text-base font-medium leading-none">
+          <label htmlFor={`${section}-${key}-${option.id}`} className="text-lg font-medium leading-none">
             {option.label}
           </label>
         </div>
@@ -84,9 +84,9 @@ export default function TracadoDePistaForm({ categorySlug }: { categorySlug: str
       className="flex flex-col space-y-2"
     >
       {options.map((option) => (
-        <div key={option.id} className="flex items-center space-x-2">
+        <div key={option.id} className="flex items-center space-x-3">
           <RadioGroupItem value={option.id} id={`${section}-${key}-${option.id}`} />
-          <Label htmlFor={`${section}-${key}-${option.id}`} className="text-base font-normal">{option.label}</Label>
+          <Label htmlFor={`${section}-${key}-${option.id}`} className="text-lg font-normal">{option.label}</Label>
         </div>
       ))}
     </RadioGroup>
