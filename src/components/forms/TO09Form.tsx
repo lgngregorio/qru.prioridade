@@ -232,7 +232,7 @@ export default function TO09Form({ categorySlug }: { categorySlug: string }) {
                 </Select>
             </Field>
             <Field label="TIPO DE OBRA">
-                <Input className="text-xl placeholder:capitalize placeholder:text-sm" placeholder="Ex: Pneu, galho de árvore" value={generalInfo.tipoDeObra} onChange={(e) => handleGeneralInfoChange('tipoDeObra', e.target.value)}/>
+                <Input className="text-xl placeholder:capitalize placeholder:text-sm" placeholder="Tipo de Obra" value={generalInfo.tipoDeObra} onChange={(e) => handleGeneralInfoChange('tipoDeObra', e.target.value)}/>
             </Field>
             <Field label="QUANTIDADE">
                 <Input className="text-xl placeholder:capitalize placeholder:text-sm" placeholder="Ex: 1" value={generalInfo.quantidade} onChange={(e) => handleGeneralInfoChange('quantidade', e.target.value)}/>
