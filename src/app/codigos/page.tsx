@@ -10,11 +10,63 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from '@/components/ui/accordion';
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from '@/components/ui/table';
+
+const messageCodes = [
+    { code: 'QAP', message: 'Na Escuta' },
+    { code: 'QAR', message: 'Autorização para abandonar a escuta' },
+    { code: 'QBU', message: 'Agitado, confusão mental, Alucinações' },
+    { code: 'QRA', message: 'Prefixo da estação / Operador' },
+    { code: 'QRM', message: 'Interferência de outra estação' },
+    { code: 'QRV', message: 'Ponto para receber. À disposição' },
+    { code: 'QRX', message: 'Espere, aguarde' },
+    { code: 'QRU', message: 'Ocorrência. Evento' },
+    { code: 'QSA', message: 'Intensidade do Sinal' },
+    { code: 'QSJ', message: 'Dinheiro, Pagamento, valor' },
+    { code: 'QSL', message: 'Confirmado, compreendido, Afirmativo' },
+    { code: 'QSM', message: 'Repetir o último câmbio' },
+    { code: 'QSO', message: 'Contato entre duas estações, pessoas' },
+    { code: 'QTA', message: 'Cancelar' },
+    { code: 'QTC', message: 'Mensagem. Comunicado' },
+    { code: 'QTH', message: 'Endereço. Localização' },
+    { code: 'QTI', message: 'A caminho. Destino' },
+    { code: 'QTO', message: 'Banheiro' },
+    { code: 'QTR', message: 'HORA CERTA / EXATA' },
+    { code: 'QUD', message: 'Prioridade na rede' },
+    { code: 'TKS', message: 'Grato. Obrigado, agradeço' },
+];
+
+const MessageCodesTable = () => (
+  <Table>
+    <TableHeader>
+      <TableRow>
+        <TableHead className="w-[120px]">Código</TableHead>
+        <TableHead>Mensagem</TableHead>
+      </TableRow>
+    </TableHeader>
+    <TableBody>
+      {messageCodes.map((item) => (
+        <TableRow key={item.code}>
+          <TableCell className="font-medium">{item.code}</TableCell>
+          <TableCell>{item.message}</TableCell>
+        </TableRow>
+      ))}
+    </TableBody>
+  </Table>
+);
+
 
 const codeSections = [
     {
         title: 'Códigos de Mensagem',
-        content: 'Conteúdo para Códigos de Mensagem em breve.'
+        content: <MessageCodesTable />
     },
     {
         title: 'Tipos de Ação/Providência',
