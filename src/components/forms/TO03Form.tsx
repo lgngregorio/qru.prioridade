@@ -3,7 +3,7 @@
 
 import { useRouter } from 'next/navigation';
 import { Save, Share, Loader2 } from 'lucide-react';
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { collection, addDoc, serverTimestamp } from 'firebase/firestore';
 import React from 'react';
 
@@ -32,6 +32,10 @@ type GeneralInfo = {
   ocorrencia: string;
   qth: string;
   sentido: string;
+  localArea: string;
+  animal: string;
+  quantidade: string;
+  situacao: string;
 };
 
 
@@ -51,6 +55,10 @@ export default function TO03Form({ categorySlug }: { categorySlug: string }) {
     ocorrencia: categorySlug.toUpperCase(),
     qth: '',
     sentido: '',
+    localArea: '',
+    animal: '',
+    quantidade: '',
+    situacao: '',
   });
 
   const [otherInfo, setOtherInfo] = useState<OtherInfo>({
@@ -144,7 +152,11 @@ export default function TO03Form({ categorySlug }: { categorySlug: string }) {
     message += `Rodovia: ${reportData.generalInfo.rodovia}\n`;
     message += `Ocorrência: ${reportData.generalInfo.ocorrencia}\n`;
     message += `QTH (Local): ${reportData.generalInfo.qth}\n`;
-    message += `Sentido: ${reportData.generalInfo.sentido}\n\n`;
+    message += `Sentido: ${reportData.generalInfo.sentido}\n`;
+    message += `Local/Área: ${reportData.generalInfo.localArea}\n`;
+    message += `Animal: ${reportData.generalInfo.animal}\n`;
+    message += `Quantidade: ${reportData.generalInfo.quantidade}\n`;
+    message += `Situação: ${reportData.generalInfo.situacao}\n\n`;
     
     message += `*OUTRAS INFORMAÇÕES*\n`;
     message += `Detalhes: ${reportData.otherInfo.detalhes}\n`;
@@ -191,6 +203,38 @@ export default function TO03Form({ categorySlug }: { categorySlug: string }) {
                     </SelectContent>
                 </Select>
             </Field>
+            <Field label="LOCAL/ÁREA">
+                <Select value={generalInfo.localArea} onValueChange={(value) => handleGeneralInfoChange('localArea', value)}>
+                    <SelectTrigger className="text-xl normal-case placeholder:text-base">
+                        <SelectValue placeholder="Selecione o local/área" />
+                    </SelectTrigger>
+                    <SelectContent>
+                        <SelectItem value="faixa_de_rolamento">FAIXA DE ROLAMENTO</SelectItem>
+                        <SelectItem value="acostamento">ACOSTAMENTO</SelectItem>
+                        <SelectItem value="terceira_faixa">TERCEIRA FAIXA</SelectItem>
+                        <SelectItem value="area_de_dominio">ÁREA DE DOMÍNIO</SelectItem>
+                        <SelectItem value="faixa_de_bordo">FAIXA DE BORDO</SelectItem>
+                    </SelectContent>
+                </Select>
+            </Field>
+            <Field label="ANIMAL">
+                <Input className="text-xl placeholder:capitalize placeholder:text-sm" placeholder="Ex: Cavalo" value={generalInfo.animal} onChange={(e) => handleGeneralInfoChange('animal', e.target.value)}/>
+            </Field>
+            <Field label="QUANTIDADE">
+                <Input className="text-xl placeholder:capitalize placeholder:text-sm" placeholder="Ex: 1" value={generalInfo.quantidade} onChange={(e) => handleGeneralInfoChange('quantidade', e.target.value)}/>
+            </Field>
+            <Field label="SITUAÇÃO">
+                <Select value={generalInfo.situacao} onValueChange={(value) => handleGeneralInfoChange('situacao', value)}>
+                    <SelectTrigger className="text-xl normal-case placeholder:text-base">
+                        <SelectValue placeholder="Selecione a situação" />
+                    </SelectTrigger>
+                    <SelectContent>
+                        <SelectItem value="ileso">ILESO</SelectItem>
+                        <SelectItem value="ferido">FERIDO</SelectItem>
+                        <SelectItem value="fatal">FATAL</SelectItem>
+                    </SelectContent>
+                </Select>
+            </Field>
           </div>
         </div>
 
@@ -221,3 +265,5 @@ export default function TO03Form({ categorySlug }: { categorySlug: string }) {
     </div>
   );
 }
+
+    
