@@ -33,7 +33,7 @@ type GeneralInfo = {
   qth: string;
   sentido: string;
   localArea: string;
-  tipoDeObra: string;
+  tipoDeServico: string;
   qraResponsavel: string;
   baixaFrequencia: string;
   qtrInicio: string;
@@ -61,7 +61,7 @@ export default function TO50Form({ categorySlug }: { categorySlug: string }) {
     qth: '',
     sentido: '',
     localArea: '',
-    tipoDeObra: '',
+    tipoDeServico: '',
     qraResponsavel: '',
     baixaFrequencia: '',
     qtrInicio: '',
@@ -178,7 +178,7 @@ export default function TO50Form({ categorySlug }: { categorySlug: string }) {
     message += `QTH (Local): ${reportData.generalInfo.qth}\n`;
     message += `Sentido: ${reportData.generalInfo.sentido}\n`;
     message += `Local/Área: ${reportData.generalInfo.localArea}\n`;
-    message += `Tipo de Obra: ${reportData.generalInfo.tipoDeObra}\n`;
+    message += `Tipo de Serviço: ${reportData.generalInfo.tipoDeServico}\n`;
     message += `QRA do Responsável: ${reportData.generalInfo.qraResponsavel}\n`;
     message += `Baixa Frequência: ${reportData.generalInfo.baixaFrequencia}\n`;
     message += `QTR de Início: ${reportData.generalInfo.qtrInicio}\n`;
@@ -244,8 +244,8 @@ export default function TO50Form({ categorySlug }: { categorySlug: string }) {
                     </SelectContent>
                 </Select>
             </Field>
-            <Field label="TIPO DE OBRA">
-                <Input className="text-xl placeholder:capitalize placeholder:text-sm" placeholder="Tipo de Obra" value={generalInfo.tipoDeObra} onChange={(e) => handleGeneralInfoChange('tipoDeObra', e.target.value)}/>
+            <Field label="TIPO DE SERVIÇO">
+                <Input className="text-xl placeholder:capitalize placeholder:text-sm" placeholder="Tipo de Serviço" value={generalInfo.tipoDeServico} onChange={(e) => handleGeneralInfoChange('tipoDeServico', e.target.value)}/>
             </Field>
             <Field label="QRA DO RESPONSÁVEL">
                 <Input className="text-xl placeholder:capitalize placeholder:text-sm" placeholder="Nome do responsável" value={generalInfo.qraResponsavel} onChange={(e) => handleGeneralInfoChange('qraResponsavel', e.target.value)}/>
