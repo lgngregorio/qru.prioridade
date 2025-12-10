@@ -226,6 +226,9 @@ export default function TO37Form({ categorySlug }: { categorySlug: string }) {
                     </SelectTrigger>
                     <SelectContent>
                         <SelectItem value="area_de_dominio">ÁREA DE DOMÍNIO</SelectItem>
+                        <SelectItem value="trevo">TREVO</SelectItem>
+                        <SelectItem value="rotatoria">ROTATÓRIA</SelectItem>
+                        <SelectItem value="praca_de_pedagio">PRAÇA DE PEDÁGIO</SelectItem>
                     </SelectContent>
                 </Select>
             </Field>
