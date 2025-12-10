@@ -202,10 +202,10 @@ export default function NotepadPage() {
         </div>
 
         {!isEditing && (
-            <div className="mb-6 text-center">
-                <Button variant="outline" onClick={handleNewNoteClick}>
+             <div className="mb-6">
+                <Button onClick={handleNewNoteClick} className="w-full bg-primary hover:bg-primary/90 text-lg uppercase">
                     <Plus className="mr-2 h-4 w-4" />
-                    Nova Nota
+                    Nova Anotação
                 </Button>
             </div>
         )}
