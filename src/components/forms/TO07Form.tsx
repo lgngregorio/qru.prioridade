@@ -37,22 +37,10 @@ type GeneralInfo = {
   quantidade: string;
 };
 
-type CaracteristicasEntorno = {
-  entornoNorte: string;
-  entornoSul: string;
-};
-
-type TracadoPista = {
-  pista: string;
-  tracado: string;
-  perfil: string;
-};
 
 type OtherInfo = {
   observacoes: string;
   auxilios: string;
-  destinacaoAnimal: string;
-  qthExato: string;
   numeroOcorrencia: string;
 };
 
@@ -72,35 +60,14 @@ export default function TO07Form({ categorySlug }: { categorySlug: string }) {
     quantidade: '',
   });
   
-  const [caracteristicasEntorno, setCaracteristicasEntorno] = useState<CaracteristicasEntorno>({
-    entornoNorte: '',
-    entornoSul: '',
-  });
-
-  const [tracadoPista, setTracadoPista] = useState<TracadoPista>({
-    pista: '',
-    tracado: '',
-    perfil: '',
-  });
-
   const [otherInfo, setOtherInfo] = useState<OtherInfo>({
     observacoes: '',
     auxilios: '',
-    destinacaoAnimal: '',
-    qthExato: '',
     numeroOcorrencia: '',
   });
 
   const handleGeneralInfoChange = (field: keyof GeneralInfo, value: string) => {
     setGeneralInfo(prev => ({ ...prev, [field]: value }));
-  };
-
-  const handleCaracteristicasEntornoChange = (field: keyof CaracteristicasEntorno, value: string) => {
-    setCaracteristicasEntorno(prev => ({ ...prev, [field]: value }));
-  };
-
-  const handleTracadoPistaChange = (field: keyof TracadoPista, value: string) => {
-    setTracadoPista(prev => ({ ...prev, [field]: value }));
   };
 
   const handleOtherInfoChange = (field: keyof OtherInfo, value: string) => {
@@ -130,8 +97,6 @@ export default function TO07Form({ categorySlug }: { categorySlug: string }) {
   const prepareReportData = () => {
     const filledData = {
       generalInfo: fillEmptyFields(generalInfo),
-      caracteristicasEntorno: fillEmptyFields(caracteristicasEntorno),
-      tracadoPista: fillEmptyFields(tracadoPista),
       otherInfo: fillEmptyFields(otherInfo),
     };
 
@@ -192,20 +157,9 @@ export default function TO07Form({ categorySlug }: { categorySlug: string }) {
     message += `Tipo de Objeto: ${reportData.generalInfo.tipoDeObjeto}\n`;
     message += `Quantidade: ${reportData.generalInfo.quantidade}\n\n`;
 
-    message += `*CARACTERÍSTICAS ENTORNO*\n`;
-    message += `Entorno Norte: ${reportData.caracteristicasEntorno.entornoNorte}\n`;
-    message += `Entorno Sul: ${reportData.caracteristicasEntorno.entornoSul}\n\n`;
-
-    message += `*TRAÇADO DE PISTA*\n`;
-    message += `Pista: ${reportData.tracadoPista.pista}\n`;
-    message += `Traçado: ${reportData.tracadoPista.tracado}\n`;
-    message += `Perfil: ${reportData.tracadoPista.perfil}\n\n`;
-    
     message += `*OUTRAS INFORMAÇÕES*\n`;
     message += `AUXÍLIOS/PR: ${reportData.otherInfo.auxilios}\n`;
     message += `Observações: ${reportData.otherInfo.observacoes}\n`;
-    message += `Destinação do Animal: ${reportData.otherInfo.destinacaoAnimal}\n`;
-    message += `QTH Exato: ${reportData.otherInfo.qthExato}\n`;
     message += `Nº Ocorrência: ${reportData.otherInfo.numeroOcorrencia}\n`;
 
     const whatsappUrl = `https://wa.me/?text=${encodeURIComponent(message)}`;
@@ -272,85 +226,6 @@ export default function TO07Form({ categorySlug }: { categorySlug: string }) {
           </div>
         </div>
 
-        {/* Caracteristicas Entorno */}
-        <div className="space-y-8">
-            <h2 className="text-xl font-semibold text-foreground border-b-2 border-foreground pb-2 uppercase">CARACTERÍSTICAS ENTORNO</h2>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                <Field label="ENTORNO NORTE">
-                    <Select value={caracteristicasEntorno.entornoNorte} onValueChange={(value) => handleCaracteristicasEntornoChange('entornoNorte', value)}>
-                        <SelectTrigger className="text-xl normal-case placeholder:text-base">
-                            <SelectValue placeholder="Selecione o entorno" />
-                        </SelectTrigger>
-                        <SelectContent>
-                            <SelectItem value="area_urbana">ÁREA URBANA</SelectItem>
-                            <SelectItem value="curso_dagua">CURSO D'ÁGUA</SelectItem>
-                            <SelectItem value="fragmento_nativo">FRAGMENTO NATIVO</SelectItem>
-                            <SelectItem value="plantio_agricola">PLANTIO AGRÍCOLA</SelectItem>
-                            <SelectItem value="pecuaria">PECUÁRIA</SelectItem>
-                        </SelectContent>
-                    </Select>
-                </Field>
-                <Field label="ENTORNO SUL">
-                    <Select value={caracteristicasEntorno.entornoSul} onValueChange={(value) => handleCaracteristicasEntornoChange('entornoSul', value)}>
-                        <SelectTrigger className="text-xl normal-case placeholder:text-base">
-                            <SelectValue placeholder="Selecione o entorno" />
-                        </SelectTrigger>
-                        <SelectContent>
-                            <SelectItem value="area_urbana">ÁREA URBANA</SelectItem>
-                            <SelectItem value="curso_dagua">CURSO D'ÁGUA</SelectItem>
-                            <SelectItem value="fragmento_nativo">FRAGMENTO NATIVO</SelectItem>
-                            <SelectItem value="plantio_agricola">PLANTIO AGRÍCOLA</SelectItem>
-                            <SelectItem value="pecuaria">PECUÁRIA</SelectItem>
-                        </SelectContent>
-                    </Select>
-                </Field>
-            </div>
-        </div>
-
-        {/* Traçado de Pista */}
-        <div className="space-y-8">
-            <h2 className="text-xl font-semibold text-foreground border-b-2 border-foreground pb-2 uppercase">TRAÇADO DE PISTA</h2>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-                <Field label="PISTA">
-                    <Select value={tracadoPista.pista} onValueChange={(value) => handleTracadoPistaChange('pista', value)}>
-                        <SelectTrigger className="text-xl normal-case placeholder:text-base">
-                            <SelectValue placeholder="Selecione o tipo" />
-                        </SelectTrigger>
-                        <SelectContent>
-                            <SelectItem value="simples">SIMPLES</SelectItem>
-                            <SelectItem value="dupla">DUPLA</SelectItem>
-                            <SelectItem value="multivias">MULTIVIAS</SelectItem>
-                        </SelectContent>
-                    </Select>
-                </Field>
-                <Field label="TRAÇADO">
-                    <Select value={tracadoPista.tracado} onValueChange={(value) => handleTracadoPistaChange('tracado', value)}>
-                        <SelectTrigger className="text-xl normal-case placeholder:text-base">
-                            <SelectValue placeholder="Selecione o traçado" />
-                        </SelectTrigger>
-                        <SelectContent>
-                            <SelectItem value="reta">RETA</SelectItem>
-                            <SelectItem value="curva">CURVA</SelectItem>
-                            <SelectItem value="curva_acentuada">CURVA ACENTUADA</SelectItem>
-                            <SelectItem value="curva_suave">CURVA SUAVE</SelectItem>
-                        </SelectContent>
-                    </Select>
-                </Field>
-                <Field label="PERFIL">
-                    <Select value={tracadoPista.perfil} onValueChange={(value) => handleTracadoPistaChange('perfil', value)}>
-                        <SelectTrigger className="text-xl normal-case placeholder:text-base">
-                            <SelectValue placeholder="Selecione o perfil" />
-                        </SelectTrigger>
-                        <SelectContent>
-                            <SelectItem value="em_nivel">EM NÍVEL</SelectItem>
-                            <SelectItem value="aclive">ACLIVE</SelectItem>
-                            <SelectItem value="declive">DECLIVE</SelectItem>
-                        </SelectContent>
-                    </Select>
-                </Field>
-            </div>
-        </div>
-
         {/* Outras Informações */}
         <div className="space-y-8">
           <h2 className="text-xl font-semibold text-foreground border-b-2 border-foreground pb-2 uppercase">Outras Informações</h2>
@@ -360,21 +235,6 @@ export default function TO07Form({ categorySlug }: { categorySlug: string }) {
             </Field>
             <Field label="OBSERVAÇÕES">
               <Textarea className="text-xl placeholder:capitalize placeholder:text-sm" placeholder="Descreva detalhes adicionais sobre a ocorrência" value={otherInfo.observacoes} onChange={(e) => handleOtherInfoChange('observacoes', e.target.value)} />
-            </Field>
-            <Field label="DESTINAÇÃO DO OBJETO">
-                <Select value={otherInfo.destinacaoAnimal} onValueChange={(value) => handleOtherInfoChange('destinacaoAnimal', value)}>
-                    <SelectTrigger className="text-xl normal-case placeholder:text-base">
-                        <SelectValue placeholder="Selecione a destinação" />
-                    </SelectTrigger>
-                    <SelectContent>
-                        <SelectItem value="pr05">PR05</SelectItem>
-                        <SelectItem value="pr56">PR56</SelectItem>
-                        <SelectItem value="pr13">PR13</SelectItem>
-                    </SelectContent>
-                </Select>
-            </Field>
-            <Field label={otherInfo.destinacaoAnimal || "QTH EXATO"}>
-                <Input className="text-xl placeholder:capitalize placeholder:text-sm" placeholder="Ex: Km 123" value={otherInfo.qthExato} onChange={(e) => handleOtherInfoChange('qthExato', e.target.value)}/>
             </Field>
             <Field label="NÚMERO DA OCORRÊNCIA">
               <Input className="text-xl placeholder:capitalize placeholder:text-sm" placeholder="Número de controle interno" value={otherInfo.numeroOcorrencia} onChange={(e) => handleOtherInfoChange('numeroOcorrencia', e.target.value)} />
@@ -396,5 +256,3 @@ export default function TO07Form({ categorySlug }: { categorySlug: string }) {
     </div>
   );
 }
-
-    
