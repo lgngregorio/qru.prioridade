@@ -95,10 +95,15 @@ export default {
             height: '0',
           },
         },
+        'move-dashes': {
+            '0%': { backgroundPosition: '0 0' },
+            '100%': { backgroundPosition: '0 24px' },
+        },
       },
       animation: {
         'accordion-down': 'accordion-down 0.2s ease-out',
         'accordion-up': 'accordion-up 0.2s ease-out',
+        'move-dashes': 'move-dashes 0.5s linear infinite',
       },
     },
   },

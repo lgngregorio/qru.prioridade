@@ -20,8 +20,13 @@ export default function Home() {
         <header className="text-center mb-6 w-full">
            <div className="flex items-center gap-4 justify-center relative">
              <SidebarTrigger className="md:hidden absolute left-0"/>
-             <h1 className="text-4xl font-bold text-foreground font-headline tracking-wider">
-                QRU <span className="font-light">|</span> PRIORIDADE
+             <h1 className="text-4xl font-bold text-foreground font-headline tracking-wider flex items-center justify-center gap-3">
+                QRU
+                <div className="flex h-10 items-center gap-2">
+                  <div className="w-0.5 h-full bg-foreground/50"></div>
+                  <div className="w-1 h-full bg-repeat-y bg-[length:4px_12px] bg-center animate-move-dashes" style={{ backgroundImage: "linear-gradient(to bottom, white 50%, transparent 50%)"}}></div>
+                </div>
+                PRIORIDADE
               </h1>
            </div>
           <p className="text-muted-foreground mt-2 text-base">

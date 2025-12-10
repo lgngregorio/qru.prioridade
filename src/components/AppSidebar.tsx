@@ -30,15 +30,20 @@ export default function AppSidebar() {
     <>
       <SidebarHeader className="p-4">
         <div className="flex items-center justify-center space-x-2">
-          <h1 className="text-2xl font-bold text-white">
-            QRU <span className="font-light">|</span> PRIORIDADE
+           <h1 className="text-2xl font-bold text-white flex items-center gap-2">
+            QRU
+            <div className="flex h-6 items-center gap-1.5">
+              <div className="w-px h-full bg-white/50"></div>
+              <div className="w-0.5 h-full bg-repeat-y bg-[length:3px_9px] bg-center animate-move-dashes" style={{ backgroundImage: "linear-gradient(to bottom, white 50%, transparent 50%)"}}></div>
+            </div>
+            PRIORIDADE
           </h1>
         </div>
       </SidebarHeader>
       <SidebarContent className="flex-1 pt-8">
         <SidebarMenu className="gap-y-8">
           <SidebarMenuItem>
-            <SidebarMenuButton asChild isActive={pathname === '/'} className="text-lg [&_svg]:size-6">
+            <SidebarMenuButton asChild isActive={pathname === '/'} className="text-base [&_svg]:size-5">
               <Link href="/">
                 <Home />
                 Início
@@ -46,7 +51,7 @@ export default function AppSidebar() {
             </SidebarMenuButton>
           </SidebarMenuItem>
           <SidebarMenuItem>
-            <SidebarMenuButton asChild className="text-lg [&_svg]:size-6">
+            <SidebarMenuButton asChild className="text-base [&_svg]:size-5">
               <Link href="#">
                 <FileCode />
                 Códigos
@@ -54,7 +59,7 @@ export default function AppSidebar() {
             </SidebarMenuButton>
           </SidebarMenuItem>
           <SidebarMenuItem>
-            <SidebarMenuButton asChild className="text-lg [&_svg]:size-6">
+            <SidebarMenuButton asChild className="text-base [&_svg]:size-5">
               <Link href="#">
                 <Notebook />
                 Bloco de Nota
@@ -62,7 +67,7 @@ export default function AppSidebar() {
             </SidebarMenuButton>
           </SidebarMenuItem>
           <SidebarMenuItem>
-            <SidebarMenuButton asChild isActive={pathname === '/historico'} className="text-lg [&_svg]:size-6">
+            <SidebarMenuButton asChild isActive={pathname === '/historico'} className="text-base [&_svg]:size-5">
               <Link href="/historico">
                 <History />
                 Histórico de Ocorrências
@@ -70,7 +75,7 @@ export default function AppSidebar() {
             </SidebarMenuButton>
           </SidebarMenuItem>
           <SidebarMenuItem>
-            <SidebarMenuButton asChild className="text-lg [&_svg]:size-6">
+            <SidebarMenuButton asChild className="text-base [&_svg]:size-5">
               <Link href="#">
                 <LayoutGrid />
                 Atividades
@@ -78,7 +83,7 @@ export default function AppSidebar() {
             </SidebarMenuButton>
           </SidebarMenuItem>
            <SidebarMenuItem>
-            <SidebarMenuButton asChild className="text-lg [&_svg]:size-6">
+            <SidebarMenuButton asChild className="text-base [&_svg]:size-5">
               <Link href="#">
                 <Settings />
                 Configurações
