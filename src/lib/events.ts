@@ -132,7 +132,7 @@ export const eventCategories: EventCategory[] = [
   },
   {
     name: 'TO 12',
-    title: 'TO 12',
+    title: 'ATENDIMENTO CLÍNICO',
     slug: 'to-12',
     icon: HeartPulse,
     description: 'Relatar TO 12.',
