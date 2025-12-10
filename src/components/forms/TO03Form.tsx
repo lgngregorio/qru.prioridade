@@ -50,7 +50,7 @@ type TracadoPista = {
 };
 
 type OtherInfo = {
-  detalhes: string;
+  observacoes: string;
   numeroOcorrencia: string;
 };
 
@@ -83,7 +83,7 @@ export default function TO03Form({ categorySlug }: { categorySlug: string }) {
   });
 
   const [otherInfo, setOtherInfo] = useState<OtherInfo>({
-    detalhes: '',
+    observacoes: '',
     numeroOcorrencia: '',
   });
 
@@ -199,7 +199,7 @@ export default function TO03Form({ categorySlug }: { categorySlug: string }) {
     message += `Perfil: ${reportData.tracadoPista.perfil}\n\n`;
     
     message += `*OUTRAS INFORMAÇÕES*\n`;
-    message += `Detalhes: ${reportData.otherInfo.detalhes}\n`;
+    message += `Observações: ${reportData.otherInfo.observacoes}\n`;
     message += `Nº Ocorrência: ${reportData.otherInfo.numeroOcorrencia}\n`;
 
     const whatsappUrl = `https://wa.me/?text=${encodeURIComponent(message)}`;
@@ -361,8 +361,8 @@ export default function TO03Form({ categorySlug }: { categorySlug: string }) {
         <div className="space-y-8">
           <h2 className="text-xl font-semibold text-foreground border-b-2 border-foreground pb-2 uppercase">Outras Informações</h2>
           <div className="space-y-8">
-            <Field label="DETALHES">
-              <Textarea className="text-xl placeholder:capitalize placeholder:text-sm" placeholder="Descreva os detalhes da ocorrência" value={otherInfo.detalhes} onChange={(e) => handleOtherInfoChange('detalhes', e.target.value)} />
+            <Field label="OBSERVAÇÕES">
+              <Textarea className="text-xl placeholder:capitalize placeholder:text-sm" placeholder="Descreva detalhes adicionais sobre a ocorrência" value={otherInfo.observacoes} onChange={(e) => handleOtherInfoChange('observacoes', e.target.value)} />
             </Field>
             <Field label="NÚMERO DA OCORRÊNCIA">
               <Input className="text-xl placeholder:capitalize placeholder:text-sm" placeholder="Número de controle interno" value={otherInfo.numeroOcorrencia} onChange={(e) => handleOtherInfoChange('numeroOcorrencia', e.target.value)} />
