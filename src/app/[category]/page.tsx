@@ -444,6 +444,39 @@ function VeiculoAbandonadoForm({ categorySlug }: { categorySlug: string }) {
     return `(${phoneNumber.slice(0, 2)}) ${phoneNumber.slice(2, 7)}-${phoneNumber.slice(7, 11)}`;
   };
   
+  const fillEmptyFields = (data: any): any => {
+    if (Array.isArray(data)) {
+      return data.map(item => fillEmptyFields(item));
+    }
+    if (typeof data === 'object' && data !== null) {
+      const newData: { [key: string]: any } = {};
+      for (const key in data) {
+        if (Object.prototype.hasOwnProperty.call(data, key)) {
+          newData[key] = fillEmptyFields(data[key]);
+        }
+      }
+      return newData;
+    }
+    if (data === '' || data === null || data === undefined) {
+      return 'NILL';
+    }
+    return data;
+  };
+
+  const prepareReportData = () => {
+    const filledData = {
+      generalInfo: fillEmptyFields(generalInfo),
+      vehicles: fillEmptyFields(vehicles),
+      otherInfo: fillEmptyFields(otherInfo),
+    };
+
+    return {
+      category: categorySlug,
+      formData: filledData,
+      createdAt: serverTimestamp(),
+    };
+  };
+  
   const handleSave = async () => {
     if (!firestore) {
       toast({
@@ -456,15 +489,7 @@ function VeiculoAbandonadoForm({ categorySlug }: { categorySlug: string }) {
 
     setIsSaving(true);
     try {
-      const reportData = {
-        category: categorySlug,
-        formData: {
-          generalInfo,
-          vehicles,
-          otherInfo,
-        },
-        createdAt: serverTimestamp(),
-      };
+      const reportData = prepareReportData();
       await addDoc(collection(firestore, 'reports'), reportData);
       
       toast({
@@ -485,6 +510,48 @@ function VeiculoAbandonadoForm({ categorySlug }: { categorySlug: string }) {
     } finally {
       setIsSaving(false);
     }
+  };
+
+  const handleShare = () => {
+    const reportData = prepareReportData().formData;
+    
+    let message = `*RELATÓRIO DE VEÍCULO ABANDONADO*\n\n`;
+
+    message += `*INFORMAÇÕES GERAIS*\n`;
+    message += `Rodovia: ${reportData.generalInfo.rodovia}\n`;
+    message += `Ocorrência: ${reportData.generalInfo.ocorrencia}\n`;
+    message += `Tipo de Pane: ${reportData.generalInfo.tipoPane}\n`;
+    message += `QTH (Local): ${reportData.generalInfo.qth}\n`;
+    message += `Sentido: ${reportData.generalInfo.sentido}\n`;
+    message += `Local/Área: ${reportData.generalInfo.localArea}\n\n`;
+
+    reportData.vehicles.forEach((vehicle: any, index: number) => {
+      message += `*DADOS DO VEÍCULO ${index + 1}*\n`;
+      message += `Marca: ${vehicle.marca}\n`;
+      message += `Modelo: ${vehicle.modelo}\n`;
+      message += `Ano: ${vehicle.ano}\n`;
+      message += `Cor: ${vehicle.cor}\n`;
+      message += `Placa: ${vehicle.placa}\n`;
+      message += `Cidade Emplacamento: ${vehicle.cidade}\n`;
+      message += `Vindo de: ${vehicle.vindoDe}\n`;
+      message += `Indo para: ${vehicle.indoPara}\n`;
+      message += `Eixos: ${vehicle.eixos}\n`;
+      message += `Tipo: ${vehicle.tipo}\n`;
+      message += `Pneu: ${vehicle.pneu}\n`;
+      message += `Carga: ${vehicle.carga}\n\n`;
+      message += `*CONDUTOR*\n`;
+      message += `QRA: ${vehicle.condutor}\n`;
+      message += `Telefone: ${vehicle.telefone}\n`;
+      message += `Ocupantes: ${vehicle.ocupantes}\n\n`;
+    });
+    
+    message += `*OUTRAS INFORMAÇÕES*\n`;
+    message += `Auxílios/PR: ${reportData.otherInfo.auxilios}\n`;
+    message += `Observações: ${reportData.otherInfo.observacoes}\n`;
+    message += `Nº Ocorrência: ${reportData.otherInfo.numeroOcorrencia}\n`;
+
+    const whatsappUrl = `https://wa.me/?text=${encodeURIComponent(message)}`;
+    window.open(whatsappUrl, '_blank');
   };
 
 
@@ -675,7 +742,7 @@ function VeiculoAbandonadoForm({ categorySlug }: { categorySlug: string }) {
         </div>
 
         <div className="flex flex-row gap-4 pt-6">
-          <Button size="lg" className="flex-1 bg-green-600 hover:bg-green-700">
+          <Button size="lg" className="flex-1 bg-green-600 hover:bg-green-700" onClick={handleShare}>
             <Share className="mr-2 h-4 w-4" />
             Compartilhar WhatsApp
           </Button>
