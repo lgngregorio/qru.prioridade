@@ -186,7 +186,7 @@ export const eventCategories: EventCategory[] = [
   },
   {
     name: 'TO 35',
-    title: 'TO 35',
+    title: 'ÓLEO SOBRE A PISTA',
     slug: 'to-35',
     icon: Droplet,
     description: 'Relatar TO 35.',
