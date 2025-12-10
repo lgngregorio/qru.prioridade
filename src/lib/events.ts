@@ -80,7 +80,7 @@ export const eventCategories: EventCategory[] = [
   },
   {
     name: 'TO 04',
-    title: 'TO 04',
+    title: 'REMOÇÃO',
     slug: 'to-04',
     icon: Truck,
     description: 'Relatar TO 04.',
