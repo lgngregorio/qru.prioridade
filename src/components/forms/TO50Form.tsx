@@ -36,6 +36,8 @@ type GeneralInfo = {
   tipoDeServico: string;
   qraResponsavel: string;
   baixaFrequencia: string;
+  rg: string;
+  cpf: string;
   qtrInicio: string;
   qtrTermino: string;
 };
@@ -62,6 +64,8 @@ export default function TO50Form({ categorySlug }: { categorySlug: string }) {
     tipoDeServico: '',
     qraResponsavel: '',
     baixaFrequencia: '',
+    rg: '',
+    cpf: '',
     qtrInicio: '',
     qtrTermino: '',
   });
@@ -82,10 +86,34 @@ export default function TO50Form({ categorySlug }: { categorySlug: string }) {
     }
     return `(${phoneNumber.slice(0, 2)}) ${phoneNumber.slice(2, 7)}-${phoneNumber.slice(7, 11)}`;
   };
+  
+  const formatCPF = (value: string) => {
+    if (!value) return value;
+    const cpf = value.replace(/[^\d]/g, "");
+    if (cpf.length <= 3) return cpf;
+    if (cpf.length <= 6) return `${cpf.slice(0, 3)}.${cpf.slice(3)}`;
+    if (cpf.length <= 9) return `${cpf.slice(0, 3)}.${cpf.slice(3, 6)}.${cpf.slice(6)}`;
+    return `${cpf.slice(0, 3)}.${cpf.slice(3, 6)}.${cpf.slice(6, 9)}-${cpf.slice(9, 11)}`;
+  };
+
+  const formatRG = (value: string) => {
+      if (!value) return value;
+      const rg = value.replace(/[^\d]/g, "");
+      if (rg.length <= 2) return rg;
+      if (rg.length <= 5) return `${rg.slice(0, 2)}.${rg.slice(2)}`;
+      if (rg.length <= 8) return `${rg.slice(0, 2)}.${rg.slice(2, 5)}.${rg.slice(5)}`;
+      return `${rg.slice(0, 2)}.${rg.slice(2, 5)}.${rg.slice(5, 8)}-${rg.slice(8, 9)}`;
+  };
 
   const handleGeneralInfoChange = (field: keyof GeneralInfo, value: string) => {
      if (field === 'baixaFrequencia') {
       value = formatPhoneNumber(value);
+    }
+    if (field === 'cpf') {
+      value = formatCPF(value);
+    }
+    if (field === 'rg') {
+      value = formatRG(value);
     }
     setGeneralInfo(prev => ({ ...prev, [field]: value }));
   };
@@ -177,6 +205,8 @@ export default function TO50Form({ categorySlug }: { categorySlug: string }) {
     message += `Tipo de Serviço: ${reportData.generalInfo.tipoDeServico}\n`;
     message += `QRA do Responsável: ${reportData.generalInfo.qraResponsavel}\n`;
     message += `Baixa Frequência: ${reportData.generalInfo.baixaFrequencia}\n`;
+    message += `RG: ${reportData.generalInfo.rg}\n`;
+    message += `CPF: ${reportData.generalInfo.cpf}\n`;
     message += `QTR de Início: ${reportData.generalInfo.qtrInicio}\n`;
     message += `QTR de Término: ${reportData.generalInfo.qtrTermino}\n\n`;
 
@@ -253,6 +283,24 @@ export default function TO50Form({ categorySlug }: { categorySlug: string }) {
                   maxLength={15}
                 />
             </Field>
+             <Field label="RG">
+                <Input 
+                    className="text-xl placeholder:capitalize placeholder:text-sm" 
+                    placeholder="00.000.000-0" 
+                    value={generalInfo.rg} 
+                    onChange={e => handleGeneralInfoChange('rg', e.target.value)}
+                    maxLength={12}
+                />
+             </Field>
+             <Field label="CPF">
+                <Input 
+                    className="text-xl placeholder:capitalize placeholder:text-sm" 
+                    placeholder="000.000.000-00" 
+                    value={generalInfo.cpf} 
+                    onChange={e => handleGeneralInfoChange('cpf', e.target.value)}
+                    maxLength={14}
+                />
+             </Field>
             <Field label="QTR DE INÍCIO">
                 <Input type="time" className="text-xl placeholder:capitalize placeholder:text-sm" placeholder="HH:MM" value={generalInfo.qtrInicio} onChange={(e) => handleGeneralInfoChange('qtrInicio', e.target.value)}/>
             </Field>
