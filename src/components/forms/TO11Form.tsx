@@ -51,6 +51,9 @@ type Vehicle = {
   carga: string;
   condutor: string;
   telefone: string;
+  rg: string;
+  cpf: string;
+  endereco: string;
   ocupantes: string;
 };
 
@@ -78,7 +81,7 @@ export default function TO11Form({ categorySlug }: { categorySlug: string }) {
     {
       id: 1, marca: '', modelo: '', ano: '', cor: '', placa: '', cidade: '',
       vindoDe: '', indoPara: '', eixos: '', tipo: '', pneu: '', carga: '',
-      condutor: '', telefone: '', ocupantes: ''
+      condutor: '', telefone: '', rg: '', cpf: '', endereco: '', ocupantes: ''
     }
   ]);
 
@@ -110,7 +113,7 @@ export default function TO11Form({ categorySlug }: { categorySlug: string }) {
       id: vehicles.length > 0 ? Math.max(...vehicles.map(v => v.id)) + 1 : 1,
       marca: '', modelo: '', ano: '', cor: '', placa: '', cidade: '',
       vindoDe: '', indoPara: '', eixos: '', tipo: '', pneu: '', carga: '',
-      condutor: '', telefone: '', ocupantes: ''
+      condutor: '', telefone: '', rg: '', cpf: '', endereco: '', ocupantes: ''
     }]);
   };
 
@@ -227,6 +230,9 @@ export default function TO11Form({ categorySlug }: { categorySlug: string }) {
       message += `*CONDUTOR*\n`;
       message += `QRA: ${vehicle.condutor}\n`;
       message += `Telefone: ${vehicle.telefone}\n`;
+      message += `RG: ${vehicle.rg}\n`;
+      message += `CPF: ${vehicle.cpf}\n`;
+      message += `Endereço: ${vehicle.endereco}\n`;
       message += `Ocupantes: ${vehicle.ocupantes}\n\n`;
     });
     
@@ -387,6 +393,9 @@ export default function TO11Form({ categorySlug }: { categorySlug: string }) {
                           maxLength={15}
                         />
                      </Field>
+                     <Field label="RG"><Input className="text-xl placeholder:capitalize placeholder:text-sm" placeholder="Número do RG" value={vehicle.rg} onChange={e => handleVehicleChange(index, 'rg', e.target.value)}/></Field>
+                     <Field label="CPF"><Input className="text-xl placeholder:capitalize placeholder:text-sm" placeholder="Número do CPF" value={vehicle.cpf} onChange={e => handleVehicleChange(index, 'cpf', e.target.value)}/></Field>
+                     <Field label="ENDEREÇO"><Input className="text-xl placeholder:capitalize placeholder:text-sm" placeholder="Endereço do condutor" value={vehicle.endereco} onChange={e => handleVehicleChange(index, 'endereco', e.target.value)}/></Field>
                      <Field label="OCUPANTES"><Input className="text-xl placeholder:capitalize placeholder:text-sm" placeholder="Ex: 2 adultos, 1 criança" value={vehicle.ocupantes} onChange={e => handleVehicleChange(index, 'ocupantes', e.target.value)}/></Field>
                 </div>
             </div>
@@ -429,3 +438,4 @@ export default function TO11Form({ categorySlug }: { categorySlug: string }) {
   );
 }
 
+    
