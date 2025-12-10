@@ -16,6 +16,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useFirestore } from '@/firebase';
 import { useToast } from '@/hooks/use-toast';
+import { Checkbox } from '@/components/ui/checkbox';
 
 
 function Field({ label, children, className }: { label?: string, children: React.ReactNode, className?: string }) {
@@ -54,6 +55,7 @@ type OtherInfo = {
   auxilios: string;
   destinacaoAnimal: string;
   qthExato: string;
+  vtrApoio: string;
   numeroOcorrencia: string;
 };
 
@@ -62,6 +64,7 @@ export default function TO03Form({ categorySlug }: { categorySlug: string }) {
   const router = useRouter();
   const { toast } = useToast();
   const [isSaving, setIsSaving] = useState(false);
+  const [showVtrApoio, setShowVtrApoio] = useState(false);
 
   const [generalInfo, setGeneralInfo] = useState<GeneralInfo>({
     rodovia: '',
@@ -90,6 +93,7 @@ export default function TO03Form({ categorySlug }: { categorySlug: string }) {
     auxilios: '',
     destinacaoAnimal: '',
     qthExato: '',
+    vtrApoio: '',
     numeroOcorrencia: '',
   });
 
@@ -136,6 +140,10 @@ export default function TO03Form({ categorySlug }: { categorySlug: string }) {
       tracadoPista: fillEmptyFields(tracadoPista),
       otherInfo: fillEmptyFields(otherInfo),
     };
+    
+    if (!showVtrApoio) {
+      filledData.otherInfo.vtrApoio = 'NILL';
+    }
 
     return {
       category: categorySlug,
@@ -209,6 +217,9 @@ export default function TO03Form({ categorySlug }: { categorySlug: string }) {
     message += `Observações: ${reportData.otherInfo.observacoes}\n`;
     message += `Destinação do Animal: ${reportData.otherInfo.destinacaoAnimal}\n`;
     message += `QTH Exato: ${reportData.otherInfo.qthExato}\n`;
+     if (showVtrApoio) {
+        message += `VTR de Apoio: ${reportData.otherInfo.vtrApoio}\n`;
+    }
     message += `Nº Ocorrência: ${reportData.otherInfo.numeroOcorrencia}\n`;
 
     const whatsappUrl = `https://wa.me/?text=${encodeURIComponent(message)}`;
@@ -392,6 +403,24 @@ export default function TO03Form({ categorySlug }: { categorySlug: string }) {
             <Field label={otherInfo.destinacaoAnimal || "QTH EXATO"}>
                 <Input className="text-xl placeholder:capitalize placeholder:text-sm" placeholder="Ex: Km 123" value={otherInfo.qthExato} onChange={(e) => handleOtherInfoChange('qthExato', e.target.value)}/>
             </Field>
+            <div className="flex items-center space-x-2 pt-4">
+              <Checkbox
+                id="show-vtr-apoio"
+                checked={showVtrApoio}
+                onCheckedChange={(checked) => setShowVtrApoio(Boolean(checked))}
+              />
+              <label
+                htmlFor="show-vtr-apoio"
+                className="text-base font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+              >
+                Houve VTR de Apoio?
+              </label>
+            </div>
+            {showVtrApoio && (
+                <Field label="VTR DE APOIO">
+                  <Textarea className="text-2xl placeholder:capitalize placeholder:text-sm" placeholder="Descreva as viaturas de apoio" value={otherInfo.vtrApoio} onChange={(e) => handleOtherInfoChange('vtrApoio', e.target.value)} />
+                </Field>
+            )}
             <Field label="NÚMERO DA OCORRÊNCIA">
               <Input className="text-xl placeholder:capitalize placeholder:text-sm" placeholder="Número de controle interno" value={otherInfo.numeroOcorrencia} onChange={(e) => handleOtherInfoChange('numeroOcorrencia', e.target.value)} />
             </Field>
