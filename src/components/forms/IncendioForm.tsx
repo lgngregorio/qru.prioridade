@@ -2,7 +2,7 @@
 'use client';
 
 import { useRouter } from 'next/navigation';
-import { Save, Share, PlusCircle, Trash2, Loader2 } from 'lucide-react';
+import { Save, Share, Loader2 } from 'lucide-react';
 import { useState } from 'react';
 import { collection, addDoc, serverTimestamp } from 'firebase/firestore';
 import React from 'react';
@@ -205,6 +205,7 @@ export default function IncendioForm({ categorySlug }: { categorySlug: string })
                     <SelectContent>
                         <SelectItem value="norte">NORTE</SelectItem>
                         <SelectItem value="sul">SUL</SelectItem>
+                        <SelectItem value="ambos">AMBOS</SelectItem>
                     </SelectContent>
                 </Select>
             </Field>
@@ -266,5 +267,3 @@ export default function IncendioForm({ categorySlug }: { categorySlug: string })
     </div>
   );
 }
-
-    
