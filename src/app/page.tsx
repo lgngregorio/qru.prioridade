@@ -18,7 +18,7 @@ export default function Home() {
   return (
     <main className="flex min-h-screen flex-col items-center p-4 pt-16 md:p-6">
       <div className="absolute top-4 left-4 z-10 flex flex-col items-center md:hidden">
-        <span className="text-sm font-bold uppercase text-white -mb-1.5">Menu</span>
+        <span className="text-sm font-bold uppercase text-muted-foreground -mb-1.5">Menu</span>
         <SidebarTrigger className="h-12 w-12" />
       </div>
       <div className="w-full max-w-md pt-8">
@@ -27,8 +27,8 @@ export default function Home() {
              <h1 className="text-4xl font-bold text-foreground font-headline tracking-wider flex items-center justify-center gap-4">
                 QRU
                 <div className="flex h-10 items-center gap-1">
-                  <div className="w-px h-full bg-white"></div>
-                  <div className="w-px h-full bg-repeat-y bg-[length:1px_48px] bg-center animate-move-dashes" style={{ backgroundImage: "linear-gradient(to bottom, white 50%, transparent 50%)"}}></div>
+                  <div className="w-px h-full bg-foreground/50"></div>
+                  <div className="w-px h-full bg-repeat-y bg-[length:1px_48px] bg-center animate-move-dashes" style={{ backgroundImage: "linear-gradient(to bottom, hsl(var(--foreground)) 50%, transparent 50%)"}}></div>
                 </div>
                 PRIORIDADE
               </h1>

@@ -57,7 +57,7 @@ export default function EventCategoryGrid({
       {categories.map((category) => (
         <Link href={`/${category.slug}`} key={category.slug} className="group">
           <Card 
-            className="h-full text-center shadow-lg rounded-lg border-b-4 border-white/20 transform transition-transform duration-150 ease-in-out active:border-b-2 active:translate-y-px group-hover:-translate-y-px bg-card/70 hover:bg-card/90 text-card-foreground"
+            className="h-full text-center shadow-lg rounded-lg border-b-4 border-foreground/20 transform transition-transform duration-150 ease-in-out active:border-b-2 active:translate-y-px group-hover:-translate-y-px bg-card/70 hover:bg-card/90 text-card-foreground"
           >
             <CardHeader className="flex flex-col items-center justify-center p-1 aspect-[3/4]">
               <div
@@ -66,7 +66,7 @@ export default function EventCategoryGrid({
               >
                 <category.icon className="h-8 w-8 text-white" />
               </div>
-              <CardTitle className="text-lg font-bold leading-tight text-white">
+              <CardTitle className="text-lg font-bold leading-tight text-card-foreground">
                 {category.name}
               </CardTitle>
             </CardHeader>
