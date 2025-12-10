@@ -79,7 +79,7 @@ export const eventCategories: EventCategory[] = [
     color: '#FFD700',
   },
   {
-    name: 'TO 04',
+    name: 'REMOÇÃO',
     title: 'REMOÇÃO',
     slug: 'to-04',
     icon: Truck,
@@ -87,10 +87,10 @@ export const eventCategories: EventCategory[] = [
     color: '#8B4513',
   },
   {
-    name: 'TO 05',
-    title: 'TO 05',
+    name: 'INCÊNDIO VEICULAR',
+    title: 'INCÊNDIO VEICULAR',
     slug: 'to-05',
-    icon: Truck,
+    icon: Flame,
     description: 'Relatar TO 05.',
     color: '#DC143C',
   },
