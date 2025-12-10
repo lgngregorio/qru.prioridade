@@ -16,7 +16,7 @@ export default function Home() {
   );
 
   return (
-    <main className="flex min-h-screen flex-col items-center p-4 pt-8 md:p-6">
+    <main className="flex min-h-screen flex-col items-center p-4 pt-16 md:p-6">
       <div className="absolute top-4 left-4 z-10 flex flex-col items-center md:hidden">
         <span className="text-sm font-bold uppercase text-white -mb-1">Menu</span>
         <SidebarTrigger className="h-12 w-12" />
