@@ -61,7 +61,7 @@ export default function NotepadPage() {
   });
   const [loading, setLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
-  const [isEditing, setIsEditing] = useState(false);
+  const [isFormVisible, setIsFormVisible] = useState(false);
 
   useEffect(() => {
     async function fetchNotes() {
@@ -132,6 +132,7 @@ export default function NotepadPage() {
          setNotes([newNote, ...notes]);
       }
       handleNewNoteClick(); // Reset form
+      setIsFormVisible(false);
     } catch (error) {
       console.error('Error saving note: ', error);
       toast({
@@ -150,6 +151,10 @@ export default function NotepadPage() {
       await deleteDoc(doc(firestore, 'notes', noteId));
       setNotes(notes.filter((note) => note.id !== noteId));
       toast({ title: 'Nota apagada com sucesso!' });
+      if (currentNote.id === noteId) {
+        handleNewNoteClick();
+        setIsFormVisible(false);
+      }
     } catch (error) {
       console.error('Error deleting note: ', error);
       toast({
@@ -162,14 +167,20 @@ export default function NotepadPage() {
 
   const handleEditClick = (note: Note) => {
     setCurrentNote({ id: note.id, title: note.title, content: note.content });
-    setIsEditing(true);
+    setIsFormVisible(true);
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
   
   const handleNewNoteClick = () => {
     setCurrentNote({ id: null, title: '', content: '' });
-    setIsEditing(false);
+    setIsFormVisible(true);
   }
+  
+  const handleCancelEdit = () => {
+    setCurrentNote({ id: null, title: '', content: '' });
+    setIsFormVisible(false);
+  }
+
 
   const formatDate = (timestamp: Timestamp | null | undefined) => {
     if (!timestamp) return 'Data indisponível';
@@ -202,53 +213,53 @@ export default function NotepadPage() {
             </p>
         </div>
 
-        {!isEditing && (
-             <div className="mb-6">
-                <Button onClick={handleNewNoteClick} className="w-full bg-primary hover:bg-primary/90 text-lg uppercase">
-                    <Plus className="mr-2 h-4 w-4" />
-                    Nova Anotação
-                </Button>
-            </div>
-        )}
-
-        <Card className="mb-8">
-          <CardHeader>
-            <CardTitle>{currentNote.id ? 'Editar Anotação' : 'Nova Anotação'}</CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-4">
-             <div className="space-y-2">
-                <Label htmlFor="note-title">TÍTULO</Label>
-                <Input
-                  id="note-title"
-                  placeholder="Título da nota"
-                  value={currentNote.title}
-                  onChange={(e) => setCurrentNote({ ...currentNote, title: e.target.value })}
-                  className="text-2xl"
-                />
-            </div>
-            <div className="space-y-2">
-                <Label htmlFor="note-content">CONTEÚDO</Label>
-                <Textarea
-                  id="note-content"
-                  placeholder="Escreva sua anotação aqui..."
-                  value={currentNote.content}
-                  onChange={(e) => setCurrentNote({ ...currentNote, content: e.target.value })}
-                  className="min-h-[150px] text-xl"
-                />
-            </div>
-          </CardContent>
-          <CardFooter className="flex justify-end gap-2">
-            {currentNote.id && (
-                 <Button variant="ghost" onClick={handleNewNoteClick}>
-                    Cancelar Edição
-                </Button>
-            )}
-            <Button onClick={handleSave} disabled={isSaving} className="bg-primary hover:bg-primary/90">
-              {isSaving ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Save className="mr-2 h-4 w-4" />}
-              {currentNote.id ? 'Salvar Alterações' : 'Salvar Nota'}
+        <div className="mb-6">
+            <Button onClick={handleNewNoteClick} className="w-full bg-primary hover:bg-primary/90 text-lg uppercase">
+                <Plus className="mr-2 h-4 w-4" />
+                Nova Anotação
             </Button>
-          </CardFooter>
-        </Card>
+        </div>
+
+        {isFormVisible && (
+          <Card className="mb-8">
+            <CardHeader>
+              <CardTitle>{currentNote.id ? 'Editar Anotação' : 'Nova Anotação'}</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="space-y-2">
+                  <Label htmlFor="note-title">TÍTULO</Label>
+                  <Input
+                    id="note-title"
+                    placeholder="Título da nota"
+                    value={currentNote.title}
+                    onChange={(e) => setCurrentNote({ ...currentNote, title: e.target.value })}
+                    className="text-2xl"
+                  />
+              </div>
+              <div className="space-y-2">
+                  <Label htmlFor="note-content">CONTEÚDO</Label>
+                  <Textarea
+                    id="note-content"
+                    placeholder="Escreva sua anotação aqui..."
+                    value={currentNote.content}
+                    onChange={(e) => setCurrentNote({ ...currentNote, content: e.target.value })}
+                    className="min-h-[150px] text-xl"
+                  />
+              </div>
+            </CardContent>
+            <CardFooter className="flex justify-end gap-2">
+              {currentNote.id && (
+                  <Button variant="ghost" onClick={handleCancelEdit}>
+                      Cancelar Edição
+                  </Button>
+              )}
+              <Button onClick={handleSave} disabled={isSaving} className="bg-primary hover:bg-primary/90">
+                {isSaving ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Save className="mr-2 h-4 w-4" />}
+                {currentNote.id ? 'Salvar Alterações' : 'Salvar Nota'}
+              </Button>
+            </CardFooter>
+          </Card>
+        )}
         
         <div className="border-t border-border pt-8">
              <div className="flex justify-between items-center mb-6">
