@@ -23,9 +23,9 @@ export default function Home() {
              <SidebarTrigger className="md:hidden absolute left-0"/>
              <h1 className="text-4xl font-bold text-foreground font-headline tracking-wider flex items-center justify-center gap-4">
                 QRU
-                <div className="flex h-8 items-center gap-1">
-                  <div className="w-0.5 h-full bg-white"></div>
-                  <div className="w-0.5 h-full bg-repeat-y bg-[length:4px_24px] bg-center animate-move-dashes" style={{ backgroundImage: "linear-gradient(to bottom, white 50%, transparent 50%)"}}></div>
+                <div className="flex h-10 items-center gap-1">
+                  <div className="w-px h-full bg-white"></div>
+                  <div className="w-px h-full bg-repeat-y bg-[length:1px_48px] bg-center animate-move-dashes" style={{ backgroundImage: "linear-gradient(to bottom, white 50%, transparent 50%)"}}></div>
                 </div>
                 PRIORIDADE
               </h1>
@@ -54,6 +54,7 @@ export default function Home() {
     </main>
   );
 }
+
 
 
 
