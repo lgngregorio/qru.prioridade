@@ -22,6 +22,7 @@ import {
 
 export type EventCategory = {
   name: string;
+  title: string;
   slug: string;
   icon: LucideIcon;
   description: string;
@@ -31,6 +32,7 @@ export type EventCategory = {
 export const eventCategories: EventCategory[] = [
   {
     name: 'QUD APH',
+    title: 'QUD APH',
     slug: 'qud-aph',
     icon: Siren,
     description: 'Relatar QUD APH.',
@@ -38,6 +40,7 @@ export const eventCategories: EventCategory[] = [
   },
   {
     name: 'QUD OPERAÇÃO',
+    title: 'QUD OPERAÇÃO',
     slug: 'qud-operacao',
     icon: Siren,
     description: 'Relatar QUD Operação.',
@@ -45,20 +48,23 @@ export const eventCategories: EventCategory[] = [
   },
   {
     name: 'TRAÇADO DE PISTA',
+    title: 'TRAÇADO DE PISTA',
     slug: 'tracado-de-pista',
     icon: Waypoints,
     description: 'Relatar traçado de pista.',
     color: '#FFA500',
   },
   {
-    name: 'VEÍCULO ABANDONADO',
+    name: 'TO 01',
+    title: 'VEÍCULO ABANDONADO',
     slug: 'to-01',
     icon: Truck,
     description: 'Relatório de Veículo Abandonado.',
     color: '#8B4513',
   },
   {
-    name: 'INCÊNDIO NA FAIXA DE DOMÍNIO/LINDEIRO',
+    name: 'TO 02',
+    title: 'INCÊNDIO NA FAIXA DE DOMÍNIO/LINDEIRO',
     slug: 'to-02',
     icon: Flame,
     description: 'Relatório de Incêndio.',
@@ -66,6 +72,7 @@ export const eventCategories: EventCategory[] = [
   },
   {
     name: 'TO 03',
+    title: 'TO 03',
     slug: 'to-03',
     icon: Droplets,
     description: 'Relatar TO 03.',
@@ -73,6 +80,7 @@ export const eventCategories: EventCategory[] = [
   },
   {
     name: 'TO 04',
+    title: 'TO 04',
     slug: 'to-04',
     icon: Truck,
     description: 'Relatar TO 04.',
@@ -80,6 +88,7 @@ export const eventCategories: EventCategory[] = [
   },
   {
     name: 'TO 05',
+    title: 'TO 05',
     slug: 'to-05',
     icon: Truck,
     description: 'Relatar TO 05.',
@@ -87,6 +96,7 @@ export const eventCategories: EventCategory[] = [
   },
   {
     name: 'TO 06',
+    title: 'TO 06',
     slug: 'to-06',
     icon: Truck,
     description: 'Relatar TO 06.',
@@ -94,6 +104,7 @@ export const eventCategories: EventCategory[] = [
   },
   {
     name: 'TO 07',
+    title: 'TO 07',
     slug: 'to-07',
     icon: Construction,
     description: 'Relatar TO 07.',
@@ -101,6 +112,7 @@ export const eventCategories: EventCategory[] = [
   },
   {
     name: 'TO 09',
+    title: 'TO 09',
     slug: 'to-09',
     icon: HardHat,
     description: 'Relatar TO 09.',
@@ -108,6 +120,7 @@ export const eventCategories: EventCategory[] = [
   },
   {
     name: 'TO 11',
+    title: 'TO 11',
     slug: 'to-11',
     icon: Clipboard,
     description: 'Relatar TO 11.',
@@ -115,6 +128,7 @@ export const eventCategories: EventCategory[] = [
   },
   {
     name: 'TO 12',
+    title: 'TO 12',
     slug: 'to-12',
     icon: HeartPulse,
     description: 'Relatar TO 12.',
@@ -122,6 +136,7 @@ export const eventCategories: EventCategory[] = [
   },
   {
     name: 'TO 15',
+    title: 'TO 15',
     slug: 'to-15',
     icon: Search,
     description: 'Relatar TO 15.',
@@ -129,6 +144,7 @@ export const eventCategories: EventCategory[] = [
   },
   {
     name: 'TO 16',
+    title: 'TO 16',
     slug: 'to-16',
     icon: Heart,
     description: 'Relatar TO 16.',
@@ -136,6 +152,7 @@ export const eventCategories: EventCategory[] = [
   },
   {
     name: 'TO 17',
+    title: 'TO 17',
     slug: 'to-17',
     icon: PersonStanding,
     description: 'Relatar TO 17.',
@@ -143,6 +160,7 @@ export const eventCategories: EventCategory[] = [
   },
   {
     name: 'TO 19',
+    title: 'TO 19',
     slug: 'to-19',
     icon: Siren,
     description: 'Relatar TO 19.',
@@ -150,6 +168,7 @@ export const eventCategories: EventCategory[] = [
   },
   {
     name: 'TO 33',
+    title: 'TO 33',
     slug: 'to-33',
     icon: Shovel,
     description: 'Relatar TO 33.',
@@ -157,6 +176,7 @@ export const eventCategories: EventCategory[] = [
   },
   {
     name: 'TO 34',
+    title: 'TO 34',
     slug: 'to-34',
     icon: Wind,
     description: 'Relatar TO 34.',
@@ -164,6 +184,7 @@ export const eventCategories: EventCategory[] = [
   },
   {
     name: 'TO 35',
+    title: 'TO 35',
     slug: 'to-35',
     icon: Droplet,
     description: 'Relatar TO 35.',
@@ -171,6 +192,7 @@ export const eventCategories: EventCategory[] = [
   },
   {
     name: 'TO 37',
+    title: 'TO 37',
     slug: 'to-37',
     icon: Cone,
     description: 'Relatar TO 37.',
@@ -178,6 +200,7 @@ export const eventCategories: EventCategory[] = [
   },
   {
     name: 'TO 38',
+    title: 'TO 38',
     slug: 'to-38',
     icon: Building2,
     description: 'Relatar TO 38.',
@@ -185,6 +208,7 @@ export const eventCategories: EventCategory[] = [
   },
   {
     name: 'TO 39',
+    title: 'TO 39',
     slug: 'to-39',
     icon: Wrench,
     description: 'Relatar TO 39.',
@@ -192,6 +216,7 @@ export const eventCategories: EventCategory[] = [
   },
   {
     name: 'TO 50',
+    title: 'TO 50',
     slug: 'to-50',
     icon: Wrench,
     description: 'Relatar TO 50.',

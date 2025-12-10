@@ -45,7 +45,7 @@ export default function ReportPage() {
     return null;
   }
   
-  const title = category.name;
+  const title = category.title;
   const description = (
     <>
       Preencha os campos abaixo e envie o relatório <br /> completo.
