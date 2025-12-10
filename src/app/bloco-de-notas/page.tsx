@@ -34,7 +34,6 @@ import {
 import { useToast } from '@/hooks/use-toast';
 import { Loader2, ArrowLeft, Trash2, Edit, Plus, ChevronUp, Share2 } from 'lucide-react';
 import Link from 'next/link';
-import { useTranslation } from 'react-i18next';
 
 
 interface Note {
@@ -48,7 +47,6 @@ interface Note {
 export default function NotepadPage() {
   const firestore = useFirestore();
   const { toast } = useToast();
-  const { t } = useTranslation();
   const [notes, setNotes] = useState<Note[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -78,8 +76,8 @@ export default function NotepadPage() {
         console.error('Error fetching notes: ', error);
         toast({
           variant: 'destructive',
-          title: t('notepad.list.fetch_error_title'),
-          description: t('notepad.list.fetch_error_description'),
+          title: 'Erro ao buscar notas.',
+          description: 'Houve um problema ao carregar as anotações.',
         });
         setLoading(false);
       }
@@ -87,18 +85,18 @@ export default function NotepadPage() {
 
     // Cleanup subscription on unmount
     return () => unsubscribe();
-  }, [firestore, toast, t]);
+  }, [firestore, toast]);
   
   const handleDelete = (noteId: string) => {
     if (!firestore) return;
     deleteDoc(doc(firestore, 'notes', noteId)).then(() => {
-        toast({ title: t('notepad.list.delete_success_title') });
+        toast({ title: 'Nota apagada com sucesso!' });
     }).catch ((error) => {
       console.error('Error deleting note: ', error);
       toast({
         variant: 'destructive',
-        title: t('notepad.list.delete_error_title'),
-        description: t('notepad.list.delete_error_description'),
+        title: 'Erro ao apagar nota.',
+        description: 'Não foi possível apagar a anotação.',
       });
     });
   };
@@ -110,7 +108,7 @@ export default function NotepadPage() {
   };
 
   const formatDate = (timestamp: Timestamp | null | undefined, options: Intl.DateTimeFormatOptions) => {
-    if (!timestamp) return t('notepad.list.loading_date');
+    if (!timestamp) return 'Carregando...';
     return timestamp.toDate().toLocaleString('pt-BR', options);
   };
   
@@ -135,16 +133,16 @@ export default function NotepadPage() {
           <Button asChild variant="outline" className="rounded-full">
             <Link href="/">
               <ArrowLeft className="mr-2 h-4 w-4" />
-              {t('common.back_to_home')}
+              Voltar para o início
             </Link>
           </Button>
         </div>
         <div className="text-center mb-8">
             <h1 className="text-3xl font-bold text-foreground font-headline tracking-wide uppercase">
-              {t('notepad.list.title')}
+              BLOCO DE NOTAS
             </h1>
             <p className="text-muted-foreground mt-1 text-sm">
-              {t('notepad.list.description')}
+              Crie, edite e organize suas anotações.
             </p>
         </div>
 
@@ -152,21 +150,21 @@ export default function NotepadPage() {
             <Button asChild className="w-full bg-primary hover:bg-primary/90 text-lg uppercase">
                 <Link href="/bloco-de-notas/novo">
                   <Plus className="mr-2 h-4 w-4" />
-                  {t('notepad.list.new_note_button')}
+                  Nova Anotação
                 </Link>
             </Button>
         </div>
         
         <div className="pt-8">
              <div className="flex justify-between items-center mb-6">
-                <h2 className="text-2xl font-bold">{t('notepad.list.saved_notes_title')}</h2>
+                <h2 className="text-2xl font-bold">Anotações Salvas</h2>
              </div>
              {loading ? (
               <div className="flex justify-center items-center h-64">
                 <Loader2 className="h-8 w-8 animate-spin text-primary" />
               </div>
             ) : notes.length === 0 ? (
-              <p className="text-center text-muted-foreground py-10">{t('notepad.list.no_notes')}</p>
+              <p className="text-center text-muted-foreground py-10">Nenhuma anotação encontrada.</p>
             ) : (
                 <div className="space-y-8">
                     {Object.entries(groupedNotes).map(([date, notesOnDate]) => (
@@ -198,15 +196,15 @@ export default function NotepadPage() {
                                             </AlertDialogTrigger>
                                             <AlertDialogContent>
                                               <AlertDialogHeader>
-                                                <AlertDialogTitle>{t('common.are_you_sure')}</AlertDialogTitle>
+                                                <AlertDialogTitle>Você tem certeza?</AlertDialogTitle>
                                                 <AlertDialogDescription>
-                                                  {t('notepad.list.delete_warning')}
+                                                  Essa ação não pode ser desfeita. Isso irá apagar permanentemente a nota.
                                                 </AlertDialogDescription>
                                               </AlertDialogHeader>
                                               <AlertDialogFooter>
-                                                <AlertDialogCancel>{t('common.cancel')}</AlertDialogCancel>
+                                                <AlertDialogCancel>Cancelar</AlertDialogCancel>
                                                 <AlertDialogAction onClick={() => handleDelete(note.id)} className="bg-destructive hover:bg-destructive/80">
-                                                  {t('common.delete')}
+                                                  Apagar
                                                 </AlertDialogAction>
                                               </AlertDialogFooter>
                                             </AlertDialogContent>
@@ -220,7 +218,7 @@ export default function NotepadPage() {
                                  <CardFooter>
                                     <Button className="w-full bg-primary hover:bg-primary/90" onClick={() => handleShareNote(note)}>
                                       <Share2 className="mr-2 h-4 w-4" />
-                                      {t('notepad.list.share_button')}
+                                      Compartilhar Novamente
                                     </Button>
                                 </CardFooter>
                             </Card>
