@@ -290,7 +290,7 @@ function VeiculoAbandonadoForm({ categorySlug }: { categorySlug: string }) {
                 </Select>
             </Field>
             <Field label="QTH (LOCAL)">
-                <Input className="text-lg uppercase" placeholder="ex: km 125 da ms-112" value={generalInfo.qth} onChange={(e) => handleGeneralInfoChange('qth', e.target.value)}/>
+                <Input className="text-lg uppercase placeholder:normal-case" placeholder="ex: km 125 da ms-112" value={generalInfo.qth} onChange={(e) => handleGeneralInfoChange('qth', e.target.value)}/>
             </Field>
              <Field label="SENTIDO">
                 <Select value={generalInfo.sentido} onValueChange={(value) => handleGeneralInfoChange('sentido', value)}>
@@ -336,14 +336,14 @@ function VeiculoAbandonadoForm({ categorySlug }: { categorySlug: string }) {
             <div className="space-y-4">
               <h2 className="text-xl font-semibold text-foreground border-b-2 border-foreground pb-2 uppercase">Dados do Veículo {index + 1}</h2>
                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                    <Field label="MARCA"><Input className="text-lg uppercase" placeholder="ex: vw" value={vehicle.marca} onChange={e => handleVehicleChange(index, 'marca', e.target.value)}/></Field>
-                    <Field label="MODELO"><Input className="text-lg uppercase" placeholder="ex: gol" value={vehicle.modelo} onChange={e => handleVehicleChange(index, 'modelo', e.target.value)} /></Field>
-                    <Field label="ANO"><Input className="text-lg uppercase" placeholder="ex: 2020" value={vehicle.ano} onChange={e => handleVehicleChange(index, 'ano', e.target.value)}/></Field>
-                    <Field label="COR"><Input className="text-lg uppercase" placeholder="ex: branco" value={vehicle.cor} onChange={e => handleVehicleChange(index, 'cor', e.target.value)}/></Field>
-                    <Field label="PLACA"><Input className="text-lg uppercase" placeholder="ex: abc-1234" value={vehicle.placa} onChange={e => handleVehicleChange(index, 'placa', e.target.value)}/></Field>
-                    <Field label="CIDADE EMPLACAMENTO"><Input className="text-lg uppercase" placeholder="ex: são paulo" value={vehicle.cidade} onChange={e => handleVehicleChange(index, 'cidade', e.target.value)}/></Field>
-                    <Field label="VINDO DE"><Input className="text-lg uppercase" placeholder="ex: rio de janeiro" value={vehicle.vindoDe} onChange={e => handleVehicleChange(index, 'vindoDe', e.target.value)}/></Field>
-                    <Field label="INDO PARA"><Input className="text-lg uppercase" placeholder="ex: belo horizonte" value={vehicle.indoPara} onChange={e => handleVehicleChange(index, 'indoPara', e.target.value)}/></Field>
+                    <Field label="MARCA"><Input className="text-lg uppercase placeholder:normal-case" placeholder="ex: vw" value={vehicle.marca} onChange={e => handleVehicleChange(index, 'marca', e.target.value)}/></Field>
+                    <Field label="MODELO"><Input className="text-lg uppercase placeholder:normal-case" placeholder="ex: gol" value={vehicle.modelo} onChange={e => handleVehicleChange(index, 'modelo', e.target.value)} /></Field>
+                    <Field label="ANO"><Input className="text-lg uppercase placeholder:normal-case" placeholder="ex: 2020" value={vehicle.ano} onChange={e => handleVehicleChange(index, 'ano', e.target.value)}/></Field>
+                    <Field label="COR"><Input className="text-lg uppercase placeholder:normal-case" placeholder="ex: branco" value={vehicle.cor} onChange={e => handleVehicleChange(index, 'cor', e.target.value)}/></Field>
+                    <Field label="PLACA"><Input className="text-lg uppercase placeholder:normal-case" placeholder="ex: abc-1234" value={vehicle.placa} onChange={e => handleVehicleChange(index, 'placa', e.target.value)}/></Field>
+                    <Field label="CIDADE EMPLACAMENTO"><Input className="text-lg uppercase placeholder:normal-case" placeholder="ex: são paulo" value={vehicle.cidade} onChange={e => handleVehicleChange(index, 'cidade', e.target.value)}/></Field>
+                    <Field label="VINDO DE"><Input className="text-lg uppercase placeholder:normal-case" placeholder="ex: rio de janeiro" value={vehicle.vindoDe} onChange={e => handleVehicleChange(index, 'vindoDe', e.target.value)}/></Field>
+                    <Field label="INDO PARA"><Input className="text-lg uppercase placeholder:normal-case" placeholder="ex: belo horizonte" value={vehicle.indoPara} onChange={e => handleVehicleChange(index, 'indoPara', e.target.value)}/></Field>
                     <Field label="QUANTIDADE DE EIXOS">
                         <Select value={vehicle.eixos} onValueChange={value => handleVehicleChange(index, 'eixos', value)}>
                             <SelectTrigger className="text-lg uppercase"><SelectValue placeholder="SELECIONE OS EIXOS" /></SelectTrigger>
@@ -395,7 +395,7 @@ function VeiculoAbandonadoForm({ categorySlug }: { categorySlug: string }) {
                             </SelectContent>
                         </Select>
                     </Field>
-                    <Field label="TIPO DE CARGA"><Input className="text-lg uppercase" placeholder="ex: vazio, soja" value={vehicle.carga} onChange={e => handleVehicleChange(index, 'carga', e.target.value)}/></Field>
+                    <Field label="TIPO DE CARGA"><Input className="text-lg uppercase placeholder:normal-case" placeholder="ex: vazio, soja" value={vehicle.carga} onChange={e => handleVehicleChange(index, 'carga', e.target.value)}/></Field>
                </div>
             </div>
 
@@ -403,17 +403,17 @@ function VeiculoAbandonadoForm({ categorySlug }: { categorySlug: string }) {
             <div className="space-y-4">
                 <h2 className="text-xl font-semibold text-foreground border-b-2 border-foreground pb-2 uppercase">Condutor</h2>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                     <Field label="QRA DO CONDUTOR(A)"><Input className="text-lg uppercase" placeholder="nome do condutor" value={vehicle.condutor} onChange={e => handleVehicleChange(index, 'condutor', e.target.value)}/></Field>
+                     <Field label="QRA DO CONDUTOR(A)"><Input className="text-lg uppercase placeholder:normal-case" placeholder="nome do condutor" value={vehicle.condutor} onChange={e => handleVehicleChange(index, 'condutor', e.target.value)}/></Field>
                      <Field label="BAIXA FREQUÊNCIA">
                         <Input 
-                          className="text-lg uppercase"
+                          className="text-lg uppercase placeholder:normal-case"
                           placeholder="(00) 00000-0000" 
                           value={vehicle.telefone}
                           onChange={e => handleVehicleChange(index, 'telefone', e.target.value)}
                           maxLength={15}
                         />
                      </Field>
-                     <Field label="OCUPANTES"><Input className="text-lg uppercase" placeholder="ex: 2 adultos, 1 criança" value={vehicle.ocupantes} onChange={e => handleVehicleChange(index, 'ocupantes', e.target.value)}/></Field>
+                     <Field label="OCUPANTES"><Input className="text-lg uppercase placeholder:normal-case" placeholder="ex: 2 adultos, 1 criança" value={vehicle.ocupantes} onChange={e => handleVehicleChange(index, 'ocupantes', e.target.value)}/></Field>
                 </div>
             </div>
           </div>
@@ -428,13 +428,13 @@ function VeiculoAbandonadoForm({ categorySlug }: { categorySlug: string }) {
         <div className="space-y-4">
           <h2 className="text-xl font-semibold text-foreground border-b-2 border-foreground pb-2 uppercase">Outras Informações</h2>
           <Field label="AUXÍLIOS/PR">
-            <Textarea className="text-lg uppercase" placeholder="descreva os auxílios prestados" value={otherInfo.auxilios} onChange={(e) => handleOtherInfoChange('auxilios', e.target.value)} />
+            <Textarea className="text-lg uppercase placeholder:normal-case" placeholder="descreva os auxílios prestados" value={otherInfo.auxilios} onChange={(e) => handleOtherInfoChange('auxilios', e.target.value)} />
           </Field>
           <Field label="OBSERVAÇÕES">
-            <Textarea className="text-lg uppercase" placeholder="descreva detalhes adicionais sobre a ocorrência" value={otherInfo.observacoes} onChange={(e) => handleOtherInfoChange('observacoes', e.target.value)} />
+            <Textarea className="text-lg uppercase placeholder:normal-case" placeholder="descreva detalhes adicionais sobre a ocorrência" value={otherInfo.observacoes} onChange={(e) => handleOtherInfoChange('observacoes', e.target.value)} />
           </Field>
            <Field label="NÚMERO DA OCORRÊNCIA">
-            <Input className="text-lg uppercase" placeholder="número de controle interno" value={otherInfo.numeroOcorrencia} onChange={(e) => handleOtherInfoChange('numeroOcorrencia', e.target.value)} />
+            <Input className="text-lg uppercase placeholder:normal-case" placeholder="número de controle interno" value={otherInfo.numeroOcorrencia} onChange={(e) => handleOtherInfoChange('numeroOcorrencia', e.target.value)} />
           </Field>
         </div>
 
@@ -493,5 +493,3 @@ export default function ReportPage() {
     </main>
   );
 }
-
-    
