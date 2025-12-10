@@ -389,7 +389,7 @@ export default function TO03Form({ categorySlug }: { categorySlug: string }) {
                 </Select>
             </Field>
             <Field label={otherInfo.destinacaoAnimal || "QTH EXATO"}>
-                <Input className="text-xl placeholder:capitalize placeholder:text-sm" placeholder="Informe o QTH exato" value={otherInfo.qthExato} onChange={(e) => handleOtherInfoChange('qthExato', e.target.value)}/>
+                <Input className="text-xl placeholder:capitalize placeholder:text-sm" placeholder="Ex: Km 123" value={otherInfo.qthExato} onChange={(e) => handleOtherInfoChange('qthExato', e.target.value)}/>
             </Field>
             <Field label="NÚMERO DA OCORRÊNCIA">
               <Input className="text-xl placeholder:capitalize placeholder:text-sm" placeholder="Número de controle interno" value={otherInfo.numeroOcorrencia} onChange={(e) => handleOtherInfoChange('numeroOcorrencia', e.target.value)} />
