@@ -34,6 +34,10 @@ type GeneralInfo = {
   qth: string;
   sentido: string;
   localArea: string;
+  qthInicio: string;
+  qthTermino: string;
+  proporcaoMetros: string;
+  areaTotal: string;
 };
 
 
@@ -56,6 +60,10 @@ export default function IncendioForm({ categorySlug }: { categorySlug: string })
     qth: '',
     sentido: '',
     localArea: '',
+    qthInicio: '',
+    qthTermino: '',
+    proporcaoMetros: '',
+    areaTotal: '',
   });
 
   const [otherInfo, setOtherInfo] = useState<OtherInfo>({
@@ -144,7 +152,7 @@ export default function IncendioForm({ categorySlug }: { categorySlug: string })
     const reportData = prepareReportData().formData;
     const category = eventCategories.find(c => c.slug === categorySlug);
     
-    let message = `*${category ? category.name.toUpperCase() : 'RELATÓRIO DE OCORRÊNCIA'}*\n\n`;
+    let message = `*${category ? category.title.toUpperCase() : 'RELATÓRIO DE OCORRÊNCIA'}*\n\n`;
 
     message += `*INFORMAÇÕES GERAIS*\n`;
     message += `Rodovia: ${reportData.generalInfo.rodovia}\n`;
@@ -152,7 +160,11 @@ export default function IncendioForm({ categorySlug }: { categorySlug: string })
     message += `Tipo de Pane: ${reportData.generalInfo.tipoPane}\n`;
     message += `QTH (Local): ${reportData.generalInfo.qth}\n`;
     message += `Sentido: ${reportData.generalInfo.sentido}\n`;
-    message += `Local/Área: ${reportData.generalInfo.localArea}\n\n`;
+    message += `Local/Área: ${reportData.generalInfo.localArea}\n`;
+    message += `QTH de Início: ${reportData.generalInfo.qthInicio}\n`;
+    message += `QTH de Término: ${reportData.generalInfo.qthTermino}\n`;
+    message += `Proporção em Metros: ${reportData.generalInfo.proporcaoMetros}\n`;
+    message += `Área Total (m²): ${reportData.generalInfo.areaTotal}\n\n`;
     
     message += `*OUTRAS INFORMAÇÕES*\n`;
     message += `Auxílios/PR: ${reportData.otherInfo.auxilios}\n`;
@@ -172,7 +184,7 @@ export default function IncendioForm({ categorySlug }: { categorySlug: string })
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
             <Field label="RODOVIA">
                 <Select value={generalInfo.rodovia} onValueChange={(value) => handleGeneralInfoChange('rodovia', value)}>
-                    <SelectTrigger className="text-2xl normal-case placeholder:text-base">
+                    <SelectTrigger className="text-xl normal-case placeholder:text-base">
                         <SelectValue placeholder="Selecione a rodovia" />
                     </SelectTrigger>
                     <SelectContent>
@@ -183,11 +195,11 @@ export default function IncendioForm({ categorySlug }: { categorySlug: string })
                 </Select>
             </Field>
             <Field label="OCORRÊNCIA">
-                <Input className="text-2xl uppercase" value={generalInfo.ocorrencia} disabled />
+                <Input className="text-xl uppercase" value={generalInfo.ocorrencia} disabled />
             </Field>
             <Field label="TIPO DE PANE">
                  <Select value={generalInfo.tipoPane} onValueChange={(value) => handleGeneralInfoChange('tipoPane', value)}>
-                    <SelectTrigger className="text-2xl normal-case placeholder:text-base">
+                    <SelectTrigger className="text-xl normal-case placeholder:text-base">
                         <SelectValue placeholder="Selecione o tipo de pane" />
                     </SelectTrigger>
                     <SelectContent>
@@ -202,11 +214,11 @@ export default function IncendioForm({ categorySlug }: { categorySlug: string })
                 </Select>
             </Field>
             <Field label="QTH (LOCAL)">
-                <Input className="text-2xl placeholder:capitalize placeholder:text-sm" placeholder="Ex: Km 125 da MS-112" value={generalInfo.qth} onChange={(e) => handleGeneralInfoChange('qth', e.target.value)}/>
+                <Input className="text-xl placeholder:capitalize placeholder:text-sm" placeholder="Ex: Km 125 da MS-112" value={generalInfo.qth} onChange={(e) => handleGeneralInfoChange('qth', e.target.value)}/>
             </Field>
              <Field label="SENTIDO">
                 <Select value={generalInfo.sentido} onValueChange={(value) => handleGeneralInfoChange('sentido', value)}>
-                    <SelectTrigger className="text-2xl normal-case placeholder:text-base">
+                    <SelectTrigger className="text-xl normal-case placeholder:text-base">
                         <SelectValue placeholder="Selecione o sentido" />
                     </SelectTrigger>
                     <SelectContent>
@@ -217,7 +229,7 @@ export default function IncendioForm({ categorySlug }: { categorySlug: string })
             </Field>
             <Field label="LOCAL/ÁREA">
                 <Select value={generalInfo.localArea} onValueChange={(value) => handleGeneralInfoChange('localArea', value)}>
-                    <SelectTrigger className="text-2xl normal-case placeholder:text-base">
+                    <SelectTrigger className="text-xl normal-case placeholder:text-base">
                         <SelectValue placeholder="Selecione o local/área" />
                     </SelectTrigger>
                     <SelectContent>
@@ -227,6 +239,18 @@ export default function IncendioForm({ categorySlug }: { categorySlug: string })
                         <SelectItem value="terceira_faixa">TERCEIRA FAIXA</SelectItem>
                     </SelectContent>
                 </Select>
+            </Field>
+            <Field label="QTH DE INÍCIO">
+                <Input className="text-xl placeholder:capitalize placeholder:text-sm" placeholder="Km inicial do incêndio" value={generalInfo.qthInicio} onChange={(e) => handleGeneralInfoChange('qthInicio', e.target.value)} />
+            </Field>
+            <Field label="QTH DE TÉRMINO">
+                <Input className="text-xl placeholder:capitalize placeholder:text-sm" placeholder="Km final do incêndio" value={generalInfo.qthTermino} onChange={(e) => handleGeneralInfoChange('qthTermino', e.target.value)} />
+            </Field>
+            <Field label="PROPORÇÃO EM METROS">
+                <Input className="text-xl placeholder:capitalize placeholder:text-sm" placeholder="Comprimento do incêndio" value={generalInfo.proporcaoMetros} onChange={(e) => handleGeneralInfoChange('proporcaoMetros', e.target.value)} />
+            </Field>
+            <Field label="ÁREA TOTAL (M²)">
+                <Input className="text-xl placeholder:capitalize placeholder:text-sm" placeholder="Área total do incêndio" value={generalInfo.areaTotal} onChange={(e) => handleGeneralInfoChange('areaTotal', e.target.value)} />
             </Field>
           </div>
         </div>
@@ -261,3 +285,5 @@ export default function IncendioForm({ categorySlug }: { categorySlug: string })
     </div>
   );
 }
+
+    
