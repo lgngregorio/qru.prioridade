@@ -60,11 +60,11 @@ export default function EventCategoryGrid({
           >
             <CardHeader className="flex flex-col items-center justify-center p-1 aspect-[3/4]">
               <div
-                className="w-10 h-10 rounded-full mb-1 flex items-center justify-center bg-black/20"
+                className="w-12 h-12 rounded-full mb-1 flex items-center justify-center bg-black/20"
               >
-                <category.icon className="h-6 w-6 text-white" />
+                <category.icon className="h-7 w-7 text-white" />
               </div>
-              <CardTitle className="text-base font-bold leading-tight text-white">
+              <CardTitle className="text-lg font-bold leading-tight text-white">
                 {category.name}
               </CardTitle>
             </CardHeader>
