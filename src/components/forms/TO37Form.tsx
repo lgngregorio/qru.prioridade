@@ -33,10 +33,6 @@ type GeneralInfo = {
   qth: string;
   sentido: string;
   localArea: string;
-  tipoDeDefeito: string;
-  quantidade: string;
-  qthInicio: string;
-  qthTermino: string;
 };
 
 
@@ -58,10 +54,6 @@ export default function TO37Form({ categorySlug }: { categorySlug: string }) {
     qth: '',
     sentido: '',
     localArea: '',
-    tipoDeDefeito: '',
-    quantidade: '',
-    qthInicio: '',
-    qthTermino: '',
   });
   
   const [otherInfo, setOtherInfo] = useState<OtherInfo>({
@@ -157,11 +149,7 @@ export default function TO37Form({ categorySlug }: { categorySlug: string }) {
     message += `Ocorrência: ${reportData.generalInfo.ocorrencia}\n`;
     message += `QTH (Local): ${reportData.generalInfo.qth}\n`;
     message += `Sentido: ${reportData.generalInfo.sentido}\n`;
-    message += `Local/Área: ${reportData.generalInfo.localArea}\n`;
-    message += `QTH de Início: ${reportData.generalInfo.qthInicio}\n`;
-    message += `QTH de Término: ${reportData.generalInfo.qthTermino}\n`;
-    message += `Tipo de Defeito: ${reportData.generalInfo.tipoDeDefeito}\n`;
-    message += `Quantidade: ${reportData.generalInfo.quantidade}\n\n`;
+    message += `Local/Área: ${reportData.generalInfo.localArea}\n\n`;
 
     message += `*OUTRAS INFORMAÇÕES*\n`;
     message += `AUXÍLIOS/PR: ${reportData.otherInfo.auxilios}\n`;
@@ -223,26 +211,6 @@ export default function TO37Form({ categorySlug }: { categorySlug: string }) {
                     </SelectContent>
                 </Select>
             </Field>
-            <Field label="QTH DE INÍCIO">
-                <Input className="text-xl placeholder:capitalize placeholder:text-sm" placeholder="Km inicial" value={generalInfo.qthInicio} onChange={(e) => handleGeneralInfoChange('qthInicio', e.target.value)}/>
-            </Field>
-            <Field label="QTH DE TÉRMINO">
-                <Input className="text-xl placeholder:capitalize placeholder:text-sm" placeholder="Km final" value={generalInfo.qthTermino} onChange={(e) => handleGeneralInfoChange('qthTermino', e.target.value)}/>
-            </Field>
-            <Field label="TIPO DE DEFEITO">
-                <Select value={generalInfo.tipoDeDefeito} onValueChange={(value) => handleGeneralInfoChange('tipoDeDefeito', value)}>
-                    <SelectTrigger className="text-xl normal-case placeholder:text-base">
-                        <SelectValue placeholder="Selecione o tipo de defeito" />
-                    </SelectTrigger>
-                    <SelectContent>
-                        <SelectItem value="buraco">BURACO</SelectItem>
-                        <SelectItem value="deformidade">DEFORMIDADE</SelectItem>
-                    </SelectContent>
-                </Select>
-            </Field>
-            <Field label="QUANTIDADE">
-                <Input className="text-xl placeholder:capitalize placeholder:text-sm" placeholder="Ex: 1" value={generalInfo.quantidade} onChange={(e) => handleGeneralInfoChange('quantidade', e.target.value)}/>
-            </Field>
           </div>
         </div>
 
@@ -276,4 +244,3 @@ export default function TO37Form({ categorySlug }: { categorySlug: string }) {
     </div>
   );
 }
-
