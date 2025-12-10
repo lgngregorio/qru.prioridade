@@ -98,6 +98,18 @@ export default function TracadoDePistaForm({ categorySlug }: { categorySlug: str
         
         <SectionTitle>ACIDENTE PRÉVIA</SectionTitle>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+            <Field label="Rodovia">
+                 <Select onValueChange={(value) => handleValueChange('previa', 'rodovia', value)}>
+                    <SelectTrigger className="text-xl normal-case placeholder:text-base">
+                        <SelectValue placeholder="Selecione a rodovia" />
+                    </SelectTrigger>
+                    <SelectContent>
+                        <SelectItem value="ms-112">MS-112</SelectItem>
+                        <SelectItem value="br-158">BR-158</SelectItem>
+                        <SelectItem value="ms-306">MS-306</SelectItem>
+                    </SelectContent>
+                </Select>
+            </Field>
             <Field label="QTH exato"><Input onChange={(e) => handleValueChange('previa', 'qth', e.target.value)} /></Field>
              <Field label="Sentido">
                 {renderRadioGroup('previa', 'sentido', [
@@ -255,4 +267,3 @@ export default function TracadoDePistaForm({ categorySlug }: { categorySlug: str
     </div>
   );
 }
-
