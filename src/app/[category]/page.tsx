@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useParams, useRouter } from 'next/navigation';
@@ -144,7 +145,7 @@ function VeiculoAbandonadoForm({ categorySlug }: { categorySlug: string }) {
       return data.map(item => fillEmptyFields(item));
     }
     if (typeof data === 'object' && data !== null) {
-      const newData: { [key: string]: any } = {};
+      const newData: { [key]: any } = {};
       for (const key in data) {
         if (Object.prototype.hasOwnProperty.call(data, key)) {
           newData[key] = fillEmptyFields(data[key]);
@@ -483,7 +484,7 @@ export default function ReportPage() {
             <CardTitle className="text-3xl font-bold text-foreground font-headline tracking-wide uppercase">
               {title}
             </CardTitle>
-            <CardDescription className="text-xs mt-1 text-muted-foreground normal-case">
+            <CardDescription className="text-sm mt-1 text-muted-foreground normal-case">
              {description}
             </CardDescription>
           </CardHeader>
@@ -495,3 +496,5 @@ export default function ReportPage() {
     </main>
   );
 }
+
+    
