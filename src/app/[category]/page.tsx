@@ -168,7 +168,7 @@ function ReportForm() {
               </div>
                <div>
                   <h4 className="font-bold mb-2 text-xs">VEÍCULO</h4>
-                  <CheckboxGroup items={["BICICLETA", "MOTO", "CARRO/UTILITÁRIA", "ÔNIBUS", "CAMINHÃO", "CARRETA"]} columns={1_} />
+                  <CheckboxGroup items={["BICICLETA", "MOTO", "CARRO/UTILITÁRIA", "ÔNIBUS", "CAMINHÃO", "CARRETA"]} columns={1} />
                    <Field label="PLACA:"><Input /></Field>
               </div>
           </div>
