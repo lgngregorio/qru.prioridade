@@ -96,7 +96,7 @@ export const eventCategories: EventCategory[] = [
   },
   {
     name: 'TO 06',
-    title: 'TO 06',
+    title: 'PANE SOBRE FAIXA DE ROLAMENTO',
     slug: 'to-06',
     icon: Truck,
     description: 'Relatar TO 06.',
