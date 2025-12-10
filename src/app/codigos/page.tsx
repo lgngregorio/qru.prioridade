@@ -41,26 +41,25 @@ const codeSections = [
 
 export default function CodigosPage() {
   return (
-    <main className="flex flex-col items-center p-4 pt-8 md:p-6">
+    <main className="flex flex-col items-center p-4 md:p-6">
       <div className="w-full max-w-4xl">
-        <div className="mb-6 flex items-center gap-4 relative">
-          <Button asChild variant="outline" className="rounded-full md:absolute left-0">
+        <div className="flex items-center justify-between w-full mb-6 pt-4">
+           <Button asChild variant="outline" className="rounded-full">
             <Link href="/">
               <ArrowLeft className="mr-2 h-4 w-4" />
               Voltar
             </Link>
           </Button>
-          <div className="flex-1 text-center">
+          <SidebarTrigger className="md:hidden" />
+        </div>
+
+        <div className="text-center mb-8">
             <h1 className="text-3xl font-bold text-foreground font-headline tracking-wide">
               CÓDIGOS E ABREVIATURAS
             </h1>
             <p className="text-muted-foreground mt-1 text-sm">
               Consulte os códigos e abreviaturas utilizados na comunicação.
             </p>
-          </div>
-           <div className="md:absolute right-0">
-            <SidebarTrigger className="md:hidden" />
-          </div>
         </div>
 
         <Accordion type="single" collapsible className="w-full">
