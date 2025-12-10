@@ -178,9 +178,9 @@ export const eventCategories: EventCategory[] = [
   },
   {
     name: 'TO 34',
-    title: 'TO 34',
+    title: 'BURACO NA RODOVIA',
     slug: 'to-34',
-    icon: Wind,
+    icon: Wrench,
     description: 'Relatar TO 34.',
     color: '#EE82EE',
   },
