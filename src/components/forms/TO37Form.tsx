@@ -225,7 +225,6 @@ export default function TO37Form({ categorySlug }: { categorySlug: string }) {
                         <SelectValue placeholder="Selecione o local/área" />
                     </SelectTrigger>
                     <SelectContent>
-                        <SelectItem value="terceira_faixa">TERCEIRA FAIXA</SelectItem>
                         <SelectItem value="area_de_dominio">ÁREA DE DOMÍNIO</SelectItem>
                     </SelectContent>
                 </Select>
