@@ -24,6 +24,8 @@ import { useToast } from '@/hooks/use-toast';
 import { Loader2, Save, ArrowLeft } from 'lucide-react';
 import { Label } from '@/components/ui/label';
 import Link from 'next/link';
+import { errorEmitter } from '@/firebase/error-emitter';
+import { FirestorePermissionError } from '@/firebase/errors';
 
 export default function NovaNotaPage() {
   const firestore = useFirestore();
@@ -33,7 +35,7 @@ export default function NovaNotaPage() {
   const [content, setContent] = useState('');
   const [isSaving, setIsSaving] = useState(false);
 
-  const handleSave = async () => {
+  const handleSave = () => {
     if (!firestore || !title || !content) {
       toast({
         variant: 'destructive',
@@ -44,25 +46,36 @@ export default function NovaNotaPage() {
     }
 
     setIsSaving(true);
-    try {
-      await addDoc(collection(firestore, 'notes'), {
-        title: title,
-        content: content,
-        createdAt: serverTimestamp(),
-        updatedAt: serverTimestamp(),
+    
+    const notesCollection = collection(firestore, 'notes');
+    const newNote = {
+      title: title,
+      content: content,
+      createdAt: serverTimestamp(),
+      updatedAt: serverTimestamp(),
+    };
+
+    addDoc(notesCollection, newNote).catch(async (serverError) => {
+      console.error('Error saving note: ', serverError);
+      
+      const permissionError = new FirestorePermissionError({
+          path: notesCollection.path,
+          operation: 'create',
+          requestResourceData: newNote,
       });
-      toast({ title: 'Nota salva com sucesso!' });
-      router.push('/bloco-de-notas');
-    } catch (error) {
-      console.error('Error saving note: ', error);
+
+      errorEmitter.emit('permission-error', permissionError);
+
       toast({
         variant: 'destructive',
         title: 'Erro ao salvar nota.',
         description: 'Não foi possível salvar a anotação.',
       });
-    } finally {
-      setIsSaving(false);
-    }
+       setIsSaving(false);
+    });
+
+    toast({ title: 'Nota salva com sucesso!' });
+    router.push('/bloco-de-notas');
   };
 
   return (
@@ -114,4 +127,3 @@ export default function NovaNotaPage() {
     </main>
   );
 }
-

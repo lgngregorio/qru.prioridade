@@ -26,6 +26,8 @@ import { Loader2, Save, ArrowLeft } from 'lucide-react';
 import { Label } from '@/components/ui/label';
 import Link from 'next/link';
 import { Skeleton } from '@/components/ui/skeleton';
+import { errorEmitter } from '@/firebase/error-emitter';
+import { FirestorePermissionError } from '@/firebase/errors';
 
 interface Note {
   id: string;
@@ -82,7 +84,7 @@ export default function EditarNotaPage() {
     fetchNote();
   }, [firestore, noteId, router, toast]);
 
-  const handleSave = async () => {
+  const handleSave = () => {
     if (!firestore || !title || !content) {
       toast({
         variant: 'destructive',
@@ -93,25 +95,34 @@ export default function EditarNotaPage() {
     }
 
     setIsSaving(true);
-    try {
-      const noteRef = doc(firestore, 'notes', noteId);
-      await updateDoc(noteRef, {
+    const noteRef = doc(firestore, 'notes', noteId);
+    const updatedData = {
         title: title,
         content: content,
         updatedAt: serverTimestamp(),
-      });
-      toast({ title: 'Nota atualizada com sucesso!' });
-      router.push('/bloco-de-notas');
-    } catch (error) {
-      console.error('Error updating note: ', error);
-      toast({
-        variant: 'destructive',
-        title: 'Erro ao atualizar nota.',
-        description: 'Não foi possível atualizar a anotação.',
-      });
-    } finally {
-      setIsSaving(false);
-    }
+      };
+    
+    updateDoc(noteRef, updatedData)
+        .catch(async (serverError) => {
+          console.error('Error updating note: ', serverError);
+          const permissionError = new FirestorePermissionError({
+              path: noteRef.path,
+              operation: 'update',
+              requestResourceData: updatedData,
+          });
+    
+          errorEmitter.emit('permission-error', permissionError);
+          
+          toast({
+            variant: 'destructive',
+            title: 'Erro ao atualizar nota.',
+            description: 'Não foi possível atualizar a anotação.',
+          });
+          setIsSaving(false);
+        });
+
+    toast({ title: 'Nota atualizada com sucesso!' });
+    router.push('/bloco-de-notas');
   };
 
   if (loading) {
@@ -193,4 +204,3 @@ export default function EditarNotaPage() {
     </main>
   );
 }
-
