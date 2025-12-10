@@ -35,6 +35,11 @@ type GeneralInfo = {
   localArea: string;
   tipoDeObra: string;
   qraResponsavel: string;
+  baixaFrequencia: string;
+  qtrInicio: string;
+  qtrTermino: string;
+  qthInicio: string;
+  qthTermino: string;
 };
 
 
@@ -60,6 +65,11 @@ export default function TO09Form({ categorySlug }: { categorySlug: string }) {
     localArea: '',
     tipoDeObra: '',
     qraResponsavel: '',
+    baixaFrequencia: '',
+    qtrInicio: '',
+    qtrTermino: '',
+    qthInicio: '',
+    qthTermino: '',
   });
   
   const [otherInfo, setOtherInfo] = useState<OtherInfo>({
@@ -70,7 +80,21 @@ export default function TO09Form({ categorySlug }: { categorySlug: string }) {
     numeroOcorrencia: '',
   });
 
+  const formatPhoneNumber = (value: string) => {
+    if (!value) return value;
+    const phoneNumber = value.replace(/[^\d]/g, '');
+    const phoneNumberLength = phoneNumber.length;
+    if (phoneNumberLength < 3) return `(${phoneNumber}`;
+    if (phoneNumberLength < 8) {
+      return `(${phoneNumber.slice(0, 2)}) ${phoneNumber.slice(2)}`;
+    }
+    return `(${phoneNumber.slice(0, 2)}) ${phoneNumber.slice(2, 7)}-${phoneNumber.slice(7, 11)}`;
+  };
+
   const handleGeneralInfoChange = (field: keyof GeneralInfo, value: string) => {
+     if (field === 'baixaFrequencia') {
+      value = formatPhoneNumber(value);
+    }
     setGeneralInfo(prev => ({ ...prev, [field]: value }));
   };
 
@@ -165,7 +189,12 @@ export default function TO09Form({ categorySlug }: { categorySlug: string }) {
     message += `Sentido: ${reportData.generalInfo.sentido}\n`;
     message += `Local/Área: ${reportData.generalInfo.localArea}\n`;
     message += `Tipo de Obra: ${reportData.generalInfo.tipoDeObra}\n`;
-    message += `QRA do Responsável: ${reportData.generalInfo.qraResponsavel}\n\n`;
+    message += `QRA do Responsável: ${reportData.generalInfo.qraResponsavel}\n`;
+    message += `Baixa Frequência: ${reportData.generalInfo.baixaFrequencia}\n`;
+    message += `QTR de Início: ${reportData.generalInfo.qtrInicio}\n`;
+    message += `QTR de Término: ${reportData.generalInfo.qtrTermino}\n`;
+    message += `QTH de Início: ${reportData.generalInfo.qthInicio}\n`;
+    message += `QTH de Término: ${reportData.generalInfo.qthTermino}\n\n`;
 
     message += `*OUTRAS INFORMAÇÕES*\n`;
     message += `AUXÍLIOS/PR: ${reportData.otherInfo.auxilios}\n`;
@@ -236,6 +265,27 @@ export default function TO09Form({ categorySlug }: { categorySlug: string }) {
             </Field>
             <Field label="QRA DO RESPONSÁVEL">
                 <Input className="text-xl placeholder:capitalize placeholder:text-sm" placeholder="Nome do responsável" value={generalInfo.qraResponsavel} onChange={(e) => handleGeneralInfoChange('qraResponsavel', e.target.value)}/>
+            </Field>
+            <Field label="BAIXA FREQUÊNCIA">
+                <Input 
+                  className="text-xl placeholder:capitalize placeholder:text-sm"
+                  placeholder="(00) 00000-0000" 
+                  value={generalInfo.baixaFrequencia}
+                  onChange={e => handleGeneralInfoChange('baixaFrequencia', e.target.value)}
+                  maxLength={15}
+                />
+            </Field>
+            <Field label="QTR DE INÍCIO">
+                <Input className="text-xl placeholder:capitalize placeholder:text-sm" placeholder="HH:MM" value={generalInfo.qtrInicio} onChange={(e) => handleGeneralInfoChange('qtrInicio', e.target.value)}/>
+            </Field>
+            <Field label="QTR DE TÉRMINO">
+                <Input className="text-xl placeholder:capitalize placeholder:text-sm" placeholder="HH:MM" value={generalInfo.qtrTermino} onChange={(e) => handleGeneralInfoChange('qtrTermino', e.target.value)}/>
+            </Field>
+            <Field label="QTH DE INÍCIO">
+                <Input className="text-xl placeholder:capitalize placeholder:text-sm" placeholder="Km inicial" value={generalInfo.qthInicio} onChange={(e) => handleGeneralInfoChange('qthInicio', e.target.value)}/>
+            </Field>
+            <Field label="QTH DE TÉRMINO">
+                <Input className="text-xl placeholder:capitalize placeholder:text-sm" placeholder="Km final" value={generalInfo.qthTermino} onChange={(e) => handleGeneralInfoChange('qthTermino', e.target.value)}/>
             </Field>
           </div>
         </div>

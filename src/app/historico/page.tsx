@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useState, useEffect } from 'react';
@@ -53,9 +54,12 @@ export default function HistoricoPage() {
   }, [firestore]);
 
   const getReportTitle = (report: Report) => {
-    if (report.category === 'to-01') {
-      const plate = report.formData?.vehicles?.[0]?.placa || 'N/A';
-      return `Veículo Abandonado - Placa: ${plate}`;
+    const formData = report.formData;
+    if (report.category === 'to-01' && formData?.vehicles?.[0]?.placa) {
+      return `Veículo Abandonado - Placa: ${formData.vehicles[0].placa}`;
+    }
+     if (report.category === 'to-09' && formData?.generalInfo?.tipoDeObra) {
+      return `Obras - ${formData.generalInfo.tipoDeObra}`;
     }
     // Add other report types here
     return `Relatório #${report.id.substring(0, 5)}`;
