@@ -22,5 +22,52 @@
         "pt": "Portugués (Brasil)",
         "en": "Inglés (Estados Unidos)",
         "es": "Español"
+    },
+    "common": {
+        "back_to_home": "Volver al Inicio",
+        "are_you_sure": "¿Estás seguro?",
+        "cancel": "Cancelar",
+        "delete": "Eliminar",
+        "saving": "Guardando...",
+        "required_fields_title": "Campos obligatorios"
+    },
+    "notepad": {
+        "list": {
+            "fetch_error_title": "Error al buscar notas.",
+            "fetch_error_description": "Hubo un problema al cargar las notas.",
+            "delete_success_title": "¡Nota eliminada con éxito!",
+            "delete_error_title": "Error al eliminar la nota.",
+            "delete_error_description": "No se pudo eliminar la nota.",
+            "loading_date": "Cargando...",
+            "title": "BLOC DE NOTAS",
+            "description": "Crea, edita y organiza tus notas.",
+            "new_note_button": "Nueva Nota",
+            "saved_notes_title": "Notas Guardadas",
+            "no_notes": "No se encontraron notas.",
+            "delete_warning": "Esta acción no se puede deshacer. Esto eliminará permanentemente la nota.",
+            "share_button": "Compartir de Nuevo"
+        },
+        "new": {
+            "back_button": "Volver al Bloc de Notas",
+            "title": "Nueva Nota",
+            "save_button": "Guardar Nota",
+            "required_fields_description": "Por favor, complete el título y el contenido de la nota.",
+            "save_success": "¡Nota guardada con éxito!"
+        },
+        "edit": {
+            "back_button": "Volver al Bloc de Notas",
+            "title": "Editar Nota",
+            "save_button": "Guardar Cambios",
+            "not_found_error": "Nota no encontrada.",
+            "load_error": "Error al cargar la nota.",
+            "required_fields_description": "Por favor, complete el título y el contenido de la nota.",
+            "save_success": "¡Nota actualizada con éxito!"
+        },
+        "common": {
+            "title_label": "TÍTULO",
+            "content_label": "CONTENIDO",
+            "title_placeholder": "Título de la nota",
+            "content_placeholder": "Escribe tu nota aquí..."
+        }
     }
 }

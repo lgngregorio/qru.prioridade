@@ -28,6 +28,7 @@ import Link from 'next/link';
 import { Skeleton } from '@/components/ui/skeleton';
 import { errorEmitter } from '@/firebase/error-emitter';
 import { FirestorePermissionError } from '@/firebase/errors';
+import { useTranslation } from 'react-i18next';
 
 interface Note {
   id: string;
@@ -42,6 +43,7 @@ export default function EditarNotaPage() {
   const router = useRouter();
   const params = useParams();
   const { toast } = useToast();
+  const { t } = useTranslation();
 
   const noteId = params.id as string;
 
@@ -67,7 +69,7 @@ export default function EditarNotaPage() {
         } else {
           toast({
             variant: 'destructive',
-            title: 'Nota não encontrada.',
+            title: t('notepad.edit.not_found_error'),
           });
           router.push('/bloco-de-notas');
         }
@@ -75,21 +77,21 @@ export default function EditarNotaPage() {
         console.error('Error fetching note: ', error);
         toast({
           variant: 'destructive',
-          title: 'Erro ao carregar nota.',
+          title: t('notepad.edit.load_error'),
         });
       } finally {
         setLoading(false);
       }
     }
     fetchNote();
-  }, [firestore, noteId, router, toast]);
+  }, [firestore, noteId, router, toast, t]);
 
   const handleSave = () => {
     if (!firestore || !title || !content) {
       toast({
         variant: 'destructive',
-        title: 'Campos obrigatórios',
-        description: 'Por favor, preencha o título e o conteúdo da nota.',
+        title: t('common.required_fields_title'),
+        description: t('notepad.edit.required_fields_description'),
       });
       return;
     }
@@ -104,7 +106,7 @@ export default function EditarNotaPage() {
     
     updateDoc(noteRef, updatedData)
         .then(() => {
-            toast({ title: 'Nota atualizada com sucesso!' });
+            toast({ title: t('notepad.edit.save_success') });
             router.push('/bloco-de-notas');
         })
         .catch(async (serverError) => {
@@ -158,31 +160,31 @@ export default function EditarNotaPage() {
           <Button asChild variant="outline" className="rounded-full">
             <Link href="/bloco-de-notas">
               <ArrowLeft className="mr-2 h-4 w-4" />
-              Voltar para o Bloco de Notas
+              {t('notepad.edit.back_button')}
             </Link>
           </Button>
         </div>
         
         <Card className="mb-8">
           <CardHeader>
-            <CardTitle>Editar Anotação</CardTitle>
+            <CardTitle>{t('notepad.edit.title')}</CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="space-y-2">
-              <Label htmlFor="note-title">TÍTULO</Label>
+              <Label htmlFor="note-title">{t('notepad.common.title_label')}</Label>
               <Input
                 id="note-title"
-                placeholder="Título da nota"
+                placeholder={t('notepad.common.title_placeholder')}
                 value={title}
                 onChange={(e) => setTitle(e.target.value)}
                 className="text-2xl"
               />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="note-content">CONTEÚDO</Label>
+              <Label htmlFor="note-content">{t('notepad.common.content_label')}</Label>
               <Textarea
                 id="note-content"
-                placeholder="Escreva sua anotação aqui..."
+                placeholder={t('notepad.common.content_placeholder')}
                 value={content}
                 onChange={(e) => setContent(e.target.value)}
                 className="min-h-[150px] text-xl"
@@ -192,7 +194,7 @@ export default function EditarNotaPage() {
           <CardFooter className="flex justify-end gap-2">
             <Button onClick={handleSave} disabled={isSaving} className="bg-primary hover:bg-primary/90">
               {isSaving ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Save className="mr-2 h-4 w-4" />}
-              Salvar Alterações
+              {isSaving ? t('common.saving') : t('notepad.edit.save_button')}
             </Button>
           </CardFooter>
         </Card>
