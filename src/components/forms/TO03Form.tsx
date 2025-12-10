@@ -238,15 +238,20 @@ export default function TO03Form({ categorySlug }: { categorySlug: string }) {
           </div>
         </div>
 
+        {/* Caracteristicas Entorno */}
+        <div className="space-y-8">
+            <h2 className="text-xl font-semibold text-foreground border-b-2 border-foreground pb-2 uppercase">CARACTERÍSTICAS ENTORNO</h2>
+        </div>
+
         {/* Outras Informações */}
         <div className="space-y-8">
           <h2 className="text-xl font-semibold text-foreground border-b-2 border-foreground pb-2 uppercase">Outras Informações</h2>
           <div className="space-y-8">
             <Field label="DETALHES">
-              <Textarea className="text-2xl placeholder:capitalize placeholder:text-sm" placeholder="Descreva os detalhes da ocorrência" value={otherInfo.detalhes} onChange={(e) => handleOtherInfoChange('detalhes', e.target.value)} />
+              <Textarea className="text-xl placeholder:capitalize placeholder:text-sm" placeholder="Descreva os detalhes da ocorrência" value={otherInfo.detalhes} onChange={(e) => handleOtherInfoChange('detalhes', e.target.value)} />
             </Field>
             <Field label="NÚMERO DA OCORRÊNCIA">
-              <Input className="text-2xl placeholder:capitalize placeholder:text-sm" placeholder="Número de controle interno" value={otherInfo.numeroOcorrencia} onChange={(e) => handleOtherInfoChange('numeroOcorrencia', e.target.value)} />
+              <Input className="text-xl placeholder:capitalize placeholder:text-sm" placeholder="Número de controle interno" value={otherInfo.numeroOcorrencia} onChange={(e) => handleOtherInfoChange('numeroOcorrencia', e.target.value)} />
             </Field>
           </div>
         </div>
@@ -265,5 +270,3 @@ export default function TO03Form({ categorySlug }: { categorySlug: string }) {
     </div>
   );
 }
-
-    
