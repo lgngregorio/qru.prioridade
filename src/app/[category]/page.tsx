@@ -460,8 +460,8 @@ export default function ReportPage() {
     return null;
   }
   
-  const title = category.name.toUpperCase();
-  const description = `Preencha os campos abaixo e envie o relatório completo para ${title}.`;
+  const title = "VEÍCULO ABANDONADO";
+  const description = "Preencha os campos abaixo e envie o relatório completo.";
 
   return (
     <main className="flex flex-col items-center">
@@ -492,5 +492,3 @@ export default function ReportPage() {
     </main>
   );
 }
-
-    
