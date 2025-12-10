@@ -34,7 +34,7 @@ type GeneralInfo = {
   sentido: string;
   localArea: string;
   tipoDeObra: string;
-  quantidade: string;
+  qraResponsavel: string;
 };
 
 
@@ -59,7 +59,7 @@ export default function TO09Form({ categorySlug }: { categorySlug: string }) {
     sentido: '',
     localArea: '',
     tipoDeObra: '',
-    quantidade: '',
+    qraResponsavel: '',
   });
   
   const [otherInfo, setOtherInfo] = useState<OtherInfo>({
@@ -165,7 +165,7 @@ export default function TO09Form({ categorySlug }: { categorySlug: string }) {
     message += `Sentido: ${reportData.generalInfo.sentido}\n`;
     message += `Local/Área: ${reportData.generalInfo.localArea}\n`;
     message += `Tipo de Obra: ${reportData.generalInfo.tipoDeObra}\n`;
-    message += `Quantidade: ${reportData.generalInfo.quantidade}\n\n`;
+    message += `QRA do Responsável: ${reportData.generalInfo.qraResponsavel}\n\n`;
 
     message += `*OUTRAS INFORMAÇÕES*\n`;
     message += `AUXÍLIOS/PR: ${reportData.otherInfo.auxilios}\n`;
@@ -234,8 +234,8 @@ export default function TO09Form({ categorySlug }: { categorySlug: string }) {
             <Field label="TIPO DE OBRA">
                 <Input className="text-xl placeholder:capitalize placeholder:text-sm" placeholder="Tipo de Obra" value={generalInfo.tipoDeObra} onChange={(e) => handleGeneralInfoChange('tipoDeObra', e.target.value)}/>
             </Field>
-            <Field label="QUANTIDADE">
-                <Input className="text-xl placeholder:capitalize placeholder:text-sm" placeholder="Ex: 1" value={generalInfo.quantidade} onChange={(e) => handleGeneralInfoChange('quantidade', e.target.value)}/>
+            <Field label="QRA DO RESPONSÁVEL">
+                <Input className="text-xl placeholder:capitalize placeholder:text-sm" placeholder="Nome do responsável" value={generalInfo.qraResponsavel} onChange={(e) => handleGeneralInfoChange('qraResponsavel', e.target.value)}/>
             </Field>
           </div>
         </div>
