@@ -33,7 +33,7 @@ export default function Home() {
                     style={{
                       backgroundImage:
                         'linear-gradient(to bottom, hsl(var(--foreground)) 50%, transparent 50%)',
-                      backgroundSize: '1px 32px',
+                      backgroundSize: '1px 16px',
                       backgroundRepeat: 'repeat-y',
                     }}
                   ></div>
