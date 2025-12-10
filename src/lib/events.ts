@@ -170,7 +170,7 @@ export const eventCategories: EventCategory[] = [
   },
   {
     name: 'TO 33',
-    title: 'TO 33',
+    title: 'VEÍCULO ATOLADO',
     slug: 'to-33',
     icon: Shovel,
     description: 'Relatar TO 33.',
