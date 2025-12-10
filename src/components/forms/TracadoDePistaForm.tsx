@@ -239,4 +239,30 @@ export default function TracadoDePistaForm({ categorySlug }: { categorySlug: str
         </Field>
         <Field label="Obras no acostamento">{renderRadioGroup('pista', 'obras_acostamento', [{id: "nao_existe", label: "Não existe"}, {id: "existe_mal_sinalizada", label: "Existe mal sinalizada"}, {id: "existe_bem_sinalizada", label: "Existe bem sinalizada"}])}</Field>
         <Field label="Estado de conservação">{renderRadioGroup('pista', 'conservacao', [{id: "bom", label: "Bom"}, {id: "ruim", label: "Ruim"}])}</Field>
-        <Field label="Interseções na pista">{renderRadioG
+        <Field label="Interseções na pista">{renderRadioGroup('pista', 'intersecoes', [{id: 'cruzamento_entroncamento', label: 'Cruzamento/entroncamento'}, {id: 'trevo', label: 'Trevo'}, {id: 'rotatoria', label: 'Rotatória'}, {id: 'nao_existe', label: 'Não existe'}])}</Field>
+        <Field label="Deficiência em obras">
+            {renderRadioGroup('pista', 'deficiencia_obras', [{id: 'obstruida', label: 'Obstruída'}, {id: 'interrompida', label: 'Interrompida'}, {id: 'pista_estreita', label: 'Pista estreita'}, {id: 'pista_fechada', label: 'Pista fechada'}, {id: 'sublevacao_negativa', label: 'Sublevação negativa'}, {id: 'ondulada', label: 'Ondulada'}, {id: 'nao_existe', label: 'Não existe'}])}
+            <Input placeholder="Outros" onChange={e => handleValueChange('pista', 'deficiencia_obras_outros', e.target.value)} className="mt-2"/>
+        </Field>
+        <Field label="Obras de arte">{renderRadioGroup('pista', 'obras_arte', [{id: 'ponte', label: 'Ponte'}, {id: 'tunel', label: 'Túnel'}, {id: 'passagem_superior', label: 'Passagem superior'}, {id: 'passagem_inferior', label: 'Passagem inferior'}, {id: 'nao_existe', label: 'Não existe'}])}</Field>
+        <Field label="Local">{renderRadioGroup('pista', 'local', [{id: 'canteiro_central', label: 'Canteiro central'}, {id: 'faixa_dominio', label: 'Faixa de domínio'}, {id: 'acostamento_norte', label: 'Acostamento norte'}, {id: 'acostamento_sul', label: 'Acostamento Sul'}, {id: 'faixa_rolamento', label: 'Faixa de rolamento'}, {id: 'acostamento', label: 'Acostamento'}])}</Field>
+
+        <SectionTitle>SINALIZAÇÃO</SectionTitle>
+        <Field label="Sinalização vertical (placas, banners, postes)">{renderRadioGroup('sinalizacao', 'vertical', [{id: 'existe', label: 'Existe'}, {id: 'nao_existe', label: 'Não existe'}])}</Field>
+        <Field label="Sinalização horizontal (faixa de bordo, faixa segmentada, pintura de pista...)">{renderRadioGroup('sinalizacao', 'horizontal', [{id: 'existe', label: 'Existe'}, {id: 'nao_existe', label: 'Não existe'}])}</Field>
+        <Field label="Sinalização semáforo">{renderRadioGroup('sinalizacao', 'semaforo', [{id: 'funciona', label: 'Funciona'}, {id: 'nao_funciona', label: 'Não funciona'}, {id: 'funciona_defeito', label: 'Funciona com defeito'}, {id: 'inexistente', label: 'Inexistente'}])}</Field>
+
+        <div className="flex sm:flex-row gap-4 pt-6">
+          <Button size="lg" className="flex-1 bg-green-600 hover:bg-green-700 uppercase text-base">
+              <Share className="mr-2 h-4 w-4" />
+              Compartilhar WhatsApp
+          </Button>
+          <Button size="lg" className="w-32 bg-primary hover:bg-primary/90 uppercase text-base">
+              <Save className="mr-2 h-4 w-4" />
+              Salvar
+          </Button>
+        </div>
+      </form>
+    </div>
+  );
+}
