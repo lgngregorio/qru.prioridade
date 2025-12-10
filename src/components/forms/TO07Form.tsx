@@ -214,6 +214,7 @@ export default function TO07Form({ categorySlug }: { categorySlug: string }) {
                         <SelectItem value="norte">NORTE</SelectItem>
                         <SelectItem value="sul">SUL</SelectItem>
                         <SelectItem value="ambos">AMBOS</SelectItem>
+                        <SelectItem value="eixo_central">EIXO CENTRAL</SelectItem>
                     </SelectContent>
                 </Select>
             </Field>
