@@ -22,21 +22,37 @@ import {
   CardTitle,
 } from '@/components/ui/card';
 import { useTheme } from 'next-themes';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useToast } from '@/hooks/use-toast';
+
+// Simulating a user data store
+const userProfile = {
+  name: 'Lucas',
+  email: 'lgngregorio@icloud.com',
+};
 
 export default function ConfiguracoesPage() {
   const { theme, setTheme } = useTheme();
   const { toast } = useToast();
 
-  const [name, setName] = useState('Lucas');
-  const [email, setEmail] = useState('lgngregorio@icloud.com');
+  const [name, setName] = useState('');
+  const [email, setEmail] = useState('');
   const [isSaving, setIsSaving] = useState(false);
+
+  useEffect(() => {
+    // Load user data when the component mounts
+    setName(userProfile.name);
+    setEmail(userProfile.email);
+  }, []);
 
   const handleSave = () => {
     setIsSaving(true);
     // Simulate saving to a backend
     setTimeout(() => {
+      // Update the "database"
+      userProfile.name = name;
+      userProfile.email = email;
+      
       console.log('Saved:', { name, email, theme });
       setIsSaving(false);
       toast({
