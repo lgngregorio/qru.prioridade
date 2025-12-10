@@ -84,7 +84,6 @@ export default function ReportPage() {
     <main className="flex flex-col items-center">
       <div className="w-full">
         <div className="p-4 md:p-6 mb-4 flex items-center gap-4">
-          <SidebarTrigger className="md:hidden" />
           <Button asChild variant="outline" className="rounded-full text-base">
             <Link href="/">
               <ArrowLeft className="mr-2 h-4 w-4" />
