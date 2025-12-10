@@ -4,12 +4,12 @@
 import { useState, useEffect, useMemo } from 'react';
 import {
   collection,
-  getDocs,
   deleteDoc,
   doc,
   query,
   orderBy,
   Timestamp,
+  onSnapshot,
 } from 'firebase/firestore';
 import { useFirestore } from '@/firebase';
 import { Button } from '@/components/ui/button';
@@ -34,7 +34,6 @@ import {
 import { useToast } from '@/hooks/use-toast';
 import { Loader2, ArrowLeft, Trash2, Edit, Plus, ChevronUp, Share2 } from 'lucide-react';
 import Link from 'next/link';
-import { useRouter } from 'next/navigation';
 
 interface Note {
   id: string;
@@ -46,43 +45,45 @@ interface Note {
 
 export default function NotepadPage() {
   const firestore = useFirestore();
-  const router = useRouter();
   const { toast } = useToast();
   const [notes, setNotes] = useState<Note[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    async function fetchNotes() {
-      if (!firestore) return;
-      setLoading(true);
-      try {
-        const notesRef = collection(firestore, 'notes');
-        const q = query(notesRef, orderBy('createdAt', 'desc'));
-        const querySnapshot = await getDocs(q);
+    if (!firestore) return;
+
+    setLoading(true);
+    const notesRef = collection(firestore, 'notes');
+    const q = query(notesRef, orderBy('createdAt', 'desc'));
+
+    const unsubscribe = onSnapshot(q, 
+      (querySnapshot) => {
         const fetchedNotes = querySnapshot.docs.map((doc) => ({
           id: doc.id,
           ...doc.data(),
         })) as Note[];
         setNotes(fetchedNotes);
-      } catch (error) {
+        setLoading(false);
+      },
+      (error) => {
         console.error('Error fetching notes: ', error);
         toast({
           variant: 'destructive',
           title: 'Erro ao buscar notas.',
           description: 'Houve um problema ao carregar as anotações.',
         });
-      } finally {
         setLoading(false);
       }
-    }
-    fetchNotes();
+    );
+
+    // Cleanup subscription on unmount
+    return () => unsubscribe();
   }, [firestore, toast]);
   
   const handleDelete = async (noteId: string) => {
     if (!firestore) return;
     try {
       await deleteDoc(doc(firestore, 'notes', noteId));
-      setNotes(notes.filter((note) => note.id !== noteId));
       toast({ title: 'Nota apagada com sucesso!' });
     } catch (error) {
       console.error('Error deleting note: ', error);
