@@ -2,7 +2,7 @@
 'use client';
 
 import Link from 'next/link';
-import { ArrowLeft, Save, Moon, Sun, Monitor } from 'lucide-react';
+import { ArrowLeft, Save, Moon, Sun, Monitor, Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -17,7 +17,6 @@ import {
 import {
   Card,
   CardContent,
-  CardDescription,
   CardHeader,
   CardTitle,
 } from '@/components/ui/card';
@@ -26,42 +25,52 @@ import { useState, useEffect } from 'react';
 import { useToast } from '@/hooks/use-toast';
 
 // Simulating a user data store that can be updated.
-// This is now inside a function to ensure it's "reset" on each navigation for this simulation.
-const getUserProfile = () => ({
+let userProfileDB = {
   name: 'Lucas',
   email: 'lgngregorio@icloud.com',
-});
+};
 
-// We need a variable outside the component to act as our persistent "database"
-let userProfileDB = getUserProfile();
+// This function simulates fetching the user profile from a database.
+const getUserProfile = () => ({ ...userProfileDB });
 
 export default function ConfiguracoesPage() {
-  const { theme, setTheme } = useTheme();
+  const { theme: currentTheme, setTheme } = useTheme();
   const { toast } = useToast();
 
+  // State to hold the values currently being edited in the form
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
+  const [selectedTheme, setSelectedTheme] = useState<string | undefined>(undefined);
+  const [selectedLanguage, setSelectedLanguage] = useState('pt-br');
+
   const [isSaving, setIsSaving] = useState(false);
 
+  // Load initial data into the form state when the component mounts
   useEffect(() => {
-    // Load user data from our "database" when the component mounts
-    // This simulates fetching fresh data from a server on page load.
-    setName(userProfileDB.name);
-    setEmail(userProfileDB.email);
-  }, []);
+    const profile = getUserProfile();
+    setName(profile.name);
+    setEmail(profile.email);
+    setSelectedTheme(currentTheme);
+    // In a real app, you'd load the language preference here as well.
+  }, [currentTheme]);
 
   const handleSave = () => {
     setIsSaving(true);
     // Simulate saving to a backend
     setTimeout(() => {
-      // Update the "database" only when save is clicked
-      userProfileDB = {
-        ...userProfileDB,
-        name: name,
-        email: email,
-      };
+      // 1. Save Profile Info
+      userProfileDB = { ...userProfileDB, name, email };
       
-      console.log('Saved:', { name, email, theme });
+      // 2. Apply and save Theme
+      if (selectedTheme) {
+        setTheme(selectedTheme);
+      }
+
+      // 3. Save Language (currently just visual)
+      // In a real app, you would save this preference to your backend or localStorage
+      // and use a translation library like i18next to apply it.
+
+      console.log('Saved:', { name, email, theme: selectedTheme, language: selectedLanguage });
       setIsSaving(false);
       toast({
         title: 'Sucesso!',
@@ -117,43 +126,45 @@ export default function ConfiguracoesPage() {
             <CardContent className="space-y-6">
               <div className="space-y-3">
                 <Label>TEMA</Label>
-                <RadioGroup
-                  defaultValue={theme}
-                  onValueChange={setTheme}
-                  className="flex flex-col space-y-2"
-                >
-                  <div className="flex items-center space-x-3">
-                    <RadioGroupItem value="light" id="theme-claro" />
-                    <Label
-                      htmlFor="theme-claro"
-                      className="font-normal text-xl flex items-center gap-2"
-                    >
-                      <Sun className="h-5 w-5" /> Claro
-                    </Label>
-                  </div>
-                  <div className="flex items-center space-x-3">
-                    <RadioGroupItem value="dark" id="theme-escuro" />
-                    <Label
-                      htmlFor="theme-escuro"
-                      className="font-normal text-xl flex items-center gap-2"
-                    >
-                      <Moon className="h-5 w-5" /> Escuro
-                    </Label>
-                  </div>
-                  <div className="flex items-center space-x-3">
-                    <RadioGroupItem value="system" id="theme-sistema" />
-                    <Label
-                      htmlFor="theme-sistema"
-                      className="font-normal text-xl flex items-center gap-2"
-                    >
-                      <Monitor className="h-5 w-5" /> Sistema
-                    </Label>
-                  </div>
-                </RadioGroup>
+                {selectedTheme && (
+                  <RadioGroup
+                    value={selectedTheme}
+                    onValueChange={setSelectedTheme}
+                    className="flex flex-col space-y-2"
+                  >
+                    <div className="flex items-center space-x-3">
+                      <RadioGroupItem value="light" id="theme-claro" />
+                      <Label
+                        htmlFor="theme-claro"
+                        className="font-normal text-xl flex items-center gap-2"
+                      >
+                        <Sun className="h-5 w-5" /> Claro
+                      </Label>
+                    </div>
+                    <div className="flex items-center space-x-3">
+                      <RadioGroupItem value="dark" id="theme-escuro" />
+                      <Label
+                        htmlFor="theme-escuro"
+                        className="font-normal text-xl flex items-center gap-2"
+                      >
+                        <Moon className="h-5 w-5" /> Escuro
+                      </Label>
+                    </div>
+                    <div className="flex items-center space-x-3">
+                      <RadioGroupItem value="system" id="theme-sistema" />
+                      <Label
+                        htmlFor="theme-sistema"
+                        className="font-normal text-xl flex items-center gap-2"
+                      >
+                        <Monitor className="h-5 w-5" /> Sistema
+                      </Label>
+                    </div>
+                  </RadioGroup>
+                )}
               </div>
               <div className="space-y-2">
                 <Label htmlFor="language">IDIOMA</Label>
-                <Select defaultValue="pt-br">
+                <Select value={selectedLanguage} onValueChange={setSelectedLanguage}>
                   <SelectTrigger id="language" className="w-full">
                     <SelectValue placeholder="Selecione um idioma" />
                   </SelectTrigger>
@@ -170,7 +181,7 @@ export default function ConfiguracoesPage() {
 
         <div className="mt-8">
           <Button size="lg" className="w-full text-lg uppercase" onClick={handleSave} disabled={isSaving}>
-            <Save className="mr-2 h-5 w-5" />
+            {isSaving ? <Loader2 className="mr-2 h-5 w-5 animate-spin" /> : <Save className="mr-2 h-5 w-5" />}
             {isSaving ? 'Salvando...' : 'Salvar Alterações'}
           </Button>
         </div>
