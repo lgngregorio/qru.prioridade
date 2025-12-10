@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useParams, useRouter } from 'next/navigation';
@@ -31,6 +32,7 @@ import TO35Form from '@/components/forms/TO35Form';
 import TO37Form from '@/components/forms/TO37Form';
 import TO38Form from '@/components/forms/TO38Form';
 import TO39Form from '@/components/forms/TO39Form';
+import TO50Form from '@/components/forms/TO50Form';
 
 function ReportFormComponent({ categorySlug }: { categorySlug: string }) {
   switch (categorySlug) {
@@ -68,6 +70,8 @@ function ReportFormComponent({ categorySlug }: { categorySlug: string }) {
         return <TO38Form categorySlug={categorySlug} />;
     case 'to-39':
         return <TO39Form categorySlug={categorySlug} />;
+    case 'to-50':
+        return <TO50Form categorySlug={categorySlug} />;
     default:
       // Um formulário padrão ou uma mensagem de "em breve" pode ser retornada aqui.
       return <p className="p-8 text-center">Formulário para {categorySlug} em construção.</p>;
