@@ -215,10 +215,9 @@ export default function IncendioForm({ categorySlug }: { categorySlug: string })
                         <SelectValue placeholder="Selecione o local/área" />
                     </SelectTrigger>
                     <SelectContent>
-                        <SelectItem value="faixa_rolamento">FAIXA DE ROLAMENTO</SelectItem>
-                        <SelectItem value="acostamento">ACOSTAMENTO</SelectItem>
-                        <SelectItem value="area_dominio">ÁREA DE DOMÍNIO</SelectItem>
-                        <SelectItem value="terceira_faixa">TERCEIRA FAIXA</SelectItem>
+                        <SelectItem value="area_de_dominio">ÁREA DE DOMÍNIO</SelectItem>
+                        <SelectItem value="area_lindeira">ÁREA LINDEIRA</SelectItem>
+                        <SelectItem value="area_de_dominio_lindeira">ÁREA DE DOMÍNIO/LINDEIRA</SelectItem>
                     </SelectContent>
                 </Select>
             </Field>
