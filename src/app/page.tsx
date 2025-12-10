@@ -21,7 +21,7 @@ export default function Home() {
         <header className="text-center mb-6 w-full">
            <div className="flex items-center gap-4 justify-center relative">
              <SidebarTrigger className="md:hidden absolute left-0"/>
-             <h1 className="text-3xl font-bold text-foreground font-headline tracking-wider flex items-center justify-center gap-3">
+             <h1 className="text-4xl font-bold text-foreground font-headline tracking-wider flex items-center justify-center gap-4">
                 QRU
                 <div className="flex h-8 items-center gap-1">
                   <div className="w-0.5 h-full bg-white"></div>
@@ -54,6 +54,7 @@ export default function Home() {
     </main>
   );
 }
+
 
 
 
