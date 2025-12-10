@@ -4,27 +4,21 @@
 import { useState, useEffect, useMemo } from 'react';
 import {
   collection,
-  addDoc,
   getDocs,
-  updateDoc,
   deleteDoc,
   doc,
-  serverTimestamp,
   query,
   orderBy,
   Timestamp,
 } from 'firebase/firestore';
 import { useFirestore } from '@/firebase';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Textarea } from '@/components/ui/textarea';
 import {
   Card,
   CardContent,
-  CardDescription,
-  CardFooter,
   CardHeader,
   CardTitle,
+  CardFooter,
 } from '@/components/ui/card';
 import {
   AlertDialog,
@@ -38,9 +32,9 @@ import {
   AlertDialogTrigger,
 } from '@/components/ui/alert-dialog';
 import { useToast } from '@/hooks/use-toast';
-import { Loader2, ArrowLeft, Trash2, Edit, Save, Plus, ChevronUp, Share2 } from 'lucide-react';
+import { Loader2, ArrowLeft, Trash2, Edit, Plus, ChevronUp, Share2 } from 'lucide-react';
 import Link from 'next/link';
-import { Label } from '@/components/ui/label';
+import { useRouter } from 'next/navigation';
 
 interface Note {
   id: string;
@@ -52,16 +46,10 @@ interface Note {
 
 export default function NotepadPage() {
   const firestore = useFirestore();
+  const router = useRouter();
   const { toast } = useToast();
   const [notes, setNotes] = useState<Note[]>([]);
-  const [currentNote, setCurrentNote] = useState<{ id: string | null; title: string; content: string }>({
-    id: null,
-    title: '',
-    content: '',
-  });
   const [loading, setLoading] = useState(true);
-  const [isSaving, setIsSaving] = useState(false);
-  const [isFormVisible, setIsFormVisible] = useState(false);
 
   useEffect(() => {
     async function fetchNotes() {
@@ -90,71 +78,12 @@ export default function NotepadPage() {
     fetchNotes();
   }, [firestore, toast]);
   
-  const handleSave = async () => {
-    if (!firestore || !currentNote.title || !currentNote.content) {
-         toast({
-            variant: "destructive",
-            title: "Campos obrigatórios",
-            description: "Por favor, preencha o título e o conteúdo da nota.",
-        });
-      return;
-    }
-
-    setIsSaving(true);
-    try {
-      if (currentNote.id) {
-        // Update existing note
-        const noteRef = doc(firestore, 'notes', currentNote.id);
-        await updateDoc(noteRef, {
-          title: currentNote.title,
-          content: currentNote.content,
-          updatedAt: serverTimestamp(),
-        });
-        toast({ title: 'Nota atualizada com sucesso!' });
-        setNotes(notes.map(n => n.id === currentNote.id ? {...n, title: currentNote.title, content: currentNote.content, updatedAt: Timestamp.now()} : n));
-      } else {
-        // Create new note
-        const docRef = await addDoc(collection(firestore, 'notes'), {
-          title: currentNote.title,
-          content: currentNote.content,
-          createdAt: serverTimestamp(),
-          updatedAt: serverTimestamp(),
-        });
-         toast({ title: 'Nota salva com sucesso!' });
-         // Optimistically add to UI
-         const newNote = {
-            id: docRef.id,
-            title: currentNote.title,
-            content: currentNote.content,
-            createdAt: Timestamp.now(),
-            updatedAt: Timestamp.now()
-         }
-         setNotes([newNote, ...notes]);
-      }
-      handleNewNoteClick(); // Reset form
-      setIsFormVisible(false);
-    } catch (error) {
-      console.error('Error saving note: ', error);
-      toast({
-        variant: 'destructive',
-        title: 'Erro ao salvar nota.',
-        description: 'Não foi possível salvar a anotação.',
-      });
-    } finally {
-      setIsSaving(false);
-    }
-  };
-
   const handleDelete = async (noteId: string) => {
     if (!firestore) return;
     try {
       await deleteDoc(doc(firestore, 'notes', noteId));
       setNotes(notes.filter((note) => note.id !== noteId));
       toast({ title: 'Nota apagada com sucesso!' });
-      if (currentNote.id === noteId) {
-        handleNewNoteClick();
-        setIsFormVisible(false);
-      }
     } catch (error) {
       console.error('Error deleting note: ', error);
       toast({
@@ -164,22 +93,6 @@ export default function NotepadPage() {
       });
     }
   };
-
-  const handleEditClick = (note: Note) => {
-    setCurrentNote({ id: note.id, title: note.title, content: note.content });
-    setIsFormVisible(true);
-    window.scrollTo({ top: 0, behavior: 'smooth' });
-  };
-  
-  const handleNewNoteClick = () => {
-    setCurrentNote({ id: null, title: '', content: '' });
-    setIsFormVisible(true);
-  }
-  
-  const handleCancelEdit = () => {
-    setCurrentNote({ id: null, title: '', content: '' });
-    setIsFormVisible(false);
-  }
 
   const handleShareNote = (note: Note) => {
     const message = `*${note.title}*\n\n${note.content}`;
@@ -225,52 +138,13 @@ export default function NotepadPage() {
         </div>
 
         <div className="mb-6">
-            <Button onClick={handleNewNoteClick} className="w-full bg-primary hover:bg-primary/90 text-lg uppercase">
-                <Plus className="mr-2 h-4 w-4" />
-                Nova Anotação
+            <Button asChild className="w-full bg-primary hover:bg-primary/90 text-lg uppercase">
+                <Link href="/bloco-de-notas/novo">
+                  <Plus className="mr-2 h-4 w-4" />
+                  Nova Anotação
+                </Link>
             </Button>
         </div>
-
-        {isFormVisible && (
-          <Card className="mb-8">
-            <CardHeader>
-              <CardTitle>{currentNote.id ? 'Editar Anotação' : 'Nova Anotação'}</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="space-y-2">
-                  <Label htmlFor="note-title">TÍTULO</Label>
-                  <Input
-                    id="note-title"
-                    placeholder="Título da nota"
-                    value={currentNote.title}
-                    onChange={(e) => setCurrentNote({ ...currentNote, title: e.target.value })}
-                    className="text-2xl"
-                  />
-              </div>
-              <div className="space-y-2">
-                  <Label htmlFor="note-content">CONTEÚDO</Label>
-                  <Textarea
-                    id="note-content"
-                    placeholder="Escreva sua anotação aqui..."
-                    value={currentNote.content}
-                    onChange={(e) => setCurrentNote({ ...currentNote, content: e.target.value })}
-                    className="min-h-[150px] text-xl"
-                  />
-              </div>
-            </CardContent>
-            <CardFooter className="flex justify-end gap-2">
-              {currentNote.id && (
-                  <Button variant="ghost" onClick={handleCancelEdit}>
-                      Cancelar Edição
-                  </Button>
-              )}
-              <Button onClick={handleSave} disabled={isSaving} className="bg-primary hover:bg-primary/90">
-                {isSaving ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Save className="mr-2 h-4 w-4" />}
-                {currentNote.id ? 'Salvar Alterações' : 'Salvar Nota'}
-              </Button>
-            </CardFooter>
-          </Card>
-        )}
         
         <div className="pt-8">
              <div className="flex justify-between items-center mb-6">
@@ -300,8 +174,10 @@ export default function NotepadPage() {
                                         <ChevronUp className="h-4 w-4 text-muted-foreground" />
                                       </div>
                                       <div className="flex items-center gap-0">
-                                          <Button variant="ghost" size="icon" onClick={() => handleEditClick(note)}>
+                                          <Button asChild variant="ghost" size="icon">
+                                            <Link href={`/bloco-de-notas/editar/${note.id}`}>
                                               <Edit className="h-5 w-5 text-primary" />
+                                            </Link>
                                           </Button>
                                           <AlertDialog>
                                             <AlertDialogTrigger asChild>
@@ -349,4 +225,3 @@ export default function NotepadPage() {
     </main>
   );
 }
-
