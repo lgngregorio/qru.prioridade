@@ -25,8 +25,8 @@ import { useTheme } from 'next-themes';
 import { useState, useEffect } from 'react';
 import { useToast } from '@/hooks/use-toast';
 
-// Simulating a user data store
-const userProfile = {
+// Simulating a user data store that can be updated.
+let userProfile = {
   name: 'Lucas',
   email: 'lgngregorio@icloud.com',
 };
@@ -40,7 +40,7 @@ export default function ConfiguracoesPage() {
   const [isSaving, setIsSaving] = useState(false);
 
   useEffect(() => {
-    // Load user data when the component mounts
+    // Load user data from our "database" when the component mounts
     setName(userProfile.name);
     setEmail(userProfile.email);
   }, []);
@@ -49,9 +49,12 @@ export default function ConfiguracoesPage() {
     setIsSaving(true);
     // Simulate saving to a backend
     setTimeout(() => {
-      // Update the "database"
-      userProfile.name = name;
-      userProfile.email = email;
+      // Update the "database" only when save is clicked
+      userProfile = {
+        ...userProfile,
+        name: name,
+        email: email,
+      };
       
       console.log('Saved:', { name, email, theme });
       setIsSaving(false);
