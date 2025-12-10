@@ -24,7 +24,7 @@ export default function Home() {
              <h1 className="text-4xl font-bold text-foreground font-headline tracking-wider flex items-center justify-center gap-3">
                 QRU
                 <div className="flex h-10 items-center gap-1.5">
-                  <div className="w-1 h-full bg-white/50"></div>
+                  <div className="w-1 h-full bg-white"></div>
                   <div className="w-1 h-full bg-repeat-y bg-[length:4px_24px] bg-center animate-move-dashes" style={{ backgroundImage: "linear-gradient(to bottom, white 50%, transparent 50%)"}}></div>
                 </div>
                 PRIORIDADE
