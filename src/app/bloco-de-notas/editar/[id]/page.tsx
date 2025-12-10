@@ -108,7 +108,6 @@ export default function EditarNotaPage() {
             router.push('/bloco-de-notas');
         })
         .catch(async (serverError) => {
-          console.error('Error updating note: ', serverError);
           const permissionError = new FirestorePermissionError({
               path: noteRef.path,
               operation: 'update',
@@ -117,11 +116,6 @@ export default function EditarNotaPage() {
     
           errorEmitter.emit('permission-error', permissionError);
           
-          toast({
-            variant: 'destructive',
-            title: 'Erro ao atualizar nota.',
-            description: 'Não foi possível atualizar a anotação.',
-          });
         }).finally(() => {
             setIsSaving(false);
         });

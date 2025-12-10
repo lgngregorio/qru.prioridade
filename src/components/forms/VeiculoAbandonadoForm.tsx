@@ -17,6 +17,8 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { useFirestore } from '@/firebase';
 import { useToast } from '@/hooks/use-toast';
 import { Checkbox } from '@/components/ui/checkbox';
+import { errorEmitter } from '@/firebase/error-emitter';
+import { FirestorePermissionError } from '@/firebase/errors';
 
 
 function Field({ label, children, className }: { label?: string, children: React.ReactNode, className?: string }) {
@@ -172,7 +174,7 @@ export default function VeiculoAbandonadoForm({ categorySlug }: { categorySlug: 
     };
   };
   
-  const handleSave = async () => {
+  const handleSave = () => {
     if (!firestore) {
       toast({
         variant: "destructive",
@@ -183,28 +185,29 @@ export default function VeiculoAbandonadoForm({ categorySlug }: { categorySlug: 
     }
 
     setIsSaving(true);
-    try {
-      const reportData = prepareReportData();
-      await addDoc(collection(firestore, 'reports'), reportData);
-      
-      toast({
-        title: "Sucesso!",
-        description: "Relatório salvo com sucesso.",
-        className: "bg-green-600 text-white",
-      });
-      
-      router.push('/historico');
+    const reportData = prepareReportData();
+    const reportsCollection = collection(firestore, 'reports');
 
-    } catch (error) {
-      console.error("Error saving report: ", error);
-      toast({
-        variant: "destructive",
-        title: "Erro ao salvar",
-        description: "Ocorreu um erro ao salvar o relatório. Tente novamente.",
+    addDoc(reportsCollection, reportData)
+      .then(() => {
+        toast({
+          title: "Sucesso!",
+          description: "Relatório salvo com sucesso.",
+          className: "bg-green-600 text-white",
+        });
+        router.push('/historico');
+      })
+      .catch((serverError) => {
+        const permissionError = new FirestorePermissionError({
+          path: reportsCollection.path,
+          operation: 'create',
+          requestResourceData: reportData,
+        });
+        errorEmitter.emit('permission-error', permissionError);
+      })
+      .finally(() => {
+        setIsSaving(false);
       });
-    } finally {
-      setIsSaving(false);
-    }
   };
 
   const handleShare = () => {

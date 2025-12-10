@@ -61,8 +61,6 @@ export default function NovaNotaPage() {
         router.push('/bloco-de-notas');
       })
       .catch(async (serverError) => {
-        console.error('Error saving note: ', serverError);
-        
         const permissionError = new FirestorePermissionError({
             path: notesCollection.path,
             operation: 'create',
@@ -70,12 +68,6 @@ export default function NovaNotaPage() {
         });
 
         errorEmitter.emit('permission-error', permissionError);
-
-        toast({
-          variant: 'destructive',
-          title: 'Erro ao salvar nota.',
-          description: 'Não foi possível salvar a anotação.',
-        });
       })
       .finally(() => {
         setIsSaving(false);
