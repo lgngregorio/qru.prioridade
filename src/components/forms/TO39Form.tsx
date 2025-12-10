@@ -57,6 +57,7 @@ type Vehicle = {
 
 type OtherInfo = {
   auxilios: string;
+  vtrApoio: string;
   observacoes: string;
   numeroOcorrencia: string;
 };
@@ -86,6 +87,7 @@ export default function TO39Form({ categorySlug }: { categorySlug: string }) {
 
   const [otherInfo, setOtherInfo] = useState<OtherInfo>({
     auxilios: '',
+    vtrApoio: '',
     observacoes: '',
     numeroOcorrencia: '',
   });
@@ -235,6 +237,7 @@ export default function TO39Form({ categorySlug }: { categorySlug: string }) {
     
     message += `*OUTRAS INFORMAÇÕES*\n`;
     message += `Auxílios/PR: ${reportData.otherInfo.auxilios}\n`;
+    message += `VTR de Apoio: ${reportData.otherInfo.vtrApoio}\n`;
     message += `Observações: ${reportData.otherInfo.observacoes}\n`;
     message += `Nº Ocorrência: ${reportData.otherInfo.numeroOcorrencia}\n`;
 
@@ -423,6 +426,9 @@ export default function TO39Form({ categorySlug }: { categorySlug: string }) {
           <div className="space-y-8">
             <Field label="AUXÍLIOS/PR">
               <Textarea className="text-2xl placeholder:capitalize placeholder:text-sm" placeholder="Descreva os auxílios prestados" value={otherInfo.auxilios} onChange={(e) => handleOtherInfoChange('auxilios', e.target.value)} />
+            </Field>
+            <Field label="VTR DE APOIO">
+              <Textarea className="text-2xl placeholder:capitalize placeholder:text-sm" placeholder="Descreva as viaturas de apoio" value={otherInfo.vtrApoio} onChange={(e) => handleOtherInfoChange('vtrApoio', e.target.value)} />
             </Field>
             <Field label="OBSERVAÇÕES">
               <Textarea className="text-2xl placeholder:capitalize placeholder:text-sm" placeholder="Descreva detalhes adicionais sobre a ocorrência" value={otherInfo.observacoes} onChange={(e) => handleOtherInfoChange('observacoes', e.target.value)} />
