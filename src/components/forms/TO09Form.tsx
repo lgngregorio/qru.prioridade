@@ -276,10 +276,10 @@ export default function TO09Form({ categorySlug }: { categorySlug: string }) {
                 />
             </Field>
             <Field label="QTR DE INÍCIO">
-                <Input className="text-xl placeholder:capitalize placeholder:text-sm" placeholder="HH:MM" value={generalInfo.qtrInicio} onChange={(e) => handleGeneralInfoChange('qtrInicio', e.target.value)}/>
+                <Input type="time" className="text-xl placeholder:capitalize placeholder:text-sm" placeholder="HH:MM" value={generalInfo.qtrInicio} onChange={(e) => handleGeneralInfoChange('qtrInicio', e.target.value)}/>
             </Field>
             <Field label="QTR DE TÉRMINO">
-                <Input className="text-xl placeholder:capitalize placeholder:text-sm" placeholder="HH:MM" value={generalInfo.qtrTermino} onChange={(e) => handleGeneralInfoChange('qtrTermino', e.target.value)}/>
+                <Input type="time" className="text-xl placeholder:capitalize placeholder:text-sm" placeholder="HH:MM" value={generalInfo.qtrTermino} onChange={(e) => handleGeneralInfoChange('qtrTermino', e.target.value)}/>
             </Field>
             <Field label="QTH DE INÍCIO">
                 <Input className="text-xl placeholder:capitalize placeholder:text-sm" placeholder="Km inicial" value={generalInfo.qthInicio} onChange={(e) => handleGeneralInfoChange('qthInicio', e.target.value)}/>
@@ -336,3 +336,4 @@ export default function TO09Form({ categorySlug }: { categorySlug: string }) {
     </div>
   );
 }
+
