@@ -300,7 +300,6 @@ export default function VeiculoAbandonadoForm({ categorySlug }: { categorySlug: 
                         <SelectValue placeholder="Selecione o local/área" />
                     </SelectTrigger>
                     <SelectContent>
-                        <SelectItem value="faixa_rolamento">FAIXA DE ROLAMENTO</SelectItem>
                         <SelectItem value="acostamento">ACOSTAMENTO</SelectItem>
                         <SelectItem value="area_dominio">ÁREA DE DOMÍNIO</SelectItem>
                         <SelectItem value="terceira_faixa">TERCEIRA FAIXA</SelectItem>
