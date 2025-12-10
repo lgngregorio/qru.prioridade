@@ -212,7 +212,7 @@ export const eventCategories: EventCategory[] = [
   },
   {
     name: 'TO 39',
-    title: 'TO 39',
+    title: 'DESTOMBAMENTO DE VEÍCULO',
     slug: 'to-39',
     icon: Wrench,
     description: 'Relatar TO 39.',
