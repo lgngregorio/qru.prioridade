@@ -219,7 +219,7 @@ export const eventCategories: EventCategory[] = [
     color: '#6A5ACD',
   },
   {
-    name: 'NÍVEL DE SERVIÇOS, MANUTENÇÃO/BASES',
+    name: 'TO 50',
     title: 'NÍVEL DE SERVIÇOS, MANUTENÇÃO/BASES',
     slug: 'to-50',
     icon: Wrench,
