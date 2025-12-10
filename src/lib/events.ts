@@ -72,7 +72,7 @@ export const eventCategories: EventCategory[] = [
   },
   {
     name: 'TO 03',
-    title: 'TO 03',
+    title: 'ANIMAL NA RODOVIA',
     slug: 'to-03',
     icon: Droplets,
     description: 'Relatar TO 03.',
