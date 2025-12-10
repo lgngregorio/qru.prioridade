@@ -17,7 +17,8 @@ import {
   Wrench,
   LucideIcon,
   Construction,
-  HardHat
+  HardHat,
+  ShieldAlert
 } from 'lucide-react';
 
 export type EventCategory = {
@@ -120,10 +121,10 @@ export const eventCategories: EventCategory[] = [
   },
   {
     name: 'TO 11',
-    title: 'TO 11',
+    title: 'DANOS AO PATRIMÔNIO',
     slug: 'to-11',
-    icon: Clipboard,
-    description: 'Relatar TO 11.',
+    icon: ShieldAlert,
+    description: 'Relatar Danos ao Patrimônio.',
     color: '#FF69B4',
   },
   {
