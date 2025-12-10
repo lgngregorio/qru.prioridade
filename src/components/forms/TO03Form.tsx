@@ -43,6 +43,12 @@ type CaracteristicasEntorno = {
   entornoSul: string;
 };
 
+type TracadoPista = {
+  pista: string;
+  tracado: string;
+  perfil: string;
+};
+
 type OtherInfo = {
   detalhes: string;
   numeroOcorrencia: string;
@@ -70,6 +76,12 @@ export default function TO03Form({ categorySlug }: { categorySlug: string }) {
     entornoSul: '',
   });
 
+  const [tracadoPista, setTracadoPista] = useState<TracadoPista>({
+    pista: '',
+    tracado: '',
+    perfil: '',
+  });
+
   const [otherInfo, setOtherInfo] = useState<OtherInfo>({
     detalhes: '',
     numeroOcorrencia: '',
@@ -81,6 +93,10 @@ export default function TO03Form({ categorySlug }: { categorySlug: string }) {
 
   const handleCaracteristicasEntornoChange = (field: keyof CaracteristicasEntorno, value: string) => {
     setCaracteristicasEntorno(prev => ({ ...prev, [field]: value }));
+  };
+
+  const handleTracadoPistaChange = (field: keyof TracadoPista, value: string) => {
+    setTracadoPista(prev => ({ ...prev, [field]: value }));
   };
 
   const handleOtherInfoChange = (field: keyof OtherInfo, value: string) => {
@@ -111,6 +127,7 @@ export default function TO03Form({ categorySlug }: { categorySlug: string }) {
     const filledData = {
       generalInfo: fillEmptyFields(generalInfo),
       caracteristicasEntorno: fillEmptyFields(caracteristicasEntorno),
+      tracadoPista: fillEmptyFields(tracadoPista),
       otherInfo: fillEmptyFields(otherInfo),
     };
 
@@ -175,6 +192,11 @@ export default function TO03Form({ categorySlug }: { categorySlug: string }) {
     message += `*CARACTERÍSTICAS ENTORNO*\n`;
     message += `Entorno Norte: ${reportData.caracteristicasEntorno.entornoNorte}\n`;
     message += `Entorno Sul: ${reportData.caracteristicasEntorno.entornoSul}\n\n`;
+
+    message += `*TRAÇADO DE PISTA*\n`;
+    message += `Pista: ${reportData.tracadoPista.pista}\n`;
+    message += `Traçado: ${reportData.tracadoPista.tracado}\n`;
+    message += `Perfil: ${reportData.tracadoPista.perfil}\n\n`;
     
     message += `*OUTRAS INFORMAÇÕES*\n`;
     message += `Detalhes: ${reportData.otherInfo.detalhes}\n`;
@@ -293,7 +315,46 @@ export default function TO03Form({ categorySlug }: { categorySlug: string }) {
 
         {/* Traçado de Pista */}
         <div className="space-y-8">
-          <h2 className="text-xl font-semibold text-foreground border-b-2 border-foreground pb-2 uppercase">TRAÇADO DE PISTA</h2>
+            <h2 className="text-xl font-semibold text-foreground border-b-2 border-foreground pb-2 uppercase">TRAÇADO DE PISTA</h2>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+                <Field label="PISTA">
+                    <Select value={tracadoPista.pista} onValueChange={(value) => handleTracadoPistaChange('pista', value)}>
+                        <SelectTrigger className="text-xl normal-case placeholder:text-base">
+                            <SelectValue placeholder="Selecione o tipo" />
+                        </SelectTrigger>
+                        <SelectContent>
+                            <SelectItem value="simples">SIMPLES</SelectItem>
+                            <SelectItem value="dupla">DUPLA</SelectItem>
+                            <SelectItem value="multivias">MULTIVIAS</SelectItem>
+                        </SelectContent>
+                    </Select>
+                </Field>
+                <Field label="TRAÇADO">
+                    <Select value={tracadoPista.tracado} onValueChange={(value) => handleTracadoPistaChange('tracado', value)}>
+                        <SelectTrigger className="text-xl normal-case placeholder:text-base">
+                            <SelectValue placeholder="Selecione o traçado" />
+                        </SelectTrigger>
+                        <SelectContent>
+                            <SelectItem value="reta">RETA</SelectItem>
+                            <SelectItem value="curva">CURVA</SelectItem>
+                            <SelectItem value="curva_acentuada">CURVA ACENTUADA</SelectItem>
+                            <SelectItem value="curva_suave">CURVA SUAVE</SelectItem>
+                        </SelectContent>
+                    </Select>
+                </Field>
+                <Field label="PERFIL">
+                    <Select value={tracadoPista.perfil} onValueChange={(value) => handleTracadoPistaChange('perfil', value)}>
+                        <SelectTrigger className="text-xl normal-case placeholder:text-base">
+                            <SelectValue placeholder="Selecione o perfil" />
+                        </SelectTrigger>
+                        <SelectContent>
+                            <SelectItem value="em_nivel">EM NÍVEL</SelectItem>
+                            <SelectItem value="aclive">ACLIVE</SelectItem>
+                            <SelectItem value="declive">DECLIVE</SelectItem>
+                        </SelectContent>
+                    </Select>
+                </Field>
+            </div>
         </div>
 
         {/* Outras Informações */}
