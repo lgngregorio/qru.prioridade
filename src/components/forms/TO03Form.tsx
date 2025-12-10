@@ -205,7 +205,7 @@ export default function TO03Form({ categorySlug }: { categorySlug: string }) {
     message += `Perfil: ${reportData.tracadoPista.perfil}\n\n`;
     
     message += `*OUTRAS INFORMAÇÕES*\n`;
-    message += `Auxílio/PR: ${reportData.otherInfo.auxilios}\n`;
+    message += `Auxílios/PR: ${reportData.otherInfo.auxilios}\n`;
     message += `Observações: ${reportData.otherInfo.observacoes}\n`;
     message += `Destinação do Animal: ${reportData.otherInfo.destinacaoAnimal}\n`;
     message += `QTH Exato: ${reportData.otherInfo.qthExato}\n`;
@@ -370,7 +370,7 @@ export default function TO03Form({ categorySlug }: { categorySlug: string }) {
         <div className="space-y-8">
           <h2 className="text-xl font-semibold text-foreground border-b-2 border-foreground pb-2 uppercase">Outras Informações</h2>
           <div className="space-y-8">
-            <Field label="AUXÍLIO/PR">
+            <Field label="AUXÍLIOS/PR">
               <Textarea className="text-xl placeholder:capitalize placeholder:text-sm" placeholder="Descreva os auxílios prestados" value={otherInfo.auxilios} onChange={(e) => handleOtherInfoChange('auxilios', e.target.value)} />
             </Field>
             <Field label="OBSERVAÇÕES">
