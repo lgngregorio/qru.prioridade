@@ -112,9 +112,9 @@ export const eventCategories: EventCategory[] = [
   },
   {
     name: 'TO 09',
-    title: 'SINALIZAÇÃO VERTICAL',
+    title: 'OBRAS NA RODOVIA/CONVERVAÇÃO DE ROTINA',
     slug: 'to-09',
-    icon: Construction,
+    icon: HardHat,
     description: 'Relatar TO 09.',
     color: '#4682B4',
   },
