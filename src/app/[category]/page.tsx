@@ -336,14 +336,14 @@ function VeiculoAbandonadoForm({ categorySlug }: { categorySlug: string }) {
             <div className="space-y-4">
               <h2 className="text-xl font-semibold text-foreground border-b-2 border-foreground pb-2 uppercase">Dados do Veículo {index + 1}</h2>
                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                    <Field label="MARCA"><Input className="text-lg placeholder:capitalize placeholder:text-base" placeholder="Ex: Vw" value={vehicle.marca} onChange={e => handleVehicleChange(index, 'marca', e.target.value)}/></Field>
-                    <Field label="MODELO"><Input className="text-lg placeholder:capitalize placeholder:text-base" placeholder="Ex: Gol" value={vehicle.modelo} onChange={e => handleVehicleChange(index, 'modelo', e.target.value)} /></Field>
+                    <Field label="MARCA"><Input className="text-lg placeholder:capitalize placeholder:text-base" placeholder="Ex: vw" value={vehicle.marca} onChange={e => handleVehicleChange(index, 'marca', e.target.value)}/></Field>
+                    <Field label="MODELO"><Input className="text-lg placeholder:capitalize placeholder:text-base" placeholder="Ex: gol" value={vehicle.modelo} onChange={e => handleVehicleChange(index, 'modelo', e.target.value)} /></Field>
                     <Field label="ANO"><Input className="text-lg placeholder:capitalize placeholder:text-base" placeholder="Ex: 2020" value={vehicle.ano} onChange={e => handleVehicleChange(index, 'ano', e.target.value)}/></Field>
-                    <Field label="COR"><Input className="text-lg placeholder:capitalize placeholder:text-base" placeholder="Ex: Branco" value={vehicle.cor} onChange={e => handleVehicleChange(index, 'cor', e.target.value)}/></Field>
-                    <Field label="PLACA"><Input className="text-lg placeholder:capitalize placeholder:text-base" placeholder="Ex: Abc-1234" value={vehicle.placa} onChange={e => handleVehicleChange(index, 'placa', e.target.value)}/></Field>
-                    <Field label="CIDADE EMPLACAMENTO"><Input className="text-lg placeholder:capitalize placeholder:text-base" placeholder="Ex: São paulo" value={vehicle.cidade} onChange={e => handleVehicleChange(index, 'cidade', e.target.value)}/></Field>
-                    <Field label="VINDO DE"><Input className="text-lg placeholder:capitalize placeholder:text-base" placeholder="Ex: Rio de janeiro" value={vehicle.vindoDe} onChange={e => handleVehicleChange(index, 'vindoDe', e.target.value)}/></Field>
-                    <Field label="INDO PARA"><Input className="text-lg placeholder:capitalize placeholder:text-base" placeholder="Ex: Belo horizonte" value={vehicle.indoPara} onChange={e => handleVehicleChange(index, 'indoPara', e.target.value)}/></Field>
+                    <Field label="COR"><Input className="text-lg placeholder:capitalize placeholder:text-base" placeholder="Ex: branco" value={vehicle.cor} onChange={e => handleVehicleChange(index, 'cor', e.target.value)}/></Field>
+                    <Field label="PLACA"><Input className="text-lg placeholder:capitalize placeholder:text-base" placeholder="Ex: abc-1234" value={vehicle.placa} onChange={e => handleVehicleChange(index, 'placa', e.target.value)}/></Field>
+                    <Field label="CIDADE EMPLACAMENTO"><Input className="text-lg placeholder:capitalize placeholder:text-base" placeholder="Ex: são paulo" value={vehicle.cidade} onChange={e => handleVehicleChange(index, 'cidade', e.target.value)}/></Field>
+                    <Field label="VINDO DE"><Input className="text-lg placeholder:capitalize placeholder:text-base" placeholder="Ex: rio de janeiro" value={vehicle.vindoDe} onChange={e => handleVehicleChange(index, 'vindoDe', e.target.value)}/></Field>
+                    <Field label="INDO PARA"><Input className="text-lg placeholder:capitalize placeholder:text-base" placeholder="Ex: belo horizonte" value={vehicle.indoPara} onChange={e => handleVehicleChange(index, 'indoPara', e.target.value)}/></Field>
                     <Field label="QUANTIDADE DE EIXOS">
                         <Select value={vehicle.eixos} onValueChange={value => handleVehicleChange(index, 'eixos', value)}>
                             <SelectTrigger className="text-lg normal-case placeholder:capitalize placeholder:text-base"><SelectValue placeholder="Selecione os eixos" /></SelectTrigger>
@@ -395,7 +395,7 @@ function VeiculoAbandonadoForm({ categorySlug }: { categorySlug: string }) {
                             </SelectContent>
                         </Select>
                     </Field>
-                    <Field label="TIPO DE CARGA"><Input className="text-lg placeholder:capitalize placeholder:text-base" placeholder="Ex: Vazio, soja" value={vehicle.carga} onChange={e => handleVehicleChange(index, 'carga', e.target.value)}/></Field>
+                    <Field label="TIPO DE CARGA"><Input className="text-lg placeholder:capitalize placeholder:text-base" placeholder="Ex: vazio, soja" value={vehicle.carga} onChange={e => handleVehicleChange(index, 'carga', e.target.value)}/></Field>
                </div>
             </div>
 
@@ -419,7 +419,7 @@ function VeiculoAbandonadoForm({ categorySlug }: { categorySlug: string }) {
           </div>
         ))}
         
-        <Button size="lg" variant="secondary" className="w-full uppercase text-base" type="button" onClick={addVehicle}>
+        <Button size="lg" variant="secondary" className="w-full uppercase text-lg" type="button" onClick={addVehicle}>
           <PlusCircle className="mr-2 h-4 w-4" />
           Adicionar Veículo
         </Button>
@@ -493,5 +493,7 @@ export default function ReportPage() {
     </main>
   );
 }
+
+    
 
     
