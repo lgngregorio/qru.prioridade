@@ -38,6 +38,10 @@ type GeneralInfo = {
   situacao: string;
 };
 
+type CaracteristicasEntorno = {
+  entornoNorte: string;
+  entornoSul: string;
+};
 
 type OtherInfo = {
   detalhes: string;
@@ -60,6 +64,11 @@ export default function TO03Form({ categorySlug }: { categorySlug: string }) {
     quantidade: '',
     situacao: '',
   });
+  
+  const [caracteristicasEntorno, setCaracteristicasEntorno] = useState<CaracteristicasEntorno>({
+    entornoNorte: '',
+    entornoSul: '',
+  });
 
   const [otherInfo, setOtherInfo] = useState<OtherInfo>({
     detalhes: '',
@@ -68,6 +77,10 @@ export default function TO03Form({ categorySlug }: { categorySlug: string }) {
 
   const handleGeneralInfoChange = (field: keyof GeneralInfo, value: string) => {
     setGeneralInfo(prev => ({ ...prev, [field]: value }));
+  };
+
+  const handleCaracteristicasEntornoChange = (field: keyof CaracteristicasEntorno, value: string) => {
+    setCaracteristicasEntorno(prev => ({ ...prev, [field]: value }));
   };
 
   const handleOtherInfoChange = (field: keyof OtherInfo, value: string) => {
@@ -97,6 +110,7 @@ export default function TO03Form({ categorySlug }: { categorySlug: string }) {
   const prepareReportData = () => {
     const filledData = {
       generalInfo: fillEmptyFields(generalInfo),
+      caracteristicasEntorno: fillEmptyFields(caracteristicasEntorno),
       otherInfo: fillEmptyFields(otherInfo),
     };
 
@@ -157,6 +171,10 @@ export default function TO03Form({ categorySlug }: { categorySlug: string }) {
     message += `Animal: ${reportData.generalInfo.animal}\n`;
     message += `Quantidade: ${reportData.generalInfo.quantidade}\n`;
     message += `Situação: ${reportData.generalInfo.situacao}\n\n`;
+
+    message += `*CARACTERÍSTICAS ENTORNO*\n`;
+    message += `Entorno Norte: ${reportData.caracteristicasEntorno.entornoNorte}\n`;
+    message += `Entorno Sul: ${reportData.caracteristicasEntorno.entornoSul}\n\n`;
     
     message += `*OUTRAS INFORMAÇÕES*\n`;
     message += `Detalhes: ${reportData.otherInfo.detalhes}\n`;
@@ -241,6 +259,36 @@ export default function TO03Form({ categorySlug }: { categorySlug: string }) {
         {/* Caracteristicas Entorno */}
         <div className="space-y-8">
             <h2 className="text-xl font-semibold text-foreground border-b-2 border-foreground pb-2 uppercase">CARACTERÍSTICAS ENTORNO</h2>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                <Field label="ENTORNO NORTE">
+                    <Select value={caracteristicasEntorno.entornoNorte} onValueChange={(value) => handleCaracteristicasEntornoChange('entornoNorte', value)}>
+                        <SelectTrigger className="text-xl normal-case placeholder:text-base">
+                            <SelectValue placeholder="Selecione o entorno" />
+                        </SelectTrigger>
+                        <SelectContent>
+                            <SelectItem value="area_urbana">ÁREA URBANA</SelectItem>
+                            <SelectItem value="curso_dagua">CURSO D'ÁGUA</SelectItem>
+                            <SelectItem value="fragmento_nativo">FRAGMENTO NATIVO</SelectItem>
+                            <SelectItem value="plantio_agricola">PLANTIO AGRÍCOLA</SelectItem>
+                            <SelectItem value="pecuaria">PECUÁRIA</SelectItem>
+                        </SelectContent>
+                    </Select>
+                </Field>
+                <Field label="ENTORNO SUL">
+                    <Select value={caracteristicasEntorno.entornoSul} onValueChange={(value) => handleCaracteristicasEntornoChange('entornoSul', value)}>
+                        <SelectTrigger className="text-xl normal-case placeholder:text-base">
+                            <SelectValue placeholder="Selecione o entorno" />
+                        </SelectTrigger>
+                        <SelectContent>
+                            <SelectItem value="area_urbana">ÁREA URBANA</SelectItem>
+                            <SelectItem value="curso_dagua">CURSO D'ÁGUA</SelectItem>
+                            <SelectItem value="fragmento_nativo">FRAGMENTO NATIVO</SelectItem>
+                            <SelectItem value="plantio_agricola">PLANTIO AGRÍCOLA</SelectItem>
+                            <SelectItem value="pecuaria">PECUÁRIA</SelectItem>
+                        </SelectContent>
+                    </Select>
+                </Field>
+            </div>
         </div>
 
         {/* Outras Informações */}
@@ -270,3 +318,5 @@ export default function TO03Form({ categorySlug }: { categorySlug: string }) {
     </div>
   );
 }
+
+    
