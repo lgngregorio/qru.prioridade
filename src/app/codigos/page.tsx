@@ -18,7 +18,6 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table';
-import { SidebarTrigger } from '@/components/ui/sidebar';
 
 const messageCodes = [
     { code: 'QAP', message: 'Na Escuta' },
@@ -156,6 +155,19 @@ const tiposPaneCodes = [
     { code: 'TP07', message: 'Bloqueio De Veículos Por Rastreador' },
 ];
 
+const outrasMensagensCodes = [
+    { code: '61', message: 'Sintoma de embriaguez' },
+    { code: '62', message: 'Sintomas de entorpecentes ou drogas ilícitas' },
+    { code: '63', message: 'PMR - Informação de PMR realizando abordagem no trecho' },
+    { code: '64', message: 'AGEMS - informação dos agentes da AGEMS no trecho de concessão' },
+    { code: '65', message: 'BRINKS' },
+    { code: '67', message: 'PMV inoperante' },
+    { code: '70', message: 'Informações de assalto' },
+    { code: 'OP08', message: 'Operação Policial' },
+    { code: 'OU01', message: 'Ocorrência Fora Do Trecho' },
+    { code: 'OU02', message: 'Outros' },
+];
+
 const MessageCodesTable = () => (
   <Table>
     <TableHeader>
@@ -234,6 +246,24 @@ const TiposPaneTable = () => (
   </Table>
 );
 
+const OutrasMensagensTable = () => (
+  <Table>
+    <TableHeader>
+      <TableRow>
+        <TableHead className="w-[120px]">Código</TableHead>
+        <TableHead>Mensagem</TableHead>
+      </TableRow>
+    </TableHeader>
+    <TableBody>
+      {outrasMensagensCodes.map((item) => (
+        <TableRow key={item.code}>
+          <TableCell className="font-medium">{item.code}</TableCell>
+          <TableCell>{item.message}</TableCell>
+        </TableRow>
+      ))}
+    </TableBody>
+  </Table>
+);
 
 const codeSections = [
     {
@@ -254,7 +284,7 @@ const codeSections = [
     },
     {
         title: 'Outras Mensagens',
-        content: 'Conteúdo para Outras Mensagens em breve.'
+        content: <OutrasMensagensTable />
     },
     {
         title: 'Código Q (Alfabeto Fonético)',
