@@ -112,9 +112,9 @@ export const eventCategories: EventCategory[] = [
   },
   {
     name: 'TO 09',
-    title: 'TO 09',
+    title: 'SINALIZAÇÃO VERTICAL',
     slug: 'to-09',
-    icon: HardHat,
+    icon: Construction,
     description: 'Relatar TO 09.',
     color: '#4682B4',
   },
