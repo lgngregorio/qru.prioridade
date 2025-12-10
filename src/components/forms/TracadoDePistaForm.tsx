@@ -22,14 +22,14 @@ import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 function Field({ label, children, className }: { label?: string, children: React.ReactNode, className?: string }) {
   return (
     <div className={cn('flex flex-col space-y-2', className)}>
-      {label && <Label className="text-xl font-semibold uppercase">{label}</Label>}
+      {label && <Label className="text-2xl font-semibold uppercase">{label}</Label>}
       {children}
     </div>
   )
 }
 
 const SectionTitle = ({ children }: { children: React.ReactNode }) => (
-  <h2 className="text-xl font-semibold text-foreground border-b-2 border-foreground pb-2 uppercase mt-8 mb-4">
+  <h2 className="text-2xl font-semibold text-foreground border-b-2 border-foreground pb-2 uppercase mt-8 mb-4">
     {children}
   </h2>
 );
@@ -70,7 +70,7 @@ export default function TracadoDePistaForm({ categorySlug }: { categorySlug: str
             id={`${section}-${key}-${option.id}`}
             onCheckedChange={(checked) => handleCheckboxChange(section, key, option.id, !!checked)}
           />
-          <label htmlFor={`${section}-${key}-${option.id}`} className="text-lg font-medium leading-none">
+          <label htmlFor={`${section}-${key}-${option.id}`} className="text-2xl font-medium leading-none">
             {option.label}
           </label>
         </div>
@@ -86,7 +86,7 @@ export default function TracadoDePistaForm({ categorySlug }: { categorySlug: str
       {options.map((option) => (
         <div key={option.id} className="flex items-center space-x-3">
           <RadioGroupItem value={option.id} id={`${section}-${key}-${option.id}`} />
-          <Label htmlFor={`${section}-${key}-${option.id}`} className="text-lg font-normal">{option.label}</Label>
+          <Label htmlFor={`${section}-${key}-${option.id}`} className="text-2xl font-normal">{option.label}</Label>
         </div>
       ))}
     </RadioGroup>
@@ -164,7 +164,7 @@ export default function TracadoDePistaForm({ categorySlug }: { categorySlug: str
                 { id: 'iml', label: 'IML' },
             ])}
         </Field>
-        <p className="text-center font-bold">"QRX para confirmação da prévia."</p>
+        <p className="text-center font-bold text-2xl">"QRX para confirmação da prévia."</p>
 
         <SectionTitle>CONFIRMAÇÃO DA PRÉVIA</SectionTitle>
         <Field label="Cinemática">
