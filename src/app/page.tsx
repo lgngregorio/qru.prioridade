@@ -17,10 +17,10 @@ export default function Home() {
 
   return (
     <main className="flex min-h-screen flex-col items-center p-4 pt-8 md:p-6">
+      <div className="absolute top-2 left-2 z-10">
+        <SidebarTrigger className="md:hidden h-14 w-14" />
+      </div>
       <div className="w-full max-w-md">
-        <div className="absolute top-4 left-4">
-          <SidebarTrigger className="md:hidden h-9 w-9" />
-        </div>
         <header className="text-center w-full mb-6">
            <div className="flex items-center gap-4 justify-center relative">
              <h1 className="text-4xl font-bold text-foreground font-headline tracking-wider flex items-center justify-center gap-4">
