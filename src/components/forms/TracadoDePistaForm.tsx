@@ -70,7 +70,7 @@ export default function TracadoDePistaForm({ categorySlug }: { categorySlug: str
             id={`${section}-${key}-${option.id}`}
             onCheckedChange={(checked) => handleCheckboxChange(section, key, option.id, !!checked)}
           />
-          <label htmlFor={`${section}-${key}-${option.id}`} className="text-sm font-medium leading-none">
+          <label htmlFor={`${section}-${key}-${option.id}`} className="text-base font-medium leading-none">
             {option.label}
           </label>
         </div>
@@ -86,7 +86,7 @@ export default function TracadoDePistaForm({ categorySlug }: { categorySlug: str
       {options.map((option) => (
         <div key={option.id} className="flex items-center space-x-2">
           <RadioGroupItem value={option.id} id={`${section}-${key}-${option.id}`} />
-          <Label htmlFor={`${section}-${key}-${option.id}`}>{option.label}</Label>
+          <Label htmlFor={`${section}-${key}-${option.id}`} className="text-base font-normal">{option.label}</Label>
         </div>
       ))}
     </RadioGroup>
@@ -266,4 +266,3 @@ export default function TracadoDePistaForm({ categorySlug }: { categorySlug: str
     </div>
   );
 }
-
