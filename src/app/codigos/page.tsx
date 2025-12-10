@@ -18,7 +18,6 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table';
-import { SidebarTrigger } from '@/components/ui/sidebar';
 
 const messageCodes = [
     { code: 'QAP', message: 'Na Escuta' },
@@ -347,11 +346,11 @@ export default function CodigosPage() {
   return (
     <main className="flex flex-col items-center p-4 md:p-6">
       <div className="w-full max-w-4xl">
-        <div className="w-full mb-6 pt-4 flex items-center justify-between">
+        <div className="w-full mb-6 pt-4 flex items-center">
            <Button asChild variant="outline" className="rounded-full">
             <Link href="/">
               <ArrowLeft className="mr-2 h-4 w-4" />
-              Voltar
+              Voltar para o início
             </Link>
           </Button>
         </div>
