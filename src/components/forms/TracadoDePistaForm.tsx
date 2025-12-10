@@ -70,7 +70,7 @@ export default function TracadoDePistaForm({ categorySlug }: { categorySlug: str
             id={`${section}-${key}-${option.id}`}
             onCheckedChange={(checked) => handleCheckboxChange(section, key, option.id, !!checked)}
           />
-          <label htmlFor={`${section}-${key}-${option.id}`} className="text-xl font-medium leading-none">
+          <label htmlFor={`${section}-${key}-${option.id}`} className="text-xl font-normal leading-none">
             {option.label}
           </label>
         </div>
@@ -111,21 +111,23 @@ export default function TracadoDePistaForm({ categorySlug }: { categorySlug: str
                 </Select>
             </Field>
             <Field label="QTH exato"><Input className="text-xl" onChange={(e) => handleValueChange('previa', 'qth', e.target.value)} /></Field>
+        </div>
+         <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
              <Field label="Sentido">
                 {renderRadioGroup('previa', 'sentido', [
                     { id: 'norte', label: 'Norte' },
                     { id: 'sul', label: 'Sul' },
                 ])}
             </Field>
+            <Field label="Faixa de rolamento interditada?">
+                {renderRadioGroup('previa', 'faixa_interditada', [
+                    { id: 'norte_sul', label: 'Norte e Sul' },
+                    { id: 'norte', label: 'Norte' },
+                    { id: 'sul', label: 'Sul' },
+                    { id: 'nill', label: 'NILL' },
+                ])}
+            </Field>
         </div>
-        <Field label="Faixa de rolamento interditada?">
-            {renderRadioGroup('previa', 'faixa_interditada', [
-                { id: 'norte_sul', label: 'Norte e Sul' },
-                { id: 'norte', label: 'Norte' },
-                { id: 'sul', label: 'Sul' },
-                { id: 'nill', label: 'NILL' },
-            ])}
-        </Field>
         <Field label="Provável cinemática">
             {renderCheckboxes('previa', 'cinematica', [
                 { id: 'colisao', label: 'Colisão' },
@@ -266,5 +268,3 @@ export default function TracadoDePistaForm({ categorySlug }: { categorySlug: str
     </div>
   );
 }
-
-    
