@@ -2,8 +2,8 @@
 'use client';
 
 import { useRouter } from 'next/navigation';
-import { Save, Share, Loader2 } from 'lucide-react';
-import { useState, useEffect } from 'react';
+import { Save, Share, PlusCircle, Trash2, Loader2 } from 'lucide-react';
+import { useState } from 'react';
 import { collection, addDoc, serverTimestamp } from 'firebase/firestore';
 import React from 'react';
 
@@ -30,22 +30,34 @@ function Field({ label, children, className }: { label?: string, children: React
 type GeneralInfo = {
   rodovia: string;
   ocorrencia: string;
+  tipoPane: string;
   qth: string;
   sentido: string;
   localArea: string;
-  tipoDeObra: string;
-  qraResponsavel: string;
-  baixaFrequencia: string;
-  qtrInicio: string;
-  qtrTermino: string;
-  qthInicio: string;
-  qthTermino: string;
 };
 
+type Vehicle = {
+  id: number;
+  marca: string;
+  modelo: string;
+  ano: string;
+  cor: string;
+  placa: string;
+  cidade: string;
+  vindoDe: string;
+  indoPara: string;
+  eixos: string;
+  tipo: string;
+  pneu: string;
+  carga: string;
+  condutor: string;
+  telefone: string;
+  ocupantes: string;
+};
 
 type OtherInfo = {
-  observacoes: string;
   auxilios: string;
+  observacoes: string;
   numeroOcorrencia: string;
 };
 
@@ -58,24 +70,56 @@ export default function TO11Form({ categorySlug }: { categorySlug: string }) {
   const [generalInfo, setGeneralInfo] = useState<GeneralInfo>({
     rodovia: '',
     ocorrencia: categorySlug.toUpperCase(),
+    tipoPane: '',
     qth: '',
     sentido: '',
     localArea: '',
-    tipoDeObra: '',
-    qraResponsavel: '',
-    baixaFrequencia: '',
-    qtrInicio: '',
-    qtrTermino: '',
-    qthInicio: '',
-    qthTermino: '',
   });
-  
+
+  const [vehicles, setVehicles] = useState<Vehicle[]>([
+    {
+      id: 1, marca: '', modelo: '', ano: '', cor: '', placa: '', cidade: '',
+      vindoDe: '', indoPara: '', eixos: '', tipo: '', pneu: '', carga: '',
+      condutor: '', telefone: '', ocupantes: ''
+    }
+  ]);
+
   const [otherInfo, setOtherInfo] = useState<OtherInfo>({
-    observacoes: '',
     auxilios: '',
+    observacoes: '',
     numeroOcorrencia: '',
   });
 
+  const handleGeneralInfoChange = (field: keyof GeneralInfo, value: string) => {
+    setGeneralInfo(prev => ({ ...prev, [field]: value }));
+  };
+
+  const handleVehicleChange = (index: number, field: keyof Vehicle, value: string) => {
+    const newVehicles = [...vehicles];
+    if (field === 'telefone') {
+      value = formatPhoneNumber(value);
+    }
+    (newVehicles[index] as any)[field] = value;
+    setVehicles(newVehicles);
+  };
+
+  const handleOtherInfoChange = (field: keyof OtherInfo, value: string) => {
+    setOtherInfo(prev => ({ ...prev, [field]: value }));
+  };
+
+  const addVehicle = () => {
+    setVehicles([...vehicles, {
+      id: vehicles.length > 0 ? Math.max(...vehicles.map(v => v.id)) + 1 : 1,
+      marca: '', modelo: '', ano: '', cor: '', placa: '', cidade: '',
+      vindoDe: '', indoPara: '', eixos: '', tipo: '', pneu: '', carga: '',
+      condutor: '', telefone: '', ocupantes: ''
+    }]);
+  };
+
+  const removeVehicle = (id: number) => {
+    setVehicles(vehicles.filter(v => v.id !== id));
+  };
+  
   const formatPhoneNumber = (value: string) => {
     if (!value) return value;
     const phoneNumber = value.replace(/[^\d]/g, '');
@@ -86,18 +130,6 @@ export default function TO11Form({ categorySlug }: { categorySlug: string }) {
     }
     return `(${phoneNumber.slice(0, 2)}) ${phoneNumber.slice(2, 7)}-${phoneNumber.slice(7, 11)}`;
   };
-
-  const handleGeneralInfoChange = (field: keyof GeneralInfo, value: string) => {
-     if (field === 'baixaFrequencia') {
-      value = formatPhoneNumber(value);
-    }
-    setGeneralInfo(prev => ({ ...prev, [field]: value }));
-  };
-
-  const handleOtherInfoChange = (field: keyof OtherInfo, value: string) => {
-    setOtherInfo(prev => ({ ...prev, [field]: value }));
-  };
-
   
   const fillEmptyFields = (data: any): any => {
     if (Array.isArray(data)) {
@@ -121,6 +153,7 @@ export default function TO11Form({ categorySlug }: { categorySlug: string }) {
   const prepareReportData = () => {
     const filledData = {
       generalInfo: fillEmptyFields(generalInfo),
+      vehicles: fillEmptyFields(vehicles),
       otherInfo: fillEmptyFields(otherInfo),
     };
 
@@ -170,24 +203,38 @@ export default function TO11Form({ categorySlug }: { categorySlug: string }) {
     const reportData = prepareReportData().formData;
     const category = eventCategories.find(c => c.slug === categorySlug);
     
-    let message = `*${category ? category.title.toUpperCase() : 'RELATÓRIO DE OCORRÊNCIA'}*\n\n`;
+    let message = `*RELATÓRIO DE ${category ? category.name.toUpperCase() : 'OCORRÊNCIA'}*\n\n`;
 
     message += `*INFORMAÇÕES GERAIS*\n`;
     message += `Rodovia: ${reportData.generalInfo.rodovia}\n`;
     message += `Ocorrência: ${reportData.generalInfo.ocorrencia}\n`;
+    message += `Tipo de Pane: ${reportData.generalInfo.tipoPane}\n`;
     message += `QTH (Local): ${reportData.generalInfo.qth}\n`;
     message += `Sentido: ${reportData.generalInfo.sentido}\n`;
-    message += `Local/Área: ${reportData.generalInfo.localArea}\n`;
-    message += `Tipo de Obra: ${reportData.generalInfo.tipoDeObra}\n`;
-    message += `QRA do Responsável: ${reportData.generalInfo.qraResponsavel}\n`;
-    message += `Baixa Frequência: ${reportData.generalInfo.baixaFrequencia}\n`;
-    message += `QTR de Início: ${reportData.generalInfo.qtrInicio}\n`;
-    message += `QTR de Término: ${reportData.generalInfo.qtrTermino}\n`;
-    message += `QTH de Início: ${reportData.generalInfo.qthInicio}\n`;
-    message += `QTH de Término: ${reportData.generalInfo.qthTermino}\n\n`;
+    message += `Local/Área: ${reportData.generalInfo.localArea}\n\n`;
 
+    reportData.vehicles.forEach((vehicle: any, index: number) => {
+      message += `*DADOS DO VEÍCULO ${index + 1}*\n`;
+      message += `Marca: ${vehicle.marca}\n`;
+      message += `Modelo: ${vehicle.modelo}\n`;
+      message += `Ano: ${vehicle.ano}\n`;
+      message += `Cor: ${vehicle.cor}\n`;
+      message += `Placa: ${vehicle.placa}\n`;
+      message += `Cidade Emplacamento: ${vehicle.cidade}\n`;
+      message += `Vindo de: ${vehicle.vindoDe}\n`;
+      message += `Indo para: ${vehicle.indoPara}\n`;
+      message += `Eixos: ${vehicle.eixos}\n`;
+      message += `Tipo: ${vehicle.tipo}\n`;
+      message += `Pneu: ${vehicle.pneu}\n`;
+      message += `Carga: ${vehicle.carga}\n\n`;
+      message += `*CONDUTOR*\n`;
+      message += `QRA: ${vehicle.condutor}\n`;
+      message += `Telefone: ${vehicle.telefone}\n`;
+      message += `Ocupantes: ${vehicle.ocupantes}\n\n`;
+    });
+    
     message += `*OUTRAS INFORMAÇÕES*\n`;
-    message += `AUXÍLIOS/PR: ${reportData.otherInfo.auxilios}\n`;
+    message += `Auxílios/PR: ${reportData.otherInfo.auxilios}\n`;
     message += `Observações: ${reportData.otherInfo.observacoes}\n`;
     message += `Nº Ocorrência: ${reportData.otherInfo.numeroOcorrencia}\n`;
 
@@ -217,6 +264,22 @@ export default function TO11Form({ categorySlug }: { categorySlug: string }) {
             <Field label="OCORRÊNCIA">
                 <Input className="text-xl uppercase" value={generalInfo.ocorrencia} disabled />
             </Field>
+            <Field label="TIPO DE PANE">
+                 <Select value={generalInfo.tipoPane} onValueChange={(value) => handleGeneralInfoChange('tipoPane', value)}>
+                    <SelectTrigger className="text-xl normal-case placeholder:text-base">
+                        <SelectValue placeholder="Selecione o tipo de pane" />
+                    </SelectTrigger>
+                    <SelectContent>
+                        <SelectItem value="tp01">TP01</SelectItem>
+                        <SelectItem value="tp02">TP02</SelectItem>
+                        <SelectItem value="tp03">TP03</SelectItem>
+                        <SelectItem value="tp04">TP04</SelectItem>
+                        <SelectItem value="tp05">TP05</SelectItem>
+                        <SelectItem value="tp07">TP07</SelectItem>
+                        <SelectItem value="nill">NILL</SelectItem>
+                    </SelectContent>
+                </Select>
+            </Field>
             <Field label="QTH (LOCAL)">
                 <Input className="text-xl placeholder:capitalize placeholder:text-sm" placeholder="Ex: Km 125 da MS-112" value={generalInfo.qth} onChange={(e) => handleGeneralInfoChange('qth', e.target.value)}/>
             </Field>
@@ -228,7 +291,6 @@ export default function TO11Form({ categorySlug }: { categorySlug: string }) {
                     <SelectContent>
                         <SelectItem value="norte">NORTE</SelectItem>
                         <SelectItem value="sul">SUL</SelectItem>
-                        <SelectItem value="ambos">AMBOS</SelectItem>
                     </SelectContent>
                 </Select>
             </Field>
@@ -238,56 +300,132 @@ export default function TO11Form({ categorySlug }: { categorySlug: string }) {
                         <SelectValue placeholder="Selecione o local/área" />
                     </SelectTrigger>
                     <SelectContent>
-                        <SelectItem value="faixa_de_rolamento">FAIXA DE ROLAMENTO</SelectItem>
                         <SelectItem value="acostamento">ACOSTAMENTO</SelectItem>
+                        <SelectItem value="area_dominio">ÁREA DE DOMÍNIO</SelectItem>
                         <SelectItem value="terceira_faixa">TERCEIRA FAIXA</SelectItem>
-                        <SelectItem value="area_de_dominio">ÁREA DE DOMÍNIO</SelectItem>
-                        <SelectItem value="faixa_de_bordo">FAIXA DE BORDO</SelectItem>
                     </SelectContent>
                 </Select>
             </Field>
-            <Field label="TIPO DE OBRA">
-                <Input className="text-xl placeholder:capitalize placeholder:text-sm" placeholder="Tipo de Obra" value={generalInfo.tipoDeObra} onChange={(e) => handleGeneralInfoChange('tipoDeObra', e.target.value)}/>
-            </Field>
-            <Field label="QRA DO RESPONSÁVEL">
-                <Input className="text-xl placeholder:capitalize placeholder:text-sm" placeholder="Nome do responsável" value={generalInfo.qraResponsavel} onChange={(e) => handleGeneralInfoChange('qraResponsavel', e.target.value)}/>
-            </Field>
-            <Field label="BAIXA FREQUÊNCIA">
-                <Input 
-                  className="text-xl placeholder:capitalize placeholder:text-sm"
-                  placeholder="(00) 00000-0000" 
-                  value={generalInfo.baixaFrequencia}
-                  onChange={e => handleGeneralInfoChange('baixaFrequencia', e.target.value)}
-                  maxLength={15}
-                />
-            </Field>
-            <Field label="QTR DE INÍCIO">
-                <Input type="time" className="text-xl placeholder:capitalize placeholder:text-sm" placeholder="HH:MM" value={generalInfo.qtrInicio} onChange={(e) => handleGeneralInfoChange('qtrInicio', e.target.value)}/>
-            </Field>
-            <Field label="QTR DE TÉRMINO">
-                <Input type="time" className="text-xl placeholder:capitalize placeholder:text-sm" placeholder="HH:MM" value={generalInfo.qtrTermino} onChange={(e) => handleGeneralInfoChange('qtrTermino', e.target.value)}/>
-            </Field>
-            <Field label="QTH DE INÍCIO">
-                <Input className="text-xl placeholder:capitalize placeholder:text-sm" placeholder="Km inicial" value={generalInfo.qthInicio} onChange={(e) => handleGeneralInfoChange('qthInicio', e.target.value)}/>
-            </Field>
-            <Field label="QTH DE TÉRMINO">
-                <Input className="text-xl placeholder:capitalize placeholder:text-sm" placeholder="Km final" value={generalInfo.qthTermino} onChange={(e) => handleGeneralInfoChange('qthTermino', e.target.value)}/>
-            </Field>
           </div>
         </div>
+
+        {vehicles.map((vehicle, index) => (
+          <div key={vehicle.id} className="space-y-12 border-2 border-dashed border-foreground/50 p-6 rounded-lg relative">
+             {vehicles.length > 1 && (
+              <Button 
+                variant="destructive" 
+                size="icon" 
+                className="absolute -top-4 -right-4 rounded-full h-8 w-8"
+                onClick={() => removeVehicle(vehicle.id)}
+                type="button"
+                >
+                <Trash2 className="h-4 w-4" />
+              </Button>
+            )}
+            {/* Dados do Veículo */}
+            <div className="space-y-8">
+              <h2 className="text-xl font-semibold text-foreground border-b-2 border-foreground pb-2 uppercase">Dados do Veículo {index + 1}</h2>
+               <div className="grid grid-cols-1 sm:grid-cols-2 gap-8">
+                    <Field label="MARCA"><Input className="text-xl placeholder:capitalize placeholder:text-sm" placeholder="Ex: Vw" value={vehicle.marca} onChange={e => handleVehicleChange(index, 'marca', e.target.value)}/></Field>
+                    <Field label="MODELO"><Input className="text-xl placeholder:capitalize placeholder:text-sm" placeholder="Ex: Gol" value={vehicle.modelo} onChange={e => handleVehicleChange(index, 'modelo', e.target.value)} /></Field>
+                    <Field label="ANO"><Input className="text-xl placeholder:capitalize placeholder:text-sm" placeholder="Ex: 2020" value={vehicle.ano} onChange={e => handleVehicleChange(index, 'ano', e.target.value)}/></Field>
+                    <Field label="COR"><Input className="text-xl placeholder:capitalize placeholder:text-sm" placeholder="Ex: Branco" value={vehicle.cor} onChange={e => handleVehicleChange(index, 'cor', e.target.value)}/></Field>
+                    <Field label="PLACA"><Input className="text-xl placeholder:capitalize placeholder:text-sm" placeholder="Ex: Abc-1234" value={vehicle.placa} onChange={e => handleVehicleChange(index, 'placa', e.target.value)}/></Field>
+                    <Field label="CIDADE EMPLACAMENTO"><Input className="text-xl placeholder:capitalize placeholder:text-sm" placeholder="Ex: São paulo" value={vehicle.cidade} onChange={e => handleVehicleChange(index, 'cidade', e.target.value)}/></Field>
+                    <Field label="VINDO DE"><Input className="text-xl placeholder:capitalize placeholder:text-sm" placeholder="Ex: Rio de janeiro" value={vehicle.vindoDe} onChange={e => handleVehicleChange(index, 'vindoDe', e.target.value)}/></Field>
+                    <Field label="INDO PARA"><Input className="text-xl placeholder:capitalize placeholder:text-sm" placeholder="Ex: Belo horizonte" value={vehicle.indoPara} onChange={e => handleVehicleChange(index, 'indoPara', e.target.value)}/></Field>
+                    <Field label="QUANTIDADE DE EIXOS">
+                        <Select value={vehicle.eixos} onValueChange={value => handleVehicleChange(index, 'eixos', value)}>
+                            <SelectTrigger className="text-xl normal-case placeholder:text-base"><SelectValue placeholder="Selecione os eixos" /></SelectTrigger>
+                            <SelectContent>
+                                <SelectItem value="02">02</SelectItem>
+                                <SelectItem value="03">03</SelectItem>
+                                <SelectItem value="04">04</SelectItem>
+                                <SelectItem value="05">05</SelectItem>
+                                <SelectItem value="06">06</SelectItem>
+                                <SelectItem value="07">07</SelectItem>
+                                <SelectItem value="08">08</SelectItem>
+                                <SelectItem value="09">09</SelectItem>
+                                <SelectItem value="10">10</SelectItem>
+                                <SelectItem value="11">11</SelectItem>
+                                <SelectItem value="12">12</SelectItem>
+                                <SelectItem value="13">13</SelectItem>
+                                <SelectItem value="14">14</SelectItem>
+                                <SelectItem value="15">15</SelectItem>
+                                <SelectItem value="16">16</SelectItem>
+                                <SelectItem value="17">17</SelectItem>
+                                <SelectItem value="18">18</SelectItem>
+                                <SelectItem value="19">19</SelectItem>
+                                <SelectItem value="20">20</SelectItem>
+                            </SelectContent>
+                        </Select>
+                    </Field>
+                    <Field label="TIPO DE VEÍCULO">
+                         <Select value={vehicle.tipo} onValueChange={value => handleVehicleChange(index, 'tipo', value)}>
+                            <SelectTrigger className="text-xl normal-case placeholder:text-base"><SelectValue placeholder="Selecione o tipo" /></SelectTrigger>
+                            <SelectContent>
+                                <SelectItem value="mo">MO</SelectItem>
+                                <SelectItem value="ap">AP</SelectItem>
+                                <SelectItem value="utilitaria">UTILITÁRIA</SelectItem>
+                                <SelectItem value="ca">CA</SelectItem>
+                                <SelectItem value="on">ON</SelectItem>
+                                <SelectItem value="car">CAR</SelectItem>
+                                <SelectItem value="ca-romeu-julieta">CA/ ROMEU E JULIETA</SelectItem>
+                                <SelectItem value="carretinha-reboque">CARRETINHA/REBOQUE</SelectItem>
+                            </SelectContent>
+                        </Select>
+                    </Field>
+                    <Field label="ESTADO DO PNEU">
+                        <Select value={vehicle.pneu} onValueChange={value => handleVehicleChange(index, 'pneu', value)}>
+                            <SelectTrigger className="text-xl normal-case placeholder:text-base"><SelectValue placeholder="Selecione o estado do pneu" /></SelectTrigger>
+                            <SelectContent>
+                                <SelectItem value="bom">BOM</SelectItem>
+                                <SelectItem value="regular">REGULAR</SelectItem>
+                                <SelectItem value="ruim">RUIM</SelectItem>
+                            </SelectContent>
+                        </Select>
+                    </Field>
+                    <Field label="TIPO DE CARGA"><Input className="text-xl placeholder:capitalize placeholder:text-sm" placeholder="Ex: Vazio, soja" value={vehicle.carga} onChange={e => handleVehicleChange(index, 'carga', e.target.value)}/></Field>
+               </div>
+            </div>
+
+            {/* Condutor */}
+            <div className="space-y-8">
+                <h2 className="text-xl font-semibold text-foreground border-b-2 border-foreground pb-2 uppercase">Condutor</h2>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-8">
+                     <Field label="QRA DO CONDUTOR(A)"><Input className="text-xl placeholder:capitalize placeholder:text-sm" placeholder="Nome do condutor" value={vehicle.condutor} onChange={e => handleVehicleChange(index, 'condutor', e.target.value)}/></Field>
+                     <Field label="BAIXA FREQUÊNCIA">
+                        <Input 
+                          className="text-xl placeholder:capitalize placeholder:text-sm"
+                          placeholder="(00) 00000-0000" 
+                          value={vehicle.telefone}
+                          onChange={e => handleVehicleChange(index, 'telefone', e.target.value)}
+                          maxLength={15}
+                        />
+                     </Field>
+                     <Field label="OCUPANTES"><Input className="text-xl placeholder:capitalize placeholder:text-sm" placeholder="Ex: 2 adultos, 1 criança" value={vehicle.ocupantes} onChange={e => handleVehicleChange(index, 'ocupantes', e.target.value)}/></Field>
+                </div>
+            </div>
+          </div>
+        ))}
+        
+        <Button size="lg" variant="secondary" className="w-full uppercase text-xl" type="button" onClick={addVehicle}>
+          <PlusCircle className="mr-2 h-4 w-4" />
+          Adicionar Veículo
+        </Button>
 
         {/* Outras Informações */}
         <div className="space-y-8">
           <h2 className="text-xl font-semibold text-foreground border-b-2 border-foreground pb-2 uppercase">Outras Informações</h2>
           <div className="space-y-8">
             <Field label="AUXÍLIOS/PR">
-              <Textarea className="text-xl placeholder:capitalize placeholder:text-sm" placeholder="Descreva os auxílios prestados" value={otherInfo.auxilios} onChange={(e) => handleOtherInfoChange('auxilios', e.target.value)} />
+              <Textarea className="text-2xl placeholder:capitalize placeholder:text-sm" placeholder="Descreva os auxílios prestados" value={otherInfo.auxilios} onChange={(e) => handleOtherInfoChange('auxilios', e.target.value)} />
             </Field>
             <Field label="OBSERVAÇÕES">
-              <Textarea className="text-xl placeholder:capitalize placeholder:text-sm" placeholder="Descreva detalhes adicionais sobre a ocorrência" value={otherInfo.observacoes} onChange={(e) => handleOtherInfoChange('observacoes', e.target.value)} />
+              <Textarea className="text-2xl placeholder:capitalize placeholder:text-sm" placeholder="Descreva detalhes adicionais sobre a ocorrência" value={otherInfo.observacoes} onChange={(e) => handleOtherInfoChange('observacoes', e.target.value)} />
             </Field>
             <Field label="NÚMERO DA OCORRÊNCIA">
-              <Input className="text-xl placeholder:capitalize placeholder:text-sm" placeholder="Número de controle interno" value={otherInfo.numeroOcorrencia} onChange={(e) => handleOtherInfoChange('numeroOcorrencia', e.target.value)} />
+              <Input className="text-2xl placeholder:capitalize placeholder:text-sm" placeholder="Número de controle interno" value={otherInfo.numeroOcorrencia} onChange={(e) => handleOtherInfoChange('numeroOcorrencia', e.target.value)} />
             </Field>
           </div>
         </div>
