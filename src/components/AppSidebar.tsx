@@ -38,7 +38,7 @@ export default function AppSidebar() {
       <SidebarContent className="flex-1">
         <SidebarMenu className="gap-y-8">
           <SidebarMenuItem>
-            <SidebarMenuButton asChild isActive={pathname === '/'} className="text-2xl [&_svg]:size-8">
+            <SidebarMenuButton asChild isActive={pathname === '/'} className="text-xl [&_svg]:size-7">
               <Link href="/">
                 <Home />
                 Início
@@ -46,7 +46,7 @@ export default function AppSidebar() {
             </SidebarMenuButton>
           </SidebarMenuItem>
           <SidebarMenuItem>
-            <SidebarMenuButton asChild className="text-2xl [&_svg]:size-8">
+            <SidebarMenuButton asChild className="text-xl [&_svg]:size-7">
               <Link href="#">
                 <FileCode />
                 Códigos
@@ -54,7 +54,7 @@ export default function AppSidebar() {
             </SidebarMenuButton>
           </SidebarMenuItem>
           <SidebarMenuItem>
-            <SidebarMenuButton asChild className="text-2xl [&_svg]:size-8">
+            <SidebarMenuButton asChild className="text-xl [&_svg]:size-7">
               <Link href="#">
                 <Notebook />
                 Bloco de Nota
@@ -62,7 +62,7 @@ export default function AppSidebar() {
             </SidebarMenuButton>
           </SidebarMenuItem>
           <SidebarMenuItem>
-            <SidebarMenuButton asChild isActive={pathname === '/historico'} className="text-2xl [&_svg]:size-8">
+            <SidebarMenuButton asChild isActive={pathname === '/historico'} className="text-xl [&_svg]:size-7">
               <Link href="/historico">
                 <History />
                 Histórico de Ocorrências
@@ -70,7 +70,7 @@ export default function AppSidebar() {
             </SidebarMenuButton>
           </SidebarMenuItem>
           <SidebarMenuItem>
-            <SidebarMenuButton asChild className="text-2xl [&_svg]:size-8">
+            <SidebarMenuButton asChild className="text-xl [&_svg]:size-7">
               <Link href="#">
                 <LayoutGrid />
                 Atividades
@@ -78,7 +78,7 @@ export default function AppSidebar() {
             </SidebarMenuButton>
           </SidebarMenuItem>
            <SidebarMenuItem>
-            <SidebarMenuButton asChild className="text-2xl [&_svg]:size-8">
+            <SidebarMenuButton asChild className="text-xl [&_svg]:size-7">
               <Link href="#">
                 <Settings />
                 Configurações
@@ -90,7 +90,7 @@ export default function AppSidebar() {
       <SidebarFooter>
         <SidebarMenu className="gap-y-8">
           <SidebarMenuItem>
-            <SidebarMenuButton asChild className="text-2xl [&_svg]:size-8">
+            <SidebarMenuButton asChild className="text-xl [&_svg]:size-7">
               <Link href="#">
                 <ShieldCheck />
                 Políticas do SGI
@@ -98,7 +98,7 @@ export default function AppSidebar() {
             </SidebarMenuButton>
           </SidebarMenuItem>
           <SidebarMenuItem>
-            <SidebarMenuButton asChild className="text-2xl [&_svg]:size-8">
+            <SidebarMenuButton asChild className="text-xl [&_svg]:size-7">
               <Link href="#">
                 <LogOut />
                 Sair
