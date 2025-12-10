@@ -16,6 +16,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useFirestore } from '@/firebase';
 import { useToast } from '@/hooks/use-toast';
+import { Checkbox } from '@/components/ui/checkbox';
 
 
 function Field({ label, children, className }: { label?: string, children: React.ReactNode, className?: string }) {
@@ -71,6 +72,7 @@ export default function TO11Form({ categorySlug }: { categorySlug: string }) {
   const router = useRouter();
   const { toast } = useToast();
   const [isSaving, setIsSaving] = useState(false);
+  const [showMetragem, setShowMetragem] = useState(false);
 
   const [generalInfo, setGeneralInfo] = useState<GeneralInfo>({
     rodovia: '',
@@ -188,6 +190,10 @@ export default function TO11Form({ categorySlug }: { categorySlug: string }) {
       vehicles: fillEmptyFields(vehicles),
       otherInfo: fillEmptyFields(otherInfo),
     };
+     if (!showMetragem) {
+      filledData.otherInfo.metragem = 'NILL';
+    }
+
 
     return {
       category: categorySlug,
@@ -472,9 +478,24 @@ export default function TO11Form({ categorySlug }: { categorySlug: string }) {
             <Field label="QUANTIDADE DE DANOS">
               <Input className="text-2xl placeholder:capitalize placeholder:text-sm" placeholder="Informe a quantidade" value={otherInfo.quantidadeDeDanos} onChange={(e) => handleOtherInfoChange('quantidadeDeDanos', e.target.value)} />
             </Field>
-            <Field label="METRAGEM (OPCIONAL)">
-              <Input className="text-2xl placeholder:capitalize placeholder:text-sm" placeholder="Informe a metragem" value={otherInfo.metragem} onChange={(e) => handleOtherInfoChange('metragem', e.target.value)} />
-            </Field>
+            <div className="flex items-center space-x-2 pt-4">
+              <Checkbox 
+                id="show-metragem" 
+                checked={showMetragem} 
+                onCheckedChange={(checked) => setShowMetragem(Boolean(checked))}
+              />
+              <label
+                htmlFor="show-metragem"
+                className="text-base font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+              >
+                Necessário medição?
+              </label>
+            </div>
+            {showMetragem && (
+              <Field label="METRAGEM">
+                <Input className="text-2xl placeholder:capitalize placeholder:text-sm" placeholder="Informe a metragem" value={otherInfo.metragem} onChange={(e) => handleOtherInfoChange('metragem', e.target.value)} />
+              </Field>
+            )}
             <Field label="OBSERVAÇÕES">
               <Textarea className="text-2xl placeholder:capitalize placeholder:text-sm" placeholder="Descreva detalhes adicionais sobre a ocorrência" value={otherInfo.observacoes} onChange={(e) => handleOtherInfoChange('observacoes', e.target.value)} />
             </Field>
