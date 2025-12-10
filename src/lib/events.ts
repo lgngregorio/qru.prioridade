@@ -120,7 +120,7 @@ export const eventCategories: EventCategory[] = [
     color: '#4682B4',
   },
   {
-    name: 'TO 11',
+    name: 'DANOS AO PATRIMÔNIO',
     title: 'DANOS AO PATRIMÔNIO',
     slug: 'to-11',
     icon: ShieldAlert,
@@ -136,8 +136,8 @@ export const eventCategories: EventCategory[] = [
     color: '#DC143C',
   },
   {
-    name: 'TO 15',
-    title: 'TO 15',
+    name: 'VERIFICAÇÃO FAIXA DE DOMÍNIO',
+    title: 'VERIFICAÇÃO FAIXA DE DOMÍNIO',
     slug: 'to-15',
     icon: Search,
     description: 'Relatar TO 15.',
