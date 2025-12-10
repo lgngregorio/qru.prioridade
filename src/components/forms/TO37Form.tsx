@@ -225,11 +225,8 @@ export default function TO37Form({ categorySlug }: { categorySlug: string }) {
                         <SelectValue placeholder="Selecione o local/área" />
                     </SelectTrigger>
                     <SelectContent>
-                        <SelectItem value="faixa_de_rolamento">FAIXA DE ROLAMENTO</SelectItem>
-                        <SelectItem value="acostamento">ACOSTAMENTO</SelectItem>
                         <SelectItem value="terceira_faixa">TERCEIRA FAIXA</SelectItem>
                         <SelectItem value="area_de_dominio">ÁREA DE DOMÍNIO</SelectItem>
-                        <SelectItem value="faixa_de_bordo">FAIXA DE BORDO</SelectItem>
                     </SelectContent>
                 </Select>
             </Field>
