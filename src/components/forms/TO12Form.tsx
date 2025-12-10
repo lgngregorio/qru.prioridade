@@ -2,7 +2,7 @@
 'use client';
 
 import { useRouter } from 'next/navigation';
-import { Save, Share, Loader2 } from 'lucide-react';
+import { Save, Share, Loader2, PlusCircle, Trash2 } from 'lucide-react';
 import { useState } from 'react';
 import { collection, addDoc, serverTimestamp } from 'firebase/firestore';
 import React from 'react';
@@ -42,8 +42,31 @@ const SubSectionTitle = ({ children, className }: { children: React.ReactNode, c
   </h3>
 );
 
+interface ListItem {
+  id: number;
+  material: string;
+  quantidade: string;
+}
+
 export default function TO12Form({ categorySlug }: { categorySlug: string }) {
   const [formData, setFormData] = useState<any>({});
+  const [rolDeValores, setRolDeValores] = useState<ListItem[]>([]);
+  const [equipamentosRetidos, setEquipamentosRetidos] = useState<ListItem[]>([]);
+  const [consumoMateriais, setConsumoMateriais] = useState<ListItem[]>([]);
+
+  // Handlers for dynamic lists
+  const addListItem = (setter: React.Dispatch<React.SetStateAction<ListItem[]>>) => {
+    setter(prev => [...prev, { id: Date.now(), material: '', quantidade: '' }]);
+  };
+
+  const removeListItem = (id: number, setter: React.Dispatch<React.SetStateAction<ListItem[]>>) => {
+    setter(prev => prev.filter(item => item.id !== id));
+  };
+
+  const updateListItem = (id: number, field: 'material' | 'quantidade', value: string, setter: React.Dispatch<React.SetStateAction<ListItem[]>>) => {
+    setter(prev => prev.map(item => item.id === id ? { ...item, [field]: value } : item));
+  };
+
 
   const handleValueChange = (section: string, key: string, value: any) => {
     setFormData((prev: any) => ({
@@ -316,7 +339,7 @@ export default function TO12Form({ categorySlug }: { categorySlug: string }) {
         </div>
         
         <SectionTitle>PROCEDIMENTOS REALIZADOS</SectionTitle>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-4">
+         <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-4">
             {renderCheckboxes('procedimentos', 'lista', [
                 { id: 'colar_cervical', label: 'Colar Cervical' },
                 { id: 'pranchamento', label: 'Pranchamento: Decúbito/Em Pé' },
@@ -346,14 +369,41 @@ export default function TO12Form({ categorySlug }: { categorySlug: string }) {
         <Field label="Outros"><Input className="text-xl" onChange={(e) => handleValueChange('procedimentos', 'outros', e.target.value)} /></Field>
 
         <SectionTitle>ROL DE VALORES/PERTENCES</SectionTitle>
-        <Field label="Responsável pelo Recebimento (Assinatura)">
+        <div className="space-y-4">
+            {rolDeValores.map((item, index) => (
+                <div key={item.id} className="flex items-end gap-4 p-4 border rounded-lg">
+                    <Field label="MATERIAL" className="flex-1"><Input className="text-xl" value={item.material} onChange={e => updateListItem(item.id, 'material', e.target.value, setRolDeValores)} /></Field>
+                    <Field label="QUANTIDADE" className="w-32"><Input type="number" className="text-xl" value={item.quantidade} onChange={e => updateListItem(item.id, 'quantidade', e.target.value, setRolDeValores)} /></Field>
+                    <Button variant="destructive" size="icon" onClick={() => removeListItem(item.id, setRolDeValores)}><Trash2 className="h-4 w-4" /></Button>
+                </div>
+            ))}
+            <Button variant="outline" className="w-full" onClick={() => addListItem(setRolDeValores)}>
+                <PlusCircle className="mr-2 h-4 w-4" />
+                Adicionar Item
+            </Button>
+        </div>
+         <Field label="Responsável pelo Recebimento (Assinatura)">
             <Input className="text-xl" onChange={(e) => handleValueChange('rol_valores', 'responsavel', e.target.value)} />
         </Field>
 
         <SectionTitle>EQUIPAMENTOS / MATERIAIS RETIDOS</SectionTitle>
+        <div className="space-y-4">
+            {equipamentosRetidos.map((item, index) => (
+                <div key={item.id} className="flex items-end gap-4 p-4 border rounded-lg">
+                    <Field label="MATERIAL" className="flex-1"><Input className="text-xl" value={item.material} onChange={e => updateListItem(item.id, 'material', e.target.value, setEquipamentosRetidos)} /></Field>
+                    <Field label="QUANTIDADE" className="w-32"><Input type="number" className="text-xl" value={item.quantidade} onChange={e => updateListItem(item.id, 'quantidade', e.target.value, setEquipamentosRetidos)} /></Field>
+                    <Button variant="destructive" size="icon" onClick={() => removeListItem(item.id, setEquipamentosRetidos)}><Trash2 className="h-4 w-4" /></Button>
+                </div>
+            ))}
+            <Button variant="outline" className="w-full" onClick={() => addListItem(setEquipamentosRetidos)}>
+                <PlusCircle className="mr-2 h-4 w-4" />
+                Adicionar Item
+            </Button>
+        </div>
         <Field label="Responsável pelo Recebimento (Assinatura)">
             <Input className="text-xl" onChange={(e) => handleValueChange('equipamentos_retidos', 'responsavel', e.target.value)} />
         </Field>
+
 
         <SectionTitle>CONDUTA</SectionTitle>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
@@ -411,26 +461,26 @@ export default function TO12Form({ categorySlug }: { categorySlug: string }) {
         </Field>
 
         <SectionTitle>CONSUMO DE MATERIAIS NO ATENDIMENTO</SectionTitle>
-        <Table>
-            <TableHeader>
-                <TableRow>
-                    <TableHead className="text-xl">Material</TableHead>
-                    <TableHead className="text-xl">Quantidade</TableHead>
-                    <TableHead className="text-xl">Material</TableHead>
-                    <TableHead className="text-xl">Quantidade</TableHead>
-                </TableRow>
-            </TableHeader>
-            <TableBody>
-                {Array.from({ length: 3 }).map((_, i) => (
-                    <TableRow key={i}>
-                        <TableCell><Input className="text-xl" /></TableCell>
-                        <TableCell><Input type="number" className="text-xl" /></TableCell>
-                        <TableCell><Input className="text-xl" /></TableCell>
-                        <TableCell><Input type="number" className="text-xl" /></TableCell>
-                    </TableRow>
-                ))}
-            </TableBody>
-        </Table>
+        <div className="space-y-4">
+            {consumoMateriais.map((item) => (
+                <div key={item.id} className="flex items-end gap-4 p-4 border rounded-lg">
+                    <Field label="MATERIAL" className="flex-1">
+                        <Input className="text-xl" value={item.material} onChange={(e) => updateListItem(item.id, 'material', e.target.value, setConsumoMateriais)} />
+                    </Field>
+                    <Field label="QUANTIDADE" className="w-32">
+                        <Input type="number" className="text-xl" value={item.quantidade} onChange={(e) => updateListItem(item.id, 'quantidade', e.target.value, setConsumoMateriais)} />
+                    </Field>
+                    <Button variant="destructive" size="icon" onClick={() => removeListItem(item.id, setConsumoMateriais)}>
+                        <Trash2 className="h-4 w-4" />
+                    </Button>
+                </div>
+            ))}
+            <Button variant="outline" className="w-full" onClick={() => addListItem(setConsumoMateriais)}>
+                <PlusCircle className="mr-2 h-4 w-4" />
+                Adicionar Material
+            </Button>
+        </div>
+
 
         <SectionTitle>RELATÓRIO/OBSERVAÇÕES</SectionTitle>
         <Textarea className="text-xl" rows={6} onChange={(e) => handleValueChange('observacoes', 'texto', e.target.value)} />
