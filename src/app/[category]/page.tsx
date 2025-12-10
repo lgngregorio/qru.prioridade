@@ -255,9 +255,9 @@ function VeiculoAbandonadoForm({ categorySlug }: { categorySlug: string }) {
     <div className="w-full p-4 sm:p-6 md:p-8">
       <form className="space-y-12" onSubmit={(e) => e.preventDefault()}>
         {/* Informações Gerais */}
-        <div className="space-y-6">
+        <div className="space-y-8">
           <h2 className="text-xl font-semibold text-foreground border-b-2 border-foreground pb-2 uppercase">Informações Gerais</h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
             <Field label="RODOVIA">
                 <Select value={generalInfo.rodovia} onValueChange={(value) => handleGeneralInfoChange('rodovia', value)}>
                     <SelectTrigger className="text-lg normal-case placeholder:capitalize placeholder:text-base">
@@ -320,7 +320,7 @@ function VeiculoAbandonadoForm({ categorySlug }: { categorySlug: string }) {
         </div>
 
         {vehicles.map((vehicle, index) => (
-          <div key={vehicle.id} className="space-y-6 border-2 border-dashed border-foreground/50 p-6 rounded-lg relative">
+          <div key={vehicle.id} className="space-y-8 border-2 border-dashed border-foreground/50 p-6 rounded-lg relative">
              {vehicles.length > 1 && (
               <Button 
                 variant="destructive" 
@@ -333,9 +333,9 @@ function VeiculoAbandonadoForm({ categorySlug }: { categorySlug: string }) {
               </Button>
             )}
             {/* Dados do Veículo */}
-            <div className="space-y-6">
+            <div className="space-y-8">
               <h2 className="text-xl font-semibold text-foreground border-b-2 border-foreground pb-2 uppercase">Dados do Veículo {index + 1}</h2>
-               <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+               <div className="grid grid-cols-1 sm:grid-cols-2 gap-8">
                     <Field label="MARCA"><Input className="text-lg placeholder:capitalize placeholder:text-base" placeholder="Ex: Vw" value={vehicle.marca} onChange={e => handleVehicleChange(index, 'marca', e.target.value)}/></Field>
                     <Field label="MODELO"><Input className="text-lg placeholder:capitalize placeholder:text-base" placeholder="Ex: Gol" value={vehicle.modelo} onChange={e => handleVehicleChange(index, 'modelo', e.target.value)} /></Field>
                     <Field label="ANO"><Input className="text-lg placeholder:capitalize placeholder:text-base" placeholder="Ex: 2020" value={vehicle.ano} onChange={e => handleVehicleChange(index, 'ano', e.target.value)}/></Field>
@@ -400,9 +400,9 @@ function VeiculoAbandonadoForm({ categorySlug }: { categorySlug: string }) {
             </div>
 
             {/* Condutor */}
-            <div className="space-y-6">
+            <div className="space-y-8">
                 <h2 className="text-xl font-semibold text-foreground border-b-2 border-foreground pb-2 uppercase">Condutor</h2>
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-8">
                      <Field label="QRA DO CONDUTOR(A)"><Input className="text-lg placeholder:capitalize placeholder:text-base" placeholder="Nome do condutor" value={vehicle.condutor} onChange={e => handleVehicleChange(index, 'condutor', e.target.value)}/></Field>
                      <Field label="BAIXA FREQUÊNCIA">
                         <Input 
@@ -425,9 +425,9 @@ function VeiculoAbandonadoForm({ categorySlug }: { categorySlug: string }) {
         </Button>
 
         {/* Outras Informações */}
-        <div className="space-y-6">
+        <div className="space-y-8">
           <h2 className="text-xl font-semibold text-foreground border-b-2 border-foreground pb-2 uppercase">Outras Informações</h2>
-          <div className="space-y-6">
+          <div className="space-y-8">
             <Field label="AUXÍLIOS/PR">
               <Textarea className="text-lg placeholder:capitalize placeholder:text-base" placeholder="Descreva os auxílios prestados" value={otherInfo.auxilios} onChange={(e) => handleOtherInfoChange('auxilios', e.target.value)} />
             </Field>
@@ -440,15 +440,15 @@ function VeiculoAbandonadoForm({ categorySlug }: { categorySlug: string }) {
           </div>
         </div>
 
-        <div className="flex flex-col sm:flex-row gap-4 pt-6">
-          <Button size="lg" className="flex-1 bg-green-600 hover:bg-green-700 uppercase text-base" onClick={handleShare}>
-            <Share className="mr-2 h-4 w-4" />
-            Compartilhar WhatsApp
-          </Button>
-          <Button size="lg" className="flex-none w-full sm:w-48 bg-primary hover:bg-primary/90 uppercase text-base" onClick={handleSave} disabled={isSaving}>
-            {isSaving ? <Loader2 className="animate-spin" /> : <Save className="mr-2 h-4 w-4" />}
-            {isSaving ? 'Salvando...' : 'Salvar'}
-          </Button>
+        <div className="flex flex-row gap-4 pt-6">
+            <Button size="lg" className="flex-1 bg-green-600 hover:bg-green-700 uppercase text-base" onClick={handleShare}>
+                <Share className="mr-2 h-4 w-4" />
+                Compartilhar WhatsApp
+            </Button>
+            <Button size="lg" className="w-48 bg-primary hover:bg-primary/90 uppercase text-base" onClick={handleSave} disabled={isSaving}>
+                {isSaving ? <Loader2 className="animate-spin" /> : <Save className="mr-2 h-4 w-4" />}
+                {isSaving ? 'Salvando...' : 'Salvar'}
+            </Button>
         </div>
       </form>
     </div>
@@ -483,7 +483,7 @@ export default function ReportPage() {
             <CardTitle className="text-3xl font-bold text-foreground font-headline tracking-wide uppercase">
               {title}
             </CardTitle>
-            <CardDescription className="text-sm mt-1 text-muted-foreground">
+            <CardDescription className="text-xs mt-1 text-muted-foreground normal-case">
              {description}
             </CardDescription>
           </CardHeader>
@@ -495,7 +495,3 @@ export default function ReportPage() {
     </main>
   );
 }
-
-    
-
-    
