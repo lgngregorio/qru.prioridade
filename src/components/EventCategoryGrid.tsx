@@ -2,6 +2,7 @@
 import Link from 'next/link';
 import { Card, CardHeader, CardTitle } from '@/components/ui/card';
 import type { EventCategory } from '@/lib/events';
+import { cn } from '@/lib/utils';
 
 type EventCategoryGridProps = {
   categories: EventCategory[];
@@ -56,13 +57,14 @@ export default function EventCategoryGrid({
       {categories.map((category) => (
         <Link href={`/${category.slug}`} key={category.slug} className="group">
           <Card 
-            className="h-full text-center shadow-lg rounded-lg border-b-4 border-black/20 transform transition-transform duration-150 ease-in-out active:border-b-2 active:translate-y-px group-hover:-translate-y-px bg-card hover:bg-card/80 text-card-foreground"
+            className="h-full text-center shadow-lg rounded-lg border-b-4 border-black/20 transform transition-transform duration-150 ease-in-out active:border-b-2 active:translate-y-px group-hover:-translate-y-px bg-card/50 hover:bg-card/40 text-card-foreground"
           >
             <CardHeader className="flex flex-col items-center justify-center p-1 aspect-[3/4]">
               <div
-                className="w-12 h-12 rounded-full mb-1 flex items-center justify-center bg-black/20"
+                className="w-12 h-12 rounded-full mb-1 flex items-center justify-center"
+                style={{ backgroundColor: category.color, opacity: 0.2 }}
               >
-                <category.icon className="h-7 w-7 text-white" />
+                <category.icon className="h-8 w-8" style={{ color: category.color }} />
               </div>
               <CardTitle className="text-lg font-bold leading-tight text-white">
                 {category.name}
