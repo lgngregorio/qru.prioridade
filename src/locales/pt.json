@@ -1,0 +1,21 @@
+{
+    "settings": {
+        "title": "CONFIGURAÇÕES",
+        "description": "Gerencie suas informações de perfil e preferências.",
+        "profile": "Perfil",
+        "name": "NOME",
+        "email": "EMAIL",
+        "preferences": "Preferências",
+        "theme": "TEMA",
+        "light": "Claro",
+        "dark": "Escuro",
+        "system": "Sistema",
+        "language": "IDIOMA",
+        "save_changes": "Salvar Alterações"
+    },
+    "languages": {
+        "pt-br": "Português (Brasil)",
+        "en-us": "English (United States)",
+        "es-es": "Español"
+    }
+}

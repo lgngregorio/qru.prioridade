@@ -13,6 +13,8 @@ import AppSidebar from '@/components/AppSidebar';
 import { FirebaseProvider } from '@/firebase/provider';
 import FirebaseErrorListener from '@/components/FirebaseErrorListener';
 import { ThemeProvider } from '@/components/theme-provider';
+import { I18nProvider } from '@/lib/i18n';
+
 
 export default function RootLayout({
   children,
@@ -39,22 +41,24 @@ export default function RootLayout({
           'font-body antialiased min-h-screen bg-background'
         )}
       >
-        <ThemeProvider
-          attribute="class"
-          defaultTheme="dark"
-          enableSystem
-        >
-          <FirebaseProvider>
-            <FirebaseErrorListener />
-            <SidebarProvider>
-              <Sidebar>
-                <AppSidebar />
-              </Sidebar>
-              <SidebarInset>{children}</SidebarInset>
-            </SidebarProvider>
-            <Toaster />
-          </FirebaseProvider>
-        </ThemeProvider>
+        <I18nProvider>
+          <ThemeProvider
+            attribute="class"
+            defaultTheme="dark"
+            enableSystem
+          >
+            <FirebaseProvider>
+              <FirebaseErrorListener />
+              <SidebarProvider>
+                <Sidebar>
+                  <AppSidebar />
+                </Sidebar>
+                <SidebarInset>{children}</SidebarInset>
+              </SidebarProvider>
+              <Toaster />
+            </FirebaseProvider>
+          </ThemeProvider>
+        </I18nProvider>
       </body>
     </html>
   );

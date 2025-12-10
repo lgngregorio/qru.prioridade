@@ -1,0 +1,21 @@
+{
+    "settings": {
+        "title": "SETTINGS",
+        "description": "Manage your profile information and preferences.",
+        "profile": "Profile",
+        "name": "NAME",
+        "email": "EMAIL",
+        "preferences": "Preferences",
+        "theme": "THEME",
+        "light": "Light",
+        "dark": "Dark",
+        "system": "System",
+        "language": "LANGUAGE",
+        "save_changes": "Save Changes"
+    },
+    "languages": {
+        "pt-br": "Portuguese (Brazil)",
+        "en-us": "English (United States)",
+        "es-es": "Spanish"
+    }
+}
