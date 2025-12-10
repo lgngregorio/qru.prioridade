@@ -18,7 +18,6 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table';
-import { SidebarTrigger } from '../ui/sidebar';
 
 const messageCodes = [
     { code: 'QAP', message: 'Na Escuta' },
@@ -109,6 +108,44 @@ const acaoProvidenciaCodes = [
     { code: 'PR63', message: 'Desatolamento de Veículos' },
 ];
 
+const ocorrenciaCodes = [
+    { code: 'ACO1', message: 'Acidente Com Vítima Fatal', group: 'Acidentes' },
+    { code: 'AC02', message: 'Acidente Com Vitima', group: 'Acidentes' },
+    { code: 'ACO3', message: 'Acidente Sem Vitima', group: 'Acidentes' },
+    { code: 'TO01', message: 'Veículo Abandonado', group: 'Incidentes' },
+    { code: 'TO02', message: 'Incêndio Na Faixa De Domínio / Lindeiro', group: 'Incidentes' },
+    { code: 'TO03', message: 'Animal Na Rodovia', group: 'Incidentes' },
+    { code: 'TO04', message: 'Remoção', group: 'Incidentes' },
+    { code: 'TO05', message: 'Incêndio Em Veículos', group: 'Incidentes' },
+    { code: 'TO06', message: 'Pane Sobre Faixa De Rolamento', group: 'Incidentes' },
+    { code: 'TO07', message: 'Objeto Na Pista', group: 'Incidentes' },
+    { code: 'TO09', message: 'Obras Na Rodovia / Conservação De Rotina', group: 'Incidentes' },
+    { code: 'TO11', message: 'Danos Ao Patrimônio', group: 'Incidentes' },
+    { code: 'TO12', message: 'Atendimento Clinico', group: 'Incidentes' },
+    { code: 'TO13', message: 'Congestionamento', group: 'Incidentes' },
+    { code: 'TO14', message: 'Ocorrência Policial', group: 'Incidentes' },
+    { code: 'TO15', message: 'Verificação Faixa De Domínio', group: 'Incidentes' },
+    { code: 'TO16', message: 'Atendimento A Funcionário', group: 'Todos' },
+    { code: 'TO17', message: 'Andarilho Na Rodovia', group: 'Incidentes' },
+    { code: 'TO18', message: 'Alagamento', group: 'Incidentes' },
+    { code: 'TO19', message: 'Incidente', group: 'Incidentes' },
+    { code: 'TO20', message: 'Carga Excedente', group: 'Avarias, Panes' },
+    { code: 'TO21', message: 'Alocação Da PMV Móvel', group: 'Todos' },
+    { code: 'TO23', message: 'Usuário Informa', group: 'Todos' },
+    { code: 'TO24', message: 'Evasão De Pedágio', group: 'Outros' },
+    { code: 'TO25', message: 'Derramamento De Carga', group: 'Todos' },
+    { code: 'TO30', message: 'Comunicação Operacional', group: 'Incidentes' },
+    { code: 'TO33', message: 'Veículo Atolado', group: 'Incidentes' },
+    { code: 'TO34', message: 'Buraco Na Rodovia', group: 'Avarias, Panes' },
+    { code: 'TO35', message: 'Óleo Sobre A Pista', group: 'Todos' },
+    { code: 'TO36', message: 'Maquinário Na Rodovia', group: 'Monitoramento' },
+    { code: 'TO37', message: 'Sinalização Vertical', group: 'Todos' },
+    { code: 'TO38', message: 'Placas De Propaganda', group: 'Todos' },
+    { code: 'TO39', message: 'Destombamento De Veículo', group: 'Todos' },
+    { code: 'TO40', message: 'Manifestação', group: 'Incidentes' },
+    { code: 'TO50', message: 'Nível De Serviço, Manutenção Frota / Bases', group: 'Avarias, Panes' },
+];
+
 const MessageCodesTable = () => (
   <Table>
     <TableHeader>
@@ -147,6 +184,27 @@ const AcaoProvidenciaTable = () => (
   </Table>
 );
 
+const OcorrenciaCodesTable = () => (
+  <Table>
+    <TableHeader>
+      <TableRow>
+        <TableHead className="w-[120px]">Código</TableHead>
+        <TableHead>Mensagem</TableHead>
+        <TableHead>Grupo</TableHead>
+      </TableRow>
+    </TableHeader>
+    <TableBody>
+      {ocorrenciaCodes.map((item) => (
+        <TableRow key={item.code}>
+          <TableCell className="font-medium">{item.code}</TableCell>
+          <TableCell>{item.message}</TableCell>
+          <TableCell>{item.group}</TableCell>
+        </TableRow>
+      ))}
+    </TableBody>
+  </Table>
+);
+
 
 const codeSections = [
     {
@@ -159,7 +217,7 @@ const codeSections = [
     },
     {
         title: 'Tipos de Ocorrência',
-        content: 'Conteúdo para Tipos de Ocorrência em breve.'
+        content: <OcorrenciaCodesTable />
     },
     {
         title: 'Tipos de Pane',
