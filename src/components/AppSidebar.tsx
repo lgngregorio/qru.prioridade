@@ -35,9 +35,9 @@ export default function AppSidebar() {
         </div>
       </SidebarHeader>
       <SidebarContent className="flex-1">
-        <SidebarMenu>
+        <SidebarMenu className="gap-y-4">
           <SidebarMenuItem>
-            <SidebarMenuButton asChild isActive={pathname === '/'}>
+            <SidebarMenuButton asChild isActive={pathname === '/'} className="text-lg [&_svg]:size-6">
               <Link href="/">
                 <Home />
                 Início
@@ -45,7 +45,7 @@ export default function AppSidebar() {
             </SidebarMenuButton>
           </SidebarMenuItem>
           <SidebarMenuItem>
-            <SidebarMenuButton asChild>
+            <SidebarMenuButton asChild className="text-lg [&_svg]:size-6">
               <Link href="#">
                 <FileCode />
                 Códigos
@@ -53,7 +53,7 @@ export default function AppSidebar() {
             </SidebarMenuButton>
           </SidebarMenuItem>
           <SidebarMenuItem>
-            <SidebarMenuButton asChild>
+            <SidebarMenuButton asChild className="text-lg [&_svg]:size-6">
               <Link href="#">
                 <Notebook />
                 Bloco de Nota
@@ -61,7 +61,7 @@ export default function AppSidebar() {
             </SidebarMenuButton>
           </SidebarMenuItem>
           <SidebarMenuItem>
-            <SidebarMenuButton asChild isActive={pathname === '/historico'}>
+            <SidebarMenuButton asChild isActive={pathname === '/historico'} className="text-lg [&_svg]:size-6">
               <Link href="/historico">
                 <History />
                 Histórico de Ocorrências
@@ -69,7 +69,7 @@ export default function AppSidebar() {
             </SidebarMenuButton>
           </SidebarMenuItem>
           <SidebarMenuItem>
-            <SidebarMenuButton asChild>
+            <SidebarMenuButton asChild className="text-lg [&_svg]:size-6">
               <Link href="#">
                 <LayoutGrid />
                 Atividades
@@ -77,7 +77,7 @@ export default function AppSidebar() {
             </SidebarMenuButton>
           </SidebarMenuItem>
            <SidebarMenuItem>
-            <SidebarMenuButton asChild>
+            <SidebarMenuButton asChild className="text-lg [&_svg]:size-6">
               <Link href="#">
                 <Settings />
                 Configurações
@@ -87,9 +87,9 @@ export default function AppSidebar() {
         </SidebarMenu>
       </SidebarContent>
       <SidebarFooter>
-        <SidebarMenu>
+        <SidebarMenu className="gap-y-4">
           <SidebarMenuItem>
-            <SidebarMenuButton asChild>
+            <SidebarMenuButton asChild className="text-lg [&_svg]:size-6">
               <Link href="#">
                 <ShieldCheck />
                 Políticas do SGI
@@ -97,7 +97,7 @@ export default function AppSidebar() {
             </SidebarMenuButton>
           </SidebarMenuItem>
           <SidebarMenuItem>
-            <SidebarMenuButton asChild>
+            <SidebarMenuButton asChild className="text-lg [&_svg]:size-6">
               <Link href="#">
                 <LogOut />
                 Sair
