@@ -49,9 +49,6 @@ type Vehicle = {
   tipo: string;
   pneu: string;
   carga: string;
-  condutor: string;
-  telefone: string;
-  ocupantes: string;
 };
 
 type OtherInfo = {
@@ -77,8 +74,7 @@ export default function TO04Form({ categorySlug }: { categorySlug: string }) {
   const [vehicles, setVehicles] = useState<Vehicle[]>([
     {
       id: 1, marca: '', modelo: '', ano: '', cor: '', placa: '', cidade: '',
-      vindoDe: '', indoPara: '', eixos: '', tipo: '', pneu: '', carga: '',
-      condutor: '', telefone: '', ocupantes: ''
+      vindoDe: '', indoPara: '', eixos: '', tipo: '', pneu: '', carga: ''
     }
   ]);
 
@@ -94,9 +90,6 @@ export default function TO04Form({ categorySlug }: { categorySlug: string }) {
 
   const handleVehicleChange = (index: number, field: keyof Vehicle, value: string) => {
     const newVehicles = [...vehicles];
-    if (field === 'telefone') {
-      value = formatPhoneNumber(value);
-    }
     (newVehicles[index] as any)[field] = value;
     setVehicles(newVehicles);
   };
@@ -109,24 +102,12 @@ export default function TO04Form({ categorySlug }: { categorySlug: string }) {
     setVehicles([...vehicles, {
       id: vehicles.length > 0 ? Math.max(...vehicles.map(v => v.id)) + 1 : 1,
       marca: '', modelo: '', ano: '', cor: '', placa: '', cidade: '',
-      vindoDe: '', indoPara: '', eixos: '', tipo: '', pneu: '', carga: '',
-      condutor: '', telefone: '', ocupantes: ''
+      vindoDe: '', indoPara: '', eixos: '', tipo: '', pneu: '', carga: ''
     }]);
   };
 
   const removeVehicle = (id: number) => {
     setVehicles(vehicles.filter(v => v.id !== id));
-  };
-  
-  const formatPhoneNumber = (value: string) => {
-    if (!value) return value;
-    const phoneNumber = value.replace(/[^\d]/g, '');
-    const phoneNumberLength = phoneNumber.length;
-    if (phoneNumberLength < 3) return `(${phoneNumber}`;
-    if (phoneNumberLength < 8) {
-      return `(${phoneNumber.slice(0, 2)}) ${phoneNumber.slice(2)}`;
-    }
-    return `(${phoneNumber.slice(0, 2)}) ${phoneNumber.slice(2, 7)}-${phoneNumber.slice(7, 11)}`;
   };
   
   const fillEmptyFields = (data: any): any => {
@@ -224,10 +205,6 @@ export default function TO04Form({ categorySlug }: { categorySlug: string }) {
       message += `Tipo: ${vehicle.tipo}\n`;
       message += `Pneu: ${vehicle.pneu}\n`;
       message += `Carga: ${vehicle.carga}\n\n`;
-      message += `*CONDUTOR*\n`;
-      message += `QRA: ${vehicle.condutor}\n`;
-      message += `Telefone: ${vehicle.telefone}\n`;
-      message += `Ocupantes: ${vehicle.ocupantes}\n\n`;
     });
     
     message += `*OUTRAS INFORMAÇÕES*\n`;
@@ -369,24 +346,6 @@ export default function TO04Form({ categorySlug }: { categorySlug: string }) {
                     </Field>
                     <Field label="TIPO DE CARGA"><Input className="text-xl placeholder:capitalize placeholder:text-sm" placeholder="Ex: Vazio, soja" value={vehicle.carga} onChange={e => handleVehicleChange(index, 'carga', e.target.value)}/></Field>
                </div>
-            </div>
-
-            {/* Condutor */}
-            <div className="space-y-8">
-                <h2 className="text-xl font-semibold text-foreground border-b-2 border-foreground pb-2 uppercase">Condutor</h2>
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-8">
-                     <Field label="QRA DO CONDUTOR(A)"><Input className="text-xl placeholder:capitalize placeholder:text-sm" placeholder="Nome do condutor" value={vehicle.condutor} onChange={e => handleVehicleChange(index, 'condutor', e.target.value)}/></Field>
-                     <Field label="BAIXA FREQUÊNCIA">
-                        <Input 
-                          className="text-xl placeholder:capitalize placeholder:text-sm"
-                          placeholder="(00) 00000-0000" 
-                          value={vehicle.telefone}
-                          onChange={e => handleVehicleChange(index, 'telefone', e.target.value)}
-                          maxLength={15}
-                        />
-                     </Field>
-                     <Field label="OCUPANTES"><Input className="text-xl placeholder:capitalize placeholder:text-sm" placeholder="Ex: 2 adultos, 1 criança" value={vehicle.ocupantes} onChange={e => handleVehicleChange(index, 'ocupantes', e.target.value)}/></Field>
-                </div>
             </div>
           </div>
         ))}
