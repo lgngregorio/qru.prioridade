@@ -1,9 +1,11 @@
 
 'use client';
 
-import { useParams, useRouter } from 'next/navigation';
+import { useParams } from 'next/navigation';
 import Link from 'next/link';
 import { ArrowLeft } from 'lucide-react';
+import dynamic from 'next/dynamic';
+import { ComponentType } from 'react';
 
 import { eventCategories } from '@/lib/events';
 import { Button } from '@/components/ui/button';
@@ -15,67 +17,51 @@ import {
   CardTitle,
 } from '@/components/ui/card';
 import { SidebarTrigger } from '@/components/ui/sidebar';
-import VeiculoAbandonadoForm from '@/components/forms/VeiculoAbandonadoForm';
-import IncendioForm from '@/components/forms/IncendioForm';
-import TO03Form from '@/components/forms/TO03Form';
-import TO04Form from '@/components/forms/TO04Form';
-import TO05Form from '@/components/forms/TO05Form';
-import TO06Form from '@/components/forms/TO06Form';
-import TO07Form from '@/components/forms/TO07Form';
-import TO09Form from '@/components/forms/TO09Form';
-import TO11Form from '@/components/forms/TO11Form';
-import TO15Form from '@/components/forms/TO15Form';
-import TO17Form from '@/components/forms/TO17Form';
-import TO33Form from '@/components/forms/TO33Form';
-import TO34Form from '@/components/forms/TO34Form';
-import TO35Form from '@/components/forms/TO35Form';
-import TO37Form from '@/components/forms/TO37Form';
-import TO38Form from '@/components/forms/TO38Form';
-import TO39Form from '@/components/forms/TO39Form';
-import TO50Form from '@/components/forms/TO50Form';
+import { Skeleton } from '@/components/ui/skeleton';
+
+const LoadingSkeleton = () => (
+  <div className="p-8 space-y-8">
+    <Skeleton className="h-10 w-1/3" />
+    <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+        <Skeleton className="h-12 w-full" />
+        <Skeleton className="h-12 w-full" />
+        <Skeleton className="h-12 w-full" />
+        <Skeleton className="h-12 w-full" />
+    </div>
+     <Skeleton className="h-24 w-full" />
+  </div>
+);
+
+
+const formComponents: { [key: string]: ComponentType<{ categorySlug: string }> } = {
+  'to-01': dynamic(() => import('@/components/forms/VeiculoAbandonadoForm'), { loading: () => <LoadingSkeleton /> }),
+  'to-02': dynamic(() => import('@/components/forms/IncendioForm'), { loading: () => <LoadingSkeleton /> }),
+  'to-03': dynamic(() => import('@/components/forms/TO03Form'), { loading: () => <LoadingSkeleton /> }),
+  'to-04': dynamic(() => import('@/components/forms/TO04Form'), { loading: () => <LoadingSkeleton /> }),
+  'to-05': dynamic(() => import('@/components/forms/TO05Form'), { loading: () => <LoadingSkeleton /> }),
+  'to-06': dynamic(() => import('@/components/forms/TO06Form'), { loading: () => <LoadingSkeleton /> }),
+  'to-07': dynamic(() => import('@/components/forms/TO07Form'), { loading: () => <LoadingSkeleton /> }),
+  'to-09': dynamic(() => import('@/components/forms/TO09Form'), { loading: () => <LoadingSkeleton /> }),
+  'to-11': dynamic(() => import('@/components/forms/TO11Form'), { loading: () => <LoadingSkeleton /> }),
+  'to-15': dynamic(() => import('@/components/forms/TO15Form'), { loading: () => <LoadingSkeleton /> }),
+  'to-17': dynamic(() => import('@/components/forms/TO17Form'), { loading: () => <LoadingSkeleton /> }),
+  'to-33': dynamic(() => import('@/components/forms/TO33Form'), { loading: () => <LoadingSkeleton /> }),
+  'to-34': dynamic(() => import('@/components/forms/TO34Form'), { loading: () => <LoadingSkeleton /> }),
+  'to-35': dynamic(() => import('@/components/forms/TO35Form'), { loading: () => <LoadingSkeleton /> }),
+  'to-37': dynamic(() => import('@/components/forms/TO37Form'), { loading: () => <LoadingSkeleton /> }),
+  'to-38': dynamic(() => import('@/components/forms/TO38Form'), { loading: () => <LoadingSkeleton /> }),
+  'to-39': dynamic(() => import('@/components/forms/TO39Form'), { loading: () => <LoadingSkeleton /> }),
+  'to-50': dynamic(() => import('@/components/forms/TO50Form'), { loading: () => <LoadingSkeleton /> }),
+};
 
 function ReportFormComponent({ categorySlug }: { categorySlug: string }) {
-  switch (categorySlug) {
-    case 'to-01':
-      return <VeiculoAbandonadoForm categorySlug={categorySlug} />;
-    case 'to-02':
-      return <IncendioForm categorySlug={categorySlug} />;
-    case 'to-03':
-        return <TO03Form categorySlug={categorySlug} />;
-    case 'to-04':
-        return <TO04Form categorySlug={categorySlug} />;
-    case 'to-05':
-        return <TO05Form categorySlug={categorySlug} />;
-    case 'to-06':
-        return <TO06Form categorySlug={categorySlug} />;
-    case 'to-07':
-        return <TO07Form categorySlug={categorySlug} />;
-    case 'to-09':
-        return <TO09Form categorySlug={categorySlug} />;
-    case 'to-11':
-        return <TO11Form categorySlug={categorySlug} />;
-    case 'to-15':
-        return <TO15Form categorySlug={categorySlug} />;
-    case 'to-17':
-        return <TO17Form categorySlug={categorySlug} />;
-    case 'to-33':
-        return <TO33Form categorySlug={categorySlug} />;
-    case 'to-34':
-        return <TO34Form categorySlug={categorySlug} />;
-    case 'to-35':
-        return <TO35Form categorySlug={categorySlug} />;
-    case 'to-37':
-        return <TO37Form categorySlug={categorySlug} />;
-    case 'to-38':
-        return <TO38Form categorySlug={categorySlug} />;
-    case 'to-39':
-        return <TO39Form categorySlug={categorySlug} />;
-    case 'to-50':
-        return <TO50Form categorySlug={categorySlug} />;
-    default:
-      // Um formulário padrão ou uma mensagem de "em breve" pode ser retornada aqui.
-      return <p className="p-8 text-center">Formulário para {categorySlug} em construção.</p>;
+  const FormComponent = formComponents[categorySlug];
+
+  if (FormComponent) {
+    return <FormComponent categorySlug={categorySlug} />;
   }
+
+  return <p className="p-8 text-center">Formulário para {categorySlug} em construção.</p>;
 }
 
 
@@ -84,7 +70,6 @@ export default function ReportPage() {
   const category = eventCategories.find((c) => c.slug === params.category);
 
   if (!category) {
-    // Idealmente, redirecionar para uma página 404.
     return null;
   }
   
