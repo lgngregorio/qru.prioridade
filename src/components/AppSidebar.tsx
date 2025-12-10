@@ -8,7 +8,7 @@ import {
   SidebarMenu,
   SidebarMenuItem,
   SidebarMenuButton,
-  SidebarSeparator,
+  useSidebar,
 } from '@/components/ui/sidebar';
 import {
   Home,
@@ -25,16 +25,21 @@ import { usePathname } from 'next/navigation';
 
 export default function AppSidebar() {
   const pathname = usePathname();
+  const { setOpenMobile } = useSidebar();
+
+  const handleLinkClick = () => {
+    setOpenMobile(false);
+  };
 
   return (
     <>
       <SidebarHeader className="p-4 flex justify-center">
         <div className="flex items-center justify-center space-x-2">
-           <h1 className="text-2xl font-bold text-white flex items-center justify-center gap-3">
+           <h1 className="text-2xl font-bold text-white flex items-center justify-center gap-1">
             QRU
             <div className="flex h-6 items-center gap-1">
-              <div className="w-px h-full bg-white/50"></div>
-              <div className="w-px h-full bg-repeat-y bg-[length:1px_8px] bg-center animate-move-dashes" style={{ backgroundImage: "linear-gradient(to bottom, white 50%, transparent 50%)"}}></div>
+              <div className="w-px h-full bg-white"></div>
+              <div className="w-px h-full bg-repeat-y bg-[length:1px_16px] bg-center animate-[move-dashes_1.5s_linear_infinite]" style={{ backgroundImage: "linear-gradient(to bottom, white 50%, transparent 50%)"}}></div>
             </div>
             PRIORIDADE
           </h1>
@@ -43,7 +48,7 @@ export default function AppSidebar() {
       <SidebarContent className="flex-1 pt-8">
         <SidebarMenu className="gap-y-8">
           <SidebarMenuItem>
-            <SidebarMenuButton asChild isActive={pathname === '/'} className="text-base [&_svg]:size-5">
+            <SidebarMenuButton asChild isActive={pathname === '/'} className="text-base [&_svg]:size-5" onClick={handleLinkClick}>
               <Link href="/">
                 <Home />
                 Início
@@ -51,7 +56,7 @@ export default function AppSidebar() {
             </SidebarMenuButton>
           </SidebarMenuItem>
           <SidebarMenuItem>
-            <SidebarMenuButton asChild isActive={pathname === '/codigos'} className="text-base [&_svg]:size-5">
+            <SidebarMenuButton asChild isActive={pathname === '/codigos'} className="text-base [&_svg]:size-5" onClick={handleLinkClick}>
               <Link href="/codigos">
                 <FileCode />
                 Códigos
@@ -59,7 +64,7 @@ export default function AppSidebar() {
             </SidebarMenuButton>
           </SidebarMenuItem>
           <SidebarMenuItem>
-            <SidebarMenuButton asChild className="text-base [&_svg]:size-5">
+            <SidebarMenuButton asChild className="text-base [&_svg]:size-5" onClick={handleLinkClick}>
               <Link href="#">
                 <Notebook />
                 Bloco de Nota
@@ -67,7 +72,7 @@ export default function AppSidebar() {
             </SidebarMenuButton>
           </SidebarMenuItem>
           <SidebarMenuItem>
-            <SidebarMenuButton asChild isActive={pathname === '/historico'} className="text-base [&_svg]:size-5">
+            <SidebarMenuButton asChild isActive={pathname === '/historico'} className="text-base [&_svg]:size-5" onClick={handleLinkClick}>
               <Link href="/historico">
                 <History />
                 Histórico de Ocorrências
@@ -75,7 +80,7 @@ export default function AppSidebar() {
             </SidebarMenuButton>
           </SidebarMenuItem>
           <SidebarMenuItem>
-            <SidebarMenuButton asChild className="text-base [&_svg]:size-5">
+            <SidebarMenuButton asChild className="text-base [&_svg]:size-5" onClick={handleLinkClick}>
               <Link href="#">
                 <LayoutGrid />
                 Atividades
@@ -83,7 +88,7 @@ export default function AppSidebar() {
             </SidebarMenuButton>
           </SidebarMenuItem>
            <SidebarMenuItem>
-            <SidebarMenuButton asChild className="text-base [&_svg]:size-5">
+            <SidebarMenuButton asChild className="text-base [&_svg]:size-5" onClick={handleLinkClick}>
               <Link href="#">
                 <Settings />
                 Configurações
@@ -95,7 +100,7 @@ export default function AppSidebar() {
       <SidebarFooter>
         <SidebarMenu className="gap-y-8">
           <SidebarMenuItem>
-            <SidebarMenuButton asChild className="text-lg [&_svg]:size-6">
+            <SidebarMenuButton asChild className="text-lg [&_svg]:size-6" onClick={handleLinkClick}>
               <Link href="#">
                 <ShieldCheck />
                 Políticas do SGI
@@ -103,7 +108,7 @@ export default function AppSidebar() {
             </SidebarMenuButton>
           </SidebarMenuItem>
           <SidebarMenuItem>
-            <SidebarMenuButton asChild className="text-lg [&_svg]:size-6">
+            <SidebarMenuButton asChild className="text-lg [&_svg]:size-6" onClick={handleLinkClick}>
               <Link href="#">
                 <LogOut />
                 Sair
