@@ -32,8 +32,8 @@ export default function Home() {
                     className="w-px h-full animate-move-dashes"
                     style={{
                       backgroundImage:
-                        'linear-gradient(to bottom, hsl(var(--foreground)) 80%, transparent 20%)',
-                      backgroundSize: '1px 12px',
+                        'linear-gradient(to bottom, hsl(var(--foreground)) 50%, transparent 50%)',
+                      backgroundSize: '1px 32px',
                       backgroundRepeat: 'repeat-y',
                     }}
                   ></div>
