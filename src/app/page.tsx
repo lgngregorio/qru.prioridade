@@ -21,7 +21,7 @@ export default function Home() {
         <span className="text-sm font-bold uppercase text-white -mb-1.5">Menu</span>
         <SidebarTrigger className="h-12 w-12" />
       </div>
-      <div className="w-full max-w-md">
+      <div className="w-full max-w-md pt-8">
         <header className="text-center w-full mb-6">
            <div className="flex items-center gap-4 justify-center relative">
              <h1 className="text-4xl font-bold text-foreground font-headline tracking-wider flex items-center justify-center gap-4">
