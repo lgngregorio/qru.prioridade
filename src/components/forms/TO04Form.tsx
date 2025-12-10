@@ -30,7 +30,6 @@ function Field({ label, children, className }: { label?: string, children: React
 type GeneralInfo = {
   rodovia: string;
   ocorrencia: string;
-  tipoPane: string;
   qth: string;
   sentido: string;
   localArea: string;
@@ -70,7 +69,6 @@ export default function TO04Form({ categorySlug }: { categorySlug: string }) {
   const [generalInfo, setGeneralInfo] = useState<GeneralInfo>({
     rodovia: '',
     ocorrencia: categorySlug.toUpperCase(),
-    tipoPane: '',
     qth: '',
     sentido: '',
     localArea: '',
@@ -208,7 +206,6 @@ export default function TO04Form({ categorySlug }: { categorySlug: string }) {
     message += `*INFORMAÇÕES GERAIS*\n`;
     message += `Rodovia: ${reportData.generalInfo.rodovia}\n`;
     message += `Ocorrência: ${reportData.generalInfo.ocorrencia}\n`;
-    message += `Tipo de Pane: ${reportData.generalInfo.tipoPane}\n`;
     message += `QTH (Local): ${reportData.generalInfo.qth}\n`;
     message += `Sentido: ${reportData.generalInfo.sentido}\n`;
     message += `Local/Área: ${reportData.generalInfo.localArea}\n\n`;
@@ -263,22 +260,6 @@ export default function TO04Form({ categorySlug }: { categorySlug: string }) {
             </Field>
             <Field label="OCORRÊNCIA">
                 <Input className="text-xl uppercase" value={generalInfo.ocorrencia} disabled />
-            </Field>
-            <Field label="TIPO DE PANE">
-                 <Select value={generalInfo.tipoPane} onValueChange={(value) => handleGeneralInfoChange('tipoPane', value)}>
-                    <SelectTrigger className="text-xl normal-case placeholder:text-base">
-                        <SelectValue placeholder="Selecione o tipo de pane" />
-                    </SelectTrigger>
-                    <SelectContent>
-                        <SelectItem value="tp01">TP01</SelectItem>
-                        <SelectItem value="tp02">TP02</SelectItem>
-                        <SelectItem value="tp03">TP03</SelectItem>
-                        <SelectItem value="tp04">TP04</SelectItem>
-                        <SelectItem value="tp05">TP05</SelectItem>
-                        <SelectItem value="tp07">TP07</SelectItem>
-                        <SelectItem value="nill">NILL</SelectItem>
-                    </SelectContent>
-                </Select>
             </Field>
             <Field label="QTH (LOCAL)">
                 <Input className="text-xl placeholder:capitalize placeholder:text-sm" placeholder="Ex: Km 125 da MS-112" value={generalInfo.qth} onChange={(e) => handleGeneralInfoChange('qth', e.target.value)}/>
@@ -445,3 +426,5 @@ export default function TO04Form({ categorySlug }: { categorySlug: string }) {
     </div>
   );
 }
+
+    
