@@ -35,8 +35,6 @@ type GeneralInfo = {
   localArea: string;
   qthInicio: string;
   qthTermino: string;
-  tipoDeDefeito: string;
-  quantidade: string;
 };
 
 
@@ -60,8 +58,6 @@ export default function TO35Form({ categorySlug }: { categorySlug: string }) {
     localArea: '',
     qthInicio: '',
     qthTermino: '',
-    tipoDeDefeito: '',
-    quantidade: '',
   });
   
   const [otherInfo, setOtherInfo] = useState<OtherInfo>({
@@ -159,9 +155,7 @@ export default function TO35Form({ categorySlug }: { categorySlug: string }) {
     message += `Sentido: ${reportData.generalInfo.sentido}\n`;
     message += `Local/Área: ${reportData.generalInfo.localArea}\n`;
     message += `QTH de Início: ${reportData.generalInfo.qthInicio}\n`;
-    message += `QTH de Término: ${reportData.generalInfo.qthTermino}\n`;
-    message += `Tipo de Defeito: ${reportData.generalInfo.tipoDeDefeito}\n`;
-    message += `Quantidade: ${reportData.generalInfo.quantidade}\n\n`;
+    message += `QTH de Término: ${reportData.generalInfo.qthTermino}\n\n`;
 
     message += `*OUTRAS INFORMAÇÕES*\n`;
     message += `AUXÍLIOS/PR: ${reportData.otherInfo.auxilios}\n`;
@@ -230,20 +224,6 @@ export default function TO35Form({ categorySlug }: { categorySlug: string }) {
             <Field label="QTH DE TÉRMINO">
                 <Input className="text-xl placeholder:capitalize placeholder:text-sm" placeholder="Km final" value={generalInfo.qthTermino} onChange={(e) => handleGeneralInfoChange('qthTermino', e.target.value)}/>
             </Field>
-            <Field label="TIPO DE DEFEITO">
-                <Select value={generalInfo.tipoDeDefeito} onValueChange={(value) => handleGeneralInfoChange('tipoDeDefeito', value)}>
-                    <SelectTrigger className="text-xl normal-case placeholder:text-base">
-                        <SelectValue placeholder="Selecione o tipo de defeito" />
-                    </SelectTrigger>
-                    <SelectContent>
-                        <SelectItem value="buraco">BURACO</SelectItem>
-                        <SelectItem value="deformidade">DEFORMIDADE</SelectItem>
-                    </SelectContent>
-                </Select>
-            </Field>
-            <Field label="QUANTIDADE">
-                <Input className="text-xl placeholder:capitalize placeholder:text-sm" placeholder="Ex: 1" value={generalInfo.quantidade} onChange={(e) => handleGeneralInfoChange('quantidade', e.target.value)}/>
-            </Field>
           </div>
         </div>
 
@@ -277,4 +257,3 @@ export default function TO35Form({ categorySlug }: { categorySlug: string }) {
     </div>
   );
 }
-
