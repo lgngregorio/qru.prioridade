@@ -104,9 +104,9 @@ export const eventCategories: EventCategory[] = [
   },
   {
     name: 'TO 07',
-    title: 'TO 07',
+    title: 'OBJETO NA PISTA',
     slug: 'to-07',
-    icon: Construction,
+    icon: Cone,
     description: 'Relatar TO 07.',
     color: '#008080',
   },
