@@ -28,7 +28,7 @@ import { useToast } from '@/hooks/use-toast';
 
 function Field({ label, children, className }: { label?: string, children: React.ReactNode, className?: string }) {
   return (
-    <div className={cn('flex flex-col space-y-1', className)}>
+    <div className={cn('flex flex-col space-y-2', className)}>
       {label && <Label className="text-base font-semibold uppercase">{label}</Label>}
       {children}
     </div>
@@ -252,12 +252,12 @@ function VeiculoAbandonadoForm({ categorySlug }: { categorySlug: string }) {
 
 
   return (
-    <div className="w-full p-4 sm:p-6">
-      <form className="space-y-8" onSubmit={(e) => e.preventDefault()}>
+    <div className="w-full p-4 sm:p-6 md:p-8">
+      <form className="space-y-12" onSubmit={(e) => e.preventDefault()}>
         {/* Informações Gerais */}
-        <div className="space-y-4">
+        <div className="space-y-6">
           <h2 className="text-xl font-semibold text-foreground border-b-2 border-foreground pb-2 uppercase">Informações Gerais</h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <Field label="RODOVIA">
                 <Select value={generalInfo.rodovia} onValueChange={(value) => handleGeneralInfoChange('rodovia', value)}>
                     <SelectTrigger className="text-lg normal-case placeholder:capitalize placeholder:text-base">
@@ -290,7 +290,7 @@ function VeiculoAbandonadoForm({ categorySlug }: { categorySlug: string }) {
                 </Select>
             </Field>
             <Field label="QTH (LOCAL)">
-                <Input className="text-lg placeholder:capitalize placeholder:text-base" placeholder="Ex: Km 125 da ms-112" value={generalInfo.qth} onChange={(e) => handleGeneralInfoChange('qth', e.target.value)}/>
+                <Input className="text-lg placeholder:capitalize placeholder:text-base" placeholder="Ex: km 125 da ms-112" value={generalInfo.qth} onChange={(e) => handleGeneralInfoChange('qth', e.target.value)}/>
             </Field>
              <Field label="SENTIDO">
                 <Select value={generalInfo.sentido} onValueChange={(value) => handleGeneralInfoChange('sentido', value)}>
@@ -320,7 +320,7 @@ function VeiculoAbandonadoForm({ categorySlug }: { categorySlug: string }) {
         </div>
 
         {vehicles.map((vehicle, index) => (
-          <div key={vehicle.id} className="space-y-4 border-2 border-dashed border-foreground/50 p-4 rounded-lg relative">
+          <div key={vehicle.id} className="space-y-6 border-2 border-dashed border-foreground/50 p-6 rounded-lg relative">
              {vehicles.length > 1 && (
               <Button 
                 variant="destructive" 
@@ -333,9 +333,9 @@ function VeiculoAbandonadoForm({ categorySlug }: { categorySlug: string }) {
               </Button>
             )}
             {/* Dados do Veículo */}
-            <div className="space-y-4">
+            <div className="space-y-6">
               <h2 className="text-xl font-semibold text-foreground border-b-2 border-foreground pb-2 uppercase">Dados do Veículo {index + 1}</h2>
-               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+               <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
                     <Field label="MARCA"><Input className="text-lg placeholder:capitalize placeholder:text-base" placeholder="Ex: vw" value={vehicle.marca} onChange={e => handleVehicleChange(index, 'marca', e.target.value)}/></Field>
                     <Field label="MODELO"><Input className="text-lg placeholder:capitalize placeholder:text-base" placeholder="Ex: gol" value={vehicle.modelo} onChange={e => handleVehicleChange(index, 'modelo', e.target.value)} /></Field>
                     <Field label="ANO"><Input className="text-lg placeholder:capitalize placeholder:text-base" placeholder="Ex: 2020" value={vehicle.ano} onChange={e => handleVehicleChange(index, 'ano', e.target.value)}/></Field>
@@ -400,9 +400,9 @@ function VeiculoAbandonadoForm({ categorySlug }: { categorySlug: string }) {
             </div>
 
             {/* Condutor */}
-            <div className="space-y-4">
+            <div className="space-y-6">
                 <h2 className="text-xl font-semibold text-foreground border-b-2 border-foreground pb-2 uppercase">Condutor</h2>
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
                      <Field label="QRA DO CONDUTOR(A)"><Input className="text-lg placeholder:capitalize placeholder:text-base" placeholder="Nome do condutor" value={vehicle.condutor} onChange={e => handleVehicleChange(index, 'condutor', e.target.value)}/></Field>
                      <Field label="BAIXA FREQUÊNCIA">
                         <Input 
@@ -425,25 +425,27 @@ function VeiculoAbandonadoForm({ categorySlug }: { categorySlug: string }) {
         </Button>
 
         {/* Outras Informações */}
-        <div className="space-y-4">
+        <div className="space-y-6">
           <h2 className="text-xl font-semibold text-foreground border-b-2 border-foreground pb-2 uppercase">Outras Informações</h2>
-          <Field label="AUXÍLIOS/PR">
-            <Textarea className="text-lg placeholder:capitalize placeholder:text-base" placeholder="Descreva os auxílios prestados" value={otherInfo.auxilios} onChange={(e) => handleOtherInfoChange('auxilios', e.target.value)} />
-          </Field>
-          <Field label="OBSERVAÇÕES">
-            <Textarea className="text-lg placeholder:capitalize placeholder:text-base" placeholder="Descreva detalhes adicionais sobre a ocorrência" value={otherInfo.observacoes} onChange={(e) => handleOtherInfoChange('observacoes', e.target.value)} />
-          </Field>
-           <Field label="NÚMERO DA OCORRÊNCIA">
-            <Input className="text-lg placeholder:capitalize placeholder:text-base" placeholder="Número de controle interno" value={otherInfo.numeroOcorrencia} onChange={(e) => handleOtherInfoChange('numeroOcorrencia', e.target.value)} />
-          </Field>
+          <div className="space-y-6">
+            <Field label="AUXÍLIOS/PR">
+              <Textarea className="text-lg placeholder:capitalize placeholder:text-base" placeholder="Descreva os auxílios prestados" value={otherInfo.auxilios} onChange={(e) => handleOtherInfoChange('auxilios', e.target.value)} />
+            </Field>
+            <Field label="OBSERVAÇÕES">
+              <Textarea className="text-lg placeholder:capitalize placeholder:text-base" placeholder="Descreva detalhes adicionais sobre a ocorrência" value={otherInfo.observacoes} onChange={(e) => handleOtherInfoChange('observacoes', e.target.value)} />
+            </Field>
+            <Field label="NÚMERO DA OCORRÊNCIA">
+              <Input className="text-lg placeholder:capitalize placeholder:text-base" placeholder="Número de controle interno" value={otherInfo.numeroOcorrencia} onChange={(e) => handleOtherInfoChange('numeroOcorrencia', e.target.value)} />
+            </Field>
+          </div>
         </div>
 
-        <div className="flex gap-4 pt-6">
+        <div className="flex flex-col sm:flex-row gap-4 pt-6">
           <Button size="lg" className="flex-1 bg-green-600 hover:bg-green-700 uppercase text-base" onClick={handleShare}>
             <Share className="mr-2 h-4 w-4" />
             Compartilhar WhatsApp
           </Button>
-          <Button size="lg" className="flex-none w-48 bg-primary hover:bg-primary/90 uppercase text-base" onClick={handleSave} disabled={isSaving}>
+          <Button size="lg" className="flex-none w-full sm:w-48 bg-primary hover:bg-primary/90 uppercase text-base" onClick={handleSave} disabled={isSaving}>
             {isSaving ? <Loader2 className="animate-spin" /> : <Save className="mr-2 h-4 w-4" />}
             {isSaving ? 'Salvando...' : 'Salvar'}
           </Button>
@@ -469,7 +471,7 @@ export default function ReportPage() {
       <div className="w-full">
         <div className="p-4 md:p-6 mb-2 flex items-center gap-4">
           <SidebarTrigger className="md:hidden" />
-          <Button asChild variant="outline" className="rounded-full uppercase">
+          <Button asChild variant="outline" className="rounded-full uppercase text-base">
             <Link href="/">
               <ArrowLeft className="mr-2 h-4 w-4" />
               VOLTAR
@@ -493,7 +495,3 @@ export default function ReportPage() {
     </main>
   );
 }
-
-    
-
-    
