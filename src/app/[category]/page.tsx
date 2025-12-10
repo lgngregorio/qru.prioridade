@@ -484,7 +484,7 @@ export default function ReportPage() {
             <CardTitle className="text-3xl font-bold text-foreground font-headline tracking-wide uppercase">
               {title}
             </CardTitle>
-            <CardDescription className="text-base mt-1 text-muted-foreground normal-case">
+            <CardDescription className="text-lg mt-1 text-muted-foreground normal-case">
              {description}
             </CardDescription>
           </CardHeader>
@@ -496,5 +496,7 @@ export default function ReportPage() {
     </main>
   );
 }
+
+    
 
     
