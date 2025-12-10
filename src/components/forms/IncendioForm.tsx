@@ -79,13 +79,7 @@ export default function IncendioForm({ categorySlug }: { categorySlug: string })
   };
 
   useEffect(() => {
-    const proporcao = parseFloat(generalInfo.proporcaoMetros);
-    if (!isNaN(proporcao)) {
-      const area = proporcao * 3; // Assumindo largura de 3 metros
-      setGeneralInfo(prev => ({ ...prev, areaTotal: area.toString() }));
-    } else {
-        setGeneralInfo(prev => ({ ...prev, areaTotal: '' }));
-    }
+    setGeneralInfo(prev => ({ ...prev, areaTotal: prev.proporcaoMetros }));
   }, [generalInfo.proporcaoMetros]);
 
   
