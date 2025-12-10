@@ -291,6 +291,8 @@ export default function TO39Form({ categorySlug }: { categorySlug: string }) {
                     <SelectContent>
                         <SelectItem value="norte">NORTE</SelectItem>
                         <SelectItem value="sul">SUL</SelectItem>
+                        <SelectItem value="ambos">AMBOS</SelectItem>
+                        <SelectItem value="eixo_central">EIXO CENTRAL</SelectItem>
                     </SelectContent>
                 </Select>
             </Field>
@@ -303,6 +305,7 @@ export default function TO39Form({ categorySlug }: { categorySlug: string }) {
                         <SelectItem value="acostamento">ACOSTAMENTO</SelectItem>
                         <SelectItem value="area_dominio">ÁREA DE DOMÍNIO</SelectItem>
                         <SelectItem value="terceira_faixa">TERCEIRA FAIXA</SelectItem>
+                        <SelectItem value="faixa_de_rolamento">FAIXA DE ROLAMENTO</SelectItem>
                     </SelectContent>
                 </Select>
             </Field>
