@@ -22,7 +22,7 @@ import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 function Field({ label, children, className }: { label?: string, children: React.ReactNode, className?: string }) {
   return (
     <div className={cn('flex flex-col space-y-2', className)}>
-      {label && <Label className="text-2xl font-semibold uppercase">{label}</Label>}
+      {label && <Label className="text-xl font-semibold uppercase">{label}</Label>}
       {children}
     </div>
   )
@@ -70,7 +70,7 @@ export default function TracadoDePistaForm({ categorySlug }: { categorySlug: str
             id={`${section}-${key}-${option.id}`}
             onCheckedChange={(checked) => handleCheckboxChange(section, key, option.id, !!checked)}
           />
-          <label htmlFor={`${section}-${key}-${option.id}`} className="text-2xl font-medium leading-none">
+          <label htmlFor={`${section}-${key}-${option.id}`} className="text-xl font-medium leading-none">
             {option.label}
           </label>
         </div>
@@ -86,7 +86,7 @@ export default function TracadoDePistaForm({ categorySlug }: { categorySlug: str
       {options.map((option) => (
         <div key={option.id} className="flex items-center space-x-3">
           <RadioGroupItem value={option.id} id={`${section}-${key}-${option.id}`} />
-          <Label htmlFor={`${section}-${key}-${option.id}`} className="text-2xl font-normal">{option.label}</Label>
+          <Label htmlFor={`${section}-${key}-${option.id}`} className="text-xl font-normal">{option.label}</Label>
         </div>
       ))}
     </RadioGroup>
@@ -98,7 +98,7 @@ export default function TracadoDePistaForm({ categorySlug }: { categorySlug: str
         
         <SectionTitle>ACIDENTE PRÉVIA</SectionTitle>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-            <Field label="Rodovia">
+             <Field label="Rodovia">
                  <Select onValueChange={(value) => handleValueChange('previa', 'rodovia', value)}>
                     <SelectTrigger className="text-xl normal-case placeholder:text-base">
                         <SelectValue placeholder="Selecione a rodovia" />
@@ -110,7 +110,7 @@ export default function TracadoDePistaForm({ categorySlug }: { categorySlug: str
                     </SelectContent>
                 </Select>
             </Field>
-            <Field label="QTH exato"><Input onChange={(e) => handleValueChange('previa', 'qth', e.target.value)} /></Field>
+            <Field label="QTH exato"><Input className="text-xl" onChange={(e) => handleValueChange('previa', 'qth', e.target.value)} /></Field>
              <Field label="Sentido">
                 {renderRadioGroup('previa', 'sentido', [
                     { id: 'norte', label: 'Norte' },
@@ -134,7 +134,7 @@ export default function TracadoDePistaForm({ categorySlug }: { categorySlug: str
                 { id: 'tombamento', label: 'Tombamento' },
                 { id: 'atropelamento', label: 'Atropelamento' },
             ])}
-            <Input placeholder="Outros" onChange={(e) => handleValueChange('previa', 'cinematica_outros', e.target.value)} className="mt-2" />
+            <Input placeholder="Outros" onChange={(e) => handleValueChange('previa', 'cinematica_outros', e.target.value)} className="mt-2 text-xl" />
         </Field>
         <Field label="Veículos">
             {renderCheckboxes('previa', 'veiculos', [
@@ -146,7 +146,7 @@ export default function TracadoDePistaForm({ categorySlug }: { categorySlug: str
                 { id: 'utilitaria', label: 'Utilitária' },
             ])}
         </Field>
-        <Field label="Quantidade de vítimas"><Input type="number" onChange={(e) => handleValueChange('previa', 'vitimas_qtd', e.target.value)} /></Field>
+        <Field label="Quantidade de vítimas"><Input type="number" className="text-xl" onChange={(e) => handleValueChange('previa', 'vitimas_qtd', e.target.value)} /></Field>
         <Field label="Potencial de gravidade">
             {renderCheckboxes('previa', 'gravidade', [
                 { id: 'deambulando', label: 'Deambulando' },
@@ -175,7 +175,7 @@ export default function TracadoDePistaForm({ categorySlug }: { categorySlug: str
                 { id: 'tombamento', label: 'Tombamento' },
                 { id: 'atropelamento', label: 'Atropelamento' },
             ])}
-            <Input placeholder="Outros" onChange={(e) => handleValueChange('confirmacao', 'cinematica_outros', e.target.value)} className="mt-2" />
+            <Input placeholder="Outros" onChange={(e) => handleValueChange('confirmacao', 'cinematica_outros', e.target.value)} className="mt-2 text-xl" />
         </Field>
         <Field label="Energia">{renderRadioGroup('confirmacao', 'energia', [{ id: 'baixa', label: 'Baixa' }, { id: 'media', label: 'Média' }, { id: 'alta', label: 'Alta' }])}</Field>
         <Field label="Avarias">{renderRadioGroup('confirmacao', 'avarias', [{ id: 'poucas', label: 'Poucas' }, { id: 'moderadas', label: 'Moderadas' }, { id: 'grandes', label: 'Grandes' }])}</Field>
@@ -186,7 +186,7 @@ export default function TracadoDePistaForm({ categorySlug }: { categorySlug: str
                 { id: 'lateralizado', label: 'Lateralizado/ ângulo de 90°' },
             ])}
         </Field>
-        <Field label="Quantidade de vítimas"><Input type="number" onChange={(e) => handleValueChange('confirmacao', 'vitimas_qtd', e.target.value)} /></Field>
+        <Field label="Quantidade de vítimas"><Input type="number" className="text-xl" onChange={(e) => handleValueChange('confirmacao', 'vitimas_qtd', e.target.value)} /></Field>
         <Field label="Potencial de gravidade/Abordagem">
             {renderCheckboxes('confirmacao', 'gravidade_abordagem', [
                 { id: 'alerta', label: 'Alerta' },
@@ -208,7 +208,7 @@ export default function TracadoDePistaForm({ categorySlug }: { categorySlug: str
                 { id: 'energisa', label: 'ENERGISA' },
                 { id: 'iml', label: 'IML' },
             ])}
-            <Input placeholder="Outros" onChange={(e) => handleValueChange('confirmacao', 'recursos_outros', e.target.value)} className="mt-2" />
+            <Input placeholder="Outros" onChange={(e) => handleValueChange('confirmacao', 'recursos_outros', e.target.value)} className="mt-2 text-xl" />
         </Field>
 
         <SectionTitle>CONDIÇÃO</SectionTitle>
@@ -216,11 +216,11 @@ export default function TracadoDePistaForm({ categorySlug }: { categorySlug: str
         <Field label="Condição de visibilidade">{renderRadioGroup('condicao', 'visibilidade', [{id: "boa", label: "Boa"}, {id: "parcial", label: "Parcial"}, {id: "ruim", label: "Ruim"}])}</Field>
         <Field label="Condições especiais">
             {renderRadioGroup('condicao', 'especiais', [{id: "nill", label: "NILL"}, {id: "fumaca", label: "Fumaça"}, {id: "poeira", label: "Poeira"}, {id: "lama", label: "Lama"}, {id: "oleo", label: "Óleo"}, {id: "poca_dagua", label: "Poça d'água"}])}
-            <Input placeholder="Outros" onChange={e => handleValueChange('condicao', 'especiais_outros', e.target.value)} className="mt-2"/>
+            <Input placeholder="Outros" onChange={e => handleValueChange('condicao', 'especiais_outros', e.target.value)} className="mt-2 text-xl"/>
         </Field>
         <Field label="Condições de sinalização">
             {renderRadioGroup('condicao', 'sinalizacao', [{id: "existente_visivel", label: "Existente e visível"}, {id: "existente_encoberta", label: "Existente e encoberta"}, {id: "inexistente", label: "Inexistente"}])}
-            <Input placeholder="Outros" onChange={e => handleValueChange('condicao', 'sinalizacao_outros', e.target.value)} className="mt-2"/>
+            <Input placeholder="Outros" onChange={e => handleValueChange('condicao', 'sinalizacao_outros', e.target.value)} className="mt-2 text-xl"/>
         </Field>
 
         <SectionTitle>PISTA</SectionTitle>
@@ -231,18 +231,18 @@ export default function TracadoDePistaForm({ categorySlug }: { categorySlug: str
         <Field label="Condição de pista">{renderRadioGroup('pista', 'condicao', [{id: "molhada", label: "Molhada"}, {id: "seca", label: "Seca"}, {id: "contaminada", label: "Contaminada"}, {id: "escorregadia", label: "Escorregadia"}])}</Field>
         <Field label="Obstáculo canteiro central">
             {renderRadioGroup('pista', 'obstaculo_canteiro', [{id: "nao_existe", label: "Não existe"}, {id: "acostamento", label: "Acostamento"}, {id: "barreira", label: "Barreira"}, {id: "meio_fio", label: "Meio fio"}, {id: "defensa_metalica", label: "Defensa metálica"}])}
-            <Input placeholder="Outros" onChange={e => handleValueChange('pista', 'obstaculo_canteiro_outros', e.target.value)} className="mt-2"/>
+            <Input placeholder="Outros" onChange={e => handleValueChange('pista', 'obstaculo_canteiro_outros', e.target.value)} className="mt-2 text-xl"/>
         </Field>
         <Field label="Obstáculo acostamento">
             {renderRadioGroup('pista', 'obstaculo_acostamento', [{id: "nao_existe", label: "Não existe"}, {id: "acostamento", label: "Acostamento"}, {id: "barreira", label: "Barreira"}, {id: "meio_fio", label: "Meio fio"}, {id: "defensa_metalica", label: "Defensa metálica"}])}
-            <Input placeholder="Outros" onChange={e => handleValueChange('pista', 'obstaculo_acostamento_outros', e.target.value)} className="mt-2"/>
+            <Input placeholder="Outros" onChange={e => handleValueChange('pista', 'obstaculo_acostamento_outros', e.target.value)} className="mt-2 text-xl"/>
         </Field>
         <Field label="Obras no acostamento">{renderRadioGroup('pista', 'obras_acostamento', [{id: "nao_existe", label: "Não existe"}, {id: "existe_mal_sinalizada", label: "Existe mal sinalizada"}, {id: "existe_bem_sinalizada", label: "Existe bem sinalizada"}])}</Field>
         <Field label="Estado de conservação">{renderRadioGroup('pista', 'conservacao', [{id: "bom", label: "Bom"}, {id: "ruim", label: "Ruim"}])}</Field>
         <Field label="Interseções na pista">{renderRadioGroup('pista', 'intersecoes', [{id: 'cruzamento_entroncamento', label: 'Cruzamento/entroncamento'}, {id: 'trevo', label: 'Trevo'}, {id: 'rotatoria', label: 'Rotatória'}, {id: 'nao_existe', label: 'Não existe'}])}</Field>
         <Field label="Deficiência em obras">
             {renderRadioGroup('pista', 'deficiencia_obras', [{id: 'obstruida', label: 'Obstruída'}, {id: 'interrompida', label: 'Interrompida'}, {id: 'pista_estreita', label: 'Pista estreita'}, {id: 'pista_fechada', label: 'Pista fechada'}, {id: 'sublevacao_negativa', label: 'Sublevação negativa'}, {id: 'ondulada', label: 'Ondulada'}, {id: 'nao_existe', label: 'Não existe'}])}
-            <Input placeholder="Outros" onChange={e => handleValueChange('pista', 'deficiencia_obras_outros', e.target.value)} className="mt-2"/>
+            <Input placeholder="Outros" onChange={e => handleValueChange('pista', 'deficiencia_obras_outros', e.target.value)} className="mt-2 text-xl"/>
         </Field>
         <Field label="Obras de arte">{renderRadioGroup('pista', 'obras_arte', [{id: 'ponte', label: 'Ponte'}, {id: 'tunel', label: 'Túnel'}, {id: 'passagem_superior', label: 'Passagem superior'}, {id: 'passagem_inferior', label: 'Passagem inferior'}, {id: 'nao_existe', label: 'Não existe'}])}</Field>
         <Field label="Local">{renderRadioGroup('pista', 'local', [{id: 'canteiro_central', label: 'Canteiro central'}, {id: 'faixa_dominio', label: 'Faixa de domínio'}, {id: 'acostamento_norte', label: 'Acostamento norte'}, {id: 'acostamento_sul', label: 'Acostamento Sul'}, {id: 'faixa_rolamento', label: 'Faixa de rolamento'}, {id: 'acostamento', label: 'Acostamento'}])}</Field>
