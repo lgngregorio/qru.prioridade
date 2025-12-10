@@ -18,6 +18,7 @@ import { useFirestore } from '@/firebase';
 import { useToast } from '@/hooks/use-toast';
 import { Checkbox } from '@/components/ui/checkbox';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 
 
 function Field({ label, children, className }: { label?: string, children: React.ReactNode, className?: string }) {
@@ -315,7 +316,7 @@ export default function TO12Form({ categorySlug }: { categorySlug: string }) {
         </div>
         
         <SectionTitle>PROCEDIMENTOS REALIZADOS</SectionTitle>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-2">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-4">
             {renderCheckboxes('procedimentos', 'lista', [
                 { id: 'colar_cervical', label: 'Colar Cervical' },
                 { id: 'pranchamento', label: 'Pranchamento: Decúbito/Em Pé' },
@@ -343,6 +344,97 @@ export default function TO12Form({ categorySlug }: { categorySlug: string }) {
             ])}
         </div>
         <Field label="Outros"><Input className="text-xl" onChange={(e) => handleValueChange('procedimentos', 'outros', e.target.value)} /></Field>
+
+        <SectionTitle>ROL DE VALORES/PERTENCES</SectionTitle>
+        <Field label="Responsável pelo Recebimento (Assinatura)">
+            <Input className="text-xl" onChange={(e) => handleValueChange('rol_valores', 'responsavel', e.target.value)} />
+        </Field>
+
+        <SectionTitle>EQUIPAMENTOS / MATERIAIS RETIDOS</SectionTitle>
+        <Field label="Responsável pelo Recebimento (Assinatura)">
+            <Input className="text-xl" onChange={(e) => handleValueChange('equipamentos_retidos', 'responsavel', e.target.value)} />
+        </Field>
+
+        <SectionTitle>CONDUTA</SectionTitle>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+            <div>
+                 {renderCheckboxes('conduta', 'acoes', [
+                    { id: 'liberacao_local', label: 'Liberação no Local c/ Orientações' },
+                    { id: 'vitima_em_obito', label: 'Vítima em Óbito' },
+                    { id: 'obito_durante_atendimento', label: 'Óbito Durante Atendimento' },
+                    { id: 'recusa_atendimento', label: 'Recusa Atendimento' },
+                    { id: 'recusa_remocao', label: 'Recusa Remoção à Unidade Hospitalar' },
+                ])}
+                <div className="flex items-center space-x-3 mt-2">
+                     <Checkbox id="removido_terceiros" onCheckedChange={(checked) => handleCheckboxChange('conduta', 'removido_terceiros_check', 'removido_terceiros', !!checked)} />
+                     <label htmlFor="removido_terceiros" className="text-xl font-normal leading-none">Removido por Terceiros:</label>
+                     {renderCheckboxes('conduta', 'removido_terceiros_options', [
+                        { id: 'cobom', label: 'CoBom' },
+                        { id: 'samu', label: 'SAMU' },
+                     ])}
+                     <Input placeholder="Outros" className="text-xl" onChange={(e) => handleValueChange('conduta', 'removido_terceiros_outros', e.target.value)} />
+                </div>
+                 <div className="flex items-center space-x-3 mt-2">
+                     <Checkbox id="removido_unidade_hospitalar" onCheckedChange={(checked) => handleCheckboxChange('conduta', 'removido_unidade_check', 'removido_unidade_hospitalar', !!checked)} />
+                     <label htmlFor="removido_unidade_hospitalar" className="text-xl font-normal leading-none">Removido à Unidade Hospitalar:</label>
+                     <Input className="text-xl" onChange={(e) => handleValueChange('conduta', 'unidade_hospitalar', e.target.value)} />
+                </div>
+            </div>
+            <div>
+                <Field label="Médico Regulador/Intervencionista"><Input className="text-xl" onChange={(e) => handleValueChange('conduta', 'medico_regulador', e.target.value)} /></Field>
+                <Field label="Médico Receptor"><Input className="text-xl" onChange={(e) => handleValueChange('conduta', 'medico_receptor', e.target.value)} /></Field>
+                <Field label="Código">
+                     {renderCheckboxes('conduta', 'codigo', [
+                        { id: 'vermelho', label: 'Vermelho' },
+                        { id: 'amarelo', label: 'Amarelo' },
+                        { id: 'verde', label: 'Verde' },
+                        { id: 'azul', label: 'Azul' },
+                        { id: 'preto', label: 'Preto' },
+                    ])}
+                </Field>
+            </div>
+        </div>
+
+        <SectionTitle>TERMO DE RECUSA</SectionTitle>
+        <Textarea 
+            className="text-xl"
+            rows={8}
+            placeholder="Eu, (NOME), portador do CPF (NÚMERO) e RG (NÚMERO), residente no endereço (ENDEREÇO), em plena consciência dos meus atos e orientado pela equipe de resgate, declaro para todos os fins que recuso o atendimento pré-hospitalar da Way Brasil, assumindo toda a responsabilidade por qualquer prejuízo à minha saúde e integridade física ou a de (NOME DO RESPONSÁVEL), na condição de seu responsável de quem sou (GRAU DE PARENTESCO)."
+            onChange={(e) => handleValueChange('termo_recusa', 'texto', e.target.value)}
+        />
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mt-4">
+            <Field label="Testemunha 1"><Input className="text-xl" onChange={(e) => handleValueChange('termo_recusa', 'testemunha1', e.target.value)}/></Field>
+            <Field label="Testemunha 2"><Input className="text-xl" onChange={(e) => handleValueChange('termo_recusa', 'testemunha2', e.target.value)}/></Field>
+        </div>
+        <Field label="Assinatura da Vítima/Responsável">
+            <Input className="text-xl" onChange={(e) => handleValueChange('termo_recusa', 'assinatura', e.target.value)} />
+        </Field>
+
+        <SectionTitle>CONSUMO DE MATERIAIS NO ATENDIMENTO</SectionTitle>
+        <Table>
+            <TableHeader>
+                <TableRow>
+                    <TableHead className="text-xl">Material</TableHead>
+                    <TableHead className="text-xl">Quantidade</TableHead>
+                    <TableHead className="text-xl">Material</TableHead>
+                    <TableHead className="text-xl">Quantidade</TableHead>
+                </TableRow>
+            </TableHeader>
+            <TableBody>
+                {Array.from({ length: 3 }).map((_, i) => (
+                    <TableRow key={i}>
+                        <TableCell><Input className="text-xl" /></TableCell>
+                        <TableCell><Input type="number" className="text-xl" /></TableCell>
+                        <TableCell><Input className="text-xl" /></TableCell>
+                        <TableCell><Input type="number" className="text-xl" /></TableCell>
+                    </TableRow>
+                ))}
+            </TableBody>
+        </Table>
+
+        <SectionTitle>RELATÓRIO/OBSERVAÇÕES</SectionTitle>
+        <Textarea className="text-xl" rows={6} onChange={(e) => handleValueChange('observacoes', 'texto', e.target.value)} />
+
 
         <div className="flex sm:flex-row gap-4 pt-6">
           <Button size="lg" className="flex-1 bg-green-600 hover:bg-green-700 uppercase text-base">
