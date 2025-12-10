@@ -441,7 +441,7 @@ function VeiculoAbandonadoForm({ categorySlug }: { categorySlug: string }) {
           </div>
         </div>
 
-        <div className="flex flex-row gap-4 pt-6">
+        <div className="flex sm:flex-row gap-4 pt-6">
           <Button size="lg" className="flex-1 bg-green-600 hover:bg-green-700 uppercase text-base" onClick={handleShare}>
               <Share className="mr-2 h-4 w-4" />
               Compartilhar WhatsApp
@@ -467,7 +467,7 @@ export default function ReportPage() {
   const title = "VEÍCULO ABANDONADO";
   const description = (
     <>
-      Preencha os campos abaixo <br /> e envie o relatório completo.
+      Preencha os campos abaixo e envie o relatório <br /> completo.
     </>
   );
 
@@ -500,3 +500,5 @@ export default function ReportPage() {
     </main>
   );
 }
+
+    
