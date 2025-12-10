@@ -26,10 +26,14 @@ import { useState, useEffect } from 'react';
 import { useToast } from '@/hooks/use-toast';
 
 // Simulating a user data store that can be updated.
-let userProfile = {
+// This is now inside a function to ensure it's "reset" on each navigation for this simulation.
+const getUserProfile = () => ({
   name: 'Lucas',
   email: 'lgngregorio@icloud.com',
-};
+});
+
+// We need a variable outside the component to act as our persistent "database"
+let userProfileDB = getUserProfile();
 
 export default function ConfiguracoesPage() {
   const { theme, setTheme } = useTheme();
@@ -41,8 +45,9 @@ export default function ConfiguracoesPage() {
 
   useEffect(() => {
     // Load user data from our "database" when the component mounts
-    setName(userProfile.name);
-    setEmail(userProfile.email);
+    // This simulates fetching fresh data from a server on page load.
+    setName(userProfileDB.name);
+    setEmail(userProfileDB.email);
   }, []);
 
   const handleSave = () => {
@@ -50,8 +55,8 @@ export default function ConfiguracoesPage() {
     // Simulate saving to a backend
     setTimeout(() => {
       // Update the "database" only when save is clicked
-      userProfile = {
-        ...userProfile,
+      userProfileDB = {
+        ...userProfileDB,
         name: name,
         email: email,
       };
