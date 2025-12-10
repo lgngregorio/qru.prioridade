@@ -3,16 +3,42 @@
 
 import { useRouter } from 'next/navigation';
 import { Save, Share, Loader2 } from 'lucide-react';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { collection, addDoc, serverTimestamp } from 'firebase/firestore';
 import React from 'react';
 
 import { cn } from '@/lib/utils';
 import { eventCategories } from '@/lib/events';
 import { Button } from '@/components/ui/button';
+import { Label } from '@/components/ui/label';
+import { Input } from '@/components/ui/input';
+import { Textarea } from '@/components/ui/textarea';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useFirestore } from '@/firebase';
 import { useToast } from '@/hooks/use-toast';
 
+
+function Field({ label, children, className }: { label?: string, children: React.ReactNode, className?: string }) {
+  return (
+    <div className={cn('flex flex-col space-y-2', className)}>
+      {label && <Label className="text-xl font-semibold uppercase">{label}</Label>}
+      {children}
+    </div>
+  )
+}
+
+type GeneralInfo = {
+  rodovia: string;
+  ocorrencia: string;
+  qth: string;
+  sentido: string;
+};
+
+
+type OtherInfo = {
+  detalhes: string;
+  numeroOcorrencia: string;
+};
 
 export default function TO03Form({ categorySlug }: { categorySlug: string }) {
   const firestore = useFirestore();
@@ -20,6 +46,58 @@ export default function TO03Form({ categorySlug }: { categorySlug: string }) {
   const { toast } = useToast();
   const [isSaving, setIsSaving] = useState(false);
 
+  const [generalInfo, setGeneralInfo] = useState<GeneralInfo>({
+    rodovia: '',
+    ocorrencia: categorySlug.toUpperCase(),
+    qth: '',
+    sentido: '',
+  });
+
+  const [otherInfo, setOtherInfo] = useState<OtherInfo>({
+    detalhes: '',
+    numeroOcorrencia: '',
+  });
+
+  const handleGeneralInfoChange = (field: keyof GeneralInfo, value: string) => {
+    setGeneralInfo(prev => ({ ...prev, [field]: value }));
+  };
+
+  const handleOtherInfoChange = (field: keyof OtherInfo, value: string) => {
+    setOtherInfo(prev => ({ ...prev, [field]: value }));
+  };
+
+  
+  const fillEmptyFields = (data: any): any => {
+    if (Array.isArray(data)) {
+      return data.map(item => fillEmptyFields(item));
+    }
+    if (typeof data === 'object' && data !== null) {
+      const newData: { [key: string]: any } = {};
+      for (const key in data) {
+        if (Object.prototype.hasOwnProperty.call(data, key)) {
+          newData[key] = fillEmptyFields(data[key]);
+        }
+      }
+      return newData;
+    }
+    if (data === '' || data === null || data === undefined) {
+      return 'NILL';
+    }
+    return data;
+  };
+
+  const prepareReportData = () => {
+    const filledData = {
+      generalInfo: fillEmptyFields(generalInfo),
+      otherInfo: fillEmptyFields(otherInfo),
+    };
+
+    return {
+      category: categorySlug,
+      formData: filledData,
+      createdAt: serverTimestamp(),
+    };
+  };
   
   const handleSave = async () => {
     if (!firestore) {
@@ -33,15 +111,16 @@ export default function TO03Form({ categorySlug }: { categorySlug: string }) {
 
     setIsSaving(true);
     try {
-      // const reportData = prepareReportData();
-      // await addDoc(collection(firestore, 'reports'), reportData);
+      const reportData = prepareReportData();
+      await addDoc(collection(firestore, 'reports'), reportData);
       
       toast({
-        title: "Em construção!",
-        description: "Este formulário ainda não pode ser salvo.",
+        title: "Sucesso!",
+        description: "Relatório salvo com sucesso.",
+        className: "bg-green-600 text-white",
       });
       
-      // router.push('/historico');
+      router.push('/historico');
 
     } catch (error) {
       console.error("Error saving report: ", error);
@@ -56,20 +135,79 @@ export default function TO03Form({ categorySlug }: { categorySlug: string }) {
   };
 
   const handleShare = () => {
-    toast({
-        title: "Em construção!",
-        description: "Este formulário ainda não pode ser compartilhado.",
-      });
+    const reportData = prepareReportData().formData;
+    const category = eventCategories.find(c => c.slug === categorySlug);
+    
+    let message = `*${category ? category.title.toUpperCase() : 'RELATÓRIO DE OCORRÊNCIA'}*\n\n`;
+
+    message += `*INFORMAÇÕES GERAIS*\n`;
+    message += `Rodovia: ${reportData.generalInfo.rodovia}\n`;
+    message += `Ocorrência: ${reportData.generalInfo.ocorrencia}\n`;
+    message += `QTH (Local): ${reportData.generalInfo.qth}\n`;
+    message += `Sentido: ${reportData.generalInfo.sentido}\n\n`;
+    
+    message += `*OUTRAS INFORMAÇÕES*\n`;
+    message += `Detalhes: ${reportData.otherInfo.detalhes}\n`;
+    message += `Nº Ocorrência: ${reportData.otherInfo.numeroOcorrencia}\n`;
+
+    const whatsappUrl = `https://wa.me/?text=${encodeURIComponent(message)}`;
+    window.open(whatsappUrl, '_blank');
   };
 
   return (
     <div className="w-full p-4 sm:p-6 md:p-8">
       <form className="space-y-12" onSubmit={(e) => e.preventDefault()}>
-        <div className="flex justify-center items-center h-48">
-            <p className="text-muted-foreground">Formulário para TO 03 em construção.</p>
+        {/* Informações Gerais */}
+        <div className="space-y-8">
+          <h2 className="text-xl font-semibold text-foreground border-b-2 border-foreground pb-2 uppercase">Informações Gerais</h2>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+            <Field label="RODOVIA">
+                <Select value={generalInfo.rodovia} onValueChange={(value) => handleGeneralInfoChange('rodovia', value)}>
+                    <SelectTrigger className="text-xl normal-case placeholder:text-base">
+                        <SelectValue placeholder="Selecione a rodovia" />
+                    </SelectTrigger>
+                    <SelectContent>
+                        <SelectItem value="ms-112">MS-112</SelectItem>
+                        <SelectItem value="br-158">BR-158</SelectItem>
+                        <SelectItem value="ms-306">MS-306</SelectItem>
+                    </SelectContent>
+                </Select>
+            </Field>
+            <Field label="OCORRÊNCIA">
+                <Input className="text-xl uppercase" value={generalInfo.ocorrencia} disabled />
+            </Field>
+            <Field label="QTH (LOCAL)">
+                <Input className="text-xl placeholder:capitalize placeholder:text-sm" placeholder="Ex: Km 125 da MS-112" value={generalInfo.qth} onChange={(e) => handleGeneralInfoChange('qth', e.target.value)}/>
+            </Field>
+             <Field label="SENTIDO">
+                <Select value={generalInfo.sentido} onValueChange={(value) => handleGeneralInfoChange('sentido', value)}>
+                    <SelectTrigger className="text-xl normal-case placeholder:text-base">
+                        <SelectValue placeholder="Selecione o sentido" />
+                    </SelectTrigger>
+                    <SelectContent>
+                        <SelectItem value="norte">NORTE</SelectItem>
+                        <SelectItem value="sul">SUL</SelectItem>
+                        <SelectItem value="ambos">AMBOS</SelectItem>
+                    </SelectContent>
+                </Select>
+            </Field>
+          </div>
         </div>
 
-        <div className="flex flex-col sm:flex-row gap-4 pt-6">
+        {/* Outras Informações */}
+        <div className="space-y-8">
+          <h2 className="text-xl font-semibold text-foreground border-b-2 border-foreground pb-2 uppercase">Outras Informações</h2>
+          <div className="space-y-8">
+            <Field label="DETALHES">
+              <Textarea className="text-2xl placeholder:capitalize placeholder:text-sm" placeholder="Descreva os detalhes da ocorrência" value={otherInfo.detalhes} onChange={(e) => handleOtherInfoChange('detalhes', e.target.value)} />
+            </Field>
+            <Field label="NÚMERO DA OCORRÊNCIA">
+              <Input className="text-2xl placeholder:capitalize placeholder:text-sm" placeholder="Número de controle interno" value={otherInfo.numeroOcorrencia} onChange={(e) => handleOtherInfoChange('numeroOcorrencia', e.target.value)} />
+            </Field>
+          </div>
+        </div>
+
+        <div className="flex sm:flex-row gap-4 pt-6">
           <Button size="lg" className="flex-1 bg-green-600 hover:bg-green-700 uppercase text-base" onClick={handleShare}>
               <Share className="mr-2 h-4 w-4" />
               Compartilhar WhatsApp
