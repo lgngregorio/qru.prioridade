@@ -291,6 +291,11 @@ export default function TO03Form({ categorySlug }: { categorySlug: string }) {
             </div>
         </div>
 
+        {/* Traçado de Pista */}
+        <div className="space-y-8">
+          <h2 className="text-xl font-semibold text-foreground border-b-2 border-foreground pb-2 uppercase">TRAÇADO DE PISTA</h2>
+        </div>
+
         {/* Outras Informações */}
         <div className="space-y-8">
           <h2 className="text-xl font-semibold text-foreground border-b-2 border-foreground pb-2 uppercase">Outras Informações</h2>
@@ -318,5 +323,3 @@ export default function TO03Form({ categorySlug }: { categorySlug: string }) {
     </div>
   );
 }
-
-    
