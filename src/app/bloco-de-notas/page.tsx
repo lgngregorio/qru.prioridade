@@ -201,6 +201,15 @@ export default function NotepadPage() {
             </p>
         </div>
 
+        {!isEditing && (
+            <div className="mb-6 text-center">
+                <Button variant="outline" onClick={handleNewNoteClick}>
+                    <Plus className="mr-2 h-4 w-4" />
+                    Nova Nota
+                </Button>
+            </div>
+        )}
+
         <Card className="mb-8">
           <CardHeader>
             <CardTitle>{currentNote.id ? 'Editar Anotação' : 'Nova Anotação'}</CardTitle>
@@ -235,12 +244,6 @@ export default function NotepadPage() {
         <div className="border-t border-border pt-8">
              <div className="flex justify-between items-center mb-6">
                 <h2 className="text-2xl font-bold">Anotações Salvas</h2>
-                {!isEditing && (
-                    <Button variant="outline" onClick={handleNewNoteClick}>
-                        <Plus className="mr-2 h-4 w-4" />
-                        Nova Nota
-                    </Button>
-                )}
              </div>
              {loading ? (
               <div className="flex justify-center items-center h-64">
