@@ -1,7 +1,7 @@
 
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import {
   collection,
   addDoc,
@@ -38,7 +38,7 @@ import {
   AlertDialogTrigger,
 } from '@/components/ui/alert-dialog';
 import { useToast } from '@/hooks/use-toast';
-import { Loader2, ArrowLeft, Trash2, Edit, Save, Plus } from 'lucide-react';
+import { Loader2, ArrowLeft, Trash2, Edit, Save, Plus, ChevronUp, Share2 } from 'lucide-react';
 import Link from 'next/link';
 import { Label } from '@/components/ui/label';
 
@@ -181,17 +181,28 @@ export default function NotepadPage() {
     setIsFormVisible(false);
   }
 
-
-  const formatDate = (timestamp: Timestamp | null | undefined) => {
-    if (!timestamp) return 'Data indisponível';
-    return timestamp.toDate().toLocaleString('pt-BR', {
-        day: '2-digit',
-        month: '2-digit',
-        year: 'numeric',
-        hour: '2-digit',
-        minute: '2-digit'
-    });
+  const handleShareNote = (note: Note) => {
+    const message = `*${note.title}*\n\n${note.content}`;
+    const whatsappUrl = `https://wa.me/?text=${encodeURIComponent(message)}`;
+    window.open(whatsappUrl, '_blank');
   };
+
+  const formatDate = (timestamp: Timestamp | null | undefined, options: Intl.DateTimeFormatOptions) => {
+    if (!timestamp) return 'Data indisponível';
+    return timestamp.toDate().toLocaleString('pt-BR', options);
+  };
+  
+  const groupedNotes = useMemo(() => {
+    return notes.reduce((acc, note) => {
+      const date = formatDate(note.createdAt, { day: '2-digit', month: '2-digit', year: 'numeric' });
+      if (!acc[date]) {
+        acc[date] = [];
+      }
+      acc[date].push(note);
+      return acc;
+    }, {} as Record<string, Note[]>);
+  }, [notes]);
+
 
   return (
     <main className="flex flex-col items-center p-4 md:p-6">
@@ -261,7 +272,7 @@ export default function NotepadPage() {
           </Card>
         )}
         
-        <div className="border-t border-border pt-8">
+        <div className="pt-8">
              <div className="flex justify-between items-center mb-6">
                 <h2 className="text-2xl font-bold">Anotações Salvas</h2>
              </div>
@@ -272,46 +283,63 @@ export default function NotepadPage() {
             ) : notes.length === 0 ? (
               <p className="text-center text-muted-foreground py-10">Nenhuma anotação encontrada.</p>
             ) : (
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                    {notes.map((note) => (
-                        <Card key={note.id}>
-                            <CardHeader>
-                                <CardTitle className="truncate">{note.title}</CardTitle>
-                                <CardDescription>
-                                    Criado em: {formatDate(note.createdAt)} <br/>
-                                    {note.updatedAt && note.createdAt.seconds !== note.updatedAt.seconds ? `Atualizado em: ${formatDate(note.updatedAt)}` : ''}
-                                </CardDescription>
-                            </CardHeader>
-                            <CardContent>
-                                <p className="line-clamp-4 whitespace-pre-wrap">{note.content}</p>
-                            </CardContent>
-                             <CardFooter className="flex justify-end gap-2">
-                                <Button variant="ghost" size="icon" onClick={() => handleEditClick(note)}>
-                                    <Edit className="h-4 w-4" />
-                                </Button>
-                                <AlertDialog>
-                                  <AlertDialogTrigger asChild>
-                                    <Button variant="destructive" size="icon">
-                                        <Trash2 className="h-4 w-4" />
+                <div className="space-y-8">
+                    {Object.entries(groupedNotes).map(([date, notesOnDate]) => (
+                      <div key={date}>
+                        <h3 className="text-xl font-bold mb-4">{date}</h3>
+                        <div className="space-y-4">
+                        {notesOnDate.map((note) => (
+                           <Card key={note.id} className="bg-card/50">
+                                <CardHeader className="pb-2">
+                                  <div className="flex justify-between items-start">
+                                      <div className="flex items-center gap-2">
+                                        <CardTitle className="text-2xl">{note.title}</CardTitle>
+                                        <span className="text-sm text-muted-foreground">
+                                          {formatDate(note.createdAt, { hour: '2-digit', minute: '2-digit'})}
+                                        </span>
+                                        <ChevronUp className="h-4 w-4 text-muted-foreground" />
+                                      </div>
+                                      <div className="flex items-center gap-0">
+                                          <Button variant="ghost" size="icon" onClick={() => handleEditClick(note)}>
+                                              <Edit className="h-5 w-5 text-primary" />
+                                          </Button>
+                                          <AlertDialog>
+                                            <AlertDialogTrigger asChild>
+                                              <Button variant="ghost" size="icon">
+                                                  <Trash2 className="h-5 w-5 text-destructive" />
+                                              </Button>
+                                            </AlertDialogTrigger>
+                                            <AlertDialogContent>
+                                              <AlertDialogHeader>
+                                                <AlertDialogTitle>Você tem certeza?</AlertDialogTitle>
+                                                <AlertDialogDescription>
+                                                  Essa ação não pode ser desfeita. Isso irá apagar permanentemente a nota.
+                                                </AlertDialogDescription>
+                                              </AlertDialogHeader>
+                                              <AlertDialogFooter>
+                                                <AlertDialogCancel>Cancelar</AlertDialogCancel>
+                                                <AlertDialogAction onClick={() => handleDelete(note.id)} className="bg-destructive hover:bg-destructive/80">
+                                                  Apagar
+                                                </AlertDialogAction>
+                                              </AlertDialogFooter>
+                                            </AlertDialogContent>
+                                          </AlertDialog>
+                                      </div>
+                                  </div>
+                                </CardHeader>
+                                <CardContent className="pt-0 pb-4">
+                                    <p className="whitespace-pre-wrap text-lg">{note.content}</p>
+                                </CardContent>
+                                 <CardFooter>
+                                    <Button className="w-full bg-primary hover:bg-primary/90" onClick={() => handleShareNote(note)}>
+                                      <Share2 className="mr-2 h-4 w-4" />
+                                      Compartilhar Novamente
                                     </Button>
-                                  </AlertDialogTrigger>
-                                  <AlertDialogContent>
-                                    <AlertDialogHeader>
-                                      <AlertDialogTitle>Você tem certeza?</AlertDialogTitle>
-                                      <AlertDialogDescription>
-                                        Essa ação não pode ser desfeita. Isso irá apagar permanentemente a nota.
-                                      </AlertDialogDescription>
-                                    </AlertDialogHeader>
-                                    <AlertDialogFooter>
-                                      <AlertDialogCancel>Cancelar</AlertDialogCancel>
-                                      <AlertDialogAction onClick={() => handleDelete(note.id)}>
-                                        Apagar
-                                      </AlertDialogAction>
-                                    </AlertDialogFooter>
-                                  </AlertDialogContent>
-                                </AlertDialog>
-                            </CardFooter>
-                        </Card>
+                                </CardFooter>
+                            </Card>
+                        ))}
+                        </div>
+                      </div>
                     ))}
                 </div>
             )}
@@ -321,3 +349,4 @@ export default function NotepadPage() {
     </main>
   );
 }
+
