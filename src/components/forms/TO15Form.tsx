@@ -302,7 +302,6 @@ export default function TO15Form({ categorySlug }: { categorySlug: string }) {
                     <SelectContent>
                         <SelectItem value="acostamento">ACOSTAMENTO</SelectItem>
                         <SelectItem value="area_dominio">ÁREA DE DOMÍNIO</SelectItem>
-                        <SelectItem value="terceira_faixa">TERCEIRA FAIXA</SelectItem>
                     </SelectContent>
                 </Select>
             </Field>
@@ -444,5 +443,3 @@ export default function TO15Form({ categorySlug }: { categorySlug: string }) {
     </div>
   );
 }
-
-    
