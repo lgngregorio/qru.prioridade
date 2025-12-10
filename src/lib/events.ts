@@ -19,7 +19,8 @@ import {
   LucideIcon,
   Construction,
   HardHat,
-  ShieldAlert
+  ShieldAlert,
+  Signpost,
 } from 'lucide-react';
 
 export type EventCategory = {
@@ -194,9 +195,9 @@ export const eventCategories: EventCategory[] = [
   },
   {
     name: 'TO 37',
-    title: 'TO 37',
+    title: 'SINALIZAÇÃO VERTICAL',
     slug: 'to-37',
-    icon: Cone,
+    icon: Signpost,
     description: 'Relatar TO 37.',
     color: '#FF6347',
   },
