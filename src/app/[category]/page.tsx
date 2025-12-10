@@ -17,21 +17,19 @@ import {
 import { SidebarTrigger } from '@/components/ui/sidebar';
 import VeiculoAbandonadoForm from '@/components/forms/VeiculoAbandonadoForm';
 import IncendioForm from '@/components/forms/IncendioForm';
+import TO03Form from '@/components/forms/TO03Form';
 
 function ReportFormComponent({ categorySlug }: { categorySlug: string }) {
-  // Por enquanto, apenas o formulário TO-01 está disponível.
-  // Futuramente, podemos adicionar um switch para renderizar outros formulários.
   switch (categorySlug) {
     case 'to-01':
       return <VeiculoAbandonadoForm categorySlug={categorySlug} />;
     case 'to-02':
       return <IncendioForm categorySlug={categorySlug} />;
-    // Adicione outros casos para outros formulários aqui
-    // case 'to-02':
-    //   return <FormTO02 categorySlug={categorySlug} />;
+    case 'to-03':
+        return <TO03Form categorySlug={categorySlug} />;
     default:
       // Um formulário padrão ou uma mensagem de "em breve" pode ser retornada aqui.
-      return <VeiculoAbandonadoForm categorySlug={categorySlug} />;
+      return <p className="p-8 text-center">Formulário para {categorySlug} em construção.</p>;
   }
 }
 
