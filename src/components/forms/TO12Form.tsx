@@ -2,7 +2,7 @@
 'use client';
 
 import { useRouter } from 'next/navigation';
-import { Save, Share, Loader2, PlusCircle, Trash2, RotateCcw } from 'lucide-react';
+import { Save, Share, Loader2, PlusCircle, Trash2 } from 'lucide-react';
 import { useState } from 'react';
 import { collection, addDoc, serverTimestamp } from 'firebase/firestore';
 import React from 'react';
@@ -21,32 +21,14 @@ import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 
 
-interface FieldProps {
-  label?: string;
-  children: React.ReactNode;
-  className?: string;
-  onClear?: () => void;
-}
-
-function Field({ label, onClear, children, className }: FieldProps) {
+function Field({ label, children, className }: { label?: string, children: React.ReactNode, className?: string }) {
   return (
     <div className={cn('flex flex-col space-y-2', className)}>
-      {label && (
-        <div className="flex items-center justify-between">
-          <Label className="text-xl font-semibold uppercase">{label}</Label>
-          {onClear && (
-             <Button variant="ghost" size="icon" onClick={onClear} className="h-6 w-6 text-muted-foreground hover:text-destructive" type="button">
-                <RotateCcw className="h-4 w-4" />
-                <span className="sr-only">Limpar campo</span>
-            </Button>
-          )}
-        </div>
-      )}
+      {label && <Label className="text-xl font-semibold uppercase">{label}</Label>}
       {children}
     </div>
-  );
+  )
 }
-
 
 const SectionTitle = ({ children, className }: { children: React.ReactNode, className?: string }) => (
   <h2 className={cn("text-xl font-semibold text-foreground border-b-2 border-foreground pb-2 uppercase mt-8 mb-4", className)}>
@@ -112,16 +94,6 @@ export default function TO12Form({ categorySlug }: { categorySlug: string }) {
     }));
   };
   
-  const clearValue = (section: string, key: string) => {
-     setFormData((prev: any) => {
-      const newSection = { ...prev[section] };
-      delete newSection[key];
-      return {
-        ...prev,
-        [section]: newSection,
-      };
-    });
-  }
 
   const handleNestedValueChange = (section: string, subSection: string, key: string, value: any) => {
     setFormData((prev: any) => ({
@@ -136,19 +108,6 @@ export default function TO12Form({ categorySlug }: { categorySlug: string }) {
     }));
   };
 
-  const clearNestedValue = (section: string, subSection: string, key: string) => {
-    setFormData((prev: any) => {
-        const newSubSection = { ...prev[section]?.[subSection] };
-        delete newSubSection[key];
-        return {
-            ...prev,
-            [section]: {
-                ...prev[section],
-                [subSection]: newSubSection,
-            },
-        };
-    });
-  };
   
   const handleCheckboxChange = (section: string, key: string, id: string, checked: boolean) => {
     setFormData((prev: any) => {
@@ -164,15 +123,6 @@ export default function TO12Form({ categorySlug }: { categorySlug: string }) {
     });
   };
   
-  const clearCheckboxGroup = (section: string, key: string) => {
-     setFormData((prev: any) => ({
-      ...prev,
-      [section]: {
-        ...prev[section],
-        [key]: [],
-      },
-    }));
-  }
 
   const renderCheckboxes = (section: string, key: string, options: { id: string, label: string }[]) => (
     <div className="flex flex-col space-y-2">
@@ -212,19 +162,19 @@ export default function TO12Form({ categorySlug }: { categorySlug: string }) {
         
         <SectionTitle>DADOS OPERACIONAIS DA EQUIPE DE APH</SectionTitle>
          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            <Field label="UR/USA" onClear={() => clearValue('dados_operacionais', 'ur_usa')}>
+            <Field label="UR/USA">
               {renderRadioGroup('dados_operacionais', 'ur_usa', [
                 { id: 'ur', label: 'UR' },
                 { id: 'usa', label: 'USA' },
               ])}
             </Field>
-            <Field label="Médico Regulador" onClear={() => clearValue('dados_operacionais', 'medico_regulador')}><Input className="text-xl" value={formData.dados_operacionais?.medico_regulador || ''} onChange={(e) => handleValueChange('dados_operacionais', 'medico_regulador', e.target.value)} /></Field>
-            <Field label="Condutor" onClear={() => clearValue('dados_operacionais', 'condutor')}><Input className="text-xl" value={formData.dados_operacionais?.condutor || ''} onChange={(e) => handleValueChange('dados_operacionais', 'condutor', e.target.value)} /></Field>
-            <Field label="Resgatista I" onClear={() => clearValue('dados_operacionais', 'resgatista')}><Input className="text-xl" value={formData.dados_operacionais?.resgatista || ''} onChange={(e) => handleValueChange('dados_operacionais', 'resgatista', e.target.value)} /></Field>
-            <Field label="Data" onClear={() => clearValue('dados_operacionais', 'data')}><Input type="date" className="text-xl" value={formData.dados_operacionais?.data || ''} onChange={(e) => handleValueChange('dados_operacionais', 'data', e.target.value)} /></Field>
-            <Field label="Nº Ocorrência" onClear={() => clearValue('dados_operacionais', 'n_ocorrencia')}><Input className="text-xl" value={formData.dados_operacionais?.n_ocorrencia || ''} onChange={(e) => handleValueChange('dados_operacionais', 'n_ocorrencia', e.target.value)} /></Field>
-            <Field label="KM" onClear={() => clearValue('dados_operacionais', 'km')}><Input className="text-xl" value={formData.dados_operacionais?.km || ''} onChange={(e) => handleValueChange('dados_operacionais', 'km', e.target.value)} /></Field>
-             <Field label="Sentido" onClear={() => clearValue('dados_operacionais', 'sentido')}>
+            <Field label="Médico Regulador"><Input className="text-xl" value={formData.dados_operacionais?.medico_regulador || ''} onChange={(e) => handleValueChange('dados_operacionais', 'medico_regulador', e.target.value)} /></Field>
+            <Field label="Condutor"><Input className="text-xl" value={formData.dados_operacionais?.condutor || ''} onChange={(e) => handleValueChange('dados_operacionais', 'condutor', e.target.value)} /></Field>
+            <Field label="Resgatista I"><Input className="text-xl" value={formData.dados_operacionais?.resgatista || ''} onChange={(e) => handleValueChange('dados_operacionais', 'resgatista', e.target.value)} /></Field>
+            <Field label="Data"><Input type="date" className="text-xl" value={formData.dados_operacionais?.data || ''} onChange={(e) => handleValueChange('dados_operacionais', 'data', e.target.value)} /></Field>
+            <Field label="Nº Ocorrência"><Input className="text-xl" value={formData.dados_operacionais?.n_ocorrencia || ''} onChange={(e) => handleValueChange('dados_operacionais', 'n_ocorrencia', e.target.value)} /></Field>
+            <Field label="KM"><Input className="text-xl" value={formData.dados_operacionais?.km || ''} onChange={(e) => handleValueChange('dados_operacionais', 'km', e.target.value)} /></Field>
+             <Field label="Sentido">
               {renderRadioGroup('dados_operacionais', 'sentido', [
                 { id: 'norte', label: 'Norte' },
                 { id: 'sul', label: 'Sul' },
@@ -232,35 +182,35 @@ export default function TO12Form({ categorySlug }: { categorySlug: string }) {
             </Field>
         </div>
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-            <Field label="Acionamento" onClear={() => clearValue('dados_operacionais', 'acionamento')}><Input type="time" className="text-xl" value={formData.dados_operacionais?.acionamento || ''} onChange={(e) => handleValueChange('dados_operacionais', 'acionamento', e.target.value)} /></Field>
-            <Field label="Chegada no Local" onClear={() => clearValue('dados_operacionais', 'chegada_local')}><Input type="time" className="text-xl" value={formData.dados_operacionais?.chegada_local || ''} onChange={(e) => handleValueChange('dados_operacionais', 'chegada_local', e.target.value)} /></Field>
-            <Field label="Saída do Local" onClear={() => clearValue('dados_operacionais', 'saida_local')}><Input type="time" className="text-xl" value={formData.dados_operacionais?.saida_local || ''} onChange={(e) => handleValueChange('dados_operacionais', 'saida_local', e.target.value)} /></Field>
-            <Field label="Chegada no Hospital" onClear={() => clearValue('dados_operacionais', 'chegada_hospital')}><Input type="time" className="text-xl" value={formData.dados_operacionais?.chegada_hospital || ''} onChange={(e) => handleValueChange('dados_operacionais', 'chegada_hospital', e.target.value)} /></Field>
-            <Field label="Saída do Hospital" onClear={() => clearValue('dados_operacionais', 'saida_hospital')}><Input type="time" className="text-xl" value={formData.dados_operacionais?.saida_hospital || ''} onChange={(e) => handleValueChange('dados_operacionais', 'saida_hospital', e.target.value)} /></Field>
-            <Field label="Chegada BSO/Término" onClear={() => clearValue('dados_operacionais', 'chegada_bso')}><Input type="time" className="text-xl" value={formData.dados_operacionais?.chegada_bso || ''} onChange={(e) => handleValueChange('dados_operacionais', 'chegada_bso', e.target.value)} /></Field>
+            <Field label="Acionamento"><Input type="time" className="text-xl" value={formData.dados_operacionais?.acionamento || ''} onChange={(e) => handleValueChange('dados_operacionais', 'acionamento', e.target.value)} /></Field>
+            <Field label="Chegada no Local"><Input type="time" className="text-xl" value={formData.dados_operacionais?.chegada_local || ''} onChange={(e) => handleValueChange('dados_operacionais', 'chegada_local', e.target.value)} /></Field>
+            <Field label="Saída do Local"><Input type="time" className="text-xl" value={formData.dados_operacionais?.saida_local || ''} onChange={(e) => handleValueChange('dados_operacionais', 'saida_local', e.target.value)} /></Field>
+            <Field label="Chegada no Hospital"><Input type="time" className="text-xl" value={formData.dados_operacionais?.chegada_hospital || ''} onChange={(e) => handleValueChange('dados_operacionais', 'chegada_hospital', e.target.value)} /></Field>
+            <Field label="Saída do Hospital"><Input type="time" className="text-xl" value={formData.dados_operacionais?.saida_hospital || ''} onChange={(e) => handleValueChange('dados_operacionais', 'saida_hospital', e.target.value)} /></Field>
+            <Field label="Chegada BSO/Término"><Input type="time" className="text-xl" value={formData.dados_operacionais?.chegada_bso || ''} onChange={(e) => handleValueChange('dados_operacionais', 'chegada_bso', e.target.value)} /></Field>
         </div>
 
         <SectionTitle>DADOS CADASTRAIS DO USUÁRIO</SectionTitle>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-            <Field label="Nome" onClear={() => clearValue('dados_usuario', 'nome')}><Input className="text-xl" value={formData.dados_usuario?.nome || ''} onChange={(e) => handleValueChange('dados_usuario', 'nome', e.target.value)} /></Field>
-            <Field label="Acompanhante" onClear={() => clearValue('dados_usuario', 'acompanhante')}><Input className="text-xl" value={formData.dados_usuario?.acompanhante || ''} onChange={(e) => handleValueChange('dados_usuario', 'acompanhante', e.target.value)} /></Field>
-            <Field label="Endereço" onClear={() => clearValue('dados_usuario', 'endereco')}><Input className="text-xl" value={formData.dados_usuario?.endereco || ''} onChange={(e) => handleValueChange('dados_usuario', 'endereco', e.target.value)} /></Field>
+            <Field label="Nome"><Input className="text-xl" value={formData.dados_usuario?.nome || ''} onChange={(e) => handleValueChange('dados_usuario', 'nome', e.target.value)} /></Field>
+            <Field label="Acompanhante"><Input className="text-xl" value={formData.dados_usuario?.acompanhante || ''} onChange={(e) => handleValueChange('dados_usuario', 'acompanhante', e.target.value)} /></Field>
+            <Field label="Endereço"><Input className="text-xl" value={formData.dados_usuario?.endereco || ''} onChange={(e) => handleValueChange('dados_usuario', 'endereco', e.target.value)} /></Field>
         </div>
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-8">
-            <Field label="Sexo" onClear={() => clearValue('dados_usuario', 'sexo')}>
+            <Field label="Sexo">
                 {renderRadioGroup('dados_usuario', 'sexo', [{id: 'm', label: 'M'}, {id: 'f', label: 'F'}])}
             </Field>
-            <Field label="DN" onClear={() => clearValue('dados_usuario', 'dn')}><Input type="date" className="text-xl" value={formData.dados_usuario?.dn || ''} onChange={(e) => handleValueChange('dados_usuario', 'dn', e.target.value)} /></Field>
-            <Field label="Idade" onClear={() => clearValue('dados_usuario', 'idade')}><Input type="number" className="text-xl" value={formData.dados_usuario?.idade || ''} onChange={(e) => handleValueChange('dados_usuario', 'idade', e.target.value)} /></Field>
-            <Field label="Telefone" onClear={() => clearValue('dados_usuario', 'tel')}><Input className="text-xl" value={formData.dados_usuario?.tel || ''} onChange={(e) => handleValueChange('dados_usuario', 'tel', e.target.value)} /></Field>
-            <Field label="CPF" onClear={() => clearValue('dados_usuario', 'cpf')}><Input className="text-xl" value={formData.dados_usuario?.cpf || ''} onChange={(e) => handleValueChange('dados_usuario', 'cpf', e.target.value)} /></Field>
-            <Field label="RG" onClear={() => clearValue('dados_usuario', 'rg')}><Input className="text-xl" value={formData.dados_usuario?.rg || ''} onChange={(e) => handleValueChange('dados_usuario', 'rg', e.target.value)} /></Field>
-            <Field label="Posição no Veículo" onClear={() => clearValue('dados_usuario', 'posicao_veiculo')}><Input className="text-xl" value={formData.dados_usuario?.posicao_veiculo || ''} onChange={(e) => handleValueChange('dados_usuario', 'posicao_veiculo', e.target.value)} /></Field>
+            <Field label="DN"><Input type="date" className="text-xl" value={formData.dados_usuario?.dn || ''} onChange={(e) => handleValueChange('dados_usuario', 'dn', e.target.value)} /></Field>
+            <Field label="Idade"><Input type="number" className="text-xl" value={formData.dados_usuario?.idade || ''} onChange={(e) => handleValueChange('dados_usuario', 'idade', e.target.value)} /></Field>
+            <Field label="Telefone"><Input className="text-xl" value={formData.dados_usuario?.tel || ''} onChange={(e) => handleValueChange('dados_usuario', 'tel', e.target.value)} /></Field>
+            <Field label="CPF"><Input className="text-xl" value={formData.dados_usuario?.cpf || ''} onChange={(e) => handleValueChange('dados_usuario', 'cpf', e.target.value)} /></Field>
+            <Field label="RG"><Input className="text-xl" value={formData.dados_usuario?.rg || ''} onChange={(e) => handleValueChange('dados_usuario', 'rg', e.target.value)} /></Field>
+            <Field label="Posição no Veículo"><Input className="text-xl" value={formData.dados_usuario?.posicao_veiculo || ''} onChange={(e) => handleValueChange('dados_usuario', 'posicao_veiculo', e.target.value)} /></Field>
         </div>
         
         <SectionTitle>EVENTO</SectionTitle>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            <Field label="Trauma" onClear={() => { clearCheckboxGroup('evento', 'trauma'); clearValue('evento', 'trauma_outros');}}>
+            <Field label="Trauma">
               {renderCheckboxes('evento', 'trauma', [
                   { id: 'acidente_automobilistico', label: 'Acidente Automobilístico' },
                   { id: 'queimadura', label: 'Queimadura' },
@@ -269,7 +219,7 @@ export default function TO12Form({ categorySlug }: { categorySlug: string }) {
               ])}
               <Input placeholder="Outros" className="mt-2 text-xl" value={formData.evento?.trauma_outros || ''} onChange={(e) => handleValueChange('evento', 'trauma_outros', e.target.value)} />
             </Field>
-            <Field label="Atendimento Clínico" onClear={() => { clearCheckboxGroup('evento', 'atendimento_clinico'); clearValue('evento', 'clinico_outros');}}>
+            <Field label="Atendimento Clínico">
               {renderCheckboxes('evento', 'atendimento_clinico', [
                   { id: 'mal_subito', label: 'Mal Súbito' },
                   { id: 'intoxicacao_exogena', label: 'Intoxicação Exógena' },
@@ -279,7 +229,7 @@ export default function TO12Form({ categorySlug }: { categorySlug: string }) {
               ])}
               <Input placeholder="Outros" className="mt-2 text-xl" value={formData.evento?.clinico_outros || ''} onChange={(e) => handleValueChange('evento', 'clinico_outros', e.target.value)} />
             </Field>
-            <Field label="Condições de Segurança" onClear={() => { clearCheckboxGroup('evento', 'condicoes_seguranca'); clearValue('evento', 'seguranca_outros');}}>
+            <Field label="Condições de Segurança">
               {renderCheckboxes('evento', 'condicoes_seguranca', [
                   { id: 'cinto_seguranca', label: 'Cinto de Segurança' },
                   { id: 'cadeirinha', label: 'Cadeirinha' },
@@ -291,7 +241,7 @@ export default function TO12Form({ categorySlug }: { categorySlug: string }) {
         </div>
         
         <SectionTitle>AVALIAÇÕES</SectionTitle>
-        <Field label="Condição Inicial" onClear={() => clearValue('avaliacoes', 'condicao_inicial')}>
+        <Field label="Condição Inicial">
             {renderRadioGroup('avaliacoes', 'condicao_inicial', [
                 {id: 'alerta', label: 'Alerta'},
                 {id: 'verbaliza', label: 'Verbaliza'},
@@ -305,52 +255,52 @@ export default function TO12Form({ categorySlug }: { categorySlug: string }) {
         </Field>
 
         <SubSectionTitle>Avaliação Primária</SubSectionTitle>
-        <Field label="X - Hemorragia Exsanguinante" onClear={() => clearValue('avaliacao_primaria', 'hemorragia')}>
+        <Field label="X - Hemorragia Exsanguinante">
           {renderRadioGroup('avaliacao_primaria', 'hemorragia', [{id: 'nao', label: 'Não'}, {id: 'sim', label: 'Sim'}])}
         </Field>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-            <Field label="A - Vias Aéreas" onClear={() => { clearValue('avaliacao_primaria', 'vias_aereas'); clearValue('avaliacao_primaria', 'vias_aereas_obs');}}>
+            <Field label="A - Vias Aéreas">
                 <div className="flex items-center gap-4">
                   {renderRadioGroup('avaliacao_primaria', 'vias_aereas', [{id: 'pervias', label: 'Pérvias'}, {id: 'obstruidas', label: 'Obstruídas por:'}])}
                   <Input className="text-xl" value={formData.avaliacao_primaria?.vias_aereas_obs || ''} onChange={(e) => handleValueChange('avaliacao_primaria', 'vias_aereas_obs', e.target.value)} />
                 </div>
             </Field>
-             <Field label="B - Ventilação" onClear={() => { clearValue('avaliacao_primaria', 'ventilacao_status'); clearValue('avaliacao_primaria', 'ventilacao_tipo');}}>
+             <Field label="B - Ventilação">
                 {renderRadioGroup('avaliacao_primaria', 'ventilacao_status', [{id: 'presente', label: 'Presente'}, {id: 'ausente', label: 'Ausente'}, {id: 'simetrica', label: 'Simétrica'}, {id: 'assimetrica', label: 'Assimétrica'}])}
                 {renderRadioGroup('avaliacao_primaria', 'ventilacao_tipo', [{id: 'apneia', label: 'Apneia'}, {id: 'eupneia', label: 'Eupneia'}, {id: 'taquipneia', label: 'Taquipneia'}, {id: 'gasping', label: 'Gasping'}])}
             </Field>
         </div>
         <SubSectionTitle>C - Circulação e Hemorragias</SubSectionTitle>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            <Field label="Pulso" onClear={() => clearValue('avaliacao_primaria', 'pulso')}>
+            <Field label="Pulso">
                 {renderRadioGroup('avaliacao_primaria', 'pulso', [{id: 'presente', label: 'Presente'}, {id: 'cheio', label: 'Cheio'}, {id: 'filiforme', label: 'Filiforme'}])}
             </Field>
-            <Field label="Pele" onClear={() => clearValue('avaliacao_primaria', 'pele')}>
+            <Field label="Pele">
                 {renderRadioGroup('avaliacao_primaria', 'pele', [{id: 'normal', label: 'Normal'}, {id: 'fria', label: 'Fria'}, {id: 'sudorese', label: 'Sudorese'}])}
             </Field>
-            <Field label="Perfusão" onClear={() => clearValue('avaliacao_primaria', 'perfusao')}>
+            <Field label="Perfusão">
                 {renderRadioGroup('avaliacao_primaria', 'perfusao', [{id: '<2seg', label: '< 2seg'}, {id: '>2seg', label: '> 2seg'}])}
             </Field>
         </div>
-         <Field label="Sangramento Ativo" onClear={() => clearValue('avaliacao_primaria', 'sangramento')}>
+         <Field label="Sangramento Ativo">
              {renderRadioGroup('avaliacao_primaria', 'sangramento', [{id: 'presente', label: 'Presente'}, {id: 'ausente', label: 'Ausente'}])}
         </Field>
 
         <SubSectionTitle>D - Neurológico: Glasgow</SubSectionTitle>
          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-            <Field label="Pupilas" onClear={() => clearValue('avaliacao_primaria', 'pupilas')}>
+            <Field label="Pupilas">
                 {renderRadioGroup('avaliacao_primaria', 'pupilas', [{id: 'isocoricas', label: 'Isocóricas'}, {id: 'anisocoricas', label: 'Anisocóricas'}])}
             </Field>
-            <Field label="Fotorreagentes" onClear={() => clearValue('avaliacao_primaria', 'fotorreagentes')}>
+            <Field label="Fotorreagentes">
                 {renderRadioGroup('avaliacao_primaria', 'fotorreagentes', [{id: 'sim', label: 'Sim'}, {id: 'nao', label: 'Não'}])}
             </Field>
         </div>
 
         <SubSectionTitle>E - Exposição</SubSectionTitle>
-        <Field onClear={() => clearValue('avaliacao_primaria', 'exposicao')}>
+        <Field>
             {renderRadioGroup('avaliacao_primaria', 'exposicao', [{id: 'sem_lesoes', label: 'Sem Lesões Aparentes'}, {id: 'hipotermia', label: 'Hipotermia'}])}
         </Field>
-         <Field label="Lesões Aparentes e Queixas Principais" onClear={() => clearValue('avaliacao_primaria', 'lesoes_queixas')}>
+         <Field label="Lesões Aparentes e Queixas Principais">
             <Textarea className="text-xl" value={formData.avaliacao_primaria?.lesoes_queixas || ''} onChange={(e) => handleValueChange('avaliacao_primaria', 'lesoes_queixas', e.target.value)}/>
         </Field>
 
@@ -359,28 +309,28 @@ export default function TO12Form({ categorySlug }: { categorySlug: string }) {
             <div>
               <SubSectionTitle>Sinais Vitais</SubSectionTitle>
               <div className="grid grid-cols-2 gap-4">
-                <Field label="PA (mmHg)" onClear={() => clearNestedValue('avaliacao_secundaria', 'sinais_vitais', 'pa')}><Input className="text-xl" value={formData.avaliacao_secundaria?.sinais_vitais?.pa || ''} onChange={(e) => handleNestedValueChange('avaliacao_secundaria', 'sinais_vitais', 'pa', e.target.value)} /></Field>
-                <Field label="FC (bpm)" onClear={() => clearNestedValue('avaliacao_secundaria', 'sinais_vitais', 'fc')}><Input type="number" className="text-xl" value={formData.avaliacao_secundaria?.sinais_vitais?.fc || ''} onChange={(e) => handleNestedValueChange('avaliacao_secundaria', 'sinais_vitais', 'fc', e.target.value)} /></Field>
-                <Field label="FR (rpm)" onClear={() => clearNestedValue('avaliacao_secundaria', 'sinais_vitais', 'fr')}><Input type="number" className="text-xl" value={formData.avaliacao_secundaria?.sinais_vitais?.fr || ''} onChange={(e) => handleNestedValueChange('avaliacao_secundaria', 'sinais_vitais', 'fr', e.target.value)} /></Field>
-                <Field label="Sat O² (%)" onClear={() => clearNestedValue('avaliacao_secundaria', 'sinais_vitais', 'sat')}><Input type="number" className="text-xl" value={formData.avaliacao_secundaria?.sinais_vitais?.sat || ''} onChange={(e) => handleNestedValueChange('avaliacao_secundaria', 'sinais_vitais', 'sat', e.target.value)} /></Field>
-                <Field label="TAX (°C)" onClear={() => clearNestedValue('avaliacao_secundaria', 'sinais_vitais', 'tax')}><Input type="number" className="text-xl" value={formData.avaliacao_secundaria?.sinais_vitais?.tax || ''} onChange={(e) => handleNestedValueChange('avaliacao_secundaria', 'sinais_vitais', 'tax', e.target.value)} /></Field>
-                <Field label="DXT (mg/dl)" onClear={() => clearNestedValue('avaliacao_secundaria', 'sinais_vitais', 'dxt')}><Input type="number" className="text-xl" value={formData.avaliacao_secundaria?.sinais_vitais?.dxt || ''} onChange={(e) => handleNestedValueChange('avaliacao_secundaria', 'sinais_vitais', 'dxt', e.target.value)} /></Field>
+                <Field label="PA (mmHg)"><Input className="text-xl" value={formData.avaliacao_secundaria?.sinais_vitais?.pa || ''} onChange={(e) => handleNestedValueChange('avaliacao_secundaria', 'sinais_vitais', 'pa', e.target.value)} /></Field>
+                <Field label="FC (bpm)"><Input type="number" className="text-xl" value={formData.avaliacao_secundaria?.sinais_vitais?.fc || ''} onChange={(e) => handleNestedValueChange('avaliacao_secundaria', 'sinais_vitais', 'fc', e.target.value)} /></Field>
+                <Field label="FR (rpm)"><Input type="number" className="text-xl" value={formData.avaliacao_secundaria?.sinais_vitais?.fr || ''} onChange={(e) => handleNestedValueChange('avaliacao_secundaria', 'sinais_vitais', 'fr', e.target.value)} /></Field>
+                <Field label="Sat O² (%)"><Input type="number" className="text-xl" value={formData.avaliacao_secundaria?.sinais_vitais?.sat || ''} onChange={(e) => handleNestedValueChange('avaliacao_secundaria', 'sinais_vitais', 'sat', e.target.value)} /></Field>
+                <Field label="TAX (°C)"><Input type="number" className="text-xl" value={formData.avaliacao_secundaria?.sinais_vitais?.tax || ''} onChange={(e) => handleNestedValueChange('avaliacao_secundaria', 'sinais_vitais', 'tax', e.target.value)} /></Field>
+                <Field label="DXT (mg/dl)"><Input type="number" className="text-xl" value={formData.avaliacao_secundaria?.sinais_vitais?.dxt || ''} onChange={(e) => handleNestedValueChange('avaliacao_secundaria', 'sinais_vitais', 'dxt', e.target.value)} /></Field>
               </div>
             </div>
             <div className="space-y-4">
-                <Field label="Alergias" onClear={() => clearNestedValue('avaliacao_secundaria', 'outros', 'alergias')}><Textarea className="text-xl" value={formData.avaliacao_secundaria?.outros?.alergias || ''} onChange={(e) => handleNestedValueChange('avaliacao_secundaria', 'outros', 'alergias', e.target.value)} /></Field>
-                <Field label="Medicamentos em Uso" onClear={() => clearNestedValue('avaliacao_secundaria', 'outros', 'medicamentos')}><Textarea className="text-xl" value={formData.avaliacao_secundaria?.outros?.medicamentos || ''} onChange={(e) => handleNestedValueChange('avaliacao_secundaria', 'outros', 'medicamentos', e.target.value)} /></Field>
-                <Field label="Comorbidades/Gestação" onClear={() => clearNestedValue('avaliacao_secundaria', 'outros', 'comorbidades')}><Textarea className="text-xl" value={formData.avaliacao_secundaria?.outros?.comorbidades || ''} onChange={(e) => handleNestedValueChange('avaliacao_secundaria', 'outros', 'comorbidades', e.target.value)} /></Field>
-                <Field label="Última Refeição/Jejum" onClear={() => clearNestedValue('avaliacao_secundaria', 'outros', 'ultima_refeicao')}><Textarea className="text-xl" value={formData.avaliacao_secundaria?.outros?.ultima_refeicao || ''} onChange={(e) => handleNestedValueChange('avaliacao_secundaria', 'outros', 'ultima_refeicao', e.target.value)} /></Field>
+                <Field label="Alergias"><Textarea className="text-xl" value={formData.avaliacao_secundaria?.outros?.alergias || ''} onChange={(e) => handleNestedValueChange('avaliacao_secundaria', 'outros', 'alergias', e.target.value)} /></Field>
+                <Field label="Medicamentos em Uso"><Textarea className="text-xl" value={formData.avaliacao_secundaria?.outros?.medicamentos || ''} onChange={(e) => handleNestedValueChange('avaliacao_secundaria', 'outros', 'medicamentos', e.target.value)} /></Field>
+                <Field label="Comorbidades/Gestação"><Textarea className="text-xl" value={formData.avaliacao_secundaria?.outros?.comorbidades || ''} onChange={(e) => handleNestedValueChange('avaliacao_secundaria', 'outros', 'comorbidades', e.target.value)} /></Field>
+                <Field label="Última Refeição/Jejum"><Textarea className="text-xl" value={formData.avaliacao_secundaria?.outros?.ultima_refeicao || ''} onChange={(e) => handleNestedValueChange('avaliacao_secundaria', 'outros', 'ultima_refeicao', e.target.value)} /></Field>
             </div>
         </div>
-        <Field label="Avaliação Crânio-Caudal" onClear={() => clearNestedValue('avaliacao_secundaria', 'outros', 'cranio_caudal')}>
+        <Field label="Avaliação Crânio-Caudal">
             <Textarea className="text-xl" value={formData.avaliacao_secundaria?.outros?.cranio_caudal || ''} onChange={(e) => handleNestedValueChange('avaliacao_secundaria', 'outros', 'cranio_caudal', e.target.value)}/>
         </Field>
 
         <SectionTitle>ESCALA DE GLASGOW</SectionTitle>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            <Field label="Abertura Ocular" onClear={() => clearValue('glasgow', 'abertura_ocular')}>
+            <Field label="Abertura Ocular">
                 {renderRadioGroup('glasgow', 'abertura_ocular', [
                     { id: '4', label: '04 Espontânea' },
                     { id: '3', label: '03 Estímulo Verbal' },
@@ -388,7 +338,7 @@ export default function TO12Form({ categorySlug }: { categorySlug: string }) {
                     { id: '1', label: '01 Ausente' },
                 ])}
             </Field>
-             <Field label="Resposta Verbal" onClear={() => clearValue('glasgow', 'resposta_verbal')}>
+             <Field label="Resposta Verbal">
                 {renderRadioGroup('glasgow', 'resposta_verbal', [
                     { id: '5', label: '05 Orientado' },
                     { id: '4', label: '04 Confuso' },
@@ -397,7 +347,7 @@ export default function TO12Form({ categorySlug }: { categorySlug: string }) {
                     { id: '1', label: '01 Ausente' },
                 ])}
             </Field>
-             <Field label="Resposta Motora" onClear={() => clearValue('glasgow', 'resposta_motora')}>
+             <Field label="Resposta Motora">
                 {renderRadioGroup('glasgow', 'resposta_motora', [
                     { id: '6', label: '06 Obedece a Comandos' },
                     { id: '5', label: '05 Localiza a Dor' },
@@ -410,7 +360,7 @@ export default function TO12Form({ categorySlug }: { categorySlug: string }) {
         </div>
         
         <SectionTitle>PROCEDIMENTOS REALIZADOS</SectionTitle>
-         <Field onClear={() => { clearCheckboxGroup('procedimentos', 'lista'); clearValue('procedimentos', 'outros');}}>
+         <Field>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-4">
               {renderCheckboxes('procedimentos', 'lista', [
                   { id: 'colar_cervical', label: 'Colar Cervical' },
@@ -439,7 +389,7 @@ export default function TO12Form({ categorySlug }: { categorySlug: string }) {
               ])}
             </div>
           </Field>
-        <Field label="Outros" onClear={() => clearValue('procedimentos', 'outros')}><Input className="text-xl" value={formData.procedimentos?.outros || ''} onChange={(e) => handleValueChange('procedimentos', 'outros', e.target.value)} /></Field>
+        <Field label="Outros"><Input className="text-xl" value={formData.procedimentos?.outros || ''} onChange={(e) => handleValueChange('procedimentos', 'outros', e.target.value)} /></Field>
 
         <SectionTitle>ROL DE VALORES/PERTENCES</SectionTitle>
         <div className="space-y-4">
@@ -455,7 +405,7 @@ export default function TO12Form({ categorySlug }: { categorySlug: string }) {
                 Adicionar Item
             </Button>
         </div>
-         <Field label="Responsável pelo Recebimento (Assinatura)" onClear={() => clearValue('rol_valores', 'responsavel')}>
+         <Field label="Responsável pelo Recebimento (Assinatura)">
             <Input className="text-xl" value={formData.rol_valores?.responsavel || ''} onChange={(e) => handleValueChange('rol_valores', 'responsavel', e.target.value)} />
         </Field>
 
@@ -473,14 +423,14 @@ export default function TO12Form({ categorySlug }: { categorySlug: string }) {
                 Adicionar Item
             </Button>
         </div>
-        <Field label="Responsável pelo Recebimento (Assinatura)" onClear={() => clearValue('equipamentos_retidos', 'responsavel')}>
+        <Field label="Responsável pelo Recebimento (Assinatura)">
             <Input className="text-xl" value={formData.equipamentos_retidos?.responsavel || ''} onChange={(e) => handleValueChange('equipamentos_retidos', 'responsavel', e.target.value)} />
         </Field>
 
 
         <SectionTitle>CONDUTA</SectionTitle>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-            <Field onClear={() => { clearCheckboxGroup('conduta', 'acoes'); clearCheckboxGroup('conduta', 'removido_terceiros_check'); clearCheckboxGroup('conduta', 'removido_terceiros_options'); clearValue('conduta', 'removido_terceiros_outros'); clearCheckboxGroup('conduta', 'removido_unidade_check'); clearValue('conduta', 'unidade_hospitalar'); }}>
+            <Field>
                  {renderCheckboxes('conduta', 'acoes', [
                     { id: 'liberacao_local', label: 'Liberação no Local c/ Orientações' },
                     { id: 'vitima_em_obito', label: 'Vítima em Óbito' },
@@ -504,9 +454,9 @@ export default function TO12Form({ categorySlug }: { categorySlug: string }) {
                 </div>
             </Field>
             <div>
-                <Field label="Médico Regulador/Intervencionista" onClear={() => clearValue('conduta', 'medico_regulador')}><Input className="text-xl" value={formData.conduta?.medico_regulador || ''} onChange={(e) => handleValueChange('conduta', 'medico_regulador', e.target.value)} /></Field>
-                <Field label="Médico Receptor" onClear={() => clearValue('conduta', 'medico_receptor')}><Input className="text-xl" value={formData.conduta?.medico_receptor || ''} onChange={(e) => handleValueChange('conduta', 'medico_receptor', e.target.value)} /></Field>
-                <Field label="Código" onClear={() => clearCheckboxGroup('conduta', 'codigo')}>
+                <Field label="Médico Regulador/Intervencionista"><Input className="text-xl" value={formData.conduta?.medico_regulador || ''} onChange={(e) => handleValueChange('conduta', 'medico_regulador', e.target.value)} /></Field>
+                <Field label="Médico Receptor"><Input className="text-xl" value={formData.conduta?.medico_receptor || ''} onChange={(e) => handleValueChange('conduta', 'medico_receptor', e.target.value)} /></Field>
+                <Field label="Código">
                      {renderCheckboxes('conduta', 'codigo', [
                         { id: 'vermelho', label: 'Vermelho' },
                         { id: 'amarelo', label: 'Amarelo' },
@@ -519,7 +469,7 @@ export default function TO12Form({ categorySlug }: { categorySlug: string }) {
         </div>
 
         <SectionTitle>TERMO DE RECUSA</SectionTitle>
-        <Field onClear={() => clearValue('termo_recusa', 'texto')}>
+        <Field>
             <Textarea 
                 className="text-xl"
                 rows={8}
@@ -529,10 +479,10 @@ export default function TO12Form({ categorySlug }: { categorySlug: string }) {
             />
         </Field>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mt-4">
-            <Field label="Testemunha 1" onClear={() => clearValue('termo_recusa', 'testemunha1')}><Input className="text-xl" value={formData.termo_recusa?.testemunha1 || ''} onChange={(e) => handleValueChange('termo_recusa', 'testemunha1', e.target.value)}/></Field>
-            <Field label="Testemunha 2" onClear={() => clearValue('termo_recusa', 'testemunha2')}><Input className="text-xl" value={formData.termo_recusa?.testemunha2 || ''} onChange={(e) => handleValueChange('termo_recusa', 'testemunha2', e.target.value)}/></Field>
+            <Field label="Testemunha 1"><Input className="text-xl" value={formData.termo_recusa?.testemunha1 || ''} onChange={(e) => handleValueChange('termo_recusa', 'testemunha1', e.target.value)}/></Field>
+            <Field label="Testemunha 2"><Input className="text-xl" value={formData.termo_recusa?.testemunha2 || ''} onChange={(e) => handleValueChange('termo_recusa', 'testemunha2', e.target.value)}/></Field>
         </div>
-        <Field label="Assinatura da Vítima/Responsável" onClear={() => clearValue('termo_recusa', 'assinatura')}>
+        <Field label="Assinatura da Vítima/Responsável">
             <Input className="text-xl" value={formData.termo_recusa?.assinatura || ''} onChange={(e) => handleValueChange('termo_recusa', 'assinatura', e.target.value)} />
         </Field>
 
@@ -559,7 +509,7 @@ export default function TO12Form({ categorySlug }: { categorySlug: string }) {
 
 
         <SectionTitle>RELATÓRIO/OBSERVAÇÕES</SectionTitle>
-        <Field onClear={() => clearValue('observacoes', 'texto')}>
+        <Field>
             <Textarea className="text-xl" rows={6} value={formData.observacoes?.texto || ''} onChange={(e) => handleValueChange('observacoes', 'texto', e.target.value)} />
         </Field>
 
