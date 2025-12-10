@@ -272,6 +272,7 @@ export default function TO11Form({ categorySlug }: { categorySlug: string }) {
                     <SelectContent>
                         <SelectItem value="norte">NORTE</SelectItem>
                         <SelectItem value="sul">SUL</SelectItem>
+                        <SelectItem value="ambos">AMBOS</SelectItem>
                     </SelectContent>
                 </Select>
             </Field>
@@ -284,6 +285,8 @@ export default function TO11Form({ categorySlug }: { categorySlug: string }) {
                         <SelectItem value="acostamento">ACOSTAMENTO</SelectItem>
                         <SelectItem value="area_dominio">ÁREA DE DOMÍNIO</SelectItem>
                         <SelectItem value="terceira_faixa">TERCEIRA FAIXA</SelectItem>
+                        <SelectItem value="faixa_de_rolamento">FAIXA DE ROLAMENTO</SelectItem>
+                        <SelectItem value="praca_de_pedagio">PRAÇA DE PEDÁGIO</SelectItem>
                     </SelectContent>
                 </Select>
             </Field>
@@ -425,3 +428,4 @@ export default function TO11Form({ categorySlug }: { categorySlug: string }) {
     </div>
   );
 }
+
