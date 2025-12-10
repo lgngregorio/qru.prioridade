@@ -17,10 +17,10 @@ export default function Home() {
 
   return (
     <main className="flex min-h-screen flex-col items-center p-4 pt-8 md:p-6">
-      <div className="w-full max-w-md">
-        <header className="text-center mb-6 w-full">
+       <div className="w-full max-w-md relative mb-6 flex items-center justify-center">
+        <SidebarTrigger className="md:hidden absolute left-0 h-9 w-9" />
+        <header className="text-center w-full">
            <div className="flex items-center gap-4 justify-center relative">
-             <SidebarTrigger className="md:hidden absolute left-0"/>
              <h1 className="text-4xl font-bold text-foreground font-headline tracking-wider flex items-center justify-center gap-4">
                 QRU
                 <div className="flex h-10 items-center gap-1">
@@ -34,7 +34,10 @@ export default function Home() {
             Selecione o tipo de ocorrência para gerar o relatório.
           </p>
         </header>
+      </div>
 
+
+      <div className="w-full max-w-md">
         <div className="mb-8">
           <div className="relative">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
@@ -54,6 +57,7 @@ export default function Home() {
     </main>
   );
 }
+
 
 
 
