@@ -28,7 +28,7 @@ export default function AppSidebar() {
 
   return (
     <>
-      <SidebarHeader className="p-4">
+      <SidebarHeader className="p-4 flex justify-center">
         <div className="flex items-center justify-center space-x-2">
            <h1 className="text-2xl font-bold text-white flex items-center justify-center gap-2">
             QRU
