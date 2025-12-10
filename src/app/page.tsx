@@ -27,8 +27,16 @@ export default function Home() {
              <h1 className="text-4xl font-bold text-foreground font-headline tracking-wider flex items-center justify-center gap-4">
                 QRU
                 <div className="flex h-10 items-center gap-1">
-                  <div className="w-px h-full bg-foreground"></div>
-                  <div className="w-px h-full bg-foreground"></div>
+                  <div className="w-px h-full bg-foreground/30"></div>
+                  <div
+                    className="w-px h-full animate-move-dashes"
+                    style={{
+                      backgroundImage:
+                        'linear-gradient(to bottom, hsl(var(--foreground)) 50%, transparent 50%)',
+                      backgroundSize: '1px 8px',
+                      backgroundRepeat: 'repeat-y',
+                    }}
+                  ></div>
                 </div>
                 PRIORIDADE
               </h1>
@@ -60,4 +68,3 @@ export default function Home() {
     </main>
   );
 }
-
