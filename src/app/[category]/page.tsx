@@ -560,7 +560,7 @@ function VeiculoAbandonadoForm({ categorySlug }: { categorySlug: string }) {
       <form className="space-y-8" onSubmit={(e) => e.preventDefault()}>
         {/* Informações Gerais */}
         <div className="space-y-4">
-          <h2 className="text-lg font-semibold text-primary border-b-2 border-primary pb-2">Informações Gerais</h2>
+          <h2 className="text-lg font-semibold text-foreground border-b-2 border-foreground pb-2">Informações Gerais</h2>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <Field label="RODOVIA">
                 <Select value={generalInfo.rodovia} onValueChange={(value) => handleGeneralInfoChange('rodovia', value)}>
@@ -624,7 +624,7 @@ function VeiculoAbandonadoForm({ categorySlug }: { categorySlug: string }) {
         </div>
 
         {vehicles.map((vehicle, index) => (
-          <div key={vehicle.id} className="space-y-4 border-2 border-dashed border-primary/50 p-4 rounded-lg relative">
+          <div key={vehicle.id} className="space-y-4 border-2 border-dashed border-foreground/50 p-4 rounded-lg relative">
              {vehicles.length > 1 && (
               <Button 
                 variant="destructive" 
@@ -638,7 +638,7 @@ function VeiculoAbandonadoForm({ categorySlug }: { categorySlug: string }) {
             )}
             {/* Dados do Veículo */}
             <div className="space-y-4">
-              <h2 className="text-lg font-semibold text-primary border-b-2 border-primary pb-2">Dados do Veículo {index + 1}</h2>
+              <h2 className="text-lg font-semibold text-foreground border-b-2 border-foreground pb-2">Dados do Veículo {index + 1}</h2>
                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <Field label="MARCA"><Input placeholder="Ex: VW" value={vehicle.marca} onChange={e => handleVehicleChange(index, 'marca', e.target.value)}/></Field>
                     <Field label="MODELO"><Input placeholder="Ex: Gol" value={vehicle.modelo} onChange={e => handleVehicleChange(index, 'modelo', e.target.value)} /></Field>
@@ -705,7 +705,7 @@ function VeiculoAbandonadoForm({ categorySlug }: { categorySlug: string }) {
 
             {/* Condutor */}
             <div className="space-y-4">
-                <h2 className="text-lg font-semibold text-primary border-b-2 border-primary pb-2">Condutor</h2>
+                <h2 className="text-lg font-semibold text-foreground border-b-2 border-foreground pb-2">Condutor</h2>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                      <Field label="QRA DO CONDUTOR(A)"><Input placeholder="Nome do condutor" value={vehicle.condutor} onChange={e => handleVehicleChange(index, 'condutor', e.target.value)}/></Field>
                      <Field label="BAIXA FREQUÊNCIA">
@@ -729,7 +729,7 @@ function VeiculoAbandonadoForm({ categorySlug }: { categorySlug: string }) {
 
         {/* Outras Informações */}
         <div className="space-y-4">
-          <h2 className="text-lg font-semibold text-primary border-b-2 border-primary pb-2">Outras Informações</h2>
+          <h2 className="text-lg font-semibold text-foreground border-b-2 border-foreground pb-2">Outras Informações</h2>
           <Field label="AUXÍLIOS/PR">
             <Textarea placeholder="Descreva os auxílios prestados" value={otherInfo.auxilios} onChange={(e) => handleOtherInfoChange('auxilios', e.target.value)} />
           </Field>
@@ -788,7 +788,7 @@ export default function ReportPage() {
         </div>
         <Card className="w-full max-w-4xl mx-auto shadow-none rounded-none border-0 bg-transparent">
           <CardHeader className="text-center px-4 pb-4 md:px-6 md:pb-6">
-            <CardTitle className="text-3xl font-bold text-primary font-headline tracking-wide">
+            <CardTitle className="text-3xl font-bold text-foreground font-headline tracking-wide">
               {title}
             </CardTitle>
             <CardDescription className="text-base mt-1 text-muted-foreground">
