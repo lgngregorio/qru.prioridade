@@ -252,7 +252,7 @@ function VeiculoAbandonadoForm({ categorySlug }: { categorySlug: string }) {
 
 
   return (
-    <div className="w-full max-w-6xl mx-auto p-4 sm:p-6">
+    <div className="w-full p-4 sm:p-6">
       <form className="space-y-8" onSubmit={(e) => e.preventDefault()}>
         {/* Informações Gerais */}
         <div className="space-y-4">
@@ -437,7 +437,7 @@ function VeiculoAbandonadoForm({ categorySlug }: { categorySlug: string }) {
           </Field>
         </div>
 
-        <div className="flex flex-row gap-4 pt-6">
+        <div className="flex gap-4 pt-6">
           <Button size="lg" className="flex-1 bg-green-600 hover:bg-green-700" onClick={handleShare}>
             <Share className="mr-2 h-4 w-4" />
             Compartilhar WhatsApp
@@ -475,7 +475,7 @@ export default function ReportPage() {
             </Link>
           </Button>
         </div>
-        <Card className="w-full max-w-6xl mx-auto shadow-none rounded-none border-0 bg-transparent">
+        <Card className="w-full shadow-none rounded-none border-0 bg-transparent">
           <CardHeader className="text-center px-4 pb-4 md:px-6 md:pb-6">
             <CardTitle className="text-3xl font-bold text-foreground font-headline tracking-wide">
               {title}
