@@ -1,3 +1,4 @@
+
 'use client';
 
 import Link from 'next/link';
@@ -21,9 +22,29 @@ import {
   CardTitle,
 } from '@/components/ui/card';
 import { useTheme } from 'next-themes';
+import { useState } from 'react';
+import { useToast } from '@/hooks/use-toast';
 
 export default function ConfiguracoesPage() {
   const { theme, setTheme } = useTheme();
+  const { toast } = useToast();
+
+  const [name, setName] = useState('Lucas');
+  const [email, setEmail] = useState('lgngregorio@icloud.com');
+  const [isSaving, setIsSaving] = useState(false);
+
+  const handleSave = () => {
+    setIsSaving(true);
+    // Simulate saving to a backend
+    setTimeout(() => {
+      console.log('Saved:', { name, email, theme });
+      setIsSaving(false);
+      toast({
+        title: 'Sucesso!',
+        description: 'Suas configurações foram salvas.',
+      });
+    }, 1000);
+  };
 
   return (
     <main className="flex flex-col items-center p-4 md:p-6">
@@ -55,11 +76,11 @@ export default function ConfiguracoesPage() {
             <CardContent className="space-y-6">
               <div className="space-y-2">
                 <Label htmlFor="name">NOME</Label>
-                <Input id="name" defaultValue="Lucas" />
+                <Input id="name" value={name} onChange={(e) => setName(e.target.value)} />
               </div>
               <div className="space-y-2">
                 <Label htmlFor="email">EMAIL</Label>
-                <Input id="email" type="email" defaultValue="lgngregorio@icloud.com" />
+                <Input id="email" type="email" value={email} onChange={(e) => setEmail(e.target.value)} />
               </div>
             </CardContent>
           </Card>
@@ -124,9 +145,9 @@ export default function ConfiguracoesPage() {
         </div>
 
         <div className="mt-8">
-          <Button size="lg" className="w-full text-lg uppercase">
+          <Button size="lg" className="w-full text-lg uppercase" onClick={handleSave} disabled={isSaving}>
             <Save className="mr-2 h-5 w-5" />
-            Salvar Alterações
+            {isSaving ? 'Salvando...' : 'Salvar Alterações'}
           </Button>
         </div>
       </div>
