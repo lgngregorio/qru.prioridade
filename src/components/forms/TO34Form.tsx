@@ -164,7 +164,7 @@ export default function TO34Form({ categorySlug }: { categorySlug: string }) {
     message += `QTH (Local): ${reportData.generalInfo.qth}\n`;
     message += `Sentido: ${reportData.generalInfo.sentido}\n`;
     message += `Local/Área: ${reportData.generalInfo.localArea}\n`;
-    message += `Tipo de Objeto: ${reportData.generalInfo.tipoDeObjeto}\n`;
+    message += `Tipo de Defeito: ${reportData.generalInfo.tipoDeObjeto}\n`;
     message += `Quantidade: ${reportData.generalInfo.quantidade}\n\n`;
 
     message += `*OUTRAS INFORMAÇÕES*\n`;
@@ -231,8 +231,16 @@ export default function TO34Form({ categorySlug }: { categorySlug: string }) {
                     </SelectContent>
                 </Select>
             </Field>
-            <Field label="TIPO DE OBJETO">
-                <Input className="text-xl placeholder:capitalize placeholder:text-sm" placeholder="Ex: Pneu, galho de árvore" value={generalInfo.tipoDeObjeto} onChange={(e) => handleGeneralInfoChange('tipoDeObjeto', e.target.value)}/>
+            <Field label="TIPO DE DEFEITO">
+                <Select value={generalInfo.tipoDeObjeto} onValueChange={(value) => handleGeneralInfoChange('tipoDeObjeto', value)}>
+                    <SelectTrigger className="text-xl normal-case placeholder:text-base">
+                        <SelectValue placeholder="Selecione o tipo de defeito" />
+                    </SelectTrigger>
+                    <SelectContent>
+                        <SelectItem value="buraco">BURACO</SelectItem>
+                        <SelectItem value="deformidade">DEFORMIDADE</SelectItem>
+                    </SelectContent>
+                </Select>
             </Field>
             <Field label="QUANTIDADE">
                 <Input className="text-xl placeholder:capitalize placeholder:text-sm" placeholder="Ex: 1" value={generalInfo.quantidade} onChange={(e) => handleGeneralInfoChange('quantidade', e.target.value)}/>
