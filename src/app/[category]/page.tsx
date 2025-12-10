@@ -34,6 +34,7 @@ const LoadingSkeleton = () => (
 
 
 const formComponents: { [key: string]: ComponentType<{ categorySlug: string }> } = {
+  'tracado-de-pista': dynamic(() => import('@/components/forms/TracadoDePistaForm'), { loading: () => <LoadingSkeleton /> }),
   'to-01': dynamic(() => import('@/components/forms/VeiculoAbandonadoForm'), { loading: () => <LoadingSkeleton /> }),
   'to-02': dynamic(() => import('@/components/forms/IncendioForm'), { loading: () => <LoadingSkeleton /> }),
   'to-03': dynamic(() => import('@/components/forms/TO03Form'), { loading: () => <LoadingSkeleton /> }),
@@ -108,3 +109,4 @@ export default function ReportPage() {
     </main>
   );
 }
+
