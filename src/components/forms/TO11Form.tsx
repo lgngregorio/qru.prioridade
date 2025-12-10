@@ -61,6 +61,7 @@ type OtherInfo = {
   auxilios: string;
   tipoDeDanos: string;
   quantidadeDeDanos: string;
+  metragem: string;
   observacoes: string;
   numeroOcorrencia: string;
 };
@@ -91,6 +92,7 @@ export default function TO11Form({ categorySlug }: { categorySlug: string }) {
     auxilios: '',
     tipoDeDanos: '',
     quantidadeDeDanos: '',
+    metragem: '',
     observacoes: '',
     numeroOcorrencia: '',
   });
@@ -233,7 +235,7 @@ export default function TO11Form({ categorySlug }: { categorySlug: string }) {
     const reportData = prepareReportData().formData;
     const category = eventCategories.find(c => c.slug === categorySlug);
     
-    let message = `*RELATÓRIO DE ${category ? category.name.toUpperCase() : 'OCORRÊNCIA'}*\n\n`;
+    let message = `*${category ? category.title.toUpperCase() : 'OCORRÊNCIA'}*\n\n`;
 
     message += `*INFORMAÇÕES GERAIS*\n`;
     message += `Rodovia: ${reportData.generalInfo.rodovia}\n`;
@@ -269,6 +271,9 @@ export default function TO11Form({ categorySlug }: { categorySlug: string }) {
     message += `Auxílios/PR: ${reportData.otherInfo.auxilios}\n`;
     message += `Tipo de Danos: ${reportData.otherInfo.tipoDeDanos}\n`;
     message += `Quantidade de Danos: ${reportData.otherInfo.quantidadeDeDanos}\n`;
+    if (reportData.otherInfo.metragem && reportData.otherInfo.metragem !== 'NILL') {
+      message += `Metragem: ${reportData.otherInfo.metragem}\n`;
+    }
     message += `Observações: ${reportData.otherInfo.observacoes}\n`;
     message += `Nº Ocorrência: ${reportData.otherInfo.numeroOcorrencia}\n`;
 
@@ -466,6 +471,9 @@ export default function TO11Form({ categorySlug }: { categorySlug: string }) {
             </Field>
             <Field label="QUANTIDADE DE DANOS">
               <Input className="text-2xl placeholder:capitalize placeholder:text-sm" placeholder="Informe a quantidade" value={otherInfo.quantidadeDeDanos} onChange={(e) => handleOtherInfoChange('quantidadeDeDanos', e.target.value)} />
+            </Field>
+            <Field label="METRAGEM (OPCIONAL)">
+              <Input className="text-2xl placeholder:capitalize placeholder:text-sm" placeholder="Informe a metragem" value={otherInfo.metragem} onChange={(e) => handleOtherInfoChange('metragem', e.target.value)} />
             </Field>
             <Field label="OBSERVAÇÕES">
               <Textarea className="text-2xl placeholder:capitalize placeholder:text-sm" placeholder="Descreva detalhes adicionais sobre a ocorrência" value={otherInfo.observacoes} onChange={(e) => handleOtherInfoChange('observacoes', e.target.value)} />
