@@ -25,6 +25,7 @@ import TO07Form from '@/components/forms/TO07Form';
 import TO09Form from '@/components/forms/TO09Form';
 import TO11Form from '@/components/forms/TO11Form';
 import TO15Form from '@/components/forms/TO15Form';
+import TO17Form from '@/components/forms/TO17Form';
 
 function ReportFormComponent({ categorySlug }: { categorySlug: string }) {
   switch (categorySlug) {
@@ -48,6 +49,8 @@ function ReportFormComponent({ categorySlug }: { categorySlug: string }) {
         return <TO11Form categorySlug={categorySlug} />;
     case 'to-15':
         return <TO15Form categorySlug={categorySlug} />;
+    case 'to-17':
+        return <TO17Form categorySlug={categorySlug} />;
     default:
       // Um formulário padrão ou uma mensagem de "em breve" pode ser retornada aqui.
       return <p className="p-8 text-center">Formulário para {categorySlug} em construção.</p>;
@@ -86,7 +89,7 @@ export default function ReportPage() {
         <Card className="w-full shadow-none rounded-none border-0 bg-transparent">
           <CardHeader className="text-center px-4 pb-4 md:px-6 md:pb-6">
             <CardTitle className="text-3xl font-bold text-foreground font-headline tracking-wide uppercase">
-              {title}
+              {category.name}
             </CardTitle>
             <CardDescription className="text-lg mt-1 text-muted-foreground normal-case">
              {description}
@@ -100,5 +103,3 @@ export default function ReportPage() {
     </main>
   );
 }
-
-    
