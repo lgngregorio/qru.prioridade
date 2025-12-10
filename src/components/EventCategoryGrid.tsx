@@ -56,7 +56,7 @@ export default function EventCategoryGrid({
       {categories.map((category) => (
         <Link href={`/${category.slug}`} key={category.slug} className="group">
           <Card 
-            className="h-full text-center shadow-lg rounded-lg border-b-4 border-black/20 transform transition-transform duration-150 ease-in-out active:border-b-2 active:translate-y-px group-hover:-translate-y-px bg-card text-card-foreground"
+            className="h-full text-center shadow-lg rounded-lg border-b-4 border-black/20 transform transition-transform duration-150 ease-in-out active:border-b-2 active:translate-y-px group-hover:-translate-y-px bg-card/80 hover:bg-card text-card-foreground"
           >
             <CardHeader className="flex flex-col items-center justify-center p-1 aspect-[3/4]">
               <div
