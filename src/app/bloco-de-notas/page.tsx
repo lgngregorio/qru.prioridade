@@ -40,6 +40,7 @@ import {
 import { useToast } from '@/hooks/use-toast';
 import { Loader2, ArrowLeft, Trash2, Edit, Save, Plus } from 'lucide-react';
 import Link from 'next/link';
+import { Label } from '@/components/ui/label';
 
 interface Note {
   id: string;
@@ -215,18 +216,26 @@ export default function NotepadPage() {
             <CardTitle>{currentNote.id ? 'Editar Anotação' : 'Nova Anotação'}</CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
-            <Input
-              placeholder="Título da nota"
-              value={currentNote.title}
-              onChange={(e) => setCurrentNote({ ...currentNote, title: e.target.value })}
-              className="text-2xl"
-            />
-            <Textarea
-              placeholder="Escreva sua anotação aqui..."
-              value={currentNote.content}
-              onChange={(e) => setCurrentNote({ ...currentNote, content: e.target.value })}
-              className="min-h-[150px] text-xl"
-            />
+             <div className="space-y-2">
+                <Label htmlFor="note-title">TÍTULO</Label>
+                <Input
+                  id="note-title"
+                  placeholder="Título da nota"
+                  value={currentNote.title}
+                  onChange={(e) => setCurrentNote({ ...currentNote, title: e.target.value })}
+                  className="text-2xl"
+                />
+            </div>
+            <div className="space-y-2">
+                <Label htmlFor="note-content">CONTEÚDO</Label>
+                <Textarea
+                  id="note-content"
+                  placeholder="Escreva sua anotação aqui..."
+                  value={currentNote.content}
+                  onChange={(e) => setCurrentNote({ ...currentNote, content: e.target.value })}
+                  className="min-h-[150px] text-xl"
+                />
+            </div>
           </CardContent>
           <CardFooter className="flex justify-end gap-2">
             {currentNote.id && (
