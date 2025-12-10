@@ -248,8 +248,7 @@ export default function TO07Form({ categorySlug }: { categorySlug: string }) {
                         <SelectValue placeholder="Selecione a destinação" />
                     </SelectTrigger>
                     <SelectContent>
-                        <SelectItem value="pr05">PR05</SelectItem>
-                        <SelectItem value="pr56">PR56</SelectItem>
+                        <SelectItem value="pr06">PR06</SelectItem>
                         <SelectItem value="pr13">PR13</SelectItem>
                     </SelectContent>
                 </Select>
@@ -277,5 +276,3 @@ export default function TO07Form({ categorySlug }: { categorySlug: string }) {
     </div>
   );
 }
-
-    
