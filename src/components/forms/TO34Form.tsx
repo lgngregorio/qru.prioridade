@@ -33,6 +33,8 @@ type GeneralInfo = {
   qth: string;
   sentido: string;
   localArea: string;
+  qthInicio: string;
+  qthTermino: string;
   tipoDeDefeito: string;
   quantidade: string;
 };
@@ -56,6 +58,8 @@ export default function TO34Form({ categorySlug }: { categorySlug: string }) {
     qth: '',
     sentido: '',
     localArea: '',
+    qthInicio: '',
+    qthTermino: '',
     tipoDeDefeito: '',
     quantidade: '',
   });
@@ -154,6 +158,8 @@ export default function TO34Form({ categorySlug }: { categorySlug: string }) {
     message += `QTH (Local): ${reportData.generalInfo.qth}\n`;
     message += `Sentido: ${reportData.generalInfo.sentido}\n`;
     message += `Local/Área: ${reportData.generalInfo.localArea}\n`;
+    message += `QTH de Início: ${reportData.generalInfo.qthInicio}\n`;
+    message += `QTH de Término: ${reportData.generalInfo.qthTermino}\n`;
     message += `Tipo de Defeito: ${reportData.generalInfo.tipoDeDefeito}\n`;
     message += `Quantidade: ${reportData.generalInfo.quantidade}\n\n`;
 
@@ -216,6 +222,12 @@ export default function TO34Form({ categorySlug }: { categorySlug: string }) {
                         <SelectItem value="faixa_de_bordo">FAIXA DE BORDO</SelectItem>
                     </SelectContent>
                 </Select>
+            </Field>
+            <Field label="QTH DE INÍCIO">
+                <Input className="text-xl placeholder:capitalize placeholder:text-sm" placeholder="Km inicial" value={generalInfo.qthInicio} onChange={(e) => handleGeneralInfoChange('qthInicio', e.target.value)}/>
+            </Field>
+            <Field label="QTH DE TÉRMINO">
+                <Input className="text-xl placeholder:capitalize placeholder:text-sm" placeholder="Km final" value={generalInfo.qthTermino} onChange={(e) => handleGeneralInfoChange('qthTermino', e.target.value)}/>
             </Field>
             <Field label="TIPO DE DEFEITO">
                 <Select value={generalInfo.tipoDeDefeito} onValueChange={(value) => handleGeneralInfoChange('tipoDeDefeito', value)}>
