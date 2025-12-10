@@ -64,7 +64,7 @@ export default function AppSidebar() {
             </SidebarMenuButton>
           </SidebarMenuItem>
           <SidebarMenuItem>
-            <SidebarMenuButton asChild isActive={pathname === '/bloco-de-notas'} className="text-base [&_svg]:size-5" onClick={handleLinkClick}>
+            <SidebarMenuButton asChild isActive={pathname.startsWith('/bloco-de-notas')} className="text-base [&_svg]:size-5" onClick={handleLinkClick}>
               <Link href="/bloco-de-notas">
                 <Notebook />
                 Bloco de Nota
@@ -88,8 +88,8 @@ export default function AppSidebar() {
             </SidebarMenuButton>
           </SidebarMenuItem>
            <SidebarMenuItem>
-            <SidebarMenuButton asChild className="text-base [&_svg]:size-5" onClick={handleLinkClick}>
-              <Link href="#">
+            <SidebarMenuButton asChild isActive={pathname === '/configuracoes'} className="text-base [&_svg]:size-5" onClick={handleLinkClick}>
+              <Link href="/configuracoes">
                 <Settings />
                 Configurações
               </Link>
