@@ -76,7 +76,7 @@ export default function TO16Form({ categorySlug }: { categorySlug: string }) {
       id: 1, 
       dados_cadastrais: {},
       evento: {},
-      veiculo: {},
+      veiculo: { tipo: [] },
       avaliacao: {},
       avaliacao_primaria: {},
       avaliacao_secundaria: { sinais_vitais: {} },
@@ -129,7 +129,7 @@ export default function TO16Form({ categorySlug }: { categorySlug: string }) {
       id: Date.now(), 
       dados_cadastrais: {},
       evento: {},
-      veiculo: {},
+      veiculo: { tipo: [] },
       avaliacao: {},
       avaliacao_primaria: {},
       avaliacao_secundaria: { sinais_vitais: {} },
@@ -379,7 +379,17 @@ export default function TO16Form({ categorySlug }: { categorySlug: string }) {
                             </Field>
                         </div>
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mt-8">
-                            <Field label="Tipo de Veículo"><Input className="text-xl" value={victim.veiculo.tipo || ''} onChange={e => handleVictimChange(victim.id, 'veiculo', 'tipo', e.target.value)}/></Field>
+                            <Field label="VEÍCULO">
+                                <div className="flex flex-col space-y-2">
+                                    <div className="flex items-center space-x-2"><Checkbox id={`veiculo-bicicleta-${victim.id}`} checked={victim.veiculo?.tipo?.includes('bicicleta')} onCheckedChange={(c) => handleVictimCheckboxChange(victim.id, 'veiculo', 'tipo', 'bicicleta', !!c)} /><Label htmlFor={`veiculo-bicicleta-${victim.id}`} className="font-normal text-xl">BICICLETA</Label></div>
+                                    <div className="flex items-center space-x-2"><Checkbox id={`veiculo-moto-${victim.id}`} checked={victim.veiculo?.tipo?.includes('moto')} onCheckedChange={(c) => handleVictimCheckboxChange(victim.id, 'veiculo', 'tipo', 'moto', !!c)} /><Label htmlFor={`veiculo-moto-${victim.id}`} className="font-normal text-xl">MOTO</Label></div>
+                                    <div className="flex items-center space-x-2"><Checkbox id={`veiculo-carro-${victim.id}`} checked={victim.veiculo?.tipo?.includes('carro')} onCheckedChange={(c) => handleVictimCheckboxChange(victim.id, 'veiculo', 'tipo', 'carro', !!c)} /><Label htmlFor={`veiculo-carro-${victim.id}`} className="font-normal text-xl">CARRO</Label></div>
+                                    <div className="flex items-center space-x-2"><Checkbox id={`veiculo-utilitaria-${victim.id}`} checked={victim.veiculo?.tipo?.includes('utilitaria')} onCheckedChange={(c) => handleVictimCheckboxChange(victim.id, 'veiculo', 'tipo', 'utilitaria', !!c)} /><Label htmlFor={`veiculo-utilitaria-${victim.id}`} className="font-normal text-xl">UTILITÁRIA</Label></div>
+                                    <div className="flex items-center space-x-2"><Checkbox id={`veiculo-onibus-${victim.id}`} checked={victim.veiculo?.tipo?.includes('onibus')} onCheckedChange={(c) => handleVictimCheckboxChange(victim.id, 'veiculo', 'tipo', 'onibus', !!c)} /><Label htmlFor={`veiculo-onibus-${victim.id}`} className="font-normal text-xl">ÔNIBUS</Label></div>
+                                    <div className="flex items-center space-x-2"><Checkbox id={`veiculo-caminhao-${victim.id}`} checked={victim.veiculo?.tipo?.includes('caminhao')} onCheckedChange={(c) => handleVictimCheckboxChange(victim.id, 'veiculo', 'tipo', 'caminhao', !!c)} /><Label htmlFor={`veiculo-caminhao-${victim.id}`} className="font-normal text-xl">CAMINHÃO</Label></div>
+                                    <div className="flex items-center space-x-2"><Checkbox id={`veiculo-carreta-${victim.id}`} checked={victim.veiculo?.tipo?.includes('carreta')} onCheckedChange={(c) => handleVictimCheckboxChange(victim.id, 'veiculo', 'tipo', 'carreta', !!c)} /><Label htmlFor={`veiculo-carreta-${victim.id}`} className="font-normal text-xl">CARRETA</Label></div>
+                                </div>
+                            </Field>
                             <Field label="Placa"><Input className="text-xl" value={victim.veiculo.placa || ''} onChange={e => handleVictimChange(victim.id, 'veiculo', 'placa', e.target.value)}/></Field>
                         </div>
                     </div>
@@ -435,7 +445,7 @@ export default function TO16Form({ categorySlug }: { categorySlug: string }) {
                                 {renderRadioGroup(victim.id, 'avaliacao_primaria', 'sangramento', [{id: 'presente', label: 'Presente'}, {id: 'ausente', label: 'Ausente'}], 'horizontal')}
                             </Field>
                             <SubSectionTitle>D - Neurológico: Glasgow e Pupilas</SubSectionTitle>
-                            <div className="grid grid-cols-1 gap-8">
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                                 <Field label="Pupilas">
                                     {renderRadioGroup(victim.id, 'avaliacao_primaria', 'pupilas', [{id: 'isocoricas', label: 'Isocóricas'}, {id: 'anisocoricas', label: 'Anisocóricas'}], 'vertical')}
                                 </Field>
@@ -620,7 +630,7 @@ export default function TO16Form({ categorySlug }: { categorySlug: string }) {
                             <Field label="Médico Regulador/Intervencionista"><Input className="text-xl" value={victim.conduta.medico_regulador || ''} onChange={e => handleVictimChange(victim.id, 'conduta', 'medico_regulador', e.target.value)} /></Field>
                             <Field label="Médico Receptor"><Input className="text-xl" value={victim.conduta.medico_receptor || ''} onChange={e => handleVictimChange(victim.id, 'conduta', 'medico_receptor', e.target.value)} /></Field>
                             <Field label="Código">
-                                <RadioGroup value={victim.conduta.codigo || ''} onValueChange={v => handleVictimChange(victim.id, 'conduta', 'codigo', v)} className="flex flex-col flex-wrap gap-x-4 gap-y-2">
+                                <RadioGroup value={victim.conduta.codigo || ''} onValueChange={v => handleVictimChange(victim.id, 'conduta', 'codigo', v)} className="flex flex-col gap-y-2">
                                     <div className="flex items-center space-x-2"><RadioGroupItem value="vermelho" id={`cod-vermelho-${victim.id}`} /><Label htmlFor={`cod-vermelho-${victim.id}`} className="font-normal text-xl">Vermelho</Label></div>
                                     <div className="flex items-center space-x-2"><RadioGroupItem value="amarelo" id={`cod-amarelo-${victim.id}`} /><Label htmlFor={`cod-amarelo-${victim.id}`} className="font-normal text-xl">Amarelo</Label></div>
                                     <div className="flex items-center space-x-2"><RadioGroupItem value="verde" id={`cod-verde-${victim.id}`} /><Label htmlFor={`cod-verde-${victim.id}`} className="font-normal text-xl">Verde</Label></div>
@@ -632,7 +642,6 @@ export default function TO16Form({ categorySlug }: { categorySlug: string }) {
                         </div>
                     </div>
                 </div>
-
             </div>
         ))}
 
@@ -676,3 +685,5 @@ export default function TO16Form({ categorySlug }: { categorySlug: string }) {
     </div>
   );
 }
+
+    
