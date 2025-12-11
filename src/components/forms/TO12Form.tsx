@@ -2,7 +2,7 @@
 'use client';
 
 import { useRouter } from 'next/navigation';
-import { Save, Share, Loader2, PlusCircle, Trash2, X, Eye, RotateCcw } from 'lucide-react';
+import { Save, Share, Loader2, PlusCircle, Trash2, X, Eye } from 'lucide-react';
 import { useState } from 'react';
 import { collection, addDoc, serverTimestamp } from 'firebase/firestore';
 import React from 'react';
@@ -28,17 +28,15 @@ function Field({ label, children, className }: { label?: string, children: React
   )
 }
 
-const SectionTitle = ({ children, onHide, className }: { children: React.ReactNode; onHide?: () => void; className?: string }) => (
+const SectionTitle = ({ children, onToggle, isVisible, className }: { children: React.ReactNode; onToggle: () => void; isVisible: boolean; className?: string }) => (
   <div className="flex items-center justify-between mt-8 mb-4 border-b-2 border-foreground pb-2">
-    <h2 className={cn("text-xl font-semibold text-foreground uppercase", className)}>
+    <h2 className={cn("text-xl font-semibold text-foreground uppercase", className, !isVisible && 'text-muted-foreground')}>
       {children}
     </h2>
-    {onHide && (
-      <Button variant="ghost" size="sm" onClick={onHide} className="flex items-center gap-2 text-muted-foreground hover:text-destructive">
-        <X className="h-4 w-4" />
-        Ocultar
-      </Button>
-    )}
+    <Button variant="ghost" size="sm" onClick={onToggle} className="flex items-center gap-2 text-muted-foreground hover:text-primary">
+      {isVisible ? <X className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+      {isVisible ? 'Ocultar' : 'Restaurar'}
+    </Button>
   </div>
 );
 
@@ -81,24 +79,18 @@ export default function TO12Form({ categorySlug }: { categorySlug: string }) {
   const [visibleSections, setVisibleSections] = useState(initialSectionVisibility);
 
   const handleSectionVisibility = (sectionKey: keyof typeof initialSectionVisibility) => {
-    setVisibleSections(prev => ({
-      ...prev,
-      [sectionKey]: !prev[sectionKey],
-    }));
-     toast({
-      title: 'Seção Ocultada!',
-      description: 'A seção foi removida do formulário.',
+    setVisibleSections(prev => {
+        const isNowVisible = !prev[sectionKey];
+        toast({
+            title: isNowVisible ? 'Seção Restaurada!' : 'Seção Ocultada!',
+            description: isNowVisible ? 'A seção agora está visível no formulário.' : 'A seção foi removida do formulário.',
+        });
+        return {
+            ...prev,
+            [sectionKey]: isNowVisible,
+        };
     });
   };
-
-  const restoreAllSections = () => {
-    setVisibleSections(initialSectionVisibility);
-    toast({
-      title: 'Seções Restauradas!',
-      description: 'Todas as seções do formulário foram restauradas.',
-    });
-  };
-
 
   const addListItem = (setter: React.Dispatch<React.SetStateAction<ListItem[]>>) => {
     setter(prev => [...prev, { id: Date.now(), material: '', quantidade: '' }]);
@@ -189,65 +181,69 @@ export default function TO12Form({ categorySlug }: { categorySlug: string }) {
     <div className="w-full p-4 sm:p-6 md:p-8">
       <form className="space-y-12" onSubmit={(e) => e.preventDefault()}>
         
-        {visibleSections.dados_operacionais && (
-          <div id="dados_operacionais">
-            <SectionTitle onHide={() => handleSectionVisibility('dados_operacionais')}>DADOS OPERACIONAIS DA EQUIPE DE APH</SectionTitle>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-                <Field label="UR/USA">
-                  {renderRadioGroup('dados_operacionais', 'ur_usa', [
-                    { id: 'ur', label: 'UR' },
-                    { id: 'usa', label: 'USA' },
-                  ])}
-                </Field>
-                <Field label="Médico Regulador"><Input className="text-xl" value={formData.dados_operacionais?.medico_regulador || ''} onChange={(e) => handleValueChange('dados_operacionais', 'medico_regulador', e.target.value)} /></Field>
-                <Field label="Condutor"><Input className="text-xl" value={formData.dados_operacionais?.condutor || ''} onChange={(e) => handleValueChange('dados_operacionais', 'condutor', e.target.value)} /></Field>
-                <Field label="Resgatista I"><Input className="text-xl" value={formData.dados_operacionais?.resgatista || ''} onChange={(e) => handleValueChange('dados_operacionais', 'resgatista', e.target.value)} /></Field>
-                <Field label="Data"><Input type="date" className="text-xl" value={formData.dados_operacionais?.data || ''} onChange={(e) => handleValueChange('dados_operacionais', 'data', e.target.value)} /></Field>
-                <Field label="Nº Ocorrência"><Input className="text-xl" value={formData.dados_operacionais?.n_ocorrencia || ''} onChange={(e) => handleValueChange('dados_operacionais', 'n_ocorrencia', e.target.value)} /></Field>
-                <Field label="KM"><Input className="text-xl" value={formData.dados_operacionais?.km || ''} onChange={(e) => handleValueChange('dados_operacionais', 'km', e.target.value)} /></Field>
-                <Field label="Sentido">
-                  {renderRadioGroup('dados_operacionais', 'sentido', [
-                    { id: 'norte', label: 'Norte' },
-                    { id: 'sul', label: 'Sul' },
-                  ])}
-                </Field>
-            </div>
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mt-8">
-                <Field label="Acionamento"><Input type="time" className="text-xl" value={formData.dados_operacionais?.acionamento || ''} onChange={(e) => handleValueChange('dados_operacionais', 'acionamento', e.target.value)} /></Field>
-                <Field label="Chegada no Local"><Input type="time" className="text-xl" value={formData.dados_operacionais?.chegada_local || ''} onChange={(e) => handleValueChange('dados_operacionais', 'chegada_local', e.target.value)} /></Field>
-                <Field label="Saída do Local"><Input type="time" className="text-xl" value={formData.dados_operacionais?.saida_local || ''} onChange={(e) => handleValueChange('dados_operacionais', 'saida_local', e.target.value)} /></Field>
-                <Field label="Chegada no Hospital"><Input type="time" className="text-xl" value={formData.dados_operacionais?.chegada_hospital || ''} onChange={(e) => handleValueChange('dados_operacionais', 'chegada_hospital', e.target.value)} /></Field>
-                <Field label="Saída do Hospital"><Input type="time" className="text-xl" value={formData.dados_operacionais?.saida_hospital || ''} onChange={(e) => handleValueChange('dados_operacionais', 'saida_hospital', e.target.value)} /></Field>
-                <Field label="Chegada BSO/Término"><Input type="time" className="text-xl" value={formData.dados_operacionais?.chegada_bso || ''} onChange={(e) => handleValueChange('dados_operacionais', 'chegada_bso', e.target.value)} /></Field>
-            </div>
-          </div>
-        )}
+        <div id="dados_operacionais">
+            <SectionTitle onToggle={() => handleSectionVisibility('dados_operacionais')} isVisible={visibleSections.dados_operacionais}>DADOS OPERACIONAIS DA EQUIPE DE APH</SectionTitle>
+            {visibleSections.dados_operacionais && (
+            <>
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                    <Field label="UR/USA">
+                    {renderRadioGroup('dados_operacionais', 'ur_usa', [
+                        { id: 'ur', label: 'UR' },
+                        { id: 'usa', label: 'USA' },
+                    ])}
+                    </Field>
+                    <Field label="Médico Regulador"><Input className="text-xl" value={formData.dados_operacionais?.medico_regulador || ''} onChange={(e) => handleValueChange('dados_operacionais', 'medico_regulador', e.target.value)} /></Field>
+                    <Field label="Condutor"><Input className="text-xl" value={formData.dados_operacionais?.condutor || ''} onChange={(e) => handleValueChange('dados_operacionais', 'condutor', e.target.value)} /></Field>
+                    <Field label="Resgatista I"><Input className="text-xl" value={formData.dados_operacionais?.resgatista || ''} onChange={(e) => handleValueChange('dados_operacionais', 'resgatista', e.target.value)} /></Field>
+                    <Field label="Data"><Input type="date" className="text-xl" value={formData.dados_operacionais?.data || ''} onChange={(e) => handleValueChange('dados_operacionais', 'data', e.target.value)} /></Field>
+                    <Field label="Nº Ocorrência"><Input className="text-xl" value={formData.dados_operacionais?.n_ocorrencia || ''} onChange={(e) => handleValueChange('dados_operacionais', 'n_ocorrencia', e.target.value)} /></Field>
+                    <Field label="KM"><Input className="text-xl" value={formData.dados_operacionais?.km || ''} onChange={(e) => handleValueChange('dados_operacionais', 'km', e.target.value)} /></Field>
+                    <Field label="Sentido">
+                    {renderRadioGroup('dados_operacionais', 'sentido', [
+                        { id: 'norte', label: 'Norte' },
+                        { id: 'sul', label: 'Sul' },
+                    ])}
+                    </Field>
+                </div>
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mt-8">
+                    <Field label="Acionamento"><Input type="time" className="text-xl" value={formData.dados_operacionais?.acionamento || ''} onChange={(e) => handleValueChange('dados_operacionais', 'acionamento', e.target.value)} /></Field>
+                    <Field label="Chegada no Local"><Input type="time" className="text-xl" value={formData.dados_operacionais?.chegada_local || ''} onChange={(e) => handleValueChange('dados_operacionais', 'chegada_local', e.target.value)} /></Field>
+                    <Field label="Saída do Local"><Input type="time" className="text-xl" value={formData.dados_operacionais?.saida_local || ''} onChange={(e) => handleValueChange('dados_operacionais', 'saida_local', e.target.value)} /></Field>
+                    <Field label="Chegada no Hospital"><Input type="time" className="text-xl" value={formData.dados_operacionais?.chegada_hospital || ''} onChange={(e) => handleValueChange('dados_operacionais', 'chegada_hospital', e.target.value)} /></Field>
+                    <Field label="Saída do Hospital"><Input type="time" className="text-xl" value={formData.dados_operacionais?.saida_hospital || ''} onChange={(e) => handleValueChange('dados_operacionais', 'saida_hospital', e.target.value)} /></Field>
+                    <Field label="Chegada BSO/Término"><Input type="time" className="text-xl" value={formData.dados_operacionais?.chegada_bso || ''} onChange={(e) => handleValueChange('dados_operacionais', 'chegada_bso', e.target.value)} /></Field>
+                </div>
+            </>
+            )}
+        </div>
 
-        {visibleSections.dados_usuario && (
-          <div id="dados_usuario">
-            <SectionTitle onHide={() => handleSectionVisibility('dados_usuario')}>DADOS CADASTRAIS DO USUÁRIO</SectionTitle>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                <Field label="Nome"><Input className="text-xl" value={formData.dados_usuario?.nome || ''} onChange={(e) => handleValueChange('dados_usuario', 'nome', e.target.value)} /></Field>
-                <Field label="Acompanhante"><Input className="text-xl" value={formData.dados_usuario?.acompanhante || ''} onChange={(e) => handleValueChange('dados_usuario', 'acompanhante', e.target.value)} /></Field>
-                <Field label="Endereço"><Input className="text-xl" value={formData.dados_usuario?.endereco || ''} onChange={(e) => handleValueChange('dados_usuario', 'endereco', e.target.value)} /></Field>
-            </div>
-            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-8 mt-8">
-                <Field label="Sexo">
-                    {renderRadioGroup('dados_usuario', 'sexo', [{id: 'm', label: 'M'}, {id: 'f', label: 'F'}])}
-                </Field>
-                <Field label="DN"><Input type="date" className="text-xl" value={formData.dados_usuario?.dn || ''} onChange={(e) => handleValueChange('dados_usuario', 'dn', e.target.value)} /></Field>
-                <Field label="Idade"><Input type="number" className="text-xl" value={formData.dados_usuario?.idade || ''} onChange={(e) => handleValueChange('dados_usuario', 'idade', e.target.value)} /></Field>
-                <Field label="Telefone"><Input className="text-xl" value={formData.dados_usuario?.tel || ''} onChange={(e) => handleValueChange('dados_usuario', 'tel', e.target.value)} /></Field>
-                <Field label="CPF"><Input className="text-xl" value={formData.dados_usuario?.cpf || ''} onChange={(e) => handleValueChange('dados_usuario', 'cpf', e.target.value)} /></Field>
-                <Field label="RG"><Input className="text-xl" value={formData.dados_usuario?.rg || ''} onChange={(e) => handleValueChange('dados_usuario', 'rg', e.target.value)} /></Field>
-                <Field label="Posição no Veículo"><Input className="text-xl" value={formData.dados_usuario?.posicao_veiculo || ''} onChange={(e) => handleValueChange('dados_usuario', 'posicao_veiculo', e.target.value)} /></Field>
-            </div>
-          </div>
-        )}
+        <div id="dados_usuario">
+            <SectionTitle onToggle={() => handleSectionVisibility('dados_usuario')} isVisible={visibleSections.dados_usuario}>DADOS CADASTRAIS DO USUÁRIO</SectionTitle>
+            {visibleSections.dados_usuario && (
+            <>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                    <Field label="Nome"><Input className="text-xl" value={formData.dados_usuario?.nome || ''} onChange={(e) => handleValueChange('dados_usuario', 'nome', e.target.value)} /></Field>
+                    <Field label="Acompanhante"><Input className="text-xl" value={formData.dados_usuario?.acompanhante || ''} onChange={(e) => handleValueChange('dados_usuario', 'acompanhante', e.target.value)} /></Field>
+                    <Field label="Endereço"><Input className="text-xl" value={formData.dados_usuario?.endereco || ''} onChange={(e) => handleValueChange('dados_usuario', 'endereco', e.target.value)} /></Field>
+                </div>
+                <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-8 mt-8">
+                    <Field label="Sexo">
+                        {renderRadioGroup('dados_usuario', 'sexo', [{id: 'm', label: 'M'}, {id: 'f', label: 'F'}])}
+                    </Field>
+                    <Field label="DN"><Input type="date" className="text-xl" value={formData.dados_usuario?.dn || ''} onChange={(e) => handleValueChange('dados_usuario', 'dn', e.target.value)} /></Field>
+                    <Field label="Idade"><Input type="number" className="text-xl" value={formData.dados_usuario?.idade || ''} onChange={(e) => handleValueChange('dados_usuario', 'idade', e.target.value)} /></Field>
+                    <Field label="Telefone"><Input className="text-xl" value={formData.dados_usuario?.tel || ''} onChange={(e) => handleValueChange('dados_usuario', 'tel', e.target.value)} /></Field>
+                    <Field label="CPF"><Input className="text-xl" value={formData.dados_usuario?.cpf || ''} onChange={(e) => handleValueChange('dados_usuario', 'cpf', e.target.value)} /></Field>
+                    <Field label="RG"><Input className="text-xl" value={formData.dados_usuario?.rg || ''} onChange={(e) => handleValueChange('dados_usuario', 'rg', e.target.value)} /></Field>
+                    <Field label="Posição no Veículo"><Input className="text-xl" value={formData.dados_usuario?.posicao_veiculo || ''} onChange={(e) => handleValueChange('dados_usuario', 'posicao_veiculo', e.target.value)} /></Field>
+                </div>
+            </>
+            )}
+        </div>
         
-        {visibleSections.evento && (
-          <div id="evento">
-            <SectionTitle onHide={() => handleSectionVisibility('evento')}>EVENTO</SectionTitle>
+        <div id="evento">
+            <SectionTitle onToggle={() => handleSectionVisibility('evento')} isVisible={visibleSections.evento}>EVENTO</SectionTitle>
+            {visibleSections.evento && (
             <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
                 <Field label="Trauma">
                   {renderCheckboxes('evento', 'trauma', [
@@ -278,17 +274,27 @@ export default function TO12Form({ categorySlug }: { categorySlug: string }) {
                   <Input placeholder="Outros" className="mt-2 text-xl" value={formData.evento?.seguranca_outros || ''} onChange={(e) => handleValueChange('evento', 'seguranca_outros', e.target.value)} />
                 </Field>
             </div>
-          </div>
-        )}
+            )}
+        </div>
         
-        {(visibleSections.avaliacoes || visibleSections.avaliacao_primaria || visibleSections.avaliacao_secundaria) && (
-            <div id="avaliacoes_container">
-                <SectionTitle onHide={() => {
-                    handleSectionVisibility('avaliacoes');
-                    handleSectionVisibility('avaliacao_primaria');
-                    handleSectionVisibility('avaliacao_secundaria');
-                }}>AVALIAÇÕES</SectionTitle>
-
+        <div id="avaliacoes_container">
+            <SectionTitle onToggle={() => {
+                const isCurrentlyVisible = visibleSections.avaliacoes || visibleSections.avaliacao_primaria || visibleSections.avaliacao_secundaria;
+                const newVisibility = !isCurrentlyVisible;
+                setVisibleSections(prev => ({
+                    ...prev,
+                    avaliacoes: newVisibility,
+                    avaliacao_primaria: newVisibility,
+                    avaliacao_secundaria: newVisibility
+                }));
+                 toast({
+                    title: newVisibility ? 'Seção Restaurada!' : 'Seção Ocultada!',
+                    description: newVisibility ? 'A seção de avaliações agora está visível.' : 'A seção de avaliações foi removida.',
+                });
+            }} isVisible={visibleSections.avaliacoes || visibleSections.avaliacao_primaria || visibleSections.avaliacao_secundaria}>AVALIAÇÕES</SectionTitle>
+            
+            {(visibleSections.avaliacoes || visibleSections.avaliacao_primaria || visibleSections.avaliacao_secundaria) && (
+            <>
                 {visibleSections.avaliacoes && (
                     <div id="avaliacoes">
                         <Field label="Condição Inicial">
@@ -387,12 +393,13 @@ export default function TO12Form({ categorySlug }: { categorySlug: string }) {
                         </Field>
                     </div>
                 )}
-            </div>
-        )}
+            </>
+            )}
+        </div>
         
-        {visibleSections.glasgow && (
-          <div id="glasgow">
-            <SectionTitle onHide={() => handleSectionVisibility('glasgow')}>ESCALA DE GLASGOW</SectionTitle>
+        <div id="glasgow">
+            <SectionTitle onToggle={() => handleSectionVisibility('glasgow')} isVisible={visibleSections.glasgow}>ESCALA DE GLASGOW</SectionTitle>
+            {visibleSections.glasgow && (
             <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
                 <Field label="Abertura Ocular">
                     {renderRadioGroup('glasgow', 'abertura_ocular', [
@@ -422,93 +429,99 @@ export default function TO12Form({ categorySlug }: { categorySlug: string }) {
                     ])}
                 </Field>
             </div>
-          </div>
-        )}
+            )}
+        </div>
         
-        {visibleSections.procedimentos && (
-          <div id="procedimentos">
-            <SectionTitle onHide={() => handleSectionVisibility('procedimentos')}>PROCEDIMENTOS REALIZADOS</SectionTitle>
-             <Field>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-4">
-                  {renderCheckboxes('procedimentos', 'lista', [
-                      { id: 'colar_cervical', label: 'Colar Cervical' },
-                      { id: 'pranchamento', label: 'Pranchamento: Decúbito/Em Pé' },
-                      { id: 'extricacao_ked', label: 'Extricação com KED' },
-                      { id: 'extricacao_tereza_rautek', label: 'Extricação c/ Tereza/Rautek' },
-                      { id: 'desencarceramento', label: 'Desencarceramento' },
-                      { id: 'retirada_capacete', label: 'Retirada de Capacete' },
-                      { id: 'imobilizacao_mse', label: 'Imobilização de MSE' },
-                      { id: 'imobilizacao_msd', label: 'Imobilização de MSD' },
-                      { id: 'imobilizacao_mie', label: 'Imobilização de MIE' },
-                      { id: 'imobilizacao_mid', label: 'Imobilização de MID' },
-                      { id: 'imobilizacao_pelve', label: 'Imobilização de Pelve' },
-                      { id: 'desobstrucao_vias_aereas', label: 'Desobstrução de Vias Aéreas' },
-                      { id: 'canula_guedel', label: 'Cânula de Guedel' },
-                      { id: 'oxigenio', label: 'Oxigênio: Máscara/Cateter Nasal' },
-                      { id: 'ventilacao_ambu', label: 'Ventilação com Ambu' },
-                      { id: 'oximetria_pulso', label: 'Oximetria de Pulso' },
-                      { id: 'dea', label: 'DEA - Desfibrilador Externo Automático' },
-                      { id: 'rcp', label: 'RCP - Ressuscitação Cardiopulmonar' },
-                      { id: 'curativo', label: 'Curativo: Oclusivo/Compressivo' },
-                      { id: 'torniquete', label: 'Torniquete' },
-                      { id: 'afericao_sinais_vitais', label: 'Aferição de Sinais Vitais' },
-                      { id: 'orientacoes', label: 'Orientações' },
-                      { id: 'resgate_altura', label: 'Resgate em Altura' },
-                  ])}
+        <div id="procedimentos">
+            <SectionTitle onToggle={() => handleSectionVisibility('procedimentos')} isVisible={visibleSections.procedimentos}>PROCEDIMENTOS REALIZADOS</SectionTitle>
+            {visibleSections.procedimentos && (
+            <>
+                <Field>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-4">
+                    {renderCheckboxes('procedimentos', 'lista', [
+                        { id: 'colar_cervical', label: 'Colar Cervical' },
+                        { id: 'pranchamento', label: 'Pranchamento: Decúbito/Em Pé' },
+                        { id: 'extricacao_ked', label: 'Extricação com KED' },
+                        { id: 'extricacao_tereza_rautek', label: 'Extricação c/ Tereza/Rautek' },
+                        { id: 'desencarceramento', label: 'Desencarceramento' },
+                        { id: 'retirada_capacete', label: 'Retirada de Capacete' },
+                        { id: 'imobilizacao_mse', label: 'Imobilização de MSE' },
+                        { id: 'imobilizacao_msd', label: 'Imobilização de MSD' },
+                        { id: 'imobilizacao_mie', label: 'Imobilização de MIE' },
+                        { id: 'imobilizacao_mid', label: 'Imobilização de MID' },
+                        { id: 'imobilizacao_pelve', label: 'Imobilização de Pelve' },
+                        { id: 'desobstrucao_vias_aereas', label: 'Desobstrução de Vias Aéreas' },
+                        { id: 'canula_guedel', label: 'Cânula de Guedel' },
+                        { id: 'oxigenio', label: 'Oxigênio: Máscara/Cateter Nasal' },
+                        { id: 'ventilacao_ambu', label: 'Ventilação com Ambu' },
+                        { id: 'oximetria_pulso', label: 'Oximetria de Pulso' },
+                        { id: 'dea', label: 'DEA - Desfibrilador Externo Automático' },
+                        { id: 'rcp', label: 'RCP - Ressuscitação Cardiopulmonar' },
+                        { id: 'curativo', label: 'Curativo: Oclusivo/Compressivo' },
+                        { id: 'torniquete', label: 'Torniquete' },
+                        { id: 'afericao_sinais_vitais', label: 'Aferição de Sinais Vitais' },
+                        { id: 'orientacoes', label: 'Orientações' },
+                        { id: 'resgate_altura', label: 'Resgate em Altura' },
+                    ])}
+                    </div>
+                </Field>
+                <Field label="Outros"><Input className="text-xl" value={formData.procedimentos?.outros || ''} onChange={(e) => handleValueChange('procedimentos', 'outros', e.target.value)} /></Field>
+            </>
+            )}
+        </div>
+
+        <div id="rol_valores">
+            <SectionTitle onToggle={() => handleSectionVisibility('rol_valores')} isVisible={visibleSections.rol_valores}>ROL DE VALORES/PERTENCES</SectionTitle>
+            {visibleSections.rol_valores && (
+            <>
+                <div className="space-y-4">
+                    {rolDeValores.map((item) => (
+                        <div key={item.id} className="flex items-end gap-4 p-4 border rounded-lg">
+                            <Field label="MATERIAL" className="flex-1"><Input className="text-xl" value={item.material} onChange={e => updateListItem(item.id, 'material', e.target.value, setRolDeValores)} /></Field>
+                            <Field label="QUANTIDADE" className="w-32"><Input type="number" className="text-xl" value={item.quantidade} onChange={e => updateListItem(item.id, 'quantidade', e.target.value, setRolDeValores)} /></Field>
+                            <Button variant="destructive" size="icon" onClick={() => removeListItem(item.id, setRolDeValores)}><Trash2 className="h-4 w-4" /></Button>
+                        </div>
+                    ))}
+                    <Button variant="outline" className="w-full" onClick={() => addListItem(setRolDeValores)}>
+                        <PlusCircle className="mr-2 h-4 w-4" />
+                        Adicionar Item
+                    </Button>
                 </div>
-              </Field>
-            <Field label="Outros"><Input className="text-xl" value={formData.procedimentos?.outros || ''} onChange={(e) => handleValueChange('procedimentos', 'outros', e.target.value)} /></Field>
-          </div>
-        )}
+                <Field label="Responsável pelo Recebimento (Assinatura)">
+                    <Input className="text-xl" value={formData.rol_valores?.responsavel || ''} onChange={(e) => handleValueChange('rol_valores', 'responsavel', e.target.value)} />
+                </Field>
+            </>
+            )}
+        </div>
 
-        {visibleSections.rol_valores && (
-          <div id="rol_valores">
-            <SectionTitle onHide={() => handleSectionVisibility('rol_valores')}>ROL DE VALORES/PERTENCES</SectionTitle>
-            <div className="space-y-4">
-                {rolDeValores.map((item) => (
-                    <div key={item.id} className="flex items-end gap-4 p-4 border rounded-lg">
-                        <Field label="MATERIAL" className="flex-1"><Input className="text-xl" value={item.material} onChange={e => updateListItem(item.id, 'material', e.target.value, setRolDeValores)} /></Field>
-                        <Field label="QUANTIDADE" className="w-32"><Input type="number" className="text-xl" value={item.quantidade} onChange={e => updateListItem(item.id, 'quantidade', e.target.value, setRolDeValores)} /></Field>
-                        <Button variant="destructive" size="icon" onClick={() => removeListItem(item.id, setRolDeValores)}><Trash2 className="h-4 w-4" /></Button>
-                    </div>
-                ))}
-                <Button variant="outline" className="w-full" onClick={() => addListItem(setRolDeValores)}>
-                    <PlusCircle className="mr-2 h-4 w-4" />
-                    Adicionar Item
-                </Button>
-            </div>
-             <Field label="Responsável pelo Recebimento (Assinatura)">
-                <Input className="text-xl" value={formData.rol_valores?.responsavel || ''} onChange={(e) => handleValueChange('rol_valores', 'responsavel', e.target.value)} />
-            </Field>
-          </div>
-        )}
-
-        {visibleSections.equipamentos_retidos && (
-          <div id="equipamentos_retidos">
-            <SectionTitle onHide={() => handleSectionVisibility('equipamentos_retidos')}>EQUIPAMENTOS / MATERIAIS RETIDOS</SectionTitle>
-            <div className="space-y-4">
-                {equipamentosRetidos.map((item) => (
-                    <div key={item.id} className="flex items-end gap-4 p-4 border rounded-lg">
-                        <Field label="MATERIAL" className="flex-1"><Input className="text-xl" value={item.material} onChange={e => updateListItem(item.id, 'material', e.target.value, setEquipamentosRetidos)} /></Field>
-                        <Field label="QUANTIDADE" className="w-32"><Input type="number" className="text-xl" value={item.quantidade} onChange={e => updateListItem(item.id, 'quantidade', e.target.value, setEquipamentosRetidos)} /></Field>
-                        <Button variant="destructive" size="icon" onClick={() => removeListItem(item.id, setEquipamentosRetidos)}><Trash2 className="h-4 w-4" /></Button>
-                    </div>
-                ))}
-                <Button variant="outline" className="w-full" onClick={() => addListItem(setEquipamentosRetidos)}>
-                    <PlusCircle className="mr-2 h-4 w-4" />
-                    Adicionar Item
-                </Button>
-            </div>
-            <Field label="Responsável pelo Recebimento (Assinatura)">
-                <Input className="text-xl" value={formData.equipamentos_retidos?.responsavel || ''} onChange={(e) => handleValueChange('equipamentos_retidos', 'responsavel', e.target.value)} />
-            </Field>
-          </div>
-        )}
+        <div id="equipamentos_retidos">
+            <SectionTitle onToggle={() => handleSectionVisibility('equipamentos_retidos')} isVisible={visibleSections.equipamentos_retidos}>EQUIPAMENTOS / MATERIAIS RETIDOS</SectionTitle>
+            {visibleSections.equipamentos_retidos && (
+            <>
+                <div className="space-y-4">
+                    {equipamentosRetidos.map((item) => (
+                        <div key={item.id} className="flex items-end gap-4 p-4 border rounded-lg">
+                            <Field label="MATERIAL" className="flex-1"><Input className="text-xl" value={item.material} onChange={e => updateListItem(item.id, 'material', e.target.value, setEquipamentosRetidos)} /></Field>
+                            <Field label="QUANTIDADE" className="w-32"><Input type="number" className="text-xl" value={item.quantidade} onChange={e => updateListItem(item.id, 'quantidade', e.target.value, setEquipamentosRetidos)} /></Field>
+                            <Button variant="destructive" size="icon" onClick={() => removeListItem(item.id, setEquipamentosRetidos)}><Trash2 className="h-4 w-4" /></Button>
+                        </div>
+                    ))}
+                    <Button variant="outline" className="w-full" onClick={() => addListItem(setEquipamentosRetidos)}>
+                        <PlusCircle className="mr-2 h-4 w-4" />
+                        Adicionar Item
+                    </Button>
+                </div>
+                <Field label="Responsável pelo Recebimento (Assinatura)">
+                    <Input className="text-xl" value={formData.equipamentos_retidos?.responsavel || ''} onChange={(e) => handleValueChange('equipamentos_retidos', 'responsavel', e.target.value)} />
+                </Field>
+            </>
+            )}
+        </div>
 
 
-        {visibleSections.conduta && (
-          <div id="conduta">
-            <SectionTitle onHide={() => handleSectionVisibility('conduta')}>CONDUTA</SectionTitle>
+        <div id="conduta">
+            <SectionTitle onToggle={() => handleSectionVisibility('conduta')} isVisible={visibleSections.conduta}>CONDUTA</SectionTitle>
+            {visibleSections.conduta && (
             <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                 <Field>
                      {renderCheckboxes('conduta', 'acoes', [
@@ -547,34 +560,36 @@ export default function TO12Form({ categorySlug }: { categorySlug: string }) {
                     </Field>
                 </div>
             </div>
-          </div>
-        )}
+            )}
+        </div>
 
-        {visibleSections.termo_recusa && (
-          <div id="termo_recusa">
-            <SectionTitle onHide={() => handleSectionVisibility('termo_recusa')}>TERMO DE RECUSA</SectionTitle>
-            <Field>
-                <Textarea 
-                    className="text-xl"
-                    rows={8}
-                    placeholder="Eu, (NOME), portador do CPF (NÚMERO) e RG (NÚMERO), residente no endereço (ENDEREÇO), em plena consciência dos meus atos e orientado pela equipe de resgate, declaro para todos os fins que recuso o atendimento pré-hospitalar da Way Brasil, assumindo toda a responsabilidade por qualquer prejuízo à minha saúde e integridade física ou a de (NOME DO RESPONSÁVEL), na condição de seu responsável de quem sou (GRAU DE PARENTESCO)."
-                    value={formData.termo_recusa?.texto || ''}
-                    onChange={(e) => handleValueChange('termo_recusa', 'texto', e.target.value)}
-                />
-            </Field>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mt-4">
-                <Field label="Testemunha 1"><Input className="text-xl" value={formData.termo_recusa?.testemunha1 || ''} onChange={(e) => handleValueChange('termo_recusa', 'testemunha1', e.target.value)}/></Field>
-                <Field label="Testemunha 2"><Input className="text-xl" value={formData.termo_recusa?.testemunha2 || ''} onChange={(e) => handleValueChange('termo_recusa', 'testemunha2', e.target.value)}/></Field>
-            </div>
-            <Field label="Assinatura da Vítima/Responsável">
-                <Input className="text-xl" value={formData.termo_recusa?.assinatura || ''} onChange={(e) => handleValueChange('termo_recusa', 'assinatura', e.target.value)} />
-            </Field>
-          </div>
-        )}
+        <div id="termo_recusa">
+            <SectionTitle onToggle={() => handleSectionVisibility('termo_recusa')} isVisible={visibleSections.termo_recusa}>TERMO DE RECUSA</SectionTitle>
+            {visibleSections.termo_recusa && (
+            <>
+                <Field>
+                    <Textarea 
+                        className="text-xl"
+                        rows={8}
+                        placeholder="Eu, (NOME), portador do CPF (NÚMERO) e RG (NÚMERO), residente no endereço (ENDEREÇO), em plena consciência dos meus atos e orientado pela equipe de resgate, declaro para todos os fins que recuso o atendimento pré-hospitalar da Way Brasil, assumindo toda a responsabilidade por qualquer prejuízo à minha saúde e integridade física ou a de (NOME DO RESPONSÁVEL), na condição de seu responsável de quem sou (GRAU DE PARENTESCO)."
+                        value={formData.termo_recusa?.texto || ''}
+                        onChange={(e) => handleValueChange('termo_recusa', 'texto', e.target.value)}
+                    />
+                </Field>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mt-4">
+                    <Field label="Testemunha 1"><Input className="text-xl" value={formData.termo_recusa?.testemunha1 || ''} onChange={(e) => handleValueChange('termo_recusa', 'testemunha1', e.target.value)}/></Field>
+                    <Field label="Testemunha 2"><Input className="text-xl" value={formData.termo_recusa?.testemunha2 || ''} onChange={(e) => handleValueChange('termo_recusa', 'testemunha2', e.target.value)}/></Field>
+                </div>
+                <Field label="Assinatura da Vítima/Responsável">
+                    <Input className="text-xl" value={formData.termo_recusa?.assinatura || ''} onChange={(e) => handleValueChange('termo_recusa', 'assinatura', e.target.value)} />
+                </Field>
+            </>
+            )}
+        </div>
 
-        {visibleSections.consumo_materiais && (
-          <div id="consumo_materiais">
-            <SectionTitle onHide={() => handleSectionVisibility('consumo_materiais')}>CONSUMO DE MATERIAIS NO ATENDIMENTO</SectionTitle>
+        <div id="consumo_materiais">
+            <SectionTitle onToggle={() => handleSectionVisibility('consumo_materiais')} isVisible={visibleSections.consumo_materiais}>CONSUMO DE MATERIAIS NO ATENDIMENTO</SectionTitle>
+            {visibleSections.consumo_materiais && (
             <div className="space-y-4">
                 {consumoMateriais.map((item) => (
                     <div key={item.id} className="flex items-end gap-4 p-4 border rounded-lg">
@@ -594,25 +609,18 @@ export default function TO12Form({ categorySlug }: { categorySlug: string }) {
                     Adicionar Material
                 </Button>
             </div>
-          </div>
-        )}
+            )}
+        </div>
 
 
-        {visibleSections.observacoes && (
-          <div id="observacoes">
-            <SectionTitle onHide={() => handleSectionVisibility('observacoes')}>RELATÓRIO/OBSERVAÇÕES</SectionTitle>
+        <div id="observacoes">
+            <SectionTitle onToggle={() => handleSectionVisibility('observacoes')} isVisible={visibleSections.observacoes}>RELATÓRIO/OBSERVAÇÕES</SectionTitle>
+            {visibleSections.observacoes && (
             <Field>
                 <Textarea className="text-xl" rows={6} value={formData.observacoes?.texto || ''} onChange={(e) => handleValueChange('observacoes', 'texto', e.target.value)} />
             </Field>
-          </div>
-        )}
-
-        {Object.values(visibleSections).some(v => !v) && (
-             <Button variant="outline" className="w-full" onClick={restoreAllSections}>
-                <Eye className="mr-2 h-4 w-4" />
-                Restaurar Seções Ocultas
-            </Button>
-        )}
+            )}
+        </div>
 
         <div className="flex sm:flex-row gap-4 pt-6">
           <Button size="lg" className="flex-1 bg-green-600 hover:bg-green-700 uppercase text-base">
@@ -628,5 +636,7 @@ export default function TO12Form({ categorySlug }: { categorySlug: string }) {
     </div>
   );
 }
+
+    
 
     
