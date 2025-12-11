@@ -48,7 +48,7 @@ export const eventCategories: EventCategory[] = [
     slug: 'qud-operacao',
     icon: Siren,
     description: 'Relatar QUD Operação.',
-    color: '#000000',
+    color: '#36454F',
   },
   {
     name: 'TRAÇADO DE PISTA',
