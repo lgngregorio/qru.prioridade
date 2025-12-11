@@ -40,10 +40,16 @@ const SectionTitle = ({ children, onToggle, isVisible, className }: { children: 
   </div>
 );
 
-const SubSectionTitle = ({ children, className }: { children: React.ReactNode, className?: string }) => (
-  <h3 className={cn("text-lg font-semibold text-foreground pb-2 uppercase mt-4 mb-2", className)}>
-    {children}
-  </h3>
+const SubSectionTitle = ({ children, onToggle, isVisible, className }: { children: React.ReactNode; onToggle: () => void; isVisible: boolean; className?: string }) => (
+  <div className="flex items-center justify-between mt-4 mb-2">
+      <h3 className={cn("text-lg font-semibold text-foreground uppercase pb-2", className, !isVisible && 'text-muted-foreground/80')}>
+          {children}
+      </h3>
+      <Button variant="ghost" size="icon" onClick={onToggle} className="h-8 w-8 text-muted-foreground hover:text-primary">
+          {isVisible ? <X className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+          <span className="sr-only">{isVisible ? 'Ocultar' : 'Restaurar'}</span>
+      </Button>
+  </div>
 );
 
 interface ListItem {
@@ -56,6 +62,9 @@ const initialSectionVisibility = {
   dados_operacionais: true,
   dados_usuario: true,
   evento: true,
+  evento_trauma: true,
+  evento_clinico: true,
+  evento_seguranca: true,
   avaliacoes: true,
   avaliacao_primaria: true,
   avaliacao_secundaria: true,
@@ -245,34 +254,49 @@ export default function TO12Form({ categorySlug }: { categorySlug: string }) {
             <SectionTitle onToggle={() => handleSectionVisibility('evento')} isVisible={visibleSections.evento}>EVENTO</SectionTitle>
             {visibleSections.evento && (
             <div className="grid grid-cols-1 gap-8">
-                <Field label="Trauma">
-                  {renderCheckboxes('evento', 'trauma', [
-                      { id: 'acidente_automobilistico', label: 'Acidente Automobilístico' },
-                      { id: 'queimadura', label: 'Queimadura' },
-                      { id: 'atropelamento', label: 'Atropelamento' },
-                      { id: 'queda_altura', label: 'Queda de Altura' },
-                  ])}
-                  <Input placeholder="Outros" className="mt-2 text-xl" value={formData.evento?.trauma_outros || ''} onChange={(e) => handleValueChange('evento', 'trauma_outros', e.target.value)} />
-                </Field>
-                <Field label="Atendimento Clínico">
-                  {renderCheckboxes('evento', 'atendimento_clinico', [
-                      { id: 'mal_subito', label: 'Mal Súbito' },
-                      { id: 'intoxicacao_exogena', label: 'Intoxicação Exógena' },
-                      { id: 'assistencia_parto', label: 'Assistência ao Parto' },
-                      { id: 'convulsao', label: 'Convulsão' },
-                      { id: 'disturbio_psiquiatrico', label: 'Distúrbio Psiquiátrico' },
-                  ])}
-                  <Input placeholder="Outros" className="mt-2 text-xl" value={formData.evento?.clinico_outros || ''} onChange={(e) => handleValueChange('evento', 'clinico_outros', e.target.value)} />
-                </Field>
-                <Field label="Condições de Segurança">
-                  {renderCheckboxes('evento', 'condicoes_seguranca', [
-                      { id: 'cinto_seguranca', label: 'Cinto de Segurança' },
-                      { id: 'cadeirinha', label: 'Cadeirinha' },
-                      { id: 'air_bag', label: 'Air Bag' },
-                      { id: 'capacete', label: 'Capacete' },
-                  ])}
-                  <Input placeholder="Outros" className="mt-2 text-xl" value={formData.evento?.seguranca_outros || ''} onChange={(e) => handleValueChange('evento', 'seguranca_outros', e.target.value)} />
-                </Field>
+              <div>
+                  <SubSectionTitle onToggle={() => handleSectionVisibility('evento_trauma')} isVisible={visibleSections.evento_trauma}>Trauma</SubSectionTitle>
+                  {visibleSections.evento_trauma && (
+                      <Field>
+                          {renderCheckboxes('evento', 'trauma', [
+                              { id: 'acidente_automobilistico', label: 'Acidente Automobilístico' },
+                              { id: 'queimadura', label: 'Queimadura' },
+                              { id: 'atropelamento', label: 'Atropelamento' },
+                              { id: 'queda_altura', label: 'Queda de Altura' },
+                          ])}
+                          <Input placeholder="Outros" className="mt-2 text-xl" value={formData.evento?.trauma_outros || ''} onChange={(e) => handleValueChange('evento', 'trauma_outros', e.target.value)} />
+                      </Field>
+                  )}
+              </div>
+              <div>
+                  <SubSectionTitle onToggle={() => handleSectionVisibility('evento_clinico')} isVisible={visibleSections.evento_clinico}>Atendimento Clínico</SubSectionTitle>
+                  {visibleSections.evento_clinico && (
+                      <Field>
+                          {renderCheckboxes('evento', 'atendimento_clinico', [
+                              { id: 'mal_subito', label: 'Mal Súbito' },
+                              { id: 'intoxicacao_exogena', label: 'Intoxicação Exógena' },
+                              { id: 'assistencia_parto', label: 'Assistência ao Parto' },
+                              { id: 'convulsao', label: 'Convulsão' },
+                              { id: 'disturbio_psiquiatrico', label: 'Distúrbio Psiquiátrico' },
+                          ])}
+                          <Input placeholder="Outros" className="mt-2 text-xl" value={formData.evento?.clinico_outros || ''} onChange={(e) => handleValueChange('evento', 'clinico_outros', e.target.value)} />
+                      </Field>
+                  )}
+              </div>
+              <div>
+                  <SubSectionTitle onToggle={() => handleSectionVisibility('evento_seguranca')} isVisible={visibleSections.evento_seguranca}>Condições de Segurança</SubSectionTitle>
+                  {visibleSections.evento_seguranca && (
+                      <Field>
+                          {renderCheckboxes('evento', 'condicoes_seguranca', [
+                              { id: 'cinto_seguranca', label: 'Cinto de Segurança' },
+                              { id: 'cadeirinha', label: 'Cadeirinha' },
+                              { id: 'air_bag', label: 'Air Bag' },
+                              { id: 'capacete', label: 'Capacete' },
+                          ])}
+                          <Input placeholder="Outros" className="mt-2 text-xl" value={formData.evento?.seguranca_outros || ''} onChange={(e) => handleValueChange('evento', 'seguranca_outros', e.target.value)} />
+                      </Field>
+                  )}
+              </div>
             </div>
             )}
         </div>
@@ -640,3 +664,4 @@ export default function TO12Form({ categorySlug }: { categorySlug: string }) {
     
 
     
+
