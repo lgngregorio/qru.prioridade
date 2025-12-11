@@ -262,43 +262,43 @@ export default function QudOperacaoForm({ categorySlug }: { categorySlug: string
       let message = `*RELATÓRIO DE ${category ? category.name.toUpperCase() : 'OCORRÊNCIA'}*\n\n`;
 
       message += `*INFORMAÇÕES GERAIS*\n`;
-      message += `Rodovia: ${reportData.generalInfo.rodovia}\n`;
-      message += `Ocorrência: ${reportData.generalInfo.ocorrencia}\n`;
-      message += `Tipo de Pane: ${reportData.generalInfo.tipoPane}\n`;
-      message += `QTH (Local): ${reportData.generalInfo.qth}\n`;
-      message += `Sentido: ${reportData.generalInfo.sentido}\n`;
-      message += `Local/Área: ${reportData.generalInfo.localArea}\n\n`;
+      message += `*Rodovia:* ${reportData.generalInfo.rodovia.toUpperCase()}\n`;
+      message += `*Ocorrência:* ${reportData.generalInfo.ocorrencia.toUpperCase()}\n`;
+      message += `*Tipo de Pane:* ${reportData.generalInfo.tipoPane.toUpperCase()}\n`;
+      message += `*QTH (Local):* ${reportData.generalInfo.qth.toUpperCase()}\n`;
+      message += `*Sentido:* ${reportData.generalInfo.sentido.toUpperCase()}\n`;
+      message += `*Local/Área:* ${reportData.generalInfo.localArea.toUpperCase()}\n\n`;
 
       reportData.vehicles.forEach((vehicle: any, index: number) => {
         message += `*DADOS DO VEÍCULO ${index + 1}*\n`;
-        message += `Marca: ${vehicle.marca}\n`;
-        message += `Modelo: ${vehicle.modelo}\n`;
-        message += `Ano: ${vehicle.ano}\n`;
-        message += `Cor: ${vehicle.cor}\n`;
-        message += `Placa: ${vehicle.placa}\n`;
-        message += `Cidade Emplacamento: ${vehicle.cidade}\n`;
-        message += `Vindo de: ${vehicle.vindoDe}\n`;
-        message += `Indo para: ${vehicle.indoPara}\n`;
-        message += `Eixos: ${vehicle.eixos}\n`;
-        message += `Tipo: ${vehicle.tipo}\n`;
-        message += `Pneu: ${vehicle.pneu}\n`;
-        message += `Carga: ${vehicle.carga}\n\n`;
+        message += `*Marca:* ${vehicle.marca.toUpperCase()}\n`;
+        message += `*Modelo:* ${vehicle.modelo.toUpperCase()}\n`;
+        message += `*Ano:* ${vehicle.ano.toUpperCase()}\n`;
+        message += `*Cor:* ${vehicle.cor.toUpperCase()}\n`;
+        message += `*Placa:* ${vehicle.placa.toUpperCase()}\n`;
+        message += `*Cidade Emplacamento:* ${vehicle.cidade.toUpperCase()}\n`;
+        message += `*Vindo de:* ${vehicle.vindoDe.toUpperCase()}\n`;
+        message += `*Indo para:* ${vehicle.indoPara.toUpperCase()}\n`;
+        message += `*Eixos:* ${vehicle.eixos.toUpperCase()}\n`;
+        message += `*Tipo:* ${vehicle.tipo.toUpperCase()}\n`;
+        message += `*Pneu:* ${vehicle.pneu.toUpperCase()}\n`;
+        message += `*Carga:* ${vehicle.carga.toUpperCase()}\n\n`;
         message += `*CONDUTOR*\n`;
-        message += `QRA: ${vehicle.condutor}\n`;
-        message += `Telefone: ${vehicle.telefone}\n`;
-        message += `Ocupantes: ${vehicle.ocupantes}\n\n`;
+        message += `*QRA:* ${vehicle.condutor.toUpperCase()}\n`;
+        message += `*Telefone:* ${vehicle.telefone.toUpperCase()}\n`;
+        message += `*Ocupantes:* ${vehicle.ocupantes.toUpperCase()}\n\n`;
       });
       
       message += `*OUTRAS INFORMAÇÕES*\n`;
-      message += `Auxílios/PR: ${reportData.otherInfo.auxilios}\n`;
+      message += `*Auxílios/PR:* ${reportData.otherInfo.auxilios.toUpperCase()}\n`;
       if (showVtrApoio) {
-        message += `VTR de Apoio: ${reportData.otherInfo.vtrApoio}\n`;
+        message += `*VTR de Apoio:* ${reportData.otherInfo.vtrApoio.toUpperCase()}\n`;
       }
       if(showDanoPatrimonio) {
-        message += `Dano ao Patrimônio: ${reportData.otherInfo.danoPatrimonio}\n`;
+        message += `*Dano ao Patrimônio:* ${reportData.otherInfo.danoPatrimonio.toUpperCase()}\n`;
       }
-      message += `Observações: ${reportData.otherInfo.observacoes}\n`;
-      message += `Nº Ocorrência: ${reportData.otherInfo.numeroOcorrencia}\n`;
+      message += `*Observações:* ${reportData.otherInfo.observacoes.toUpperCase()}\n`;
+      message += `*Nº Ocorrência:* ${reportData.otherInfo.numeroOcorrencia.toUpperCase()}\n`;
 
       const whatsappUrl = `https://wa.me/?text=${encodeURIComponent(message)}`;
       window.open(whatsappUrl, '_blank');
