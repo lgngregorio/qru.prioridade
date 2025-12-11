@@ -17,6 +17,8 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { useFirestore } from '@/firebase';
 import { useToast } from '@/hooks/use-toast';
 import { Checkbox } from '@/components/ui/checkbox';
+import { FirestorePermissionError } from '@/firebase/errors';
+import { errorEmitter } from '@/firebase/error-emitter';
 
 
 function Field({ label, children, className }: { label?: string, children: React.ReactNode, className?: string }) {
@@ -119,6 +121,24 @@ export default function IncendioForm({ categorySlug }: { categorySlug: string })
     return data;
   };
 
+  const validateFields = (data: any): boolean => {
+      if (Array.isArray(data)) {
+        return data.every(item => validateFields(item));
+      }
+      if (typeof data === 'object' && data !== null) {
+        // Naive check for all properties in the object
+        for (const key in data) {
+          if (!validateFields(data[key])) return false;
+        }
+        return true;
+      }
+      // Allow NILL as a valid value
+      if (data === 'NILL') return true;
+
+      // Check for empty strings, null, or undefined
+      return data !== '' && data !== null && data !== undefined;
+  };
+
   const prepareReportData = () => {
     const filledData = {
       generalInfo: fillEmptyFields(generalInfo),
@@ -136,68 +156,92 @@ export default function IncendioForm({ categorySlug }: { categorySlug: string })
     };
   };
   
-  const handleSave = async () => {
+   const saveReport = async () => {
     if (!firestore) {
       toast({
         variant: "destructive",
         title: "Erro",
         description: "Não foi possível conectar ao banco de dados.",
       });
-      return;
+      return false;
     }
 
+    const reportData = prepareReportData();
+
+    if (!validateFields(reportData.formData)) {
+        toast({
+            variant: "destructive",
+            title: "Campos obrigatórios",
+            description: "Por favor, preencha todos os campos antes de salvar ou compartilhar.",
+        });
+        return false;
+    }
+    
     setIsSaving(true);
-    try {
-      const reportData = prepareReportData();
-      await addDoc(collection(firestore, 'reports'), reportData);
-      
-      toast({
-        title: "Sucesso!",
-        description: "Relatório salvo com sucesso.",
-        className: "bg-green-600 text-white",
-      });
-      
-      router.push('/historico');
+    
+    const reportsCollection = collection(firestore, 'reports');
 
-    } catch (error) {
-      console.error("Error saving report: ", error);
-      toast({
-        variant: "destructive",
-        title: "Erro ao salvar",
-        description: "Ocorreu um erro ao salvar o relatório. Tente novamente.",
+    addDoc(reportsCollection, reportData)
+      .then(() => {
+        console.log("Relatório salvo com sucesso em segundo plano.");
+      })
+      .catch((serverError) => {
+        const permissionError = new FirestorePermissionError({
+          path: reportsCollection.path,
+          operation: 'create',
+          requestResourceData: reportData,
+        });
+        errorEmitter.emit('permission-error', permissionError);
       });
-    } finally {
-      setIsSaving(false);
-    }
+      
+    return true;
   };
 
-  const handleShare = () => {
-    const reportData = prepareReportData().formData;
-    const category = eventCategories.find(c => c.slug === categorySlug);
-    
-    let message = `*${category ? category.title.toUpperCase() : 'RELATÓRIO DE OCORRÊNCIA'}*\n\n`;
-
-    message += `*INFORMAÇÕES GERAIS*\n`;
-    message += `Rodovia: ${reportData.generalInfo.rodovia}\n`;
-    message += `Ocorrência: ${reportData.generalInfo.ocorrencia}\n`;
-    message += `QTH (Local): ${reportData.generalInfo.qth}\n`;
-    message += `Sentido: ${reportData.generalInfo.sentido}\n`;
-    message += `Local/Área: ${reportData.generalInfo.localArea}\n`;
-    message += `QTH de Início: ${reportData.generalInfo.qthInicio}\n`;
-    message += `QTH de Término: ${reportData.generalInfo.qthTermino}\n`;
-    message += `Proporção em Metros: ${reportData.generalInfo.proporcaoMetros}\n`;
-    message += `Área Total (m²): ${reportData.generalInfo.areaTotal}\n\n`;
-    
-    message += `*OUTRAS INFORMAÇÕES*\n`;
-    message += `Auxílios/PR: ${reportData.otherInfo.auxilios}\n`;
-    if (showVtrApoio) {
-        message += `VTR de Apoio: ${reportData.otherInfo.vtrApoio}\n`;
+  const handleSave = async () => {
+    const success = await saveReport();
+    if (success) {
+      toast({
+        title: "Sucesso!",
+        description: "Relatório salvo e enviado para a fila.",
+        className: "bg-green-600 text-white",
+      });
+      router.push('/historico');
     }
-    message += `Observações: ${reportData.otherInfo.observacoes}\n`;
-    message += `Nº Ocorrência: ${reportData.otherInfo.numeroOcorrencia}\n`;
+    setIsSaving(false);
+  };
 
-    const whatsappUrl = `https://wa.me/?text=${encodeURIComponent(message)}`;
-    window.open(whatsappUrl, '_blank');
+  const handleShare = async () => {
+    const success = await saveReport();
+    if (success) {
+        const reportData = prepareReportData().formData;
+        const category = eventCategories.find(c => c.slug === categorySlug);
+        
+        let message = `*${category ? category.title.toUpperCase() : 'RELATÓRIO DE OCORRÊNCIA'}*\n\n`;
+
+        message += `*INFORMAÇÕES GERAIS*\n`;
+        message += `Rodovia: ${reportData.generalInfo.rodovia}\n`;
+        message += `Ocorrência: ${reportData.generalInfo.ocorrencia}\n`;
+        message += `QTH (Local): ${reportData.generalInfo.qth}\n`;
+        message += `Sentido: ${reportData.generalInfo.sentido}\n`;
+        message += `Local/Área: ${reportData.generalInfo.localArea}\n`;
+        message += `QTH de Início: ${reportData.generalInfo.qthInicio}\n`;
+        message += `QTH de Término: ${reportData.generalInfo.qthTermino}\n`;
+        message += `Proporção em Metros: ${reportData.generalInfo.proporcaoMetros}\n`;
+        message += `Área Total (m²): ${reportData.generalInfo.areaTotal}\n\n`;
+        
+        message += `*OUTRAS INFORMAÇÕES*\n`;
+        message += `Auxílios/PR: ${reportData.otherInfo.auxilios}\n`;
+        if (showVtrApoio) {
+            message += `VTR de Apoio: ${reportData.otherInfo.vtrApoio}\n`;
+        }
+        message += `Observações: ${reportData.otherInfo.observacoes}\n`;
+        message += `Nº Ocorrência: ${reportData.otherInfo.numeroOcorrencia}\n`;
+
+        const whatsappUrl = `https://wa.me/?text=${encodeURIComponent(message)}`;
+        window.open(whatsappUrl, '_blank');
+        router.push('/historico');
+    }
+     setIsSaving(false);
   };
 
   return (
@@ -299,9 +343,9 @@ export default function IncendioForm({ categorySlug }: { categorySlug: string })
         </div>
 
         <div className="flex sm:flex-row gap-4 pt-6">
-          <Button size="lg" className="flex-1 bg-green-600 hover:bg-green-700 uppercase text-base" onClick={handleShare}>
-              <Share className="mr-2 h-4 w-4" />
-              Compartilhar WhatsApp
+          <Button size="lg" className="flex-1 bg-green-600 hover:bg-green-700 uppercase text-base" onClick={handleShare} disabled={isSaving}>
+              {isSaving ? <Loader2 className="animate-spin" /> :<Share className="mr-2 h-4 w-4" />}
+              {isSaving ? 'Salvando...' : 'Compartilhar WhatsApp'}
           </Button>
           <Button size="lg" className="w-32 bg-primary hover:bg-primary/90 uppercase text-base" onClick={handleSave} disabled={isSaving}>
               {isSaving ? <Loader2 className="animate-spin" /> : <Save className="mr-2 h-4 w-4" />}
@@ -312,3 +356,5 @@ export default function IncendioForm({ categorySlug }: { categorySlug: string })
     </div>
   );
 }
+
+    
