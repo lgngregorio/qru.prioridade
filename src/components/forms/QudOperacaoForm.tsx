@@ -61,6 +61,7 @@ type Vehicle = {
 type OtherInfo = {
   auxilios: string;
   vtrApoio: string;
+  danoPatrimonio: string;
   observacoes: string;
   numeroOcorrencia: string;
 };
@@ -71,6 +72,7 @@ export default function QudOperacaoForm({ categorySlug }: { categorySlug: string
   const { toast } = useToast();
   const [isSaving, setIsSaving] = useState(false);
   const [showVtrApoio, setShowVtrApoio] = useState(false);
+  const [showDanoPatrimonio, setShowDanoPatrimonio] = useState(false);
 
   const [generalInfo, setGeneralInfo] = useState<GeneralInfo>({
     rodovia: '',
@@ -92,6 +94,7 @@ export default function QudOperacaoForm({ categorySlug }: { categorySlug: string
   const [otherInfo, setOtherInfo] = useState<OtherInfo>({
     auxilios: '',
     vtrApoio: '',
+    danoPatrimonio: '',
     observacoes: '',
     numeroOcorrencia: '',
   });
@@ -165,6 +168,10 @@ export default function QudOperacaoForm({ categorySlug }: { categorySlug: string
 
     if (!showVtrApoio) {
       filledData.otherInfo.vtrApoio = 'NILL';
+    }
+    
+    if (!showDanoPatrimonio) {
+      filledData.otherInfo.danoPatrimonio = 'NILL';
     }
 
     return {
@@ -248,6 +255,9 @@ export default function QudOperacaoForm({ categorySlug }: { categorySlug: string
     message += `Auxílios/PR: ${reportData.otherInfo.auxilios}\n`;
     if (showVtrApoio) {
       message += `VTR de Apoio: ${reportData.otherInfo.vtrApoio}\n`;
+    }
+    if(showDanoPatrimonio) {
+      message += `Dano ao Patrimônio: ${reportData.otherInfo.danoPatrimonio}\n`;
     }
     message += `Observações: ${reportData.otherInfo.observacoes}\n`;
     message += `Nº Ocorrência: ${reportData.otherInfo.numeroOcorrencia}\n`;
@@ -466,6 +476,26 @@ export default function QudOperacaoForm({ categorySlug }: { categorySlug: string
                   <Textarea className="text-2xl placeholder:capitalize placeholder:text-sm" placeholder="Descreva as viaturas de apoio" value={otherInfo.vtrApoio} onChange={(e) => handleOtherInfoChange('vtrApoio', e.target.value)} />
                 </Field>
             )}
+
+            <div className="flex items-center space-x-2 pt-4">
+              <Checkbox
+                id="show-dano-patrimonio"
+                checked={showDanoPatrimonio}
+                onCheckedChange={(checked) => setShowDanoPatrimonio(Boolean(checked))}
+              />
+              <label
+                htmlFor="show-dano-patrimonio"
+                className="text-base font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+              >
+                Houve Dano ao Patrimônio?
+              </label>
+            </div>
+            {showDanoPatrimonio && (
+                <Field label="DANO AO PATRIMÔNIO">
+                  <Textarea className="text-2xl placeholder:capitalize placeholder:text-sm" placeholder="Descreva os danos ao patrimônio" value={otherInfo.danoPatrimonio} onChange={(e) => handleOtherInfoChange('danoPatrimonio', e.target.value)} />
+                </Field>
+            )}
+
             <Field label="OBSERVAÇÕES">
               <Textarea className="text-2xl placeholder:capitalize placeholder:text-sm" placeholder="Descreva detalhes adicionais sobre a ocorrência" value={otherInfo.observacoes} onChange={(e) => handleOtherInfoChange('observacoes', e.target.value)} />
             </Field>
