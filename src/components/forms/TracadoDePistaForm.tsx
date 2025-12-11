@@ -37,6 +37,10 @@ const SectionTitle = ({ children }: { children: React.ReactNode }) => (
 
 export default function TracadoDePistaForm({ categorySlug }: { categorySlug: string }) {
   const [formData, setFormData] = useState<any>({});
+  const [isSaving, setIsSaving] = useState(false);
+  const router = useRouter();
+  const firestore = useFirestore();
+  const { toast } = useToast();
 
   const handleValueChange = (section: string, key: string, value: any) => {
     setFormData((prev: any) => ({
@@ -91,6 +95,42 @@ export default function TracadoDePistaForm({ categorySlug }: { categorySlug: str
       ))}
     </RadioGroup>
   );
+
+  const handleSave = async () => {
+    if (!firestore) {
+      toast({
+        variant: "destructive",
+        title: "Erro",
+        description: "Não foi possível conectar ao banco de dados.",
+      });
+      return;
+    }
+    
+    setIsSaving(true);
+    
+    try {
+      await addDoc(collection(firestore, 'reports'), {
+        category: categorySlug,
+        formData,
+        createdAt: serverTimestamp(),
+      });
+      toast({
+        title: "Sucesso!",
+        description: "Relatório salvo com sucesso.",
+        className: "bg-green-600 text-white",
+      });
+      router.push('/historico');
+    } catch (error) {
+      console.error("Error saving report: ", error);
+      toast({
+        variant: "destructive",
+        title: "Erro ao salvar",
+        description: "Ocorreu um erro ao salvar o relatório. Tente novamente.",
+      });
+    } finally {
+      setIsSaving(false);
+    }
+  };
 
   return (
     <div className="w-full p-4 sm:p-6 md:p-8">
@@ -255,16 +295,17 @@ export default function TracadoDePistaForm({ categorySlug }: { categorySlug: str
         <Field label="Sinalização semáforo">{renderRadioGroup('sinalizacao', 'semaforo', [{id: 'funciona', label: 'Funciona'}, {id: 'nao_funciona', label: 'Não funciona'}, {id: 'funciona_defeito', label: 'Funciona com defeito'}, {id: 'inexistente', label: 'Inexistente'}])}</Field>
 
         <div className="flex sm:flex-row gap-4 pt-6">
-          <Button size="lg" className="flex-1 bg-green-600 hover:bg-green-700 uppercase text-base">
+          <Button size="lg" className="flex-1 bg-green-600 hover:bg-green-700 uppercase text-base" disabled={isSaving}>
               <Share className="mr-2 h-4 w-4" />
               Compartilhar WhatsApp
           </Button>
-          <Button size="lg" className="w-32 bg-primary hover:bg-primary/90 uppercase text-base">
-              <Save className="mr-2 h-4 w-4" />
-              Salvar
+          <Button size="lg" className="w-32 bg-primary hover:bg-primary/90 uppercase text-base" onClick={handleSave} disabled={isSaving}>
+              {isSaving ? <Loader2 className="animate-spin" /> : <Save className="mr-2 h-4 w-4" />}
+              {isSaving ? 'Salvando...' : 'Salvar'}
           </Button>
         </div>
       </form>
     </div>
   );
 }
+
