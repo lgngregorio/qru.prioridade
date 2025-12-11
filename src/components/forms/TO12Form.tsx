@@ -174,7 +174,7 @@ export default function TO12Form({ categorySlug }: { categorySlug: string }) {
                             )}
                           >
                             <CalendarIcon className="mr-2 h-4 w-4" />
-                            {formData.dados_operacionais?.data ? format(formData.dados_operacionais.data, "PPP") : <span>Selecione a data</span>}
+                            {formData.dados_operacionais?.data ? format(formData.dados_operacionais.data, "PPP") : <span>DATA</span>}
                           </Button>
                         </PopoverTrigger>
                         <PopoverContent className="w-auto p-0">
@@ -230,7 +230,7 @@ export default function TO12Form({ categorySlug }: { categorySlug: string }) {
                             )}
                           >
                             <CalendarIcon className="mr-2 h-4 w-4" />
-                            {formData.dados_usuario?.dn ? format(formData.dados_usuario.dn, "PPP") : <span>Selecione a data</span>}
+                            {formData.dados_usuario?.dn ? format(formData.dados_usuario.dn, "PPP") : <span>DATA</span>}
                           </Button>
                         </PopoverTrigger>
                         <PopoverContent className="w-auto p-0">
@@ -341,7 +341,10 @@ export default function TO12Form({ categorySlug }: { categorySlug: string }) {
                               </div>
                           </Field>
                            <Field label="B - Ventilação">
-                              {renderRadioGroup('avaliacao_primaria', 'ventilacao_status', [{id: 'presente', label: 'Presente'}, {id: 'ausente', label: 'Ausente'}, {id: 'simetrica', label: 'Simétrica'}, {id: 'assimetrica', label: 'Assimétrica'}, {id: 'apneia', label: 'Apneia'}, {id: 'eupneia', label: 'Eupneia'}, {id: 'taquipneia', label: 'Taquipneia'}, {id: 'gasping', label: 'Gasping'}], 'vertical')}
+                              {renderRadioGroup('avaliacao_primaria', 'ventilacao_status', [
+                                {id: 'presente', label: 'Presente'}, {id: 'ausente', label: 'Ausente'}, {id: 'simetrica', label: 'Simétrica'}, {id: 'assimetrica', label: 'Assimétrica'}, 
+                                {id: 'apneia', label: 'Apneia'}, {id: 'eupneia', label: 'Eupneia'}, {id: 'taquipneia', label: 'Taquipneia'}, {id: 'gasping', label: 'Gasping'}
+                              ], 'vertical')}
                           </Field>
                       </div>
                       <SubSectionTitle>C - Circulação e Hemorragias</SubSectionTitle>

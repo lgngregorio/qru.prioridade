@@ -246,7 +246,7 @@ export default function TO16Form({ categorySlug }: { categorySlug: string }) {
                             )}
                           >
                             <CalendarIcon className="mr-2 h-4 w-4" />
-                            {dadosOperacionais.data ? format(dadosOperacionais.data, "PPP") : <span>Selecione a data</span>}
+                            {dadosOperacionais.data ? format(dadosOperacionais.data, "PPP") : <span>DATA</span>}
                           </Button>
                         </PopoverTrigger>
                         <PopoverContent className="w-auto p-0">
@@ -310,7 +310,7 @@ export default function TO16Form({ categorySlug }: { categorySlug: string }) {
                                     )}
                                   >
                                     <CalendarIcon className="mr-2 h-4 w-4" />
-                                    {victim.dados_cadastrais.dn ? format(victim.dados_cadastrais.dn, "PPP") : <span>Selecione a data</span>}
+                                    {victim.dados_cadastrais.dn ? format(victim.dados_cadastrais.dn, "PPP") : <span>DATA</span>}
                                   </Button>
                                 </PopoverTrigger>
                                 <PopoverContent className="w-auto p-0">
