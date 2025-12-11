@@ -73,8 +73,45 @@ export default function TO12Form({ categorySlug }: { categorySlug: string }) {
     setter(prev => prev.map(item => item.id === id ? { ...item, [field]: value } : item));
   };
 
+  const formatPhoneNumber = (value: string) => {
+    if (!value) return value;
+    const phoneNumber = value.replace(/[^\d]/g, '');
+    const phoneNumberLength = phoneNumber.length;
+    if (phoneNumberLength < 3) return `(${phoneNumber}`;
+    if (phoneNumberLength < 8) {
+      return `(${phoneNumber.slice(0, 2)}) ${phoneNumber.slice(2)}`;
+    }
+    return `(${phoneNumber.slice(0, 2)}) ${phoneNumber.slice(2, 7)}-${phoneNumber.slice(7, 11)}`;
+  };
+
+  const formatCPF = (value: string) => {
+    if (!value) return value;
+    const cpf = value.replace(/[^\d]/g, "");
+    if (cpf.length <= 3) return cpf;
+    if (cpf.length <= 6) return `${cpf.slice(0, 3)}.${cpf.slice(3)}`;
+    if (cpf.length <= 9) return `${cpf.slice(0, 3)}.${cpf.slice(3, 6)}.${cpf.slice(6)}`;
+    return `${cpf.slice(0, 3)}.${cpf.slice(3, 6)}.${cpf.slice(6, 9)}-${cpf.slice(9, 11)}`;
+  };
+
+  const formatRG = (value: string) => {
+      if (!value) return value;
+      const rg = value.replace(/[^\d]/g, "");
+      if (rg.length <= 2) return rg;
+      if (rg.length <= 5) return `${rg.slice(0, 2)}.${rg.slice(2)}`;
+      if (rg.length <= 8) return `${rg.slice(0, 2)}.${rg.slice(2, 5)}.${rg.slice(5)}`;
+      return `${rg.slice(0, 2)}.${rg.slice(2, 5)}.${rg.slice(5, 8)}-${rg.slice(8, 9)}`;
+  };
 
   const handleValueChange = (section: string, key: string, value: any) => {
+     if (key === 'tel') {
+      value = formatPhoneNumber(value);
+    }
+    if (key === 'cpf') {
+        value = formatCPF(value);
+    }
+    if (key === 'rg') {
+        value = formatRG(value);
+    }
     setFormData((prev: any) => ({
       ...prev,
       [section]: {
@@ -244,9 +281,9 @@ export default function TO12Form({ categorySlug }: { categorySlug: string }) {
                       </Popover>
                     </Field>
                     <Field label="Idade"><Input type="number" className="text-xl" placeholder="Ex: 35" value={formData.dados_usuario?.idade || ''} onChange={(e) => handleValueChange('dados_usuario', 'idade', e.target.value)} /></Field>
-                    <Field label="Telefone"><Input className="text-xl" placeholder="(00) 00000-0000" value={formData.dados_usuario?.tel || ''} onChange={(e) => handleValueChange('dados_usuario', 'tel', e.target.value)} /></Field>
-                    <Field label="CPF"><Input className="text-xl" placeholder="000.000.000-00" value={formData.dados_usuario?.cpf || ''} onChange={(e) => handleValueChange('dados_usuario', 'cpf', e.target.value)} /></Field>
-                    <Field label="RG"><Input className="text-xl" placeholder="00.000.000-0" value={formData.dados_usuario?.rg || ''} onChange={(e) => handleValueChange('dados_usuario', 'rg', e.target.value)} /></Field>
+                    <Field label="Telefone"><Input className="text-xl" placeholder="(00) 00000-0000" value={formData.dados_usuario?.tel || ''} onChange={(e) => handleValueChange('dados_usuario', 'tel', e.target.value)} maxLength={15} /></Field>
+                    <Field label="CPF"><Input className="text-xl" placeholder="000.000.000-00" value={formData.dados_usuario?.cpf || ''} onChange={(e) => handleValueChange('dados_usuario', 'cpf', e.target.value)} maxLength={14} /></Field>
+                    <Field label="RG"><Input className="text-xl" placeholder="00.000.000-0" value={formData.dados_usuario?.rg || ''} onChange={(e) => handleValueChange('dados_usuario', 'rg', e.target.value)} maxLength={12} /></Field>
                     <Field label="Posição no Veículo"><Input className="text-xl" placeholder="Ex: Condutor" value={formData.dados_usuario?.posicao_veiculo || ''} onChange={(e) => handleValueChange('dados_usuario', 'posicao_veiculo', e.target.value)} /></Field>
                 </div>
             </div>
@@ -616,7 +653,3 @@ export default function TO12Form({ categorySlug }: { categorySlug: string }) {
     </div>
   );
 }
-
-    
-
-    
