@@ -2,10 +2,11 @@
 'use client';
 
 import { useRouter } from 'next/navigation';
-import { Save, Share, Loader2, PlusCircle, Trash2, X, Eye } from 'lucide-react';
+import { Save, Share, Loader2, PlusCircle, Trash2, X, Eye, CalendarIcon } from 'lucide-react';
 import { useState, useEffect, useMemo } from 'react';
 import { collection, addDoc, serverTimestamp } from 'firebase/firestore';
 import React from 'react';
+import { format } from 'date-fns';
 
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
@@ -17,6 +18,8 @@ import { useToast } from '@/hooks/use-toast';
 import { Checkbox } from '@/components/ui/checkbox';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Collapsible, CollapsibleTrigger, CollapsibleContent } from '@/components/ui/collapsible';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import { Calendar } from '@/components/ui/calendar';
 
 function Field({ label, children, className }: { label?: string, children: React.ReactNode, className?: string }) {
   return (
@@ -232,7 +235,30 @@ export default function TO16Form({ categorySlug }: { categorySlug: string }) {
                     <Field label="Médico Regulador"><Input className="text-xl" value={dadosOperacionais.medico_regulador || ''} onChange={(e) => handleOperationalDataChange('medico_regulador', e.target.value)} /></Field>
                     <Field label="Condutor"><Input className="text-xl" value={dadosOperacionais.condutor || ''} onChange={(e) => handleOperationalDataChange('condutor', e.target.value)} /></Field>
                     <Field label="Resgatista I"><Input className="text-xl" value={dadosOperacionais.resgatista || ''} onChange={(e) => handleOperationalDataChange('resgatista', e.target.value)} /></Field>
-                    <Field label="Data"><Input type="date" className="text-xl" value={dadosOperacionais.data || ''} onChange={(e) => handleOperationalDataChange('data', e.target.value)} /></Field>
+                    <Field label="Data">
+                      <Popover>
+                        <PopoverTrigger asChild>
+                          <Button
+                            variant={"outline"}
+                            className={cn(
+                              "w-full justify-start text-left font-normal text-xl",
+                              !dadosOperacionais.data && "text-muted-foreground"
+                            )}
+                          >
+                            <CalendarIcon className="mr-2 h-4 w-4" />
+                            {dadosOperacionais.data ? format(dadosOperacionais.data, "PPP") : <span>Selecione a data</span>}
+                          </Button>
+                        </PopoverTrigger>
+                        <PopoverContent className="w-auto p-0">
+                          <Calendar
+                            mode="single"
+                            selected={dadosOperacionais.data}
+                            onSelect={(date) => handleOperationalDataChange('data', date)}
+                            initialFocus
+                          />
+                        </PopoverContent>
+                      </Popover>
+                    </Field>
                     <Field label="Nº Ocorrência"><Input className="text-xl" value={dadosOperacionais.n_ocorrencia || ''} onChange={(e) => handleOperationalDataChange('n_ocorrencia', e.target.value)} /></Field>
                     <Field label="KM"><Input className="text-xl" value={dadosOperacionais.km || ''} onChange={(e) => handleOperationalDataChange('km', e.target.value)} /></Field>
                     <Field label="Sentido">
@@ -263,8 +289,8 @@ export default function TO16Form({ categorySlug }: { categorySlug: string }) {
                     <SectionTitle>DADOS CADASTRAIS DO USUÁRIO</SectionTitle>
                     <div>
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                            <Field label="Nome"><Input className="text-xl" value={victim.dados_cadastrais.nome || ''} onChange={(e) => handleVictimChange(victim.id, 'dados_cadastrais', 'nome', e.target.value)} /></Field>
-                            <Field label="Endereço"><Input className="text-xl" value={victim.dados_cadastrais.endereco || ''} onChange={(e) => handleVictimChange(victim.id, 'dados_cadastrais', 'endereco', e.target.value)} /></Field>
+                            <Field label="Nome"><Input className="text-xl" placeholder="Nome Completo" value={victim.dados_cadastrais.nome || ''} onChange={(e) => handleVictimChange(victim.id, 'dados_cadastrais', 'nome', e.target.value)} /></Field>
+                            <Field label="Endereço"><Input className="text-xl" placeholder="Endereço da vítima" value={victim.dados_cadastrais.endereco || ''} onChange={(e) => handleVictimChange(victim.id, 'dados_cadastrais', 'endereco', e.target.value)} /></Field>
                         </div>
                         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8 mt-8">
                             <Field label="Sexo">
@@ -273,15 +299,38 @@ export default function TO16Form({ categorySlug }: { categorySlug: string }) {
                                     <div className="flex items-center space-x-2"><RadioGroupItem value="F" id={`sexo-f-${victim.id}`} /><Label htmlFor={`sexo-f-${victim.id}`} className="font-normal text-xl">F</Label></div>
                                 </RadioGroup>
                             </Field>
-                            <Field label="DN"><Input type="date" className="text-xl" value={victim.dados_cadastrais.dn || ''} onChange={(e) => handleVictimChange(victim.id, 'dados_cadastrais', 'dn', e.target.value)} /></Field>
-                            <Field label="Idade"><Input type="number" className="text-xl" value={victim.dados_cadastrais.idade || ''} onChange={(e) => handleVictimChange(victim.id, 'dados_cadastrais', 'idade', e.target.value)} /></Field>
-                            <Field label="Telefone"><Input className="text-xl" value={victim.dados_cadastrais.telefone || ''} onChange={(e) => handleVictimChange(victim.id, 'dados_cadastrais', 'telefone', e.target.value)} /></Field>
-                            <Field label="CPF"><Input className="text-xl" value={victim.dados_cadastrais.cpf || ''} onChange={(e) => handleVictimChange(victim.id, 'dados_cadastrais', 'cpf', e.target.value)} /></Field>
-                            <Field label="RG"><Input className="text-xl" value={victim.dados_cadastrais.rg || ''} onChange={(e) => handleVictimChange(victim.id, 'dados_cadastrais', 'rg', e.target.value)} /></Field>
+                            <Field label="DN">
+                              <Popover>
+                                <PopoverTrigger asChild>
+                                  <Button
+                                    variant={"outline"}
+                                    className={cn(
+                                      "w-full justify-start text-left font-normal text-xl",
+                                      !victim.dados_cadastrais.dn && "text-muted-foreground"
+                                    )}
+                                  >
+                                    <CalendarIcon className="mr-2 h-4 w-4" />
+                                    {victim.dados_cadastrais.dn ? format(victim.dados_cadastrais.dn, "PPP") : <span>Selecione a data</span>}
+                                  </Button>
+                                </PopoverTrigger>
+                                <PopoverContent className="w-auto p-0">
+                                  <Calendar
+                                    mode="single"
+                                    selected={victim.dados_cadastrais.dn}
+                                    onSelect={(date) => handleVictimChange(victim.id, 'dados_cadastrais', 'dn', date)}
+                                    initialFocus
+                                  />
+                                </PopoverContent>
+                              </Popover>
+                            </Field>
+                            <Field label="Idade"><Input type="number" placeholder="Ex: 35" className="text-xl" value={victim.dados_cadastrais.idade || ''} onChange={(e) => handleVictimChange(victim.id, 'dados_cadastrais', 'idade', e.target.value)} /></Field>
+                            <Field label="Telefone"><Input className="text-xl" placeholder="(00) 00000-0000" value={victim.dados_cadastrais.telefone || ''} onChange={(e) => handleVictimChange(victim.id, 'dados_cadastrais', 'telefone', e.target.value)} /></Field>
+                            <Field label="CPF"><Input className="text-xl" placeholder="000.000.000-00" value={victim.dados_cadastrais.cpf || ''} onChange={(e) => handleVictimChange(victim.id, 'dados_cadastrais', 'cpf', e.target.value)} /></Field>
+                            <Field label="RG"><Input className="text-xl" placeholder="00.000.000-0" value={victim.dados_cadastrais.rg || ''} onChange={(e) => handleVictimChange(victim.id, 'dados_cadastrais', 'rg', e.target.value)} /></Field>
                         </div>
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mt-8">
-                            <Field label="Acompanhante do Usuário"><Input className="text-xl" value={victim.dados_cadastrais.acompanhante || ''} onChange={(e) => handleVictimChange(victim.id, 'dados_cadastrais', 'acompanhante', e.target.value)} /></Field>
-                            <Field label="Posição no Veículo"><Input className="text-xl" value={victim.dados_cadastrais.posicao_veiculo || ''} onChange={(e) => handleVictimChange(victim.id, 'dados_cadastrais', 'posicao_veiculo', e.target.value)} /></Field>
+                            <Field label="Acompanhante do Usuário"><Input className="text-xl" placeholder="Nome do acompanhante" value={victim.dados_cadastrais.acompanhante || ''} onChange={(e) => handleVictimChange(victim.id, 'dados_cadastrais', 'acompanhante', e.target.value)} /></Field>
+                            <Field label="Posição no Veículo"><Input className="text-xl" placeholder="Ex: Condutor, Passageiro" value={victim.dados_cadastrais.posicao_veiculo || ''} onChange={(e) => handleVictimChange(victim.id, 'dados_cadastrais', 'posicao_veiculo', e.target.value)} /></Field>
                         </div>
                     </div>
                 </div>
@@ -350,7 +399,7 @@ export default function TO16Form({ categorySlug }: { categorySlug: string }) {
                                 {id: 'ao_solo', label: 'Ao Solo'},
                                 {id: 'ejetado', label: 'Ejetado'},
                                 {id: 'encarcerado_retido', label: 'Encarcerado/Retido'},
-                            ])}
+                            ], 'vertical')}
                         </Field>
                         </div>
                         <SubSectionTitle>Avaliação Primária</SubSectionTitle>
@@ -368,18 +417,18 @@ export default function TO16Form({ categorySlug }: { categorySlug: string }) {
                                 {renderRadioGroup(victim.id, 'avaliacao_primaria', 'ventilacao_status', [
                                     {id: 'presente', label: 'Presente'}, {id: 'ausente', label: 'Ausente'}, {id: 'simetrica', label: 'Simétrica'}, {id: 'assimetrica', label: 'Assimétrica'},
                                     {id: 'apneia', label: 'Apneia'}, {id: 'eupneia', label: 'Eupneia'}, {id: 'taquipneia', label: 'Taquipneia'}, {id: 'gasping', label: 'Gasping'}
-                                ])}
+                                ], 'vertical')}
                             </Field>
                             <SubSectionTitle>C - Circulação e Hemorragias</SubSectionTitle>
                             <div className="grid grid-cols-1 gap-8">
                                 <Field label="Pulso">
-                                    {renderRadioGroup(victim.id, 'avaliacao_primaria', 'pulso', [{id: 'presente', label: 'Presente'}, {id: 'cheio', label: 'Cheio'}, {id: 'filiforme', label: 'Filiforme'}], 'horizontal')}
+                                    {renderRadioGroup(victim.id, 'avaliacao_primaria', 'pulso', [{id: 'presente', label: 'Presente'}, {id: 'cheio', label: 'Cheio'}, {id: 'filiforme', label: 'Filiforme'}], 'vertical')}
                                 </Field>
                                 <Field label="Pele">
-                                    {renderRadioGroup(victim.id, 'avaliacao_primaria', 'pele', [{id: 'normal', label: 'Normal'}, {id: 'fria', label: 'Fria'}, {id: 'sudorese', label: 'Sudorese'}], 'horizontal')}
+                                    {renderRadioGroup(victim.id, 'avaliacao_primaria', 'pele', [{id: 'normal', label: 'Normal'}, {id: 'fria', label: 'Fria'}, {id: 'sudorese', label: 'Sudorese'}], 'vertical')}
                                 </Field>
                                 <Field label="Perfusão">
-                                    {renderRadioGroup(victim.id, 'avaliacao_primaria', 'perfusao', [{id: '<2seg', label: '< 2seg'}, {id: '>2seg', label: '> 2seg'}], 'horizontal')}
+                                    {renderRadioGroup(victim.id, 'avaliacao_primaria', 'perfusao', [{id: '<2seg', label: '< 2seg'}, {id: '>2seg', label: '> 2seg'}], 'vertical')}
                                 </Field>
                             </div>
                             <Field label="Sangramento Ativo">
@@ -388,10 +437,10 @@ export default function TO16Form({ categorySlug }: { categorySlug: string }) {
                             <SubSectionTitle>D - Neurológico: Glasgow e Pupilas</SubSectionTitle>
                             <div className="grid grid-cols-1 gap-8">
                                 <Field label="Pupilas">
-                                    {renderRadioGroup(victim.id, 'avaliacao_primaria', 'pupilas', [{id: 'isocoricas', label: 'Isocóricas'}, {id: 'anisocoricas', label: 'Anisocóricas'}], 'horizontal')}
+                                    {renderRadioGroup(victim.id, 'avaliacao_primaria', 'pupilas', [{id: 'isocoricas', label: 'Isocóricas'}, {id: 'anisocoricas', label: 'Anisocóricas'}], 'vertical')}
                                 </Field>
                                 <Field label="Fotorreagentes">
-                                    {renderRadioGroup(victim.id, 'avaliacao_primaria', 'fotorreagentes', [{id: 'sim', label: 'Sim'}, {id: 'nao', label: 'Não'}], 'horizontal')}
+                                    {renderRadioGroup(victim.id, 'avaliacao_primaria', 'fotorreagentes', [{id: 'sim', label: 'Sim'}, {id: 'nao', label: 'Não'}], 'vertical')}
                                 </Field>
                             </div>
                             <SubSectionTitle>E - Exposição</SubSectionTitle>
@@ -571,7 +620,7 @@ export default function TO16Form({ categorySlug }: { categorySlug: string }) {
                             <Field label="Médico Regulador/Intervencionista"><Input className="text-xl" value={victim.conduta.medico_regulador || ''} onChange={e => handleVictimChange(victim.id, 'conduta', 'medico_regulador', e.target.value)} /></Field>
                             <Field label="Médico Receptor"><Input className="text-xl" value={victim.conduta.medico_receptor || ''} onChange={e => handleVictimChange(victim.id, 'conduta', 'medico_receptor', e.target.value)} /></Field>
                             <Field label="Código">
-                                <RadioGroup value={victim.conduta.codigo || ''} onValueChange={v => handleVictimChange(victim.id, 'conduta', 'codigo', v)} className="flex flex-wrap gap-x-4 gap-y-2">
+                                <RadioGroup value={victim.conduta.codigo || ''} onValueChange={v => handleVictimChange(victim.id, 'conduta', 'codigo', v)} className="flex flex-col flex-wrap gap-x-4 gap-y-2">
                                     <div className="flex items-center space-x-2"><RadioGroupItem value="vermelho" id={`cod-vermelho-${victim.id}`} /><Label htmlFor={`cod-vermelho-${victim.id}`} className="font-normal text-xl">Vermelho</Label></div>
                                     <div className="flex items-center space-x-2"><RadioGroupItem value="amarelo" id={`cod-amarelo-${victim.id}`} /><Label htmlFor={`cod-amarelo-${victim.id}`} className="font-normal text-xl">Amarelo</Label></div>
                                     <div className="flex items-center space-x-2"><RadioGroupItem value="verde" id={`cod-verde-${victim.id}`} /><Label htmlFor={`cod-verde-${victim.id}`} className="font-normal text-xl">Verde</Label></div>

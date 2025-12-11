@@ -2,10 +2,11 @@
 'use client';
 
 import { useRouter } from 'next/navigation';
-import { Save, Share, Loader2, PlusCircle, Trash2, X, Eye } from 'lucide-react';
+import { Save, Share, Loader2, PlusCircle, Trash2, X, Eye, CalendarIcon } from 'lucide-react';
 import { useState } from 'react';
 import { collection, addDoc, serverTimestamp } from 'firebase/firestore';
 import React from 'react';
+import { format } from 'date-fns';
 
 import { cn } from '@/lib/utils';
 import { eventCategories } from '@/lib/events';
@@ -18,6 +19,8 @@ import { useToast } from '@/hooks/use-toast';
 import { Checkbox } from '@/components/ui/checkbox';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import { Calendar } from '@/components/ui/calendar';
 
 
 function Field({ label, children, className }: { label?: string, children: React.ReactNode, className?: string }) {
@@ -29,21 +32,11 @@ function Field({ label, children, className }: { label?: string, children: React
   )
 }
 
-const SectionTitle = ({ children, onToggle, isOpen }: { children: React.ReactNode; onToggle?: () => void, isOpen?: boolean }) => (
+const SectionTitle = ({ children }: { children: React.ReactNode }) => (
     <div className="flex items-center justify-between mt-8 mb-4 border-b-2 border-foreground pb-2">
         <h2 className={cn("text-xl font-semibold text-foreground uppercase")}>
             {children}
         </h2>
-        <div className="flex items-center gap-2">
-            {onToggle && (
-                 <CollapsibleTrigger asChild>
-                    <Button variant="ghost" size="icon" onClick={onToggle}>
-                        {isOpen ? <X className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
-                        <span className="sr-only">{isOpen ? 'Ocultar' : 'Restaurar'}</span>
-                    </Button>
-                </CollapsibleTrigger>
-            )}
-        </div>
     </div>
 );
 
@@ -67,26 +60,6 @@ export default function TO12Form({ categorySlug }: { categorySlug: string }) {
   const [equipamentosRetidos, setEquipamentosRetidos] = useState<ListItem[]>([]);
   const [consumoMateriais, setConsumoMateriais] = useState<ListItem[]>([]);
   const { toast } = useToast();
-  
-  const [openSections, setOpenSections] = useState({
-    dados_operacionais: true,
-    dados_usuario: true,
-    evento: true,
-    avaliacoes_container: true,
-    glasgow: true,
-    procedimentos: true,
-    rol_valores: true,
-    equipamentos_retidos: true,
-    conduta: true,
-    termo_recusa: true,
-    consumo_materiais: true,
-    observacoes: true,
-  });
-
-  const toggleSection = (section: keyof typeof openSections) => {
-    setOpenSections(prev => ({...prev, [section]: !prev[section]}));
-  }
-
 
   const addListItem = (setter: React.Dispatch<React.SetStateAction<ListItem[]>>) => {
     setter(prev => [...prev, { id: Date.now(), material: '', quantidade: '' }]);
@@ -177,9 +150,9 @@ export default function TO12Form({ categorySlug }: { categorySlug: string }) {
     <div className="w-full p-4 sm:p-6 md:p-8">
       <form className="space-y-12" onSubmit={(e) => e.preventDefault()}>
         
-        <Collapsible open={openSections.dados_operacionais} onOpenChange={() => toggleSection('dados_operacionais')}>
-            <SectionTitle onToggle={() => toggleSection('dados_operacionais')} isOpen={openSections.dados_operacionais}>DADOS OPERACIONAIS DA EQUIPE DE APH</SectionTitle>
-            <CollapsibleContent>
+        <div>
+            <SectionTitle>DADOS OPERACIONAIS DA EQUIPE DE APH</SectionTitle>
+            <div>
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
                     <Field label="UR/USA">
                     {renderRadioGroup('dados_operacionais', 'ur_usa', [
@@ -190,7 +163,30 @@ export default function TO12Form({ categorySlug }: { categorySlug: string }) {
                     <Field label="Médico Regulador"><Input className="text-xl" value={formData.dados_operacionais?.medico_regulador || ''} onChange={(e) => handleValueChange('dados_operacionais', 'medico_regulador', e.target.value)} /></Field>
                     <Field label="Condutor"><Input className="text-xl" value={formData.dados_operacionais?.condutor || ''} onChange={(e) => handleValueChange('dados_operacionais', 'condutor', e.target.value)} /></Field>
                     <Field label="Resgatista I"><Input className="text-xl" value={formData.dados_operacionais?.resgatista || ''} onChange={(e) => handleValueChange('dados_operacionais', 'resgatista', e.target.value)} /></Field>
-                    <Field label="Data"><Input type="date" className="text-xl" value={formData.dados_operacionais?.data || ''} onChange={(e) => handleValueChange('dados_operacionais', 'data', e.target.value)} /></Field>
+                    <Field label="Data">
+                      <Popover>
+                        <PopoverTrigger asChild>
+                          <Button
+                            variant={"outline"}
+                            className={cn(
+                              "w-full justify-start text-left font-normal text-xl",
+                              !formData.dados_operacionais?.data && "text-muted-foreground"
+                            )}
+                          >
+                            <CalendarIcon className="mr-2 h-4 w-4" />
+                            {formData.dados_operacionais?.data ? format(formData.dados_operacionais.data, "PPP") : <span>Selecione a data</span>}
+                          </Button>
+                        </PopoverTrigger>
+                        <PopoverContent className="w-auto p-0">
+                          <Calendar
+                            mode="single"
+                            selected={formData.dados_operacionais?.data}
+                            onSelect={(date) => handleValueChange('dados_operacionais', 'data', date)}
+                            initialFocus
+                          />
+                        </PopoverContent>
+                      </Popover>
+                    </Field>
                     <Field label="Nº Ocorrência"><Input className="text-xl" value={formData.dados_operacionais?.n_ocorrencia || ''} onChange={(e) => handleValueChange('dados_operacionais', 'n_ocorrencia', e.target.value)} /></Field>
                     <Field label="KM"><Input className="text-xl" value={formData.dados_operacionais?.km || ''} onChange={(e) => handleValueChange('dados_operacionais', 'km', e.target.value)} /></Field>
                     <Field label="Sentido">
@@ -208,12 +204,12 @@ export default function TO12Form({ categorySlug }: { categorySlug: string }) {
                     <Field label="Saída do Hospital"><Input type="time" className="text-xl" value={formData.dados_operacionais?.saida_hospital || ''} onChange={(e) => handleValueChange('dados_operacionais', 'saida_hospital', e.target.value)} /></Field>
                     <Field label="Chegada BSO/Término"><Input type="time" className="text-xl" value={formData.dados_operacionais?.chegada_bso || ''} onChange={(e) => handleValueChange('dados_operacionais', 'chegada_bso', e.target.value)} /></Field>
                 </div>
-            </CollapsibleContent>
-        </Collapsible>
+            </div>
+        </div>
 
-        <Collapsible open={openSections.dados_usuario} onOpenChange={() => toggleSection('dados_usuario')}>
-            <SectionTitle onToggle={() => toggleSection('dados_usuario')} isOpen={openSections.dados_usuario}>DADOS CADASTRAIS DO USUÁRIO</SectionTitle>
-            <CollapsibleContent>
+        <div>
+            <SectionTitle>DADOS CADASTRAIS DO USUÁRIO</SectionTitle>
+            <div>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                     <Field label="Nome"><Input className="text-xl" value={formData.dados_usuario?.nome || ''} onChange={(e) => handleValueChange('dados_usuario', 'nome', e.target.value)} /></Field>
                     <Field label="Acompanhante"><Input className="text-xl" value={formData.dados_usuario?.acompanhante || ''} onChange={(e) => handleValueChange('dados_usuario', 'acompanhante', e.target.value)} /></Field>
@@ -223,19 +219,42 @@ export default function TO12Form({ categorySlug }: { categorySlug: string }) {
                     <Field label="Sexo">
                         {renderRadioGroup('dados_usuario', 'sexo', [{id: 'm', label: 'M'}, {id: 'f', label: 'F'}], 'horizontal')}
                     </Field>
-                    <Field label="DN"><Input type="date" className="text-xl" value={formData.dados_usuario?.dn || ''} onChange={(e) => handleValueChange('dados_usuario', 'dn', e.target.value)} /></Field>
+                    <Field label="DN">
+                       <Popover>
+                        <PopoverTrigger asChild>
+                          <Button
+                            variant={"outline"}
+                            className={cn(
+                              "w-full justify-start text-left font-normal text-xl",
+                              !formData.dados_usuario?.dn && "text-muted-foreground"
+                            )}
+                          >
+                            <CalendarIcon className="mr-2 h-4 w-4" />
+                            {formData.dados_usuario?.dn ? format(formData.dados_usuario.dn, "PPP") : <span>Selecione a data</span>}
+                          </Button>
+                        </PopoverTrigger>
+                        <PopoverContent className="w-auto p-0">
+                          <Calendar
+                            mode="single"
+                            selected={formData.dados_usuario?.dn}
+                            onSelect={(date) => handleValueChange('dados_usuario', 'dn', date)}
+                            initialFocus
+                          />
+                        </PopoverContent>
+                      </Popover>
+                    </Field>
                     <Field label="Idade"><Input type="number" className="text-xl" value={formData.dados_usuario?.idade || ''} onChange={(e) => handleValueChange('dados_usuario', 'idade', e.target.value)} /></Field>
                     <Field label="Telefone"><Input className="text-xl" value={formData.dados_usuario?.tel || ''} onChange={(e) => handleValueChange('dados_usuario', 'tel', e.target.value)} /></Field>
                     <Field label="CPF"><Input className="text-xl" value={formData.dados_usuario?.cpf || ''} onChange={(e) => handleValueChange('dados_usuario', 'cpf', e.target.value)} /></Field>
                     <Field label="RG"><Input className="text-xl" value={formData.dados_usuario?.rg || ''} onChange={(e) => handleValueChange('dados_usuario', 'rg', e.target.value)} /></Field>
                     <Field label="Posição no Veículo"><Input className="text-xl" value={formData.dados_usuario?.posicao_veiculo || ''} onChange={(e) => handleValueChange('dados_usuario', 'posicao_veiculo', e.target.value)} /></Field>
                 </div>
-            </CollapsibleContent>
-        </Collapsible>
+            </div>
+        </div>
         
-        <Collapsible open={openSections.evento} onOpenChange={() => toggleSection('evento')}>
-            <SectionTitle onToggle={() => toggleSection('evento')} isOpen={openSections.evento}>EVENTO</SectionTitle>
-            <CollapsibleContent className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+        <div>
+            <SectionTitle>EVENTO</SectionTitle>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
               <div>
                   <SubSectionTitle>Trauma</SubSectionTitle>
                       <Field>
@@ -286,13 +305,13 @@ export default function TO12Form({ categorySlug }: { categorySlug: string }) {
                           <Input placeholder="Outros" className="mt-2 text-xl" value={formData.evento?.cinematica_outros || ''} onChange={(e) => handleValueChange('evento', 'cinematica_outros', e.target.value)} />
                       </Field>
               </div>
-            </CollapsibleContent>
-        </Collapsible>
+            </div>
+        </div>
         
-        <Collapsible open={openSections.avaliacoes_container} onOpenChange={() => toggleSection('avaliacoes_container')}>
-            <SectionTitle onToggle={() => toggleSection('avaliacoes_container')} isOpen={openSections.avaliacoes_container}>AVALIAÇÕES</SectionTitle>
+        <div>
+            <SectionTitle>AVALIAÇÕES</SectionTitle>
             
-            <CollapsibleContent>
+            <div>
                 <div id="avaliacoes">
                     <Field label="Condição Inicial">
                         {renderRadioGroup('avaliacoes', 'condicao_inicial', [
@@ -304,13 +323,13 @@ export default function TO12Form({ categorySlug }: { categorySlug: string }) {
                             {id: 'ao_solo', label: 'Ao Solo'},
                             {id: 'ejetado', label: 'Ejetado'},
                             {id: 'encarcerado_retido', label: 'Encarcerado/Retido'},
-                        ], 'horizontal')}
+                        ], 'vertical')}
                     </Field>
                 </div>
                 
                 <div id="avaliacao_primaria">
                     <SubSectionTitle>Avaliação Primária</SubSectionTitle>
-                    <>
+                    <div>
                       <Field label="X - Hemorragia Exsanguinante">
                         {renderRadioGroup('avaliacao_primaria', 'hemorragia', [{id: 'nao', label: 'Não'}, {id: 'sim', label: 'Sim'}], 'horizontal')}
                       </Field>
@@ -322,19 +341,19 @@ export default function TO12Form({ categorySlug }: { categorySlug: string }) {
                               </div>
                           </Field>
                            <Field label="B - Ventilação">
-                              {renderRadioGroup('avaliacao_primaria', 'ventilacao_status', [{id: 'presente', label: 'Presente'}, {id: 'ausente', label: 'Ausente'}, {id: 'simetrica', label: 'Simétrica'}, {id: 'assimetrica', label: 'Assimétrica'}, {id: 'apneia', label: 'Apneia'}, {id: 'eupneia', label: 'Eupneia'}, {id: 'taquipneia', label: 'Taquipneia'}, {id: 'gasping', label: 'Gasping'}], 'horizontal')}
+                              {renderRadioGroup('avaliacao_primaria', 'ventilacao_status', [{id: 'presente', label: 'Presente'}, {id: 'ausente', label: 'Ausente'}, {id: 'simetrica', label: 'Simétrica'}, {id: 'assimetrica', label: 'Assimétrica'}, {id: 'apneia', label: 'Apneia'}, {id: 'eupneia', label: 'Eupneia'}, {id: 'taquipneia', label: 'Taquipneia'}, {id: 'gasping', label: 'Gasping'}], 'vertical')}
                           </Field>
                       </div>
                       <SubSectionTitle>C - Circulação e Hemorragias</SubSectionTitle>
                       <div className="grid grid-cols-1 gap-8">
                           <Field label="Pulso">
-                              {renderRadioGroup('avaliacao_primaria', 'pulso', [{id: 'presente', label: 'Presente'}, {id: 'cheio', label: 'Cheio'}, {id: 'filiforme', label: 'Filiforme'}], 'horizontal')}
+                              {renderRadioGroup('avaliacao_primaria', 'pulso', [{id: 'presente', label: 'Presente'}, {id: 'cheio', label: 'Cheio'}, {id: 'filiforme', label: 'Filiforme'}], 'vertical')}
                           </Field>
                           <Field label="Pele">
-                              {renderRadioGroup('avaliacao_primaria', 'pele', [{id: 'normal', label: 'Normal'}, {id: 'fria', label: 'Fria'}, {id: 'sudorese', label: 'Sudorese'}], 'horizontal')}
+                              {renderRadioGroup('avaliacao_primaria', 'pele', [{id: 'normal', label: 'Normal'}, {id: 'fria', label: 'Fria'}, {id: 'sudorese', label: 'Sudorese'}], 'vertical')}
                           </Field>
                           <Field label="Perfusão">
-                              {renderRadioGroup('avaliacao_primaria', 'perfusao', [{id: '<2seg', label: '< 2seg'}, {id: '>2seg', label: '> 2seg'}], 'horizontal')}
+                              {renderRadioGroup('avaliacao_primaria', 'perfusao', [{id: '<2seg', label: '< 2seg'}, {id: '>2seg', label: '> 2seg'}], 'vertical')}
                           </Field>
                       </div>
                        <Field label="Sangramento Ativo">
@@ -344,10 +363,10 @@ export default function TO12Form({ categorySlug }: { categorySlug: string }) {
                       <SubSectionTitle>D - Neurológico: Glasgow e Pupilas</SubSectionTitle>
                        <div className="grid grid-cols-1 gap-8">
                           <Field label="Pupilas">
-                              {renderRadioGroup('avaliacao_primaria', 'pupilas', [{id: 'isocoricas', label: 'Isocóricas'}, {id: 'anisocoricas', label: 'Anisocóricas'}], 'horizontal')}
+                              {renderRadioGroup('avaliacao_primaria', 'pupilas', [{id: 'isocoricas', label: 'Isocóricas'}, {id: 'anisocoricas', label: 'Anisocóricas'}], 'vertical')}
                           </Field>
                           <Field label="Fotorreagentes">
-                              {renderRadioGroup('avaliacao_primaria', 'fotorreagentes', [{id: 'sim', label: 'Sim'}, {id: 'nao', label: 'Não'}], 'horizontal')}
+                              {renderRadioGroup('avaliacao_primaria', 'fotorreagentes', [{id: 'sim', label: 'Sim'}, {id: 'nao', label: 'Não'}], 'vertical')}
                           </Field>
                       </div>
 
@@ -358,7 +377,7 @@ export default function TO12Form({ categorySlug }: { categorySlug: string }) {
                        <Field label="Lesões Aparentes e Queixas Principais">
                           <Textarea className="text-xl" value={formData.avaliacao_primaria?.lesoes_queixas || ''} onChange={(e) => handleValueChange('avaliacao_primaria', 'lesoes_queixas', e.target.value)}/>
                       </Field>
-                    </>
+                    </div>
                 </div>
                 
                 <div id="avaliacao_secundaria">
@@ -386,12 +405,12 @@ export default function TO12Form({ categorySlug }: { categorySlug: string }) {
                         <Textarea className="text-xl" value={formData.avaliacao_secundaria?.outros?.cranio_caudal || ''} onChange={(e) => handleNestedValueChange('avaliacao_secundaria', 'outros', 'cranio_caudal', e.target.value)}/>
                     </Field>
                 </div>
-            </CollapsibleContent>
-        </Collapsible>
+            </div>
+        </div>
         
-        <Collapsible open={openSections.glasgow} onOpenChange={() => toggleSection('glasgow')}>
-            <SectionTitle onToggle={() => toggleSection('glasgow')} isOpen={openSections.glasgow}>ESCALA DE GLASGOW</SectionTitle>
-            <CollapsibleContent className="grid grid-cols-1 md:grid-cols-3 gap-8">
+        <div>
+            <SectionTitle>ESCALA DE GLASGOW</SectionTitle>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
                 <Field label="Abertura Ocular">
                     {renderRadioGroup('glasgow', 'abertura_ocular', [
                         { id: '4', label: '04 Espontânea' },
@@ -419,12 +438,12 @@ export default function TO12Form({ categorySlug }: { categorySlug: string }) {
                         { id: '1', label: '01 Ausente' },
                     ])}
                 </Field>
-            </CollapsibleContent>
-        </Collapsible>
+            </div>
+        </div>
         
-        <Collapsible open={openSections.procedimentos} onOpenChange={() => toggleSection('procedimentos')}>
-            <SectionTitle onToggle={() => toggleSection('procedimentos')} isOpen={openSections.procedimentos}>PROCEDIMENTOS REALIZADOS</SectionTitle>
-            <CollapsibleContent>
+        <div>
+            <SectionTitle>PROCEDIMENTOS REALIZADOS</SectionTitle>
+            <div>
                 <Field>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-4">
                     {renderCheckboxes('procedimentos', 'lista', [
@@ -455,12 +474,12 @@ export default function TO12Form({ categorySlug }: { categorySlug: string }) {
                     </div>
                 </Field>
                 <Field label="Outros"><Input className="text-xl" value={formData.procedimentos?.outros || ''} onChange={(e) => handleValueChange('procedimentos', 'outros', e.target.value)} /></Field>
-            </CollapsibleContent>
-        </Collapsible>
+            </div>
+        </div>
 
-        <Collapsible open={openSections.rol_valores} onOpenChange={() => toggleSection('rol_valores')}>
-            <SectionTitle onToggle={() => toggleSection('rol_valores')} isOpen={openSections.rol_valores}>ROL DE VALORES/PERTENCES</SectionTitle>
-            <CollapsibleContent>
+        <div>
+            <SectionTitle>ROL DE VALORES/PERTENCES</SectionTitle>
+            <div>
                 <div className="space-y-4">
                     {rolDeValores.map((item) => (
                         <div key={item.id} className="flex items-end gap-4 p-4 border rounded-lg">
@@ -477,12 +496,12 @@ export default function TO12Form({ categorySlug }: { categorySlug: string }) {
                 <Field label="Responsável pelo Recebimento (Assinatura)">
                     <Input className="text-xl" value={formData.rol_valores?.responsavel || ''} onChange={(e) => handleValueChange('rol_valores', 'responsavel', e.target.value)} />
                 </Field>
-            </CollapsibleContent>
-        </Collapsible>
+            </div>
+        </div>
 
-        <Collapsible open={openSections.equipamentos_retidos} onOpenChange={() => toggleSection('equipamentos_retidos')}>
-            <SectionTitle onToggle={() => toggleSection('equipamentos_retidos')} isOpen={openSections.equipamentos_retidos}>EQUIPAMENTOS / MATERIAIS RETIDOS</SectionTitle>
-            <CollapsibleContent>
+        <div>
+            <SectionTitle>EQUIPAMENTOS / MATERIAIS RETIDOS</SectionTitle>
+            <div>
                 <div className="space-y-4">
                     {equipamentosRetidos.map((item) => (
                         <div key={item.id} className="flex items-end gap-4 p-4 border rounded-lg">
@@ -499,13 +518,13 @@ export default function TO12Form({ categorySlug }: { categorySlug: string }) {
                 <Field label="Responsável pelo Recebimento (Assinatura)">
                     <Input className="text-xl" value={formData.equipamentos_retidos?.responsavel || ''} onChange={(e) => handleValueChange('equipamentos_retidos', 'responsavel', e.target.value)} />
                 </Field>
-            </CollapsibleContent>
-        </Collapsible>
+            </div>
+        </div>
 
 
-        <Collapsible open={openSections.conduta} onOpenChange={() => toggleSection('conduta')}>
-            <SectionTitle onToggle={() => toggleSection('conduta')} isOpen={openSections.conduta}>CONDUTA</SectionTitle>
-            <CollapsibleContent className="grid grid-cols-1 md:grid-cols-2 gap-8">
+        <div>
+            <SectionTitle>CONDUTA</SectionTitle>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                 <Field>
                      {renderCheckboxes('conduta', 'acoes', [
                         { id: 'liberacao_local', label: 'Liberação no Local c/ Orientações' },
@@ -533,43 +552,21 @@ export default function TO12Form({ categorySlug }: { categorySlug: string }) {
                     <Field label="Médico Regulador/Intervencionista"><Input className="text-xl" value={formData.conduta?.medico_regulador || ''} onChange={(e) => handleValueChange('conduta', 'medico_regulador', e.target.value)} /></Field>
                     <Field label="Médico Receptor"><Input className="text-xl" value={formData.conduta?.medico_receptor || ''} onChange={(e) => handleValueChange('conduta', 'medico_receptor', e.target.value)} /></Field>
                     <Field label="Código">
-                         {renderCheckboxes('conduta', 'codigo', [
+                         {renderRadioGroup('conduta', 'codigo', [
                             { id: 'vermelho', label: 'Vermelho' },
                             { id: 'amarelo', label: 'Amarelo' },
                             { id: 'verde', label: 'Verde' },
                             { id: 'azul', label: 'Azul' },
                             { id: 'preto', label: 'Preto' },
-                        ])}
+                        ], 'vertical')}
                     </Field>
                 </div>
-            </CollapsibleContent>
-        </Collapsible>
+            </div>
+        </div>
 
-        <Collapsible open={openSections.termo_recusa} onOpenChange={() => toggleSection('termo_recusa')}>
-            <SectionTitle onToggle={() => toggleSection('termo_recusa')} isOpen={openSections.termo_recusa}>TERMO DE RECUSA</SectionTitle>
-            <CollapsibleContent>
-                <Field>
-                    <Textarea 
-                        className="text-xl"
-                        rows={8}
-                        placeholder="Eu, (NOME), portador do CPF (NÚMERO) e RG (NÚMERO), residente no endereço (ENDEREÇO), em plena consciência dos meus atos e orientado pela equipe de resgate, declaro para todos os fins que recuso o atendimento pré-hospitalar da Way Brasil, assumindo toda a responsabilidade por qualquer prejuízo à minha saúde e integridade física ou a de (NOME DO RESPONSÁVEL), na condição de seu responsável de quem sou (GRAU DE PARENTESCO)."
-                        value={formData.termo_recusa?.texto || ''}
-                        onChange={(e) => handleValueChange('termo_recusa', 'texto', e.target.value)}
-                    />
-                </Field>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mt-4">
-                    <Field label="Testemunha 1"><Input className="text-xl" value={formData.termo_recusa?.testemunha1 || ''} onChange={(e) => handleValueChange('termo_recusa', 'testemunha1', e.target.value)}/></Field>
-                    <Field label="Testemunha 2"><Input className="text-xl" value={formData.termo_recusa?.testemunha2 || ''} onChange={(e) => handleValueChange('termo_recusa', 'testemunha2', e.target.value)}/></Field>
-                </div>
-                <Field label="Assinatura da Vítima/Responsável">
-                    <Input className="text-xl" value={formData.termo_recusa?.assinatura || ''} onChange={(e) => handleValueChange('termo_recusa', 'assinatura', e.target.value)} />
-                </Field>
-            </CollapsibleContent>
-        </Collapsible>
-
-        <Collapsible open={openSections.consumo_materiais} onOpenChange={() => toggleSection('consumo_materiais')}>
-            <SectionTitle onToggle={() => toggleSection('consumo_materiais')} isOpen={openSections.consumo_materiais}>CONSUMO DE MATERIAIS NO ATENDIMENTO</SectionTitle>
-            <CollapsibleContent className="space-y-4">
+        <div>
+            <SectionTitle>CONSUMO DE MATERIAIS NO ATENDIMENTO</SectionTitle>
+            <div className="space-y-4">
                 {consumoMateriais.map((item) => (
                     <div key={item.id} className="flex items-end gap-4 p-4 border rounded-lg">
                         <Field label="MATERIAL" className="flex-1">
@@ -587,18 +584,18 @@ export default function TO12Form({ categorySlug }: { categorySlug: string }) {
                     <PlusCircle className="mr-2 h-4 w-4" />
                     Adicionar Material
                 </Button>
-            </CollapsibleContent>
-        </Collapsible>
+            </div>
+        </div>
 
 
-        <Collapsible open={openSections.observacoes} onOpenChange={() => toggleSection('observacoes')}>
-            <SectionTitle onToggle={() => toggleSection('observacoes')} isOpen={openSections.observacoes}>RELATÓRIO/OBSERVAÇÕES</SectionTitle>
-            <CollapsibleContent>
+        <div>
+            <SectionTitle>RELATÓRIO/OBSERVAÇÕES</SectionTitle>
+            <div>
                 <Field>
                     <Textarea className="text-xl" rows={6} value={formData.observacoes?.texto || ''} onChange={(e) => handleValueChange('observacoes', 'texto', e.target.value)} />
                 </Field>
-            </CollapsibleContent>
-        </Collapsible>
+            </div>
+        </div>
 
         <div className="flex sm:flex-row gap-4 pt-6">
           <Button size="lg" className="flex-1 bg-green-600 hover:bg-green-700 uppercase text-base">
