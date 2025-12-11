@@ -379,7 +379,7 @@ export default function TO16Form({ categorySlug }: { categorySlug: string }) {
                             </Field>
                         </div>
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mt-8">
-                            <Field label="VEÍCULO">
+                           <Field label="VEÍCULO">
                                 <div className="flex flex-col space-y-2">
                                     <div className="flex items-center space-x-2"><Checkbox id={`veiculo-bicicleta-${victim.id}`} checked={victim.veiculo?.tipo?.includes('bicicleta')} onCheckedChange={(c) => handleVictimCheckboxChange(victim.id, 'veiculo', 'tipo', 'bicicleta', !!c)} /><Label htmlFor={`veiculo-bicicleta-${victim.id}`} className="font-normal text-xl">BICICLETA</Label></div>
                                     <div className="flex items-center space-x-2"><Checkbox id={`veiculo-moto-${victim.id}`} checked={victim.veiculo?.tipo?.includes('moto')} onCheckedChange={(c) => handleVictimCheckboxChange(victim.id, 'veiculo', 'tipo', 'moto', !!c)} /><Label htmlFor={`veiculo-moto-${victim.id}`} className="font-normal text-xl">MOTO</Label></div>
@@ -445,7 +445,7 @@ export default function TO16Form({ categorySlug }: { categorySlug: string }) {
                                 {renderRadioGroup(victim.id, 'avaliacao_primaria', 'sangramento', [{id: 'presente', label: 'Presente'}, {id: 'ausente', label: 'Ausente'}], 'horizontal')}
                             </Field>
                             <SubSectionTitle>D - Neurológico: Glasgow e Pupilas</SubSectionTitle>
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                            <div className="grid grid-cols-1 gap-8">
                                 <Field label="Pupilas">
                                     {renderRadioGroup(victim.id, 'avaliacao_primaria', 'pupilas', [{id: 'isocoricas', label: 'Isocóricas'}, {id: 'anisocoricas', label: 'Anisocóricas'}], 'vertical')}
                                 </Field>
@@ -602,7 +602,7 @@ export default function TO16Form({ categorySlug }: { categorySlug: string }) {
                     <SectionTitle>CONDUTA</SectionTitle>
                     <div>
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                        <div>
+                        <div className="flex flex-col space-y-4">
                             {[
                                 { id: 'liberacao_local', label: 'Liberação no Local c/ Orientações' },
                                 { id: 'vitima_em_obito', label: 'Vítima em Óbito' },
@@ -685,5 +685,3 @@ export default function TO16Form({ categorySlug }: { categorySlug: string }) {
     </div>
   );
 }
-
-    

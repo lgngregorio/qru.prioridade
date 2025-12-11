@@ -174,7 +174,7 @@ export default function TO12Form({ categorySlug }: { categorySlug: string }) {
                             )}
                           >
                             <CalendarIcon className="mr-2 h-4 w-4" />
-                            {formData.dados_operacionais?.data ? format(formData.dados_operacionais.data, "PPP") : <span>DATA</span>}
+                            {formData.dados_operacionais?.data ? format(formData.dados_operacionais.data, "PPP") : <span>Data</span>}
                           </Button>
                         </PopoverTrigger>
                         <PopoverContent className="w-auto p-0">
@@ -230,7 +230,7 @@ export default function TO12Form({ categorySlug }: { categorySlug: string }) {
                             )}
                           >
                             <CalendarIcon className="mr-2 h-4 w-4" />
-                            {formData.dados_usuario?.dn ? format(formData.dados_usuario.dn, "PPP") : <span>DATA</span>}
+                            {formData.dados_usuario?.dn ? format(formData.dados_usuario.dn, "PPP") : <span>Data</span>}
                           </Button>
                         </PopoverTrigger>
                         <PopoverContent className="w-auto p-0">
@@ -529,26 +529,28 @@ export default function TO12Form({ categorySlug }: { categorySlug: string }) {
             <SectionTitle>CONDUTA</SectionTitle>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                 <Field>
-                     {renderCheckboxes('conduta', 'acoes', [
-                        { id: 'liberacao_local', label: 'Liberação no Local c/ Orientações' },
-                        { id: 'vitima_em_obito', label: 'Vítima em Óbito' },
-                        { id: 'obito_durante_atendimento', label: 'Óbito Durante Atendimento' },
-                        { id: 'recusa_atendimento', label: 'Recusa Atendimento' },
-                        { id: 'recusa_remocao', label: 'Recusa Remoção à Unidade Hospitalar' },
-                    ])}
-                    <div className="flex items-center space-x-3 mt-2">
-                         <Checkbox id="removido_terceiros" checked={formData.conduta?.removido_terceiros_check?.includes('removido_terceiros') || false} onCheckedChange={(checked) => handleCheckboxChange('conduta', 'removido_terceiros_check', 'removido_terceiros', !!checked)} />
-                         <label htmlFor="removido_terceiros" className="text-xl font-normal leading-none">Removido por Terceiros:</label>
-                         {renderCheckboxes('conduta', 'removido_terceiros_options', [
-                            { id: 'cobom', label: 'CoBom' },
-                            { id: 'samu', label: 'SAMU' },
-                         ])}
-                         <Input placeholder="Outros" className="text-xl" value={formData.conduta?.removido_terceiros_outros || ''} onChange={(e) => handleValueChange('conduta', 'removido_terceiros_outros', e.target.value)} />
-                    </div>
-                     <div className="flex items-center space-x-3 mt-2">
-                         <Checkbox id="removido_unidade_hospitalar" checked={formData.conduta?.removido_unidade_check?.includes('removido_unidade_hospitalar') || false} onCheckedChange={(checked) => handleCheckboxChange('conduta', 'removido_unidade_check', 'removido_unidade_hospitalar', !!checked)} />
-                         <label htmlFor="removido_unidade_hospitalar" className="text-xl font-normal leading-none">Removido à Unidade Hospitalar:</label>
-                         <Input className="text-xl" value={formData.conduta?.unidade_hospitalar || ''} onChange={(e) => handleValueChange('conduta', 'unidade_hospitalar', e.target.value)} />
+                    <div className="flex flex-col space-y-4">
+                        {renderCheckboxes('conduta', 'acoes', [
+                            { id: 'liberacao_local', label: 'Liberação no Local c/ Orientações' },
+                            { id: 'vitima_em_obito', label: 'Vítima em Óbito' },
+                            { id: 'obito_durante_atendimento', label: 'Óbito Durante Atendimento' },
+                            { id: 'recusa_atendimento', label: 'Recusa Atendimento' },
+                            { id: 'recusa_remocao', label: 'Recusa Remoção à Unidade Hospitalar' },
+                        ])}
+                        <div className="flex items-center space-x-3 mt-2">
+                            <Checkbox id="removido_terceiros" checked={formData.conduta?.removido_terceiros_check?.includes('removido_terceiros') || false} onCheckedChange={(checked) => handleCheckboxChange('conduta', 'removido_terceiros_check', 'removido_terceiros', !!checked)} />
+                            <label htmlFor="removido_terceiros" className="text-xl font-normal leading-none">Removido por Terceiros:</label>
+                            {renderCheckboxes('conduta', 'removido_terceiros_options', [
+                                { id: 'cobom', label: 'CoBom' },
+                                { id: 'samu', label: 'SAMU' },
+                            ])}
+                            <Input placeholder="Outros" className="text-xl" value={formData.conduta?.removido_terceiros_outros || ''} onChange={(e) => handleValueChange('conduta', 'removido_terceiros_outros', e.target.value)} />
+                        </div>
+                        <div className="flex items-center space-x-3 mt-2">
+                            <Checkbox id="removido_unidade_hospitalar" checked={formData.conduta?.removido_unidade_check?.includes('removido_unidade_hospitalar') || false} onCheckedChange={(checked) => handleCheckboxChange('conduta', 'removido_unidade_check', 'removido_unidade_hospitalar', !!checked)} />
+                            <label htmlFor="removido_unidade_hospitalar" className="text-xl font-normal leading-none">Removido à Unidade Hospitalar:</label>
+                            <Input className="text-xl" value={formData.conduta?.unidade_hospitalar || ''} onChange={(e) => handleValueChange('conduta', 'unidade_hospitalar', e.target.value)} />
+                        </div>
                     </div>
                 </Field>
                 <div>
