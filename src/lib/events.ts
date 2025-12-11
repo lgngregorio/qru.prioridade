@@ -23,6 +23,7 @@ import {
   Signpost,
   Megaphone,
   Car,
+  Anchor,
 } from 'lucide-react';
 
 export type EventCategory = {
@@ -215,7 +216,7 @@ export const eventCategories: EventCategory[] = [
     name: 'TO 39',
     title: 'DESTOMBAMENTO DE VEÍCULO',
     slug: 'to-39',
-    icon: Truck,
+    icon: Anchor,
     description: 'Relatar TO 39.',
     color: '#6A5ACD',
   },
