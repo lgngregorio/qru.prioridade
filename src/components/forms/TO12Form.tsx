@@ -2,7 +2,7 @@
 'use client';
 
 import { useRouter } from 'next/navigation';
-import { Save, Share, Loader2, PlusCircle, Trash2, X } from 'lucide-react';
+import { Save, Share, Loader2, PlusCircle, Trash2 } from 'lucide-react';
 import { useState } from 'react';
 import { collection, addDoc, serverTimestamp } from 'firebase/firestore';
 import React from 'react';
@@ -13,7 +13,6 @@ import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useFirestore } from '@/firebase';
 import { useToast } from '@/hooks/use-toast';
 import { Checkbox } from '@/components/ui/checkbox';
@@ -28,15 +27,11 @@ function Field({ label, children, className }: { label?: string, children: React
   )
 }
 
-const SectionTitle = ({ children, onClear, className }: { children: React.ReactNode; onClear: () => void; className?: string }) => (
+const SectionTitle = ({ children, className }: { children: React.ReactNode; className?: string }) => (
   <div className="flex items-center justify-between mt-8 mb-4 border-b-2 border-foreground pb-2">
     <h2 className={cn("text-xl font-semibold text-foreground uppercase", className)}>
       {children}
     </h2>
-    <Button variant="ghost" size="sm" onClick={onClear} className="flex items-center gap-2 text-muted-foreground hover:text-destructive">
-      <X className="h-4 w-4" />
-      Limpar
-    </Button>
   </div>
 );
 
@@ -61,22 +56,6 @@ export default function TO12Form({ categorySlug }: { categorySlug: string }) {
   const [consumoMateriais, setConsumoMateriais] = useState<ListItem[]>([]);
   const { toast } = useToast();
 
-  const handleClearSection = (section: string) => {
-    setFormData((prev: any) => {
-        const newState = { ...prev };
-        delete newState[section];
-        return newState;
-    });
-
-    if (section === 'rol_valores') setRolDeValores([]);
-    if (section === 'equipamentos_retidos') setEquipamentosRetidos([]);
-    if (section === 'consumo_materiais') setConsumoMateriais([]);
-
-    toast({
-        title: 'Seção Limpa!',
-        description: `Os campos da seção foram limpos.`,
-    });
-  };
 
   const addListItem = (setter: React.Dispatch<React.SetStateAction<ListItem[]>>) => {
     setter(prev => [...prev, { id: Date.now(), material: '', quantidade: '' }]);
@@ -168,7 +147,7 @@ export default function TO12Form({ categorySlug }: { categorySlug: string }) {
       <form className="space-y-12" onSubmit={(e) => e.preventDefault()}>
         
         <div id="dados_operacionais">
-            <SectionTitle onClear={() => handleClearSection('dados_operacionais')}>DADOS OPERACIONAIS DA EQUIPE DE APH</SectionTitle>
+            <SectionTitle>DADOS OPERACIONAIS DA EQUIPE DE APH</SectionTitle>
             <>
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
                     <Field label="UR/USA">
@@ -202,7 +181,7 @@ export default function TO12Form({ categorySlug }: { categorySlug: string }) {
         </div>
 
         <div id="dados_usuario">
-            <SectionTitle onClear={() => handleClearSection('dados_usuario')}>DADOS CADASTRAIS DO USUÁRIO</SectionTitle>
+            <SectionTitle>DADOS CADASTRAIS DO USUÁRIO</SectionTitle>
             <>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                     <Field label="Nome"><Input className="text-xl" value={formData.dados_usuario?.nome || ''} onChange={(e) => handleValueChange('dados_usuario', 'nome', e.target.value)} /></Field>
@@ -224,7 +203,7 @@ export default function TO12Form({ categorySlug }: { categorySlug: string }) {
         </div>
         
         <div id="evento">
-            <SectionTitle onClear={() => handleClearSection('evento')}>EVENTO</SectionTitle>
+            <SectionTitle>EVENTO</SectionTitle>
             <div className="grid grid-cols-1 gap-8">
               <div>
                   <SubSectionTitle>Trauma</SubSectionTitle>
@@ -280,7 +259,7 @@ export default function TO12Form({ categorySlug }: { categorySlug: string }) {
         </div>
         
         <div id="avaliacoes_container">
-            <SectionTitle onClear={() => handleClearSection('avaliacoes')}>AVALIAÇÕES</SectionTitle>
+            <SectionTitle>AVALIAÇÕES</SectionTitle>
             
             <>
                 <div id="avaliacoes">
@@ -381,7 +360,7 @@ export default function TO12Form({ categorySlug }: { categorySlug: string }) {
         </div>
         
         <div id="glasgow">
-            <SectionTitle onClear={() => handleClearSection('glasgow')}>ESCALA DE GLASGOW</SectionTitle>
+            <SectionTitle>ESCALA DE GLASGOW</SectionTitle>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
                 <Field label="Abertura Ocular">
                     {renderRadioGroup('glasgow', 'abertura_ocular', [
@@ -414,7 +393,7 @@ export default function TO12Form({ categorySlug }: { categorySlug: string }) {
         </div>
         
         <div id="procedimentos">
-            <SectionTitle onClear={() => handleClearSection('procedimentos')}>PROCEDIMENTOS REALIZADOS</SectionTitle>
+            <SectionTitle>PROCEDIMENTOS REALIZADOS</SectionTitle>
             <>
                 <Field>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-4">
@@ -450,7 +429,7 @@ export default function TO12Form({ categorySlug }: { categorySlug: string }) {
         </div>
 
         <div id="rol_valores">
-            <SectionTitle onClear={() => handleClearSection('rol_valores')}>ROL DE VALORES/PERTENCES</SectionTitle>
+            <SectionTitle>ROL DE VALORES/PERTENCES</SectionTitle>
             <>
                 <div className="space-y-4">
                     {rolDeValores.map((item) => (
@@ -472,7 +451,7 @@ export default function TO12Form({ categorySlug }: { categorySlug: string }) {
         </div>
 
         <div id="equipamentos_retidos">
-            <SectionTitle onClear={() => handleClearSection('equipamentos_retidos')}>EQUIPAMENTOS / MATERIAIS RETIDOS</SectionTitle>
+            <SectionTitle>EQUIPAMENTOS / MATERIAIS RETIDOS</SectionTitle>
             <>
                 <div className="space-y-4">
                     {equipamentosRetidos.map((item) => (
@@ -495,7 +474,7 @@ export default function TO12Form({ categorySlug }: { categorySlug: string }) {
 
 
         <div id="conduta">
-            <SectionTitle onClear={() => handleClearSection('conduta')}>CONDUTA</SectionTitle>
+            <SectionTitle>CONDUTA</SectionTitle>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                 <Field>
                      {renderCheckboxes('conduta', 'acoes', [
@@ -537,7 +516,7 @@ export default function TO12Form({ categorySlug }: { categorySlug: string }) {
         </div>
 
         <div id="termo_recusa">
-            <SectionTitle onClear={() => handleClearSection('termo_recusa')}>TERMO DE RECUSA</SectionTitle>
+            <SectionTitle>TERMO DE RECUSA</SectionTitle>
             <>
                 <Field>
                     <Textarea 
@@ -559,7 +538,7 @@ export default function TO12Form({ categorySlug }: { categorySlug: string }) {
         </div>
 
         <div id="consumo_materiais">
-            <SectionTitle onClear={() => handleClearSection('consumo_materiais')}>CONSUMO DE MATERIAIS NO ATENDIMENTO</SectionTitle>
+            <SectionTitle>CONSUMO DE MATERIAIS NO ATENDIMENTO</SectionTitle>
             <div className="space-y-4">
                 {consumoMateriais.map((item) => (
                     <div key={item.id} className="flex items-end gap-4 p-4 border rounded-lg">
@@ -583,7 +562,7 @@ export default function TO12Form({ categorySlug }: { categorySlug: string }) {
 
 
         <div id="observacoes">
-            <SectionTitle onClear={() => handleClearSection('observacoes')}>RELATÓRIO/OBSERVAÇÕES</SectionTitle>
+            <SectionTitle>RELATÓRIO/OBSERVAÇÕES</SectionTitle>
             <Field>
                 <Textarea className="text-xl" rows={6} value={formData.observacoes?.texto || ''} onChange={(e) => handleValueChange('observacoes', 'texto', e.target.value)} />
             </Field>
