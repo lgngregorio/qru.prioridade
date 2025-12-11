@@ -328,6 +328,8 @@ export default function QudOperacaoForm({ categorySlug }: { categorySlug: string
                         <SelectItem value="acostamento">ACOSTAMENTO</SelectItem>
                         <SelectItem value="area_dominio">ÁREA DE DOMÍNIO</SelectItem>
                         <SelectItem value="terceira_faixa">TERCEIRA FAIXA</SelectItem>
+                        <SelectItem value="faixa_de_rolamento">FAIXA DE ROLAMENTO</SelectItem>
+                        <SelectItem value="area_lindeira">ÁREA LINDEIRA</SelectItem>
                     </SelectContent>
                 </Select>
             </Field>
