@@ -2,7 +2,7 @@
 'use client';
 
 import { useRouter } from 'next/navigation';
-import { Save, Share, Loader2, PlusCircle, Trash2, X, Eye } from 'lucide-react';
+import { Save, Share, Loader2, PlusCircle, Trash2, X, Eye, RotateCcw } from 'lucide-react';
 import { useState } from 'react';
 import { collection, addDoc, serverTimestamp } from 'firebase/firestore';
 import React from 'react';
