@@ -4,7 +4,7 @@
 import { useState, useEffect } from 'react';
 import { collection, onSnapshot, orderBy, query, Timestamp, doc, deleteDoc } from 'firebase/firestore';
 import { useFirestore } from '@/firebase';
-import { Loader2, ArrowLeft, Trash2, ChevronDown } from 'lucide-react';
+import { Loader2, ArrowLeft, Trash2, ChevronDown, Edit, Share2 } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import {
@@ -189,6 +189,14 @@ export default function HistoricoPage() {
       });
     });
   };
+  
+  const handleShare = (report: Report) => {
+    // This is a generic share function. Specific forms might have their own.
+    // For now, we'll just stringify the formData.
+    const message = `*${getCategoryTitle(report.category).toUpperCase()}*\n\n${JSON.stringify(report.formData, null, 2)}`;
+    const whatsappUrl = `https://wa.me/?text=${encodeURIComponent(message)}`;
+    window.open(whatsappUrl, '_blank');
+  };
 
 
   return (
@@ -223,7 +231,15 @@ export default function HistoricoPage() {
                                         <span className="font-bold">{getCategoryTitle(report.category)}</span>
                                         <span className="text-sm font-normal text-muted-foreground">{formatDate(report.createdAt)}</span>
                                     </div>
-                                    <div className="flex items-center gap-2">
+                                    <div className="flex items-center gap-0">
+                                         <Button asChild variant="ghost" size="icon" onClick={(e) => e.stopPropagation()}>
+                                            <Link href={`/${report.category}`}>
+                                              <Edit className="h-5 w-5 text-primary" />
+                                            </Link>
+                                          </Button>
+                                         <Button variant="ghost" size="icon" className="text-green-500 hover:bg-green-500/10 hover:text-green-500" onClick={(e) => {e.stopPropagation(); handleShare(report);}}>
+                                            <Share2 className="h-5 w-5"/>
+                                        </Button>
                                         <AlertDialog>
                                             <AlertDialogTrigger asChild>
                                                 <Button variant="ghost" size="icon" className="text-destructive hover:bg-destructive/10 hover:text-destructive" onClick={(e) => e.stopPropagation()}>

@@ -327,7 +327,7 @@ export default function TO19Form({ categorySlug }: { categorySlug: string }) {
                 </Select>
             </Field>
             <Field label="OCORRÊNCIA">
-                <Input className="text-xl uppercase" value={generalInfo.ocorrencia} disabled />
+              <Input className="text-xl uppercase" value={generalInfo.ocorrencia} disabled />
             </Field>
             <Field label="TIPO DE PANE">
                  <Select value={generalInfo.tipoPane} onValueChange={(value) => handleGeneralInfoChange('tipoPane', value)}>
