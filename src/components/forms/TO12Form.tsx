@@ -115,7 +115,7 @@ export default function TO12Form({ categorySlug }: { categorySlug: string }) {
   
 
   const renderCheckboxes = (section: string, key: string, options: { id: string, label: string }[]) => (
-    <div className="flex flex-col space-y-2">
+    <div className="flex flex-col space-y-4">
       {options.map((option) => (
         <div key={option.id} className="flex items-center space-x-3">
           <Checkbox
@@ -135,7 +135,7 @@ export default function TO12Form({ categorySlug }: { categorySlug: string }) {
     <RadioGroup
       value={formData[section]?.[key] || ''}
       onValueChange={(value) => handleValueChange(section, key, value)}
-      className={cn("flex gap-x-4 gap-y-2", orientation === 'vertical' ? 'flex-col' : 'flex-wrap flex-row')}
+      className={cn("flex gap-x-4 gap-y-2", orientation === 'vertical' ? 'flex-col space-y-2' : 'flex-wrap flex-row')}
     >
       {options.map((option) => (
         <div key={option.id} className="flex items-center space-x-3">
@@ -196,7 +196,7 @@ export default function TO12Form({ categorySlug }: { categorySlug: string }) {
                     ], 'horizontal')}
                     </Field>
                 </div>
-                <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4 mt-8">
+                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 mt-8">
                     <Field label="Acionamento"><Input type="time" className="text-xl" value={formData.dados_operacionais?.acionamento || ''} onChange={(e) => handleValueChange('dados_operacionais', 'acionamento', e.target.value)} /></Field>
                     <Field label="Chegada no Local"><Input type="time" className="text-xl" value={formData.dados_operacionais?.chegada_local || ''} onChange={(e) => handleValueChange('dados_operacionais', 'chegada_local', e.target.value)} /></Field>
                     <Field label="Saída do Local"><Input type="time" className="text-xl" value={formData.dados_operacionais?.saida_local || ''} onChange={(e) => handleValueChange('dados_operacionais', 'saida_local', e.target.value)} /></Field>
@@ -211,9 +211,9 @@ export default function TO12Form({ categorySlug }: { categorySlug: string }) {
             <SectionTitle>DADOS CADASTRAIS DO USUÁRIO</SectionTitle>
             <div>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                    <Field label="Nome"><Input className="text-xl" value={formData.dados_usuario?.nome || ''} onChange={(e) => handleValueChange('dados_usuario', 'nome', e.target.value)} /></Field>
-                    <Field label="Acompanhante"><Input className="text-xl" value={formData.dados_usuario?.acompanhante || ''} onChange={(e) => handleValueChange('dados_usuario', 'acompanhante', e.target.value)} /></Field>
-                    <Field label="Endereço"><Input className="text-xl" value={formData.dados_usuario?.endereco || ''} onChange={(e) => handleValueChange('dados_usuario', 'endereco', e.target.value)} /></Field>
+                    <Field label="Nome"><Input className="text-xl" placeholder="Nome Completo" value={formData.dados_usuario?.nome || ''} onChange={(e) => handleValueChange('dados_usuario', 'nome', e.target.value)} /></Field>
+                    <Field label="Acompanhante"><Input className="text-xl" placeholder="Nome do acompanhante" value={formData.dados_usuario?.acompanhante || ''} onChange={(e) => handleValueChange('dados_usuario', 'acompanhante', e.target.value)} /></Field>
+                    <Field label="Endereço"><Input className="text-xl" placeholder="Endereço da vítima" value={formData.dados_usuario?.endereco || ''} onChange={(e) => handleValueChange('dados_usuario', 'endereco', e.target.value)} /></Field>
                 </div>
                 <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-8 mt-8">
                     <Field label="Sexo">
@@ -243,11 +243,11 @@ export default function TO12Form({ categorySlug }: { categorySlug: string }) {
                         </PopoverContent>
                       </Popover>
                     </Field>
-                    <Field label="Idade"><Input type="number" className="text-xl" value={formData.dados_usuario?.idade || ''} onChange={(e) => handleValueChange('dados_usuario', 'idade', e.target.value)} /></Field>
-                    <Field label="Telefone"><Input className="text-xl" value={formData.dados_usuario?.tel || ''} onChange={(e) => handleValueChange('dados_usuario', 'tel', e.target.value)} /></Field>
-                    <Field label="CPF"><Input className="text-xl" value={formData.dados_usuario?.cpf || ''} onChange={(e) => handleValueChange('dados_usuario', 'cpf', e.target.value)} /></Field>
-                    <Field label="RG"><Input className="text-xl" value={formData.dados_usuario?.rg || ''} onChange={(e) => handleValueChange('dados_usuario', 'rg', e.target.value)} /></Field>
-                    <Field label="Posição no Veículo"><Input className="text-xl" value={formData.dados_usuario?.posicao_veiculo || ''} onChange={(e) => handleValueChange('dados_usuario', 'posicao_veiculo', e.target.value)} /></Field>
+                    <Field label="Idade"><Input type="number" className="text-xl" placeholder="Ex: 35" value={formData.dados_usuario?.idade || ''} onChange={(e) => handleValueChange('dados_usuario', 'idade', e.target.value)} /></Field>
+                    <Field label="Telefone"><Input className="text-xl" placeholder="(00) 00000-0000" value={formData.dados_usuario?.tel || ''} onChange={(e) => handleValueChange('dados_usuario', 'tel', e.target.value)} /></Field>
+                    <Field label="CPF"><Input className="text-xl" placeholder="000.000.000-00" value={formData.dados_usuario?.cpf || ''} onChange={(e) => handleValueChange('dados_usuario', 'cpf', e.target.value)} /></Field>
+                    <Field label="RG"><Input className="text-xl" placeholder="00.000.000-0" value={formData.dados_usuario?.rg || ''} onChange={(e) => handleValueChange('dados_usuario', 'rg', e.target.value)} /></Field>
+                    <Field label="Posição no Veículo"><Input className="text-xl" placeholder="Ex: Condutor" value={formData.dados_usuario?.posicao_veiculo || ''} onChange={(e) => handleValueChange('dados_usuario', 'posicao_veiculo', e.target.value)} /></Field>
                 </div>
             </div>
         </div>
@@ -616,3 +616,5 @@ export default function TO12Form({ categorySlug }: { categorySlug: string }) {
     </div>
   );
 }
+
+    

@@ -207,7 +207,7 @@ export default function TO16Form({ categorySlug }: { categorySlug: string }) {
       <RadioGroup
         value={value}
         onValueChange={(v) => handleVictimChange(victimId, section as any, key, v)}
-        className={cn("flex gap-x-4 gap-y-2", orientation === 'vertical' ? 'flex-col' : 'flex-wrap flex-row')}
+        className={cn("flex gap-x-4 gap-y-2", orientation === 'vertical' ? 'flex-col space-y-2' : 'flex-wrap flex-row')}
       >
         {options.map((option) => (
           <div key={option.id} className="flex items-center space-x-2">
@@ -268,7 +268,7 @@ export default function TO16Form({ categorySlug }: { categorySlug: string }) {
                         </RadioGroup>
                     </Field>
                 </div>
-                <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4 mt-8">
+                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 mt-8">
                     <Field label="Acionamento"><Input type="time" className="text-xl" value={dadosOperacionais.acionamento || ''} onChange={(e) => handleOperationalDataChange('acionamento', e.target.value)} /></Field>
                     <Field label="Chegada no Local"><Input type="time" className="text-xl" value={dadosOperacionais.chegada_local || ''} onChange={(e) => handleOperationalDataChange('chegada_local', e.target.value)} /></Field>
                     <Field label="Saída do Local"><Input type="time" className="text-xl" value={dadosOperacionais.saida_local || ''} onChange={(e) => handleOperationalDataChange('saida_local', e.target.value)} /></Field>
@@ -340,7 +340,7 @@ export default function TO16Form({ categorySlug }: { categorySlug: string }) {
                     <div>
                         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
                             <Field label="Trauma">
-                                <div className="flex flex-col space-y-2">
+                                <div className="flex flex-col space-y-4">
                                     <div className="flex items-center space-x-2"><Checkbox id={`trauma-acidente-${victim.id}`} checked={victim.evento?.trauma?.includes('acidente')} onCheckedChange={(c) => handleVictimCheckboxChange(victim.id, 'evento', 'trauma', 'acidente', !!c)} /><Label htmlFor={`trauma-acidente-${victim.id}`} className="font-normal text-xl">Acidente Automobilístico</Label></div>
                                     <div className="flex items-center space-x-2"><Checkbox id={`trauma-queimadura-${victim.id}`} checked={victim.evento?.trauma?.includes('queimadura')} onCheckedChange={(c) => handleVictimCheckboxChange(victim.id, 'evento', 'trauma', 'queimadura', !!c)} /><Label htmlFor={`trauma-queimadura-${victim.id}`} className="font-normal text-xl">Queimadura</Label></div>
                                     <div className="flex items-center space-x-2"><Checkbox id={`trauma-atropelamento-${victim.id}`} checked={victim.evento?.trauma?.includes('atropelamento')} onCheckedChange={(c) => handleVictimCheckboxChange(victim.id, 'evento', 'trauma', 'atropelamento', !!c)} /><Label htmlFor={`trauma-atropelamento-${victim.id}`} className="font-normal text-xl">Atropelamento</Label></div>
@@ -349,7 +349,7 @@ export default function TO16Form({ categorySlug }: { categorySlug: string }) {
                                 </div>
                             </Field>
                             <Field label="Atendimento Clínico">
-                                <div className="flex flex-col space-y-2">
+                                <div className="flex flex-col space-y-4">
                                     <div className="flex items-center space-x-2"><Checkbox id={`clinico-mal-${victim.id}`} checked={victim.evento?.clinico?.includes('mal_subito')} onCheckedChange={(c) => handleVictimCheckboxChange(victim.id, 'evento', 'clinico', 'mal_subito', !!c)} /><Label htmlFor={`clinico-mal-${victim.id}`} className="font-normal text-xl">Mal Súbito</Label></div>
                                     <div className="flex items-center space-x-2"><Checkbox id={`clinico-intoxicacao-${victim.id}`} checked={victim.evento?.clinico?.includes('intoxicacao')} onCheckedChange={(c) => handleVictimCheckboxChange(victim.id, 'evento', 'clinico', 'intoxicacao', !!c)} /><Label htmlFor={`clinico-intoxicacao-${victim.id}`} className="font-normal text-xl">Intoxicação Exógena</Label></div>
                                     <div className="flex items-center space-x-2"><Checkbox id={`clinico-parto-${victim.id}`} checked={victim.evento?.clinico?.includes('parto')} onCheckedChange={(c) => handleVictimCheckboxChange(victim.id, 'evento', 'clinico', 'parto', !!c)} /><Label htmlFor={`clinico-parto-${victim.id}`} className="font-normal text-xl">Assistência ao Parto</Label></div>
@@ -359,7 +359,7 @@ export default function TO16Form({ categorySlug }: { categorySlug: string }) {
                                 </div>
                             </Field>
                             <Field label="Condições de Segurança">
-                                <div className="flex flex-col space-y-2">
+                                <div className="flex flex-col space-y-4">
                                     <div className="flex items-center space-x-2"><Checkbox id={`seg-cinto-${victim.id}`} checked={victim.evento?.seguranca?.includes('cinto')} onCheckedChange={(c) => handleVictimCheckboxChange(victim.id, 'evento', 'seguranca', 'cinto', !!c)} /><Label htmlFor={`seg-cinto-${victim.id}`} className="font-normal text-xl">Cinto de Segurança</Label></div>
                                     <div className="flex items-center space-x-2"><Checkbox id={`seg-cadeirinha-${victim.id}`} checked={victim.evento?.seguranca?.includes('cadeirinha')} onCheckedChange={(c) => handleVictimCheckboxChange(victim.id, 'evento', 'seguranca', 'cadeirinha', !!c)} /><Label htmlFor={`seg-cadeirinha-${victim.id}`} className="font-normal text-xl">Cadeirinha</Label></div>
                                     <div className="flex items-center space-x-2"><Checkbox id={`seg-airbag-${victim.id}`} checked={victim.evento?.seguranca?.includes('airbag')} onCheckedChange={(c) => handleVictimCheckboxChange(victim.id, 'evento', 'seguranca', 'airbag', !!c)} /><Label htmlFor={`seg-airbag-${victim.id}`} className="font-normal text-xl">Air Bag</Label></div>
@@ -368,7 +368,7 @@ export default function TO16Form({ categorySlug }: { categorySlug: string }) {
                                 </div>
                             </Field>
                             <Field label="Cinemática">
-                                <div className="flex flex-col space-y-2">
+                                <div className="flex flex-col space-y-4">
                                     <div className="flex items-center space-x-2"><Checkbox id={`cin-colisao-${victim.id}`} checked={victim.evento?.cinematica?.includes('colisao')} onCheckedChange={(c) => handleVictimCheckboxChange(victim.id, 'evento', 'cinematica', 'colisao', !!c)} /><Label htmlFor={`cin-colisao-${victim.id}`} className="font-normal text-xl">Colisão</Label></div>
                                     <div className="flex items-center space-x-2"><Checkbox id={`cin-capotamento-${victim.id}`} checked={victim.evento?.cinematica?.includes('capotamento')} onCheckedChange={(c) => handleVictimCheckboxChange(victim.id, 'evento', 'cinematica', 'capotamento', !!c)} /><Label htmlFor={`cin-capotamento-${victim.id}`} className="font-normal text-xl">Capotamento</Label></div>
                                     <div className="flex items-center space-x-2"><Checkbox id={`cin-atropelamento-${victim.id}`} checked={victim.evento?.cinematica?.includes('atropelamento')} onCheckedChange={(c) => handleVictimCheckboxChange(victim.id, 'evento', 'cinematica', 'atropelamento', !!c)} /><Label htmlFor={`cin-atropelamento-${victim.id}`} className="font-normal text-xl">Atropelamento</Label></div>
@@ -380,7 +380,7 @@ export default function TO16Form({ categorySlug }: { categorySlug: string }) {
                         </div>
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mt-8">
                            <Field label="VEÍCULO">
-                                <div className="flex flex-col space-y-2">
+                                <div className="flex flex-col space-y-4">
                                     <div className="flex items-center space-x-2"><Checkbox id={`veiculo-bicicleta-${victim.id}`} checked={victim.veiculo?.tipo?.includes('bicicleta')} onCheckedChange={(c) => handleVictimCheckboxChange(victim.id, 'veiculo', 'tipo', 'bicicleta', !!c)} /><Label htmlFor={`veiculo-bicicleta-${victim.id}`} className="font-normal text-xl">BICICLETA</Label></div>
                                     <div className="flex items-center space-x-2"><Checkbox id={`veiculo-moto-${victim.id}`} checked={victim.veiculo?.tipo?.includes('moto')} onCheckedChange={(c) => handleVictimCheckboxChange(victim.id, 'veiculo', 'tipo', 'moto', !!c)} /><Label htmlFor={`veiculo-moto-${victim.id}`} className="font-normal text-xl">MOTO</Label></div>
                                     <div className="flex items-center space-x-2"><Checkbox id={`veiculo-carro-${victim.id}`} checked={victim.veiculo?.tipo?.includes('carro')} onCheckedChange={(c) => handleVictimCheckboxChange(victim.id, 'veiculo', 'tipo', 'carro', !!c)} /><Label htmlFor={`veiculo-carro-${victim.id}`} className="font-normal text-xl">CARRO</Label></div>
@@ -630,7 +630,7 @@ export default function TO16Form({ categorySlug }: { categorySlug: string }) {
                             <Field label="Médico Regulador/Intervencionista"><Input className="text-xl" value={victim.conduta.medico_regulador || ''} onChange={e => handleVictimChange(victim.id, 'conduta', 'medico_regulador', e.target.value)} /></Field>
                             <Field label="Médico Receptor"><Input className="text-xl" value={victim.conduta.medico_receptor || ''} onChange={e => handleVictimChange(victim.id, 'conduta', 'medico_receptor', e.target.value)} /></Field>
                             <Field label="Código">
-                                <RadioGroup value={victim.conduta.codigo || ''} onValueChange={v => handleVictimChange(victim.id, 'conduta', 'codigo', v)} className="flex flex-col gap-y-2">
+                                <RadioGroup value={victim.conduta.codigo || ''} onValueChange={v => handleVictimChange(victim.id, 'conduta', 'codigo', v)} className="flex flex-col space-y-2 gap-y-2">
                                     <div className="flex items-center space-x-2"><RadioGroupItem value="vermelho" id={`cod-vermelho-${victim.id}`} /><Label htmlFor={`cod-vermelho-${victim.id}`} className="font-normal text-xl">Vermelho</Label></div>
                                     <div className="flex items-center space-x-2"><RadioGroupItem value="amarelo" id={`cod-amarelo-${victim.id}`} /><Label htmlFor={`cod-amarelo-${victim.id}`} className="font-normal text-xl">Amarelo</Label></div>
                                     <div className="flex items-center space-x-2"><RadioGroupItem value="verde" id={`cod-verde-${victim.id}`} /><Label htmlFor={`cod-verde-${victim.id}`} className="font-normal text-xl">Verde</Label></div>
@@ -685,3 +685,5 @@ export default function TO16Form({ categorySlug }: { categorySlug: string }) {
     </div>
   );
 }
+
+    
