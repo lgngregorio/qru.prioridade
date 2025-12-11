@@ -190,10 +190,45 @@ export default function HistoricoPage() {
     });
   };
   
+  const formatWhatsappValue = (value: any): string => {
+    if (value === null || value === undefined || value === '') return 'N/A';
+    if (typeof value === 'boolean') return value ? 'SIM' : 'NÃO';
+    if (value instanceof Timestamp) return formatDate(value);
+    if (Array.isArray(value)) return value.join(', ').toUpperCase();
+    return String(value).toUpperCase();
+  };
+
+  const generateWhatsappMessage = (data: any, sectionTitle?: string): string => {
+    let message = '';
+    if (sectionTitle) {
+      message += `*${sectionTitle.toUpperCase()}*\n`;
+    }
+  
+    for (const [key, value] of Object.entries(data)) {
+      const formattedKey = `*${formatKey(key).toUpperCase()}*`;
+  
+      if (key.toLowerCase().includes('veiculo') || key.toLowerCase().includes('vehicles')) {
+        if (Array.isArray(value)) {
+          value.forEach((vehicle, index) => {
+            message += `\n*VEÍCULO ${index + 1}*\n`;
+            message += generateWhatsappMessage(vehicle);
+          });
+        }
+      } else if (typeof value === 'object' && value !== null && !(value instanceof Timestamp) && !Array.isArray(value)) {
+        message += `\n${generateWhatsappMessage(value, formatKey(key))}`;
+      } else {
+         if(value !== 'NILL' && value !== '' && !(Array.isArray(value) && value.length === 0)) {
+           message += `${formattedKey}: ${formatWhatsappValue(value)}\n`;
+         }
+      }
+    }
+    return message;
+  };
+  
   const handleShare = (report: Report) => {
-    // This is a generic share function. Specific forms might have their own.
-    // For now, we'll just stringify the formData.
-    const message = `*${getCategoryTitle(report.category).toUpperCase()}*\n\n${JSON.stringify(report.formData, null, 2)}`;
+    const title = `*${getCategoryTitle(report.category).toUpperCase()}*`;
+    const reportDetails = generateWhatsappMessage(report.formData);
+    const message = `${title}\n\n${reportDetails}`;
     const whatsappUrl = `https://wa.me/?text=${encodeURIComponent(message)}`;
     window.open(whatsappUrl, '_blank');
   };
