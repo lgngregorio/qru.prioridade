@@ -22,6 +22,7 @@ import {
   ShieldAlert,
   Signpost,
   Megaphone,
+  Car,
 } from 'lucide-react';
 
 export type EventCategory = {
@@ -64,7 +65,7 @@ export const eventCategories: EventCategory[] = [
     slug: 'to-01',
     icon: Truck,
     description: 'Relatório de Veículo Abandonado.',
-    color: '#967969',
+    color: '#D2B48C',
   },
   {
     name: 'TO 02',
@@ -86,7 +87,7 @@ export const eventCategories: EventCategory[] = [
     name: 'TO 04',
     title: 'REMOÇÃO',
     slug: 'to-04',
-    icon: Truck,
+    icon: Car,
     description: 'Relatar TO 04.',
     color: '#8B4513',
   },
