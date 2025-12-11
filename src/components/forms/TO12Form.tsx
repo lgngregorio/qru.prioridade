@@ -2,7 +2,7 @@
 'use client';
 
 import { useRouter } from 'next/navigation';
-import { Save, Share, Loader2, PlusCircle, Trash2 } from 'lucide-react';
+import { Save, Share, Loader2, PlusCircle, Trash2, X, RotateCcw } from 'lucide-react';
 import { useState } from 'react';
 import { collection, addDoc, serverTimestamp } from 'firebase/firestore';
 import React from 'react';
@@ -30,10 +30,18 @@ function Field({ label, children, className }: { label?: string, children: React
   )
 }
 
-const SectionTitle = ({ children, className }: { children: React.ReactNode, className?: string }) => (
-  <h2 className={cn("text-xl font-semibold text-foreground border-b-2 border-foreground pb-2 uppercase mt-8 mb-4", className)}>
-    {children}
-  </h2>
+const SectionTitle = ({ children, onClear, className }: { children: React.ReactNode; onClear?: () => void; className?: string }) => (
+  <div className="flex items-center justify-between mt-8 mb-4 border-b-2 border-foreground pb-2">
+    <h2 className={cn("text-xl font-semibold text-foreground uppercase", className)}>
+      {children}
+    </h2>
+    {onClear && (
+      <Button variant="ghost" size="sm" onClick={onClear} className="flex items-center gap-2 text-muted-foreground">
+        <X className="h-4 w-4" />
+        Limpar
+      </Button>
+    )}
+  </div>
 );
 
 const SubSectionTitle = ({ children, className }: { children: React.ReactNode, className?: string }) => (
@@ -49,18 +57,19 @@ interface ListItem {
 }
 
 const initialFormData = {
-  dados_operacionais: {},
-  dados_usuario: {},
-  evento: {},
-  avaliacao_primaria: {},
-  avaliacao_secundaria: { sinais_vitais: {}, outros: {} },
-  glasgow: {},
-  procedimentos: {},
-  rol_valores: {},
-  equipamentos_retidos: {},
-  conduta: {},
-  termo_recusa: {},
-  observacoes: {},
+  dados_operacionais: { ur_usa: '', medico_regulador: '', condutor: '', resgatista: '', data: '', n_ocorrencia: '', km: '', sentido: '', acionamento: '', chegada_local: '', saida_local: '', chegada_hospital: '', saida_hospital: '', chegada_bso: '' },
+  dados_usuario: { nome: '', acompanhante: '', endereco: '', sexo: '', dn: '', idade: '', tel: '', cpf: '', rg: '', posicao_veiculo: '' },
+  evento: { trauma: [], trauma_outros: '', atendimento_clinico: [], clinico_outros: '', condicoes_seguranca: [], seguranca_outros: '' },
+  avaliacoes: { condicao_inicial: '' },
+  avaliacao_primaria: { hemorragia: '', vias_aereas: '', vias_aereas_obs: '', ventilacao_status: '', ventilacao_tipo: '', pulso: '', pele: '', perfusao: '', sangramento: '', pupilas: '', fotorreagentes: '', exposicao: '', lesoes_queixas: '' },
+  avaliacao_secundaria: { sinais_vitais: { pa: '', fc: '', fr: '', sat: '', tax: '', dxt: '' }, outros: { alergias: '', medicamentos: '', comorbidades: '', ultima_refeicao: '', cranio_caudal: '' } },
+  glasgow: { abertura_ocular: '', resposta_verbal: '', resposta_motora: '' },
+  procedimentos: { lista: [], outros: '' },
+  rol_valores: { responsavel: '' },
+  equipamentos_retidos: { responsavel: '' },
+  conduta: { acoes: [], removido_terceiros_check: [], removido_terceiros_options: [], removido_terceiros_outros: '', removido_unidade_check: [], unidade_hospitalar: '', medico_regulador: '', medico_receptor: '', codigo: [] },
+  termo_recusa: { texto: '', testemunha1: '', testemunha2: '', assinatura: '' },
+  observacoes: { texto: '' },
 };
 
 
@@ -69,8 +78,23 @@ export default function TO12Form({ categorySlug }: { categorySlug: string }) {
   const [rolDeValores, setRolDeValores] = useState<ListItem[]>([]);
   const [equipamentosRetidos, setEquipamentosRetidos] = useState<ListItem[]>([]);
   const [consumoMateriais, setConsumoMateriais] = useState<ListItem[]>([]);
+  const { toast } = useToast();
 
-  // Handlers for dynamic lists
+  const handleClearSection = (sectionKey: keyof typeof initialFormData) => {
+    setFormData((prev: any) => ({
+      ...prev,
+      [sectionKey]: initialFormData[sectionKey],
+    }));
+
+    if (sectionKey === 'rol_valores') setRolDeValores([]);
+    if (sectionKey === 'equipamentos_retidos') setEquipamentosRetidos([]);
+    
+    toast({
+      title: 'Seção Limpa!',
+      description: 'Os campos da seção foram limpos.',
+    });
+  };
+
   const addListItem = (setter: React.Dispatch<React.SetStateAction<ListItem[]>>) => {
     setter(prev => [...prev, { id: Date.now(), material: '', quantidade: '' }]);
   };
@@ -160,7 +184,7 @@ export default function TO12Form({ categorySlug }: { categorySlug: string }) {
     <div className="w-full p-4 sm:p-6 md:p-8">
       <form className="space-y-12" onSubmit={(e) => e.preventDefault()}>
         
-        <SectionTitle>DADOS OPERACIONAIS DA EQUIPE DE APH</SectionTitle>
+        <SectionTitle onClear={() => handleClearSection('dados_operacionais')}>DADOS OPERACIONAIS DA EQUIPE DE APH</SectionTitle>
          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
             <Field label="UR/USA">
               {renderRadioGroup('dados_operacionais', 'ur_usa', [
@@ -190,7 +214,7 @@ export default function TO12Form({ categorySlug }: { categorySlug: string }) {
             <Field label="Chegada BSO/Término"><Input type="time" className="text-xl" value={formData.dados_operacionais?.chegada_bso || ''} onChange={(e) => handleValueChange('dados_operacionais', 'chegada_bso', e.target.value)} /></Field>
         </div>
 
-        <SectionTitle>DADOS CADASTRAIS DO USUÁRIO</SectionTitle>
+        <SectionTitle onClear={() => handleClearSection('dados_usuario')}>DADOS CADASTRAIS DO USUÁRIO</SectionTitle>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
             <Field label="Nome"><Input className="text-xl" value={formData.dados_usuario?.nome || ''} onChange={(e) => handleValueChange('dados_usuario', 'nome', e.target.value)} /></Field>
             <Field label="Acompanhante"><Input className="text-xl" value={formData.dados_usuario?.acompanhante || ''} onChange={(e) => handleValueChange('dados_usuario', 'acompanhante', e.target.value)} /></Field>
@@ -208,7 +232,7 @@ export default function TO12Form({ categorySlug }: { categorySlug: string }) {
             <Field label="Posição no Veículo"><Input className="text-xl" value={formData.dados_usuario?.posicao_veiculo || ''} onChange={(e) => handleValueChange('dados_usuario', 'posicao_veiculo', e.target.value)} /></Field>
         </div>
         
-        <SectionTitle>EVENTO</SectionTitle>
+        <SectionTitle onClear={() => handleClearSection('evento')}>EVENTO</SectionTitle>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
             <Field label="Trauma">
               {renderCheckboxes('evento', 'trauma', [
@@ -240,7 +264,11 @@ export default function TO12Form({ categorySlug }: { categorySlug: string }) {
             </Field>
         </div>
         
-        <SectionTitle>AVALIAÇÕES</SectionTitle>
+        <SectionTitle onClear={() => {
+            handleClearSection('avaliacoes');
+            handleClearSection('avaliacao_primaria');
+            handleClearSection('avaliacao_secundaria');
+          }}>AVALIAÇÕES</SectionTitle>
         <Field label="Condição Inicial">
             {renderRadioGroup('avaliacoes', 'condicao_inicial', [
                 {id: 'alerta', label: 'Alerta'},
@@ -328,7 +356,7 @@ export default function TO12Form({ categorySlug }: { categorySlug: string }) {
             <Textarea className="text-xl" value={formData.avaliacao_secundaria?.outros?.cranio_caudal || ''} onChange={(e) => handleNestedValueChange('avaliacao_secundaria', 'outros', 'cranio_caudal', e.target.value)}/>
         </Field>
 
-        <SectionTitle>ESCALA DE GLASGOW</SectionTitle>
+        <SectionTitle onClear={() => handleClearSection('glasgow')}>ESCALA DE GLASGOW</SectionTitle>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
             <Field label="Abertura Ocular">
                 {renderRadioGroup('glasgow', 'abertura_ocular', [
@@ -359,7 +387,7 @@ export default function TO12Form({ categorySlug }: { categorySlug: string }) {
             </Field>
         </div>
         
-        <SectionTitle>PROCEDIMENTOS REALIZADOS</SectionTitle>
+        <SectionTitle onClear={() => handleClearSection('procedimentos')}>PROCEDIMENTOS REALIZADOS</SectionTitle>
          <Field>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-4">
               {renderCheckboxes('procedimentos', 'lista', [
@@ -391,7 +419,7 @@ export default function TO12Form({ categorySlug }: { categorySlug: string }) {
           </Field>
         <Field label="Outros"><Input className="text-xl" value={formData.procedimentos?.outros || ''} onChange={(e) => handleValueChange('procedimentos', 'outros', e.target.value)} /></Field>
 
-        <SectionTitle>ROL DE VALORES/PERTENCES</SectionTitle>
+        <SectionTitle onClear={() => handleClearSection('rol_valores')}>ROL DE VALORES/PERTENCES</SectionTitle>
         <div className="space-y-4">
             {rolDeValores.map((item, index) => (
                 <div key={item.id} className="flex items-end gap-4 p-4 border rounded-lg">
@@ -409,7 +437,7 @@ export default function TO12Form({ categorySlug }: { categorySlug: string }) {
             <Input className="text-xl" value={formData.rol_valores?.responsavel || ''} onChange={(e) => handleValueChange('rol_valores', 'responsavel', e.target.value)} />
         </Field>
 
-        <SectionTitle>EQUIPAMENTOS / MATERIAIS RETIDOS</SectionTitle>
+        <SectionTitle onClear={() => handleClearSection('equipamentos_retidos')}>EQUIPAMENTOS / MATERIAIS RETIDOS</SectionTitle>
         <div className="space-y-4">
             {equipamentosRetidos.map((item, index) => (
                 <div key={item.id} className="flex items-end gap-4 p-4 border rounded-lg">
@@ -428,7 +456,7 @@ export default function TO12Form({ categorySlug }: { categorySlug: string }) {
         </Field>
 
 
-        <SectionTitle>CONDUTA</SectionTitle>
+        <SectionTitle onClear={() => handleClearSection('conduta')}>CONDUTA</SectionTitle>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
             <Field>
                  {renderCheckboxes('conduta', 'acoes', [
@@ -468,7 +496,7 @@ export default function TO12Form({ categorySlug }: { categorySlug: string }) {
             </div>
         </div>
 
-        <SectionTitle>TERMO DE RECUSA</SectionTitle>
+        <SectionTitle onClear={() => handleClearSection('termo_recusa')}>TERMO DE RECUSA</SectionTitle>
         <Field>
             <Textarea 
                 className="text-xl"
@@ -486,7 +514,7 @@ export default function TO12Form({ categorySlug }: { categorySlug: string }) {
             <Input className="text-xl" value={formData.termo_recusa?.assinatura || ''} onChange={(e) => handleValueChange('termo_recusa', 'assinatura', e.target.value)} />
         </Field>
 
-        <SectionTitle>CONSUMO DE MATERIAIS NO ATENDIMENTO</SectionTitle>
+        <SectionTitle onClear={() => setConsumoMateriais([])}>CONSUMO DE MATERIAIS NO ATENDIMENTO</SectionTitle>
         <div className="space-y-4">
             {consumoMateriais.map((item) => (
                 <div key={item.id} className="flex items-end gap-4 p-4 border rounded-lg">
@@ -508,7 +536,7 @@ export default function TO12Form({ categorySlug }: { categorySlug: string }) {
         </div>
 
 
-        <SectionTitle>RELATÓRIO/OBSERVAÇÕES</SectionTitle>
+        <SectionTitle onClear={() => handleClearSection('observacoes')}>RELATÓRIO/OBSERVAÇÕES</SectionTitle>
         <Field>
             <Textarea className="text-xl" rows={6} value={formData.observacoes?.texto || ''} onChange={(e) => handleValueChange('observacoes', 'texto', e.target.value)} />
         </Field>
