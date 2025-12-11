@@ -16,6 +16,7 @@ import {
 import { useTheme } from 'next-themes';
 import { useState, useEffect } from 'react';
 import { useToast } from '@/hooks/use-toast';
+import { useRouter } from 'next/navigation';
 
 // This is a mock database. In a real app, you would fetch this from your backend.
 let userProfileDB = {
@@ -39,6 +40,7 @@ const updateUserProfile = (profile: Partial<typeof userProfileDB>) => {
 export default function ConfiguracoesPage() {
   const { theme, setTheme } = useTheme();
   const { toast } = useToast();
+  const router = useRouter();
 
   // State for the form's current values
   const [name, setName] = useState('');
@@ -73,6 +75,7 @@ export default function ConfiguracoesPage() {
         title: "Sucesso!",
         description: "Suas configurações foram salvas.",
       });
+      router.push('/');
     }, 1000);
   };
 
