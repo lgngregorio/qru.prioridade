@@ -31,7 +31,7 @@ import { eventCategories } from '@/lib/events';
 interface Report {
   id: string;
   category: string;
-  createdAt: Timestamp | null;
+  createdAt: Timestamp | { seconds: number, nanoseconds: number } | null;
   formData: any;
 }
 
@@ -39,6 +39,10 @@ const renderValue = (value: any): React.ReactNode => {
     if (value === null || value === undefined || value === '') return 'N/A';
     if (typeof value === 'boolean') return value ? 'Sim' : 'Não';
     if (value instanceof Timestamp) return formatDate(value);
+    if (typeof value === 'object' && value.seconds !== undefined && value.nanoseconds !== undefined) {
+      const ts = new Timestamp(value.seconds, value.nanoseconds);
+      return formatDate(ts);
+    }
     if (Array.isArray(value)) return value.join(', ');
     if (typeof value === 'object') {
         // Simple object rendering, may need to be more sophisticated
@@ -118,9 +122,19 @@ const ReportDetail = ({ formData }: { formData: any }) => {
     );
 };
 
-const formatDate = (timestamp: Timestamp | null) => {
+const formatDate = (timestamp: Report['createdAt']) => {
     if (!timestamp) return 'Carregando...';
-    return timestamp.toDate().toLocaleString('pt-BR', {
+    
+    let date: Date;
+    if (timestamp instanceof Timestamp) {
+      date = timestamp.toDate();
+    } else if (timestamp && typeof timestamp === 'object' && 'seconds' in timestamp && 'nanoseconds' in timestamp) {
+      date = new Timestamp(timestamp.seconds, timestamp.nanoseconds).toDate();
+    } else {
+        return 'Data inválida';
+    }
+
+    return date.toLocaleString('pt-BR', {
       day: '2-digit',
       month: '2-digit',
       year: 'numeric',
@@ -151,7 +165,7 @@ export default function HistoricoPage() {
           return {
             id: doc.id,
             ...data,
-            createdAt: data.createdAt instanceof Timestamp ? data.createdAt : null,
+            createdAt: data.createdAt,
           } as Report;
         });
         setReports(fetchedReports);
@@ -195,6 +209,10 @@ export default function HistoricoPage() {
     if (typeof value === 'boolean') return value ? 'SIM' : 'NÃO';
     if (value instanceof Timestamp) return formatDate(value);
     if (Array.isArray(value)) return value.join(', ').toUpperCase();
+    if (typeof value === 'object' && value.seconds !== undefined && value.nanoseconds !== undefined) {
+      const ts = new Timestamp(value.seconds, value.nanoseconds);
+      return formatDate(ts);
+    }
     return String(value).toUpperCase();
   };
 
@@ -215,7 +233,13 @@ export default function HistoricoPage() {
           });
         }
       } else if (typeof value === 'object' && value !== null && !(value instanceof Timestamp) && !Array.isArray(value)) {
-        message += `\n${generateWhatsappMessage(value, formatKey(key))}`;
+         if (value.seconds === undefined || value.nanoseconds === undefined) {
+            message += `\n${generateWhatsappMessage(value, formatKey(key))}`;
+        } else {
+             if(value !== 'NILL' && value !== '' && !(Array.isArray(value) && value.length === 0)) {
+               message += `${formattedKey}: ${formatWhatsappValue(value)}\n`;
+             }
+        }
       } else {
          if(value !== 'NILL' && value !== '' && !(Array.isArray(value) && value.length === 0)) {
            message += `${formattedKey}: ${formatWhatsappValue(value)}\n`;
