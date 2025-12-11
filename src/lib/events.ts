@@ -64,7 +64,7 @@ export const eventCategories: EventCategory[] = [
     slug: 'to-01',
     icon: Truck,
     description: 'Relatório de Veículo Abandonado.',
-    color: '#8B4513',
+    color: '#967969',
   },
   {
     name: 'TO 02',
