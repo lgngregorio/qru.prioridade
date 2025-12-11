@@ -594,27 +594,6 @@ export default function TO16Form({ categorySlug }: { categorySlug: string }) {
                     </div>
                 </div>
 
-                <div>
-                    <SectionTitle>TERMO DE RECUSA</SectionTitle>
-                    <div>
-                        <Field>
-                        <Textarea 
-                            className="text-xl"
-                            rows={8}
-                            placeholder="Eu, (NOME), portador do CPF (NÚMERO) e RG (NÚMERO), residente no endereço (ENDEREÇO), em plena consciência dos meus atos e orientado pela equipe de resgate, declaro para todos os fins que recuso o atendimento pré-hospitalar da Way Brasil, assumindo toda a responsabilidade por qualquer prejuízo à minha saúde e integridade física ou a de (NOME DO RESPONSÁVEL), na condição de seu responsável de quem sou (GRAU DE PARENTESCO)."
-                            value={victim.termo_recusa.texto || ''}
-                            onChange={(e) => handleVictimChange(victim.id, 'termo_recusa', 'texto', e.target.value)}
-                        />
-                        </Field>
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mt-4">
-                            <Field label="Testemunha 1"><Input className="text-xl" value={victim.termo_recusa.testemunha1 || ''} onChange={(e) => handleVictimChange(victim.id, 'termo_recusa', 'testemunha1', e.target.value)}/></Field>
-                            <Field label="Testemunha 2"><Input className="text-xl" value={victim.termo_recusa.testemunha2 || ''} onChange={(e) => handleVictimChange(victim.id, 'termo_recusa', 'testemunha2', e.target.value)}/></Field>
-                        </div>
-                        <Field label="Assinatura da Vítima/Responsável">
-                            <Input className="text-xl mt-4" value={victim.termo_recusa.assinatura || ''} onChange={(e) => handleVictimChange(victim.id, 'termo_recusa', 'assinatura', e.target.value)} />
-                        </Field>
-                    </div>
-                </div>
             </div>
         ))}
 
