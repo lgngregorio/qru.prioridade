@@ -31,7 +31,7 @@ import { eventCategories } from '@/lib/events';
 interface Report {
   id: string;
   category: string;
-  createdAt: Timestamp;
+  createdAt: Timestamp | null;
   formData: any;
 }
 
@@ -151,7 +151,7 @@ export default function HistoricoPage() {
           return {
             id: doc.id,
             ...data,
-            createdAt: data.createdAt instanceof Timestamp ? data.createdAt : new Timestamp(0, 0),
+            createdAt: data.createdAt instanceof Timestamp ? data.createdAt : null,
           } as Report;
         });
         setReports(fetchedReports);
