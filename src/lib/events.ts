@@ -148,7 +148,7 @@ export const eventCategories: EventCategory[] = [
   },
   {
     name: 'TO 16',
-    title: 'TO 16',
+    title: 'ATENDIMENTO A FUNCIONÁRIO',
     slug: 'to-16',
     icon: Heart,
     description: 'Relatar TO 16.',
