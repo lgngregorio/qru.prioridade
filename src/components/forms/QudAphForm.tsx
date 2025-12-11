@@ -1,4 +1,3 @@
-
 'use client';
 
 import { useRouter } from 'next/navigation';
@@ -20,6 +19,9 @@ import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Collapsible, CollapsibleTrigger, CollapsibleContent } from '@/components/ui/collapsible';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Calendar } from '@/components/ui/calendar';
+import { eventCategories } from '@/lib/events';
+import { FirestorePermissionError } from '@/firebase/errors';
+import { errorEmitter } from '@/firebase/error-emitter';
 
 function Field({ label, children, className }: { label?: string, children: React.ReactNode, className?: string }) {
   return (
@@ -70,6 +72,11 @@ interface Victim {
 
 
 export default function QudAphForm({ categorySlug }: { categorySlug: string }) {
+  const firestore = useFirestore();
+  const router = useRouter();
+  const { toast } = useToast();
+  const [isSaving, setIsSaving] = useState(false);
+
   const [dadosOperacionais, setDadosOperacionais] = useState<any>({});
   const [victims, setVictims] = useState<Victim[]>([
     { 
@@ -90,7 +97,7 @@ export default function QudAphForm({ categorySlug }: { categorySlug: string }) {
 
   const [consumoMateriais, setConsumoMateriais] = useState<ListItem[]>([]);
   const [relatorio, setRelatorio] = useState('');
-  const { toast } = useToast();
+  
 
   const handleOperationalDataChange = (key: string, value: any) => {
     setDadosOperacionais((prev: any) => ({ ...prev, [key]: value }));
@@ -258,6 +265,123 @@ export default function QudAphForm({ categorySlug }: { categorySlug: string }) {
       </RadioGroup>
     );
   };
+
+  const fillEmptyFields = (data: any): any => {
+    if (Array.isArray(data)) {
+      return data.map(item => fillEmptyFields(item));
+    }
+    if (typeof data === 'object' && data !== null) {
+      const newData: { [key: string]: any } = {};
+      for (const key in data) {
+        if (Object.prototype.hasOwnProperty.call(data, key)) {
+          newData[key] = fillEmptyFields(data[key]);
+        }
+      }
+      return newData;
+    }
+    if (data === '' || data === null || data === undefined) {
+      return 'NILL';
+    }
+    return data;
+  };
+  
+  const validateFields = (data: any): boolean => {
+      if (Array.isArray(data)) {
+        return data.every(item => validateFields(item));
+      }
+      if (typeof data === 'object' && data !== null) {
+        for (const key in data) {
+            // Exclui campos opcionais da validação
+            if (key === 'trauma_outros' || key === 'clinico_outros' || key === 'seguranca_outros' || key === 'cinematica_outros' || key === 'removido_por_terceiros_obs' || key === 'unidade_hospitalar' || key === 'outros') {
+                continue;
+            }
+            if (!validateFields(data[key])) return false;
+        }
+        return true;
+      }
+      return data !== '' && data !== null && data !== undefined;
+  };
+
+  const prepareReportData = () => {
+    const filledData = {
+      dadosOperacionais: fillEmptyFields(dadosOperacionais),
+      victims: fillEmptyFields(victims),
+      consumoMateriais: fillEmptyFields(consumoMateriais),
+      relatorio: fillEmptyFields(relatorio)
+    };
+
+    return {
+      category: categorySlug,
+      formData: filledData,
+      createdAt: serverTimestamp(),
+    };
+  };
+
+  const saveReport = async (): Promise<boolean> => {
+    if (!firestore) {
+      toast({
+        variant: 'destructive',
+        title: 'Erro',
+        description: 'Não foi possível conectar ao banco de dados.',
+      });
+      return false;
+    }
+
+    const reportData = prepareReportData();
+
+    if (!validateFields(reportData.formData)) {
+        toast({
+            variant: "destructive",
+            title: "Campos obrigatórios",
+            description: "Por favor, preencha todos os campos antes de salvar ou compartilhar.",
+        });
+        return false;
+    }
+
+    setIsSaving(true);
+    try {
+      const reportsCollection = collection(firestore, 'reports');
+      await addDoc(reportsCollection, reportData);
+      toast({
+        title: 'Sucesso!',
+        description: 'Relatório salvo com sucesso.',
+        className: 'bg-green-600 text-white',
+      });
+      return true;
+    } catch (error) {
+      console.error('Error saving report: ', error);
+      const permissionError = new FirestorePermissionError({
+          path: (collection(firestore, 'reports')).path,
+          operation: 'create',
+          requestResourceData: reportData,
+      });
+      errorEmitter.emit('permission-error', permissionError);
+      return false;
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
+  const handleSave = async () => {
+    const success = await saveReport();
+    if (success) {
+      router.push('/historico');
+    }
+  };
+
+  const handleShare = async () => {
+    const success = await saveReport();
+    if (success) {
+      const reportData = prepareReportData().formData;
+      const category = eventCategories.find((c) => c.slug === categorySlug);
+      let message = `*${category ? category.title.toUpperCase() : 'RELATÓRIO DE OCORRÊNCIA'}*\n\n`;
+      
+      // Add data to message...
+       const whatsappUrl = `https://wa.me/?text=${encodeURIComponent(message)}`;
+       window.open(whatsappUrl, '_blank');
+    }
+  };
+
   
   return (
     <div className="w-full p-4 sm:p-6 md:p-8">
@@ -709,7 +833,7 @@ export default function QudAphForm({ categorySlug }: { categorySlug: string }) {
             </div>
         ))}
 
-        <Button variant="secondary" className="w-full" onClick={addVictim}><PlusCircle className="mr-2 h-4 w-4" />Adicionar Vítima</Button>
+        <Button variant="secondary" className="w-full bg-blue-600 dark:bg-blue-600 hover:bg-blue-700 dark:hover:bg-blue-700 text-white dark:text-white" onClick={addVictim}><PlusCircle className="mr-2 h-4 w-4" />Adicionar Vítima</Button>
 
         <div>
             <SectionTitle>CONSUMO DE MATERIAIS NO ATENDIMENTO</SectionTitle>
@@ -736,12 +860,12 @@ export default function QudAphForm({ categorySlug }: { categorySlug: string }) {
         </div>
 
         <div className="flex sm:flex-row gap-4 pt-6">
-          <Button size="lg" className="flex-1 bg-green-600 hover:bg-green-700 uppercase text-base">
-              <Share className="mr-2 h-4 w-4" />
+          <Button size="lg" className="flex-1 bg-green-600 hover:bg-green-700 uppercase text-base" onClick={handleShare} disabled={isSaving}>
+              {isSaving ? <Loader2 className="animate-spin" /> : <Share className="mr-2 h-4 w-4" />}
               Compartilhar WhatsApp
           </Button>
-          <Button size="lg" className="w-32 bg-primary hover:bg-primary/90 uppercase text-base">
-              <Save className="mr-2 h-4 w-4" />
+          <Button size="lg" className="w-32 bg-primary hover:bg-primary/90 uppercase text-base" onClick={handleSave} disabled={isSaving}>
+              {isSaving ? <Loader2 className="animate-spin" /> : <Save className="mr-2 h-4 w-4" />}
               Salvar
           </Button>
         </div>
