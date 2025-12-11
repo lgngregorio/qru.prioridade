@@ -278,7 +278,7 @@ export default function QudOperacaoForm({ categorySlug }: { categorySlug: string
             <Field label="OCORRÊNCIA">
               <Select value={generalInfo.ocorrencia} onValueChange={(value) => handleGeneralInfoChange('ocorrencia', value)}>
                   <SelectTrigger className="text-xl normal-case placeholder:text-base">
-                      <SelectValue placeholder="Selecione a ocorrência" />
+                      <SelectValue placeholder="Selecione o AC" />
                   </SelectTrigger>
                   <SelectContent>
                       <SelectItem value="ac01">AC01</SelectItem>
