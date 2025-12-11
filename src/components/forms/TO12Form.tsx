@@ -65,6 +65,7 @@ const initialSectionVisibility = {
   evento_trauma: true,
   evento_clinico: true,
   evento_seguranca: true,
+  evento_cinematica: true,
   avaliacoes: true,
   avaliacao_primaria: true,
   avaliacao_secundaria: true,
@@ -297,6 +298,21 @@ export default function TO12Form({ categorySlug }: { categorySlug: string }) {
                       </Field>
                   )}
               </div>
+              <div>
+                  <SubSectionTitle onToggle={() => handleSectionVisibility('evento_cinematica')} isVisible={visibleSections.evento_cinematica}>Cinemática</SubSectionTitle>
+                  {visibleSections.evento_cinematica && (
+                      <Field>
+                          {renderCheckboxes('evento', 'cinematica', [
+                              { id: 'colisao', label: 'Colisão' },
+                              { id: 'capotamento', label: 'Capotamento' },
+                              { id: 'atropelamento', label: 'Atropelamento' },
+                              { id: 'queda', label: 'Queda' },
+                              { id: 'tombamento', label: 'Tombamento' },
+                          ])}
+                          <Input placeholder="Outros" className="mt-2 text-xl" value={formData.evento?.cinematica_outros || ''} onChange={(e) => handleValueChange('evento', 'cinematica_outros', e.target.value)} />
+                      </Field>
+                  )}
+              </div>
             </div>
             )}
         </div>
@@ -338,64 +354,66 @@ export default function TO12Form({ categorySlug }: { categorySlug: string }) {
                 
                 {visibleSections.avaliacao_primaria && (
                     <div id="avaliacao_primaria">
-                        <SubSectionTitle>Avaliação Primária</SubSectionTitle>
-                        <Field label="X - Hemorragia Exsanguinante">
-                          {renderRadioGroup('avaliacao_primaria', 'hemorragia', [{id: 'nao', label: 'Não'}, {id: 'sim', label: 'Sim'}])}
-                        </Field>
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mt-4">
-                            <Field label="A - Vias Aéreas">
-                                <div className="flex items-center gap-4">
-                                  {renderRadioGroup('avaliacao_primaria', 'vias_aereas', [{id: 'pervias', label: 'Pérvias'}, {id: 'obstruidas', label: 'Obstruídas por:'}])}
-                                  <Input className="text-xl" value={formData.avaliacao_primaria?.vias_aereas_obs || ''} onChange={(e) => handleValueChange('avaliacao_primaria', 'vias_aereas_obs', e.target.value)} />
-                                </div>
-                            </Field>
-                             <Field label="B - Ventilação">
-                                {renderRadioGroup('avaliacao_primaria', 'ventilacao_status', [{id: 'presente', label: 'Presente'}, {id: 'ausente', label: 'Ausente'}, {id: 'simetrica', label: 'Simétrica'}, {id: 'assimetrica', label: 'Assimétrica'}])}
-                                {renderRadioGroup('avaliacao_primaria', 'ventilacao_tipo', [{id: 'apneia', label: 'Apneia'}, {id: 'eupneia', label: 'Eupneia'}, {id: 'taquipneia', label: 'Taquipneia'}, {id: 'gasping', label: 'Gasping'}])}
-                            </Field>
-                        </div>
-                        <SubSectionTitle>C - Circulação e Hemorragias</SubSectionTitle>
-                        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-                            <Field label="Pulso">
-                                {renderRadioGroup('avaliacao_primaria', 'pulso', [{id: 'presente', label: 'Presente'}, {id: 'cheio', label: 'Cheio'}, {id: 'filiforme', label: 'Filiforme'}])}
-                            </Field>
-                            <Field label="Pele">
-                                {renderRadioGroup('avaliacao_primaria', 'pele', [{id: 'normal', label: 'Normal'}, {id: 'fria', label: 'Fria'}, {id: 'sudorese', label: 'Sudorese'}])}
-                            </Field>
-                            <Field label="Perfusão">
-                                {renderRadioGroup('avaliacao_primaria', 'perfusao', [{id: '<2seg', label: '< 2seg'}, {id: '>2seg', label: '> 2seg'}])}
-                            </Field>
-                        </div>
-                         <Field label="Sangramento Ativo">
-                             {renderRadioGroup('avaliacao_primaria', 'sangramento', [{id: 'presente', label: 'Presente'}, {id: 'ausente', label: 'Ausente'}])}
-                        </Field>
+                        <SubSectionTitle onToggle={() => handleSectionVisibility('avaliacao_primaria')} isVisible={visibleSections.avaliacao_primaria}>Avaliação Primária</SubSectionTitle>
+                        {visibleSections.avaliacao_primaria && <>
+                          <Field label="X - Hemorragia Exsanguinante">
+                            {renderRadioGroup('avaliacao_primaria', 'hemorragia', [{id: 'nao', label: 'Não'}, {id: 'sim', label: 'Sim'}])}
+                          </Field>
+                          <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mt-4">
+                              <Field label="A - Vias Aéreas">
+                                  <div className="flex items-center gap-4">
+                                    {renderRadioGroup('avaliacao_primaria', 'vias_aereas', [{id: 'pervias', label: 'Pérvias'}, {id: 'obstruidas', label: 'Obstruídas por:'}])}
+                                    <Input className="text-xl" value={formData.avaliacao_primaria?.vias_aereas_obs || ''} onChange={(e) => handleValueChange('avaliacao_primaria', 'vias_aereas_obs', e.target.value)} />
+                                  </div>
+                              </Field>
+                               <Field label="B - Ventilação">
+                                  {renderRadioGroup('avaliacao_primaria', 'ventilacao_status', [{id: 'presente', label: 'Presente'}, {id: 'ausente', label: 'Ausente'}, {id: 'simetrica', label: 'Simétrica'}, {id: 'assimetrica', label: 'Assimétrica'}])}
+                                  {renderRadioGroup('avaliacao_primaria', 'ventilacao_tipo', [{id: 'apneia', label: 'Apneia'}, {id: 'eupneia', label: 'Eupneia'}, {id: 'taquipneia', label: 'Taquipneia'}, {id: 'gasping', label: 'Gasping'}])}
+                              </Field>
+                          </div>
+                          <SubSectionTitle onToggle={() => {}} isVisible={true}>C - Circulação e Hemorragias</SubSectionTitle>
+                          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+                              <Field label="Pulso">
+                                  {renderRadioGroup('avaliacao_primaria', 'pulso', [{id: 'presente', label: 'Presente'}, {id: 'cheio', label: 'Cheio'}, {id: 'filiforme', label: 'Filiforme'}])}
+                              </Field>
+                              <Field label="Pele">
+                                  {renderRadioGroup('avaliacao_primaria', 'pele', [{id: 'normal', label: 'Normal'}, {id: 'fria', label: 'Fria'}, {id: 'sudorese', label: 'Sudorese'}])}
+                              </Field>
+                              <Field label="Perfusão">
+                                  {renderRadioGroup('avaliacao_primaria', 'perfusao', [{id: '<2seg', label: '&lt; 2seg'}, {id: '>2seg', label: '&gt; 2seg'}])}
+                              </Field>
+                          </div>
+                           <Field label="Sangramento Ativo">
+                               {renderRadioGroup('avaliacao_primaria', 'sangramento', [{id: 'presente', label: 'Presente'}, {id: 'ausente', label: 'Ausente'}])}
+                          </Field>
 
-                        <SubSectionTitle>D - Neurológico: Glasgow</SubSectionTitle>
-                         <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                            <Field label="Pupilas">
-                                {renderRadioGroup('avaliacao_primaria', 'pupilas', [{id: 'isocoricas', label: 'Isocóricas'}, {id: 'anisocoricas', label: 'Anisocóricas'}])}
-                            </Field>
-                            <Field label="Fotorreagentes">
-                                {renderRadioGroup('avaliacao_primaria', 'fotorreagentes', [{id: 'sim', label: 'Sim'}, {id: 'nao', label: 'Não'}])}
-                            </Field>
-                        </div>
+                          <SubSectionTitle onToggle={() => {}} isVisible={true}>D - Neurológico: Glasgow</SubSectionTitle>
+                           <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                              <Field label="Pupilas">
+                                  {renderRadioGroup('avaliacao_primaria', 'pupilas', [{id: 'isocoricas', label: 'Isocóricas'}, {id: 'anisocoricas', label: 'Anisocóricas'}])}
+                              </Field>
+                              <Field label="Fotorreagentes">
+                                  {renderRadioGroup('avaliacao_primaria', 'fotorreagentes', [{id: 'sim', label: 'Sim'}, {id: 'nao', label: 'Não'}])}
+                              </Field>
+                          </div>
 
-                        <SubSectionTitle>E - Exposição</SubSectionTitle>
-                        <Field>
-                            {renderRadioGroup('avaliacao_primaria', 'exposicao', [{id: 'sem_lesoes', label: 'Sem Lesões Aparentes'}, {id: 'hipotermia', label: 'Hipotermia'}])}
-                        </Field>
-                         <Field label="Lesões Aparentes e Queixas Principais">
-                            <Textarea className="text-xl" value={formData.avaliacao_primaria?.lesoes_queixas || ''} onChange={(e) => handleValueChange('avaliacao_primaria', 'lesoes_queixas', e.target.value)}/>
-                        </Field>
+                          <SubSectionTitle onToggle={() => {}} isVisible={true}>E - Exposição</SubSectionTitle>
+                          <Field>
+                              {renderRadioGroup('avaliacao_primaria', 'exposicao', [{id: 'sem_lesoes', label: 'Sem Lesões Aparentes'}, {id: 'hipotermia', label: 'Hipotermia'}])}
+                          </Field>
+                           <Field label="Lesões Aparentes e Queixas Principais">
+                              <Textarea className="text-xl" value={formData.avaliacao_primaria?.lesoes_queixas || ''} onChange={(e) => handleValueChange('avaliacao_primaria', 'lesoes_queixas', e.target.value)}/>
+                          </Field>
+                        </>}
                     </div>
                 )}
                 
                 {visibleSections.avaliacao_secundaria && (
                     <div id="avaliacao_secundaria">
-                        <SubSectionTitle>Avaliação Secundária</SubSectionTitle>
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                        <SubSectionTitle onToggle={() => handleSectionVisibility('avaliacao_secundaria')} isVisible={visibleSections.avaliacao_secundaria}>Avaliação Secundária</SubSectionTitle>
+                        {visibleSections.avaliacao_secundaria && <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                             <div>
-                              <SubSectionTitle>Sinais Vitais</SubSectionTitle>
+                              <SubSectionTitle onToggle={() => {}} isVisible={true}>Sinais Vitais</SubSectionTitle>
                               <div className="grid grid-cols-2 gap-4">
                                 <Field label="PA (mmHg)"><Input className="text-xl" value={formData.avaliacao_secundaria?.sinais_vitais?.pa || ''} onChange={(e) => handleNestedValueChange('avaliacao_secundaria', 'sinais_vitais', 'pa', e.target.value)} /></Field>
                                 <Field label="FC (bpm)"><Input type="number" className="text-xl" value={formData.avaliacao_secundaria?.sinais_vitais?.fc || ''} onChange={(e) => handleNestedValueChange('avaliacao_secundaria', 'sinais_vitais', 'fc', e.target.value)} /></Field>
@@ -411,10 +429,10 @@ export default function TO12Form({ categorySlug }: { categorySlug: string }) {
                                 <Field label="Comorbidades/Gestação"><Textarea className="text-xl" value={formData.avaliacao_secundaria?.outros?.comorbidades || ''} onChange={(e) => handleNestedValueChange('avaliacao_secundaria', 'outros', 'comorbidades', e.target.value)} /></Field>
                                 <Field label="Última Refeição/Jejum"><Textarea className="text-xl" value={formData.avaliacao_secundaria?.outros?.ultima_refeicao || ''} onChange={(e) => handleNestedValueChange('avaliacao_secundaria', 'outros', 'ultima_refeicao', e.target.value)} /></Field>
                             </div>
-                        </div>
-                        <Field label="Avaliação Crânio-Caudal">
+                        </div>}
+                        {visibleSections.avaliacao_secundaria && <Field label="Avaliação Crânio-Caudal">
                             <Textarea className="text-xl" value={formData.avaliacao_secundaria?.outros?.cranio_caudal || ''} onChange={(e) => handleNestedValueChange('avaliacao_secundaria', 'outros', 'cranio_caudal', e.target.value)}/>
-                        </Field>
+                        </Field>}
                     </div>
                 )}
             </>
@@ -662,6 +680,3 @@ export default function TO12Form({ categorySlug }: { categorySlug: string }) {
 }
 
     
-
-    
-
