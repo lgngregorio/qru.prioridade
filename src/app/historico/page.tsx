@@ -33,9 +33,11 @@ export default function HistoricoPage() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    if (!firestore) return;
+    if (!firestore) {
+      setLoading(true);
+      return;
+    };
 
-    setLoading(true);
     const reportsRef = collection(firestore, 'reports');
     const q = query(reportsRef, orderBy('createdAt', 'desc'));
 
