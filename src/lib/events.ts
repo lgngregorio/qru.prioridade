@@ -40,7 +40,7 @@ export const eventCategories: EventCategory[] = [
     slug: 'qud-aph',
     icon: Siren,
     description: 'Relatar QUD APH.',
-    color: '#000000',
+    color: '#36454F',
   },
   {
     name: 'QUD OPERAÇÃO',
