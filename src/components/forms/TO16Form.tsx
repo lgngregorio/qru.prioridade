@@ -308,7 +308,7 @@ export default function TO16Form({ categorySlug }: { categorySlug: string }) {
                         </RadioGroup>
                     </Field>
                 </div>
-                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 mt-8">
+                <div className="grid grid-cols-2 md:grid-cols-3 gap-4 mt-8">
                     <Field label="Acionamento"><Input type="time" className="text-xl" value={dadosOperacionais.acionamento || ''} onChange={(e) => handleOperationalDataChange('acionamento', e.target.value)} /></Field>
                     <Field label="Chegada no Local"><Input type="time" className="text-xl" value={dadosOperacionais.chegada_local || ''} onChange={(e) => handleOperationalDataChange('chegada_local', e.target.value)} /></Field>
                     <Field label="Saída do Local"><Input type="time" className="text-xl" value={dadosOperacionais.saida_local || ''} onChange={(e) => handleOperationalDataChange('saida_local', e.target.value)} /></Field>
@@ -330,6 +330,7 @@ export default function TO16Form({ categorySlug }: { categorySlug: string }) {
                     <div>
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                             <Field label="Nome"><Input className="text-xl" placeholder="Nome Completo" value={victim.dados_cadastrais.nome || ''} onChange={(e) => handleVictimChange(victim.id, 'dados_cadastrais', 'nome', e.target.value)} /></Field>
+                            <Field label="Acompanhante"><Input className="text-xl" placeholder="Nome do acompanhante" value={victim.dados_cadastrais.acompanhante || ''} onChange={(e) => handleVictimChange(victim.id, 'dados_cadastrais', 'acompanhante', e.target.value)} /></Field>
                             <Field label="Endereço"><Input className="text-xl" placeholder="Endereço da vítima" value={victim.dados_cadastrais.endereco || ''} onChange={(e) => handleVictimChange(victim.id, 'dados_cadastrais', 'endereco', e.target.value)} /></Field>
                         </div>
                         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8 mt-8">
@@ -393,8 +394,7 @@ export default function TO16Form({ categorySlug }: { categorySlug: string }) {
                             </Field>
                         </div>
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mt-8">
-                            <Field label="Acompanhante do Usuário"><Input className="text-xl" placeholder="Nome do acompanhante" value={victim.dados_cadastrais.acompanhante || ''} onChange={(e) => handleVictimChange(victim.id, 'dados_cadastrais', 'acompanhante', e.target.value)} /></Field>
-                            <Field label="Posição no Veículo"><Input className="text-xl" placeholder="Ex: Condutor, Passageiro" value={victim.dados_cadastrais.posicao_veiculo || ''} onChange={(e) => handleVictimChange(victim.id, 'dados_cadastrais', 'posicao_veiculo', e.target.value)} /></Field>
+                             <Field label="Posição no Veículo"><Input className="text-xl" placeholder="Ex: Condutor, Passageiro" value={victim.dados_cadastrais.posicao_veiculo || ''} onChange={(e) => handleVictimChange(victim.id, 'dados_cadastrais', 'posicao_veiculo', e.target.value)} /></Field>
                         </div>
                     </div>
                 </div>
@@ -639,7 +639,7 @@ export default function TO16Form({ categorySlug }: { categorySlug: string }) {
                             <Button variant="destructive" size="icon" onClick={() => removeListItem(victim.id, 'rol_valores', item.id)}><Trash2 className="h-4 w-4" /></Button>
                             </div>
                         ))}
-                        <Button variant="outline" className="w-full" onClick={() => addListItem(victim.id, 'rol_valores')}><PlusCircle className="mr-2 h-4 w-4"/>Adicionar</Button>
+                        <Button variant="outline" className="w-full" onClick={() => addListItem(victim.id, 'rol_valores')}><PlusCircle className="mr-2 h-4 w-4"/>Adicionar Item</Button>
                         </div>
                         <Field label="Responsável pelo Recebimento (Assinatura)"><Input className="text-xl mt-4" value={victim.rol_valores.responsavel || ''} onChange={e => handleVictimChange(victim.id, 'rol_valores', 'responsavel', e.target.value)}/></Field>
                     </div>
@@ -656,7 +656,7 @@ export default function TO16Form({ categorySlug }: { categorySlug: string }) {
                             <Button variant="destructive" size="icon" onClick={() => removeListItem(victim.id, 'equipamentos_retidos', item.id)}><Trash2 className="h-4 w-4" /></Button>
                             </div>
                         ))}
-                        <Button variant="outline" className="w-full" onClick={() => addListItem(victim.id, 'equipamentos_retidos')}><PlusCircle className="mr-2 h-4 w-4"/>Adicionar</Button>
+                        <Button variant="outline" className="w-full" onClick={() => addListItem(victim.id, 'equipamentos_retidos')}><PlusCircle className="mr-2 h-4 w-4"/>Adicionar Item</Button>
                         </div>
                         <Field label="Responsável pelo Recebimento (Assinatura)"><Input className="text-xl mt-4" value={victim.equipamentos_retidos.responsavel || ''} onChange={e => handleVictimChange(victim.id, 'equipamentos_retidos', 'responsavel', e.target.value)}/></Field>
                     </div>
@@ -709,7 +709,7 @@ export default function TO16Form({ categorySlug }: { categorySlug: string }) {
             </div>
         ))}
 
-        <Button variant="outline" className="w-full" onClick={addVictim}><PlusCircle className="mr-2 h-4 w-4" />Adicionar Vítima</Button>
+        <Button variant="secondary" className="w-full" onClick={addVictim}><PlusCircle className="mr-2 h-4 w-4" />Adicionar Vítima</Button>
 
         <div>
             <SectionTitle>CONSUMO DE MATERIAIS NO ATENDIMENTO</SectionTitle>
@@ -722,7 +722,7 @@ export default function TO16Form({ categorySlug }: { categorySlug: string }) {
                             <Button variant="destructive" size="icon" onClick={() => removeConsumoItem(item.id)}><Trash2 className="h-4 w-4" /></Button>
                         </div>
                     ))}
-                    <Button variant="outline" className="w-full" onClick={addConsumoItem}><PlusCircle className="mr-2 h-4 w-4"/>Adicionar</Button>
+                    <Button variant="outline" className="w-full" onClick={addConsumoItem}><PlusCircle className="mr-2 h-4 w-4"/>Adicionar Material</Button>
                 </div>
             </div>
         </div>

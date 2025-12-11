@@ -308,7 +308,7 @@ export default function TO12Form({ categorySlug }: { categorySlug: string }) {
                         </RadioGroup>
                     </Field>
                 </div>
-                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 mt-8">
+                <div className="grid grid-cols-2 md:grid-cols-3 gap-4 mt-8">
                     <Field label="Acionamento"><Input type="time" className="text-xl" value={dadosOperacionais.acionamento || ''} onChange={(e) => handleOperationalDataChange('acionamento', e.target.value)} /></Field>
                     <Field label="Chegada no Local"><Input type="time" className="text-xl" value={dadosOperacionais.chegada_local || ''} onChange={(e) => handleOperationalDataChange('chegada_local', e.target.value)} /></Field>
                     <Field label="Saída do Local"><Input type="time" className="text-xl" value={dadosOperacionais.saida_local || ''} onChange={(e) => handleOperationalDataChange('saida_local', e.target.value)} /></Field>
@@ -443,7 +443,7 @@ export default function TO12Form({ categorySlug }: { categorySlug: string }) {
                             </Field>
                         </div>
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mt-8">
-                           <Field label="VEÍCULO">
+                            <Field label="VEÍCULO">
                                 <div className="flex flex-col space-y-4">
                                     <div className="flex items-center space-x-2"><Checkbox id={`veiculo-bicicleta-${victim.id}`} checked={victim.veiculo?.tipo?.includes('bicicleta')} onCheckedChange={(c) => handleVictimCheckboxChange(victim.id, 'veiculo', 'tipo', 'bicicleta', !!c)} /><Label htmlFor={`veiculo-bicicleta-${victim.id}`} className="font-normal text-xl">BICICLETA</Label></div>
                                     <div className="flex items-center space-x-2"><Checkbox id={`veiculo-moto-${victim.id}`} checked={victim.veiculo?.tipo?.includes('moto')} onCheckedChange={(c) => handleVictimCheckboxChange(victim.id, 'veiculo', 'tipo', 'moto', !!c)} /><Label htmlFor={`veiculo-moto-${victim.id}`} className="font-normal text-xl">MOTO</Label></div>
@@ -709,7 +709,7 @@ export default function TO12Form({ categorySlug }: { categorySlug: string }) {
             </div>
         ))}
 
-        <Button variant="outline" className="w-full" onClick={addVictim}><PlusCircle className="mr-2 h-4 w-4" />Adicionar Vítima</Button>
+        <Button variant="secondary" className="w-full" onClick={addVictim}><PlusCircle className="mr-2 h-4 w-4" />Adicionar Vítima</Button>
 
         <div>
             <SectionTitle>CONSUMO DE MATERIAIS NO ATENDIMENTO</SectionTitle>

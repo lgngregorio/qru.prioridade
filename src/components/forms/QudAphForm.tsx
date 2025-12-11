@@ -264,56 +264,58 @@ export default function QudAphForm({ categorySlug }: { categorySlug: string }) {
       <form className="space-y-12" onSubmit={(e) => e.preventDefault()}>
         <div>
             <SectionTitle>DADOS OPERACIONAIS DA EQUIPE DE APH</SectionTitle>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mt-4">
-                <Field label="UR/USA">
-                    <RadioGroup value={dadosOperacionais.ur_usa || ''} onValueChange={(v) => handleOperationalDataChange('ur_usa', v)} className="flex flex-row space-y-0 gap-4">
-                        <div className="flex items-center space-x-2"><RadioGroupItem value="ur" id="op-ur" /><Label htmlFor="op-ur" className="font-normal text-xl">UR</Label></div>
-                        <div className="flex items-center space-x-2"><RadioGroupItem value="usa" id="op-usa" /><Label htmlFor="op-usa" className="font-normal text-xl">USA</Label></div>
-                    </RadioGroup>
-                </Field>
-                <Field label="Médico Regulador"><Input className="text-xl" value={dadosOperacionais.medico_regulador || ''} onChange={(e) => handleOperationalDataChange('medico_regulador', e.target.value)} /></Field>
-                <Field label="Condutor"><Input className="text-xl" value={dadosOperacionais.condutor || ''} onChange={(e) => handleOperationalDataChange('condutor', e.target.value)} /></Field>
-                <Field label="Resgatista I"><Input className="text-xl" value={dadosOperacionais.resgatista || ''} onChange={(e) => handleOperationalDataChange('resgatista', e.target.value)} /></Field>
-                <Field label="Data">
-                    <Popover>
-                    <PopoverTrigger asChild>
-                        <Button
-                        variant={"outline"}
-                        className={cn(
-                            "w-full justify-start text-left font-normal text-xl",
-                            !dadosOperacionais.data && "text-muted-foreground"
-                        )}
-                        >
-                        <CalendarIcon className="mr-2 h-4 w-4" />
-                        {dadosOperacionais.data ? format(dadosOperacionais.data, "PPP") : <span>Data</span>}
-                        </Button>
-                    </PopoverTrigger>
-                    <PopoverContent className="w-auto p-0">
-                        <Calendar
-                        mode="single"
-                        selected={dadosOperacionais.data}
-                        onSelect={(date) => handleOperationalDataChange('data', date)}
-                        initialFocus
-                        />
-                    </PopoverContent>
-                    </Popover>
-                </Field>
-                <Field label="Nº Ocorrência"><Input className="text-xl" value={dadosOperacionais.n_ocorrencia || ''} onChange={(e) => handleOperationalDataChange('n_ocorrencia', e.target.value)} /></Field>
-                <Field label="KM"><Input className="text-xl" value={dadosOperacionais.km || ''} onChange={(e) => handleOperationalDataChange('km', e.target.value)} /></Field>
-                <Field label="Sentido">
-                    <RadioGroup value={dadosOperacionais.sentido || ''} onValueChange={(v) => handleOperationalDataChange('sentido', v)} className="flex flex-row space-y-0 gap-4">
-                        <div className="flex items-center space-x-2"><RadioGroupItem value="norte" id="op-norte" /><Label htmlFor="op-norte" className="font-normal text-xl">Norte</Label></div>
-                        <div className="flex items-center space-x-2"><RadioGroupItem value="sul" id="op-sul" /><Label htmlFor="op-sul" className="font-normal text-xl">Sul</Label></div>
-                    </RadioGroup>
-                </Field>
-            </div>
-            <div className="grid grid-cols-2 md:grid-cols-3 gap-4 mt-8">
-                <Field label="Acionamento"><Input type="time" className="text-xl" value={dadosOperacionais.acionamento || ''} onChange={(e) => handleOperationalDataChange('acionamento', e.target.value)} /></Field>
-                <Field label="Chegada no Local"><Input type="time" className="text-xl" value={dadosOperacionais.chegada_local || ''} onChange={(e) => handleOperationalDataChange('chegada_local', e.target.value)} /></Field>
-                <Field label="Saída do Local"><Input type="time" className="text-xl" value={dadosOperacionais.saida_local || ''} onChange={(e) => handleOperationalDataChange('saida_local', e.target.value)} /></Field>
-                <Field label="Chegada no Hospital"><Input type="time" className="text-xl" value={dadosOperacionais.chegada_hospital || ''} onChange={(e) => handleOperationalDataChange('chegada_hospital', e.target.value)} /></Field>
-                <Field label="Saída do Hospital"><Input type="time" className="text-xl" value={dadosOperacionais.saida_hospital || ''} onChange={(e) => handleOperationalDataChange('saida_hospital', e.target.value)} /></Field>
-                <Field label="Chegada BSO/Término"><Input type="time" className="text-xl" value={dadosOperacionais.chegada_bso || ''} onChange={(e) => handleOperationalDataChange('chegada_bso', e.target.value)} /></Field>
+            <div>
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                    <Field label="UR/USA">
+                        <RadioGroup value={dadosOperacionais.ur_usa || ''} onValueChange={(v) => handleOperationalDataChange('ur_usa', v)} className="flex flex-row space-y-0 gap-4">
+                            <div className="flex items-center space-x-2"><RadioGroupItem value="ur" id="op-ur" /><Label htmlFor="op-ur" className="font-normal text-xl">UR</Label></div>
+                            <div className="flex items-center space-x-2"><RadioGroupItem value="usa" id="op-usa" /><Label htmlFor="op-usa" className="font-normal text-xl">USA</Label></div>
+                        </RadioGroup>
+                    </Field>
+                    <Field label="Médico Regulador"><Input className="text-xl" value={dadosOperacionais.medico_regulador || ''} onChange={(e) => handleOperationalDataChange('medico_regulador', e.target.value)} /></Field>
+                    <Field label="Condutor"><Input className="text-xl" value={dadosOperacionais.condutor || ''} onChange={(e) => handleOperationalDataChange('condutor', e.target.value)} /></Field>
+                    <Field label="Resgatista I"><Input className="text-xl" value={dadosOperacionais.resgatista || ''} onChange={(e) => handleOperationalDataChange('resgatista', e.target.value)} /></Field>
+                    <Field label="Data">
+                      <Popover>
+                        <PopoverTrigger asChild>
+                          <Button
+                            variant={"outline"}
+                            className={cn(
+                              "w-full justify-start text-left font-normal text-xl",
+                              !dadosOperacionais.data && "text-muted-foreground"
+                            )}
+                          >
+                            <CalendarIcon className="mr-2 h-4 w-4" />
+                            {dadosOperacionais.data ? format(dadosOperacionais.data, "PPP") : <span>Data</span>}
+                          </Button>
+                        </PopoverTrigger>
+                        <PopoverContent className="w-auto p-0">
+                          <Calendar
+                            mode="single"
+                            selected={dadosOperacionais.data}
+                            onSelect={(date) => handleOperationalDataChange('data', date)}
+                            initialFocus
+                          />
+                        </PopoverContent>
+                      </Popover>
+                    </Field>
+                    <Field label="Nº Ocorrência"><Input className="text-xl" value={dadosOperacionais.n_ocorrencia || ''} onChange={(e) => handleOperationalDataChange('n_ocorrencia', e.target.value)} /></Field>
+                    <Field label="KM"><Input className="text-xl" value={dadosOperacionais.km || ''} onChange={(e) => handleOperationalDataChange('km', e.target.value)} /></Field>
+                    <Field label="Sentido">
+                        <RadioGroup value={dadosOperacionais.sentido || ''} onValueChange={(v) => handleOperationalDataChange('sentido', v)} className="flex flex-row space-y-0 gap-4">
+                            <div className="flex items-center space-x-2"><RadioGroupItem value="norte" id="op-norte" /><Label htmlFor="op-norte" className="font-normal text-xl">Norte</Label></div>
+                            <div className="flex items-center space-x-2"><RadioGroupItem value="sul" id="op-sul" /><Label htmlFor="op-sul" className="font-normal text-xl">Sul</Label></div>
+                        </RadioGroup>
+                    </Field>
+                </div>
+                <div className="grid grid-cols-2 md:grid-cols-3 gap-4 mt-8">
+                    <Field label="Acionamento"><Input type="time" className="text-xl" value={dadosOperacionais.acionamento || ''} onChange={(e) => handleOperationalDataChange('acionamento', e.target.value)} /></Field>
+                    <Field label="Chegada no Local"><Input type="time" className="text-xl" value={dadosOperacionais.chegada_local || ''} onChange={(e) => handleOperationalDataChange('chegada_local', e.target.value)} /></Field>
+                    <Field label="Saída do Local"><Input type="time" className="text-xl" value={dadosOperacionais.saida_local || ''} onChange={(e) => handleOperationalDataChange('saida_local', e.target.value)} /></Field>
+                    <Field label="Chegada no Hospital"><Input type="time" className="text-xl" value={dadosOperacionais.chegada_hospital || ''} onChange={(e) => handleOperationalDataChange('chegada_hospital', e.target.value)} /></Field>
+                    <Field label="Saída do Hospital"><Input type="time" className="text-xl" value={dadosOperacionais.saida_hospital || ''} onChange={(e) => handleOperationalDataChange('saida_hospital', e.target.value)} /></Field>
+                    <Field label="Chegada BSO/Término"><Input type="time" className="text-xl" value={dadosOperacionais.chegada_bso || ''} onChange={(e) => handleOperationalDataChange('chegada_bso', e.target.value)} /></Field>
+                </div>
             </div>
         </div>
 
@@ -328,6 +330,7 @@ export default function QudAphForm({ categorySlug }: { categorySlug: string }) {
                     <div>
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                             <Field label="Nome"><Input className="text-xl" placeholder="Nome Completo" value={victim.dados_cadastrais.nome || ''} onChange={(e) => handleVictimChange(victim.id, 'dados_cadastrais', 'nome', e.target.value)} /></Field>
+                            <Field label="Acompanhante"><Input className="text-xl" placeholder="Nome do acompanhante" value={victim.dados_cadastrais.acompanhante || ''} onChange={(e) => handleVictimChange(victim.id, 'dados_cadastrais', 'acompanhante', e.target.value)} /></Field>
                             <Field label="Endereço"><Input className="text-xl" placeholder="Endereço da vítima" value={victim.dados_cadastrais.endereco || ''} onChange={(e) => handleVictimChange(victim.id, 'dados_cadastrais', 'endereco', e.target.value)} /></Field>
                         </div>
                         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8 mt-8">
@@ -391,7 +394,6 @@ export default function QudAphForm({ categorySlug }: { categorySlug: string }) {
                             </Field>
                         </div>
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mt-8">
-                            <Field label="Acompanhante do Usuário"><Input className="text-xl" placeholder="Nome do acompanhante" value={victim.dados_cadastrais.acompanhante || ''} onChange={(e) => handleVictimChange(victim.id, 'dados_cadastrais', 'acompanhante', e.target.value)} /></Field>
                              <Field label="Posição no Veículo"><Input className="text-xl" placeholder="Ex: Condutor, Passageiro" value={victim.dados_cadastrais.posicao_veiculo || ''} onChange={(e) => handleVictimChange(victim.id, 'dados_cadastrais', 'posicao_veiculo', e.target.value)} /></Field>
                         </div>
                     </div>
@@ -441,7 +443,7 @@ export default function QudAphForm({ categorySlug }: { categorySlug: string }) {
                             </Field>
                         </div>
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mt-8">
-                           <Field label="VEÍCULO">
+                            <Field label="VEÍCULO">
                                 <div className="flex flex-col space-y-4">
                                     <div className="flex items-center space-x-2"><Checkbox id={`veiculo-bicicleta-${victim.id}`} checked={victim.veiculo?.tipo?.includes('bicicleta')} onCheckedChange={(c) => handleVictimCheckboxChange(victim.id, 'veiculo', 'tipo', 'bicicleta', !!c)} /><Label htmlFor={`veiculo-bicicleta-${victim.id}`} className="font-normal text-xl">BICICLETA</Label></div>
                                     <div className="flex items-center space-x-2"><Checkbox id={`veiculo-moto-${victim.id}`} checked={victim.veiculo?.tipo?.includes('moto')} onCheckedChange={(c) => handleVictimCheckboxChange(victim.id, 'veiculo', 'tipo', 'moto', !!c)} /><Label htmlFor={`veiculo-moto-${victim.id}`} className="font-normal text-xl">MOTO</Label></div>
@@ -637,7 +639,7 @@ export default function QudAphForm({ categorySlug }: { categorySlug: string }) {
                             <Button variant="destructive" size="icon" onClick={() => removeListItem(victim.id, 'rol_valores', item.id)}><Trash2 className="h-4 w-4" /></Button>
                             </div>
                         ))}
-                        <Button variant="outline" className="w-full" onClick={() => addListItem(victim.id, 'rol_valores')}><PlusCircle className="mr-2 h-4 w-4"/>Adicionar</Button>
+                        <Button variant="outline" className="w-full" onClick={() => addListItem(victim.id, 'rol_valores')}><PlusCircle className="mr-2 h-4 w-4"/>Adicionar Item</Button>
                         </div>
                         <Field label="Responsável pelo Recebimento (Assinatura)"><Input className="text-xl mt-4" value={victim.rol_valores.responsavel || ''} onChange={e => handleVictimChange(victim.id, 'rol_valores', 'responsavel', e.target.value)}/></Field>
                     </div>
@@ -654,7 +656,7 @@ export default function QudAphForm({ categorySlug }: { categorySlug: string }) {
                             <Button variant="destructive" size="icon" onClick={() => removeListItem(victim.id, 'equipamentos_retidos', item.id)}><Trash2 className="h-4 w-4" /></Button>
                             </div>
                         ))}
-                        <Button variant="outline" className="w-full" onClick={() => addListItem(victim.id, 'equipamentos_retidos')}><PlusCircle className="mr-2 h-4 w-4"/>Adicionar</Button>
+                        <Button variant="outline" className="w-full" onClick={() => addListItem(victim.id, 'equipamentos_retidos')}><PlusCircle className="mr-2 h-4 w-4"/>Adicionar Item</Button>
                         </div>
                         <Field label="Responsável pelo Recebimento (Assinatura)"><Input className="text-xl mt-4" value={victim.equipamentos_retidos.responsavel || ''} onChange={e => handleVictimChange(victim.id, 'equipamentos_retidos', 'responsavel', e.target.value)}/></Field>
                     </div>
@@ -664,7 +666,7 @@ export default function QudAphForm({ categorySlug }: { categorySlug: string }) {
                     <SectionTitle>CONDUTA</SectionTitle>
                     <div>
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                        <div className="flex flex-col space-y-6">
+                        <div className="flex flex-col space-y-4">
                             {[
                                 { id: 'liberacao_local', label: 'Liberação no Local c/ Orientações' },
                                 { id: 'vitima_em_obito', label: 'Vítima em Óbito' },
@@ -677,12 +679,12 @@ export default function QudAphForm({ categorySlug }: { categorySlug: string }) {
                                     <Label htmlFor={`cond-${cond.id}-${victim.id}`} className="font-normal text-xl">{cond.label}</Label>
                                 </div>
                             ))}
-                            <div className="flex items-center space-x-2">
+                            <div className="flex items-center space-x-2 mt-2">
                                 <Checkbox id={`cond-terceiros-${victim.id}`} checked={victim.conduta?.removido_por_terceiros} onCheckedChange={c => handleVictimChange(victim.id, 'conduta', 'removido_por_terceiros', !!c)} />
                                 <Label htmlFor={`cond-terceiros-${victim.id}`} className="font-normal text-xl">Removido por Terceiros:</Label>
                                 <Input className="text-xl" value={victim.conduta.removido_por_terceiros_obs || ''} onChange={e => handleVictimChange(victim.id, 'conduta', 'removido_por_terceiros_obs', e.target.value)}/>
                             </div>
-                            <div className="flex items-center space-x-2">
+                            <div className="flex items-center space-x-2 mt-2">
                                 <Checkbox id={`cond-hospital-${victim.id}`} checked={victim.conduta?.removido_unidade} onCheckedChange={c => handleVictimChange(victim.id, 'conduta', 'removido_unidade', !!c)} />
                                 <Label htmlFor={`cond-hospital-${victim.id}`} className="font-normal text-xl">Removido à Unidade Hospitalar:</Label>
                                 <Input className="text-xl" value={victim.conduta.unidade_hospitalar || ''} onChange={e => handleVictimChange(victim.id, 'conduta', 'unidade_hospitalar', e.target.value)}/>
@@ -707,7 +709,7 @@ export default function QudAphForm({ categorySlug }: { categorySlug: string }) {
             </div>
         ))}
 
-        <Button variant="outline" className="w-full" onClick={addVictim}><PlusCircle className="mr-2 h-4 w-4" />Adicionar Vítima</Button>
+        <Button variant="secondary" className="w-full" onClick={addVictim}><PlusCircle className="mr-2 h-4 w-4" />Adicionar Vítima</Button>
 
         <div>
             <SectionTitle>CONSUMO DE MATERIAIS NO ATENDIMENTO</SectionTitle>
@@ -720,7 +722,7 @@ export default function QudAphForm({ categorySlug }: { categorySlug: string }) {
                             <Button variant="destructive" size="icon" onClick={() => removeConsumoItem(item.id)}><Trash2 className="h-4 w-4" /></Button>
                         </div>
                     ))}
-                    <Button variant="outline" className="w-full" onClick={addConsumoItem}><PlusCircle className="mr-2 h-4 w-4"/>Adicionar</Button>
+                    <Button variant="outline" className="w-full" onClick={addConsumoItem}><PlusCircle className="mr-2 h-4 w-4"/>Adicionar Material</Button>
                 </div>
             </div>
         </div>
