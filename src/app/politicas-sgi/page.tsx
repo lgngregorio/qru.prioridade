@@ -8,7 +8,7 @@ import Link from 'next/link';
 
 const PolicySection = ({ title, children }: { title: string; children: React.ReactNode }) => (
     <div className="mb-6">
-        <h2 className="text-2xl font-bold text-primary mb-2">{title}</h2>
+        <h2 className="text-2xl font-bold text-foreground mb-2">{title}</h2>
         <p className="text-muted-foreground text-lg leading-relaxed">
             {children}
         </p>
