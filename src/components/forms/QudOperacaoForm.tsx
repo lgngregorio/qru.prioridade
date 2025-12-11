@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useRouter } from 'next/navigation';
@@ -73,7 +74,7 @@ export default function QudOperacaoForm({ categorySlug }: { categorySlug: string
 
   const [generalInfo, setGeneralInfo] = useState<GeneralInfo>({
     rodovia: '',
-    ocorrencia: categorySlug.toUpperCase(),
+    ocorrencia: '',
     tipoPane: '',
     qth: '',
     sentido: '',
@@ -275,7 +276,16 @@ export default function QudOperacaoForm({ categorySlug }: { categorySlug: string
                 </Select>
             </Field>
             <Field label="OCORRÊNCIA">
-                <Input className="text-xl uppercase" value={generalInfo.ocorrencia} disabled />
+              <Select value={generalInfo.ocorrencia} onValueChange={(value) => handleGeneralInfoChange('ocorrencia', value)}>
+                  <SelectTrigger className="text-xl normal-case placeholder:text-base">
+                      <SelectValue placeholder="Selecione a ocorrência" />
+                  </SelectTrigger>
+                  <SelectContent>
+                      <SelectItem value="ac01">AC01</SelectItem>
+                      <SelectItem value="ac02">AC02</SelectItem>
+                      <SelectItem value="ac03">AC03</SelectItem>
+                  </SelectContent>
+              </Select>
             </Field>
             <Field label="TIPO DE PANE">
                  <Select value={generalInfo.tipoPane} onValueChange={(value) => handleGeneralInfoChange('tipoPane', value)}>
