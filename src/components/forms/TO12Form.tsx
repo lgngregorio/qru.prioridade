@@ -29,7 +29,7 @@ function Field({ label, children, className }: { label?: string, children: React
   )
 }
 
-const SectionTitle = ({ children, onClear, onToggle, isOpen }: { children: React.ReactNode; onClear?: () => void, onToggle?: () => void, isOpen?: boolean }) => (
+const SectionTitle = ({ children, onToggle, isOpen }: { children: React.ReactNode; onToggle?: () => void, isOpen?: boolean }) => (
     <div className="flex items-center justify-between mt-8 mb-4 border-b-2 border-foreground pb-2">
         <h2 className={cn("text-xl font-semibold text-foreground uppercase")}>
             {children}
@@ -200,7 +200,7 @@ export default function TO12Form({ categorySlug }: { categorySlug: string }) {
                     ])}
                     </Field>
                 </div>
-                <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mt-8">
+                <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4 mt-8">
                     <Field label="Acionamento"><Input type="time" className="text-xl" value={formData.dados_operacionais?.acionamento || ''} onChange={(e) => handleValueChange('dados_operacionais', 'acionamento', e.target.value)} /></Field>
                     <Field label="Chegada no Local"><Input type="time" className="text-xl" value={formData.dados_operacionais?.chegada_local || ''} onChange={(e) => handleValueChange('dados_operacionais', 'chegada_local', e.target.value)} /></Field>
                     <Field label="Saída do Local"><Input type="time" className="text-xl" value={formData.dados_operacionais?.saida_local || ''} onChange={(e) => handleValueChange('dados_operacionais', 'saida_local', e.target.value)} /></Field>
@@ -235,7 +235,7 @@ export default function TO12Form({ categorySlug }: { categorySlug: string }) {
         
         <Collapsible open={openSections.evento} onOpenChange={() => toggleSection('evento')}>
             <SectionTitle onToggle={() => toggleSection('evento')} isOpen={openSections.evento}>EVENTO</SectionTitle>
-            <CollapsibleContent className="grid grid-cols-1 gap-8">
+            <CollapsibleContent className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
               <div>
                   <SubSectionTitle>Trauma</SubSectionTitle>
                       <Field>
