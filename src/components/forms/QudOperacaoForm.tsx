@@ -314,6 +314,8 @@ export default function QudOperacaoForm({ categorySlug }: { categorySlug: string
                     <SelectContent>
                         <SelectItem value="norte">NORTE</SelectItem>
                         <SelectItem value="sul">SUL</SelectItem>
+                        <SelectItem value="ambos">AMBOS</SelectItem>
+                        <SelectItem value="eixo_central">EIXO CENTRAL</SelectItem>
                     </SelectContent>
                 </Select>
             </Field>
