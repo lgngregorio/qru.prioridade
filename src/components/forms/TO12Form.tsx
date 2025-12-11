@@ -329,7 +329,7 @@ export default function TO12Form({ categorySlug }: { categorySlug: string }) {
                 
                 <div id="avaliacao_primaria">
                     <SubSectionTitle>Avaliação Primária</SubSectionTitle>
-                    <div>
+                    <div className="space-y-4">
                       <Field label="X - Hemorragia Exsanguinante">
                         {renderRadioGroup('avaliacao_primaria', 'hemorragia', [{id: 'nao', label: 'Não'}, {id: 'sim', label: 'Sim'}], 'horizontal')}
                       </Field>
@@ -616,5 +616,7 @@ export default function TO12Form({ categorySlug }: { categorySlug: string }) {
     </div>
   );
 }
+
+    
 
     

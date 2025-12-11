@@ -268,7 +268,7 @@ export default function TO16Form({ categorySlug }: { categorySlug: string }) {
                         </RadioGroup>
                     </Field>
                 </div>
-                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 mt-8">
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mt-8">
                     <Field label="Acionamento"><Input type="time" className="text-xl" value={dadosOperacionais.acionamento || ''} onChange={(e) => handleOperationalDataChange('acionamento', e.target.value)} /></Field>
                     <Field label="Chegada no Local"><Input type="time" className="text-xl" value={dadosOperacionais.chegada_local || ''} onChange={(e) => handleOperationalDataChange('chegada_local', e.target.value)} /></Field>
                     <Field label="Saída do Local"><Input type="time" className="text-xl" value={dadosOperacionais.saida_local || ''} onChange={(e) => handleOperationalDataChange('saida_local', e.target.value)} /></Field>
@@ -390,7 +390,7 @@ export default function TO16Form({ categorySlug }: { categorySlug: string }) {
                                     <div className="flex items-center space-x-2"><Checkbox id={`veiculo-carreta-${victim.id}`} checked={victim.veiculo?.tipo?.includes('carreta')} onCheckedChange={(c) => handleVictimCheckboxChange(victim.id, 'veiculo', 'tipo', 'carreta', !!c)} /><Label htmlFor={`veiculo-carreta-${victim.id}`} className="font-normal text-xl">CARRETA</Label></div>
                                 </div>
                             </Field>
-                            <Field label="Placa"><Input className="text-xl" placeholder="ABC-1234" value={victim.veiculo.placa || ''} onChange={e => handleVictimChange(victim.id, 'veiculo', 'placa', e.target.value)}/></Field>
+                            <Field label="Placa"><Input className="text-xl" placeholder="Ex: ABC-1234" value={victim.veiculo.placa || ''} onChange={e => handleVictimChange(victim.id, 'veiculo', 'placa', e.target.value)}/></Field>
                         </div>
                     </div>
                 </div>
@@ -685,5 +685,7 @@ export default function TO16Form({ categorySlug }: { categorySlug: string }) {
     </div>
   );
 }
+
+    
 
     
