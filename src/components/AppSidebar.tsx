@@ -108,8 +108,8 @@ export default function AppSidebar() {
       <SidebarFooter>
         <SidebarMenu className="gap-y-8">
           <SidebarMenuItem>
-            <SidebarMenuButton asChild className="text-lg [&_svg]:size-6" onClick={handleLinkClick}>
-              <Link href="#">
+            <SidebarMenuButton asChild isActive={pathname === '/politicas-sgi'} className="text-lg [&_svg]:size-6" onClick={handleLinkClick}>
+              <Link href="/politicas-sgi">
                 <ShieldCheck />
                 Políticas do SGI
               </Link>
