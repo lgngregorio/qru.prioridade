@@ -246,7 +246,7 @@ export default function TO16Form({ categorySlug }: { categorySlug: string }) {
                             )}
                           >
                             <CalendarIcon className="mr-2 h-4 w-4" />
-                            {dadosOperacionais.data ? format(dadosOperacionais.data, "PPP") : <span>DATA</span>}
+                            {dadosOperacionais.data ? format(dadosOperacionais.data, "PPP") : <span>Data</span>}
                           </Button>
                         </PopoverTrigger>
                         <PopoverContent className="w-auto p-0">
@@ -310,7 +310,7 @@ export default function TO16Form({ categorySlug }: { categorySlug: string }) {
                                     )}
                                   >
                                     <CalendarIcon className="mr-2 h-4 w-4" />
-                                    {victim.dados_cadastrais.dn ? format(victim.dados_cadastrais.dn, "PPP") : <span>DATA</span>}
+                                    {victim.dados_cadastrais.dn ? format(victim.dados_cadastrais.dn, "PPP") : <span>Data</span>}
                                   </Button>
                                 </PopoverTrigger>
                                 <PopoverContent className="w-auto p-0">
@@ -390,7 +390,7 @@ export default function TO16Form({ categorySlug }: { categorySlug: string }) {
                                     <div className="flex items-center space-x-2"><Checkbox id={`veiculo-carreta-${victim.id}`} checked={victim.veiculo?.tipo?.includes('carreta')} onCheckedChange={(c) => handleVictimCheckboxChange(victim.id, 'veiculo', 'tipo', 'carreta', !!c)} /><Label htmlFor={`veiculo-carreta-${victim.id}`} className="font-normal text-xl">CARRETA</Label></div>
                                 </div>
                             </Field>
-                            <Field label="Placa"><Input className="text-xl" value={victim.veiculo.placa || ''} onChange={e => handleVictimChange(victim.id, 'veiculo', 'placa', e.target.value)}/></Field>
+                            <Field label="Placa"><Input className="text-xl" placeholder="ABC-1234" value={victim.veiculo.placa || ''} onChange={e => handleVictimChange(victim.id, 'veiculo', 'placa', e.target.value)}/></Field>
                         </div>
                     </div>
                 </div>
