@@ -158,11 +158,11 @@ export default function TO12Form({ categorySlug }: { categorySlug: string }) {
     </div>
   );
   
-    const renderRadioGroup = (section: string, key: string, options: { id: string, label: string }[]) => (
+    const renderRadioGroup = (section: string, key: string, options: { id: string, label: string }[], orientation: 'vertical' | 'horizontal' = 'vertical') => (
     <RadioGroup
       value={formData[section]?.[key] || ''}
       onValueChange={(value) => handleValueChange(section, key, value)}
-      className="flex flex-wrap gap-x-4 gap-y-2"
+      className={cn("flex gap-x-4 gap-y-2", orientation === 'vertical' ? 'flex-col' : 'flex-wrap flex-row')}
     >
       {options.map((option) => (
         <div key={option.id} className="flex items-center space-x-3">
@@ -185,7 +185,7 @@ export default function TO12Form({ categorySlug }: { categorySlug: string }) {
                     {renderRadioGroup('dados_operacionais', 'ur_usa', [
                         { id: 'ur', label: 'UR' },
                         { id: 'usa', label: 'USA' },
-                    ])}
+                    ], 'horizontal')}
                     </Field>
                     <Field label="Médico Regulador"><Input className="text-xl" value={formData.dados_operacionais?.medico_regulador || ''} onChange={(e) => handleValueChange('dados_operacionais', 'medico_regulador', e.target.value)} /></Field>
                     <Field label="Condutor"><Input className="text-xl" value={formData.dados_operacionais?.condutor || ''} onChange={(e) => handleValueChange('dados_operacionais', 'condutor', e.target.value)} /></Field>
@@ -197,7 +197,7 @@ export default function TO12Form({ categorySlug }: { categorySlug: string }) {
                     {renderRadioGroup('dados_operacionais', 'sentido', [
                         { id: 'norte', label: 'Norte' },
                         { id: 'sul', label: 'Sul' },
-                    ])}
+                    ], 'horizontal')}
                     </Field>
                 </div>
                 <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4 mt-8">
@@ -221,7 +221,7 @@ export default function TO12Form({ categorySlug }: { categorySlug: string }) {
                 </div>
                 <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-8 mt-8">
                     <Field label="Sexo">
-                        {renderRadioGroup('dados_usuario', 'sexo', [{id: 'm', label: 'M'}, {id: 'f', label: 'F'}])}
+                        {renderRadioGroup('dados_usuario', 'sexo', [{id: 'm', label: 'M'}, {id: 'f', label: 'F'}], 'horizontal')}
                     </Field>
                     <Field label="DN"><Input type="date" className="text-xl" value={formData.dados_usuario?.dn || ''} onChange={(e) => handleValueChange('dados_usuario', 'dn', e.target.value)} /></Field>
                     <Field label="Idade"><Input type="number" className="text-xl" value={formData.dados_usuario?.idade || ''} onChange={(e) => handleValueChange('dados_usuario', 'idade', e.target.value)} /></Field>
@@ -304,7 +304,7 @@ export default function TO12Form({ categorySlug }: { categorySlug: string }) {
                             {id: 'ao_solo', label: 'Ao Solo'},
                             {id: 'ejetado', label: 'Ejetado'},
                             {id: 'encarcerado_retido', label: 'Encarcerado/Retido'},
-                        ])}
+                        ], 'horizontal')}
                     </Field>
                 </div>
                 
@@ -312,49 +312,48 @@ export default function TO12Form({ categorySlug }: { categorySlug: string }) {
                     <SubSectionTitle>Avaliação Primária</SubSectionTitle>
                     <>
                       <Field label="X - Hemorragia Exsanguinante">
-                        {renderRadioGroup('avaliacao_primaria', 'hemorragia', [{id: 'nao', label: 'Não'}, {id: 'sim', label: 'Sim'}])}
+                        {renderRadioGroup('avaliacao_primaria', 'hemorragia', [{id: 'nao', label: 'Não'}, {id: 'sim', label: 'Sim'}], 'horizontal')}
                       </Field>
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mt-4">
                           <Field label="A - Vias Aéreas">
                               <div className="flex items-center gap-4">
-                                {renderRadioGroup('avaliacao_primaria', 'vias_aereas', [{id: 'pervias', label: 'Pérvias'}, {id: 'obstruidas', label: 'Obstruídas por:'}])}
+                                {renderRadioGroup('avaliacao_primaria', 'vias_aereas', [{id: 'pervias', label: 'Pérvias'}, {id: 'obstruidas', label: 'Obstruídas por:'}], 'horizontal')}
                                 <Input className="text-xl" value={formData.avaliacao_primaria?.vias_aereas_obs || ''} onChange={(e) => handleValueChange('avaliacao_primaria', 'vias_aereas_obs', e.target.value)} />
                               </div>
                           </Field>
                            <Field label="B - Ventilação">
-                              {renderRadioGroup('avaliacao_primaria', 'ventilacao_tipo', [{id: 'apneia', label: 'Apneia'}, {id: 'eupneia', label: 'Eupneia'}, {id: 'taquipneia', label: 'Taquipneia'}, {id: 'gasping', label: 'Gasping'}])}
-                              {renderRadioGroup('avaliacao_primaria', 'ventilacao_status', [{id: 'presente', label: 'Presente'}, {id: 'ausente', label: 'Ausente'}, {id: 'simetrica', label: 'Simétrica'}, {id: 'assimetrica', label: 'Assimétrica'}])}
+                              {renderRadioGroup('avaliacao_primaria', 'ventilacao_status', [{id: 'presente', label: 'Presente'}, {id: 'ausente', label: 'Ausente'}, {id: 'simetrica', label: 'Simétrica'}, {id: 'assimetrica', label: 'Assimétrica'}, {id: 'apneia', label: 'Apneia'}, {id: 'eupneia', label: 'Eupneia'}, {id: 'taquipneia', label: 'Taquipneia'}, {id: 'gasping', label: 'Gasping'}], 'horizontal')}
                           </Field>
                       </div>
                       <SubSectionTitle>C - Circulação e Hemorragias</SubSectionTitle>
-                      <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+                      <div className="grid grid-cols-1 gap-8">
                           <Field label="Pulso">
-                              {renderRadioGroup('avaliacao_primaria', 'pulso', [{id: 'presente', label: 'Presente'}, {id: 'cheio', label: 'Cheio'}, {id: 'filiforme', label: 'Filiforme'}])}
+                              {renderRadioGroup('avaliacao_primaria', 'pulso', [{id: 'presente', label: 'Presente'}, {id: 'cheio', label: 'Cheio'}, {id: 'filiforme', label: 'Filiforme'}], 'horizontal')}
                           </Field>
                           <Field label="Pele">
-                              {renderRadioGroup('avaliacao_primaria', 'pele', [{id: 'normal', label: 'Normal'}, {id: 'fria', label: 'Fria'}, {id: 'sudorese', label: 'Sudorese'}])}
+                              {renderRadioGroup('avaliacao_primaria', 'pele', [{id: 'normal', label: 'Normal'}, {id: 'fria', label: 'Fria'}, {id: 'sudorese', label: 'Sudorese'}], 'horizontal')}
                           </Field>
                           <Field label="Perfusão">
-                              {renderRadioGroup('avaliacao_primaria', 'perfusao', [{id: '<2seg', label: '< 2seg'}, {id: '>2seg', label: '> 2seg'}])}
+                              {renderRadioGroup('avaliacao_primaria', 'perfusao', [{id: '<2seg', label: '< 2seg'}, {id: '>2seg', label: '> 2seg'}], 'horizontal')}
                           </Field>
                       </div>
                        <Field label="Sangramento Ativo">
-                           {renderRadioGroup('avaliacao_primaria', 'sangramento', [{id: 'presente', label: 'Presente'}, {id: 'ausente', label: 'Ausente'}])}
+                           {renderRadioGroup('avaliacao_primaria', 'sangramento', [{id: 'presente', label: 'Presente'}, {id: 'ausente', label: 'Ausente'}], 'horizontal')}
                       </Field>
 
-                      <SubSectionTitle>D - Neurológico: Glasgow</SubSectionTitle>
-                       <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                      <SubSectionTitle>D - Neurológico: Glasgow e Pupilas</SubSectionTitle>
+                       <div className="grid grid-cols-1 gap-8">
                           <Field label="Pupilas">
-                              {renderRadioGroup('avaliacao_primaria', 'pupilas', [{id: 'isocoricas', label: 'Isocóricas'}, {id: 'anisocoricas', label: 'Anisocóricas'}])}
+                              {renderRadioGroup('avaliacao_primaria', 'pupilas', [{id: 'isocoricas', label: 'Isocóricas'}, {id: 'anisocoricas', label: 'Anisocóricas'}], 'horizontal')}
                           </Field>
                           <Field label="Fotorreagentes">
-                              {renderRadioGroup('avaliacao_primaria', 'fotorreagentes', [{id: 'sim', label: 'Sim'}, {id: 'nao', label: 'Não'}])}
+                              {renderRadioGroup('avaliacao_primaria', 'fotorreagentes', [{id: 'sim', label: 'Sim'}, {id: 'nao', label: 'Não'}], 'horizontal')}
                           </Field>
                       </div>
 
                       <SubSectionTitle>E - Exposição</SubSectionTitle>
                       <Field>
-                          {renderRadioGroup('avaliacao_primaria', 'exposicao', [{id: 'sem_lesoes', label: 'Sem Lesões Aparentes'}, {id: 'hipotermia', label: 'Hipotermia'}])}
+                          {renderRadioGroup('avaliacao_primaria', 'exposicao', [{id: 'sem_lesoes', label: 'Sem Lesões Aparentes'}, {id: 'hipotermia', label: 'Hipotermia'}], 'horizontal')}
                       </Field>
                        <Field label="Lesões Aparentes e Queixas Principais">
                           <Textarea className="text-xl" value={formData.avaliacao_primaria?.lesoes_queixas || ''} onChange={(e) => handleValueChange('avaliacao_primaria', 'lesoes_queixas', e.target.value)}/>

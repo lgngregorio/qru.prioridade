@@ -63,7 +63,6 @@ interface Victim {
   rol_valores: ListItem[];
   equipamentos_retidos: ListItem[];
   conduta: any;
-  termo_recusa: any;
 }
 
 
@@ -83,7 +82,6 @@ export default function TO16Form({ categorySlug }: { categorySlug: string }) {
       rol_valores: [],
       equipamentos_retidos: [],
       conduta: {},
-      termo_recusa: {},
     }
   ]);
 
@@ -137,7 +135,6 @@ export default function TO16Form({ categorySlug }: { categorySlug: string }) {
       rol_valores: [],
       equipamentos_retidos: [],
       conduta: {},
-      termo_recusa: {},
     }]);
   };
   
@@ -191,6 +188,34 @@ export default function TO16Form({ categorySlug }: { categorySlug: string }) {
     return ocular + verbal + motora;
   }
 
+  const renderRadioGroup = (
+    victimId: number,
+    section: keyof Victim,
+    key: string,
+    options: { id: string; label: string }[],
+    orientation: 'vertical' | 'horizontal' = 'vertical'
+  ) => {
+    const victim = victims.find(v => v.id === victimId);
+    if (!victim) return null;
+  
+    const value = (victim[section] as any)?.[key] || '';
+  
+    return (
+      <RadioGroup
+        value={value}
+        onValueChange={(v) => handleVictimChange(victimId, section as any, key, v)}
+        className={cn("flex gap-x-4 gap-y-2", orientation === 'vertical' ? 'flex-col' : 'flex-wrap flex-row')}
+      >
+        {options.map((option) => (
+          <div key={option.id} className="flex items-center space-x-2">
+            <RadioGroupItem value={option.id} id={`${section}-${key}-${option.id}-${victimId}`} />
+            <Label htmlFor={`${section}-${key}-${option.id}-${victimId}`} className="font-normal text-xl">{option.label}</Label>
+          </div>
+        ))}
+      </RadioGroup>
+    );
+  };
+  
   return (
     <div className="w-full p-4 sm:p-6 md:p-8">
       <form className="space-y-12" onSubmit={(e) => e.preventDefault()}>
@@ -316,97 +341,62 @@ export default function TO16Form({ categorySlug }: { categorySlug: string }) {
                     <div>
                         <div className="space-y-4">
                         <Field label="Condição Inicial">
-                            <RadioGroup value={victim.avaliacao.condicao_inicial || ''} onValueChange={(v) => handleVictimChange(victim.id, 'avaliacao', 'condicao_inicial', v)} className="flex flex-wrap gap-x-4 gap-y-2">
-                                <div className="flex items-center space-x-2"><RadioGroupItem value="alerta" id={`ci-alerta-${victim.id}`} /><Label htmlFor={`ci-alerta-${victim.id}`} className="font-normal text-xl">Alerta</Label></div>
-                                <div className="flex items-center space-x-2"><RadioGroupItem value="verbaliza" id={`ci-verbaliza-${victim.id}`} /><Label htmlFor={`ci-verbaliza-${victim.id}`} className="font-normal text-xl">Verbaliza</Label></div>
-                                <div className="flex items-center space-x-2"><RadioGroupItem value="doloroso" id={`ci-doloroso-${victim.id}`} /><Label htmlFor={`ci-doloroso-${victim.id}`} className="font-normal text-xl">Estímulo Doloroso</Label></div>
-                                <div className="flex items-center space-x-2"><RadioGroupItem value="inconsciente" id={`ci-inconsciente-${victim.id}`} /><Label htmlFor={`ci-inconsciente-${victim.id}`} className="font-normal text-xl">Inconsciente</Label></div>
-                                <div className="flex items-center space-x-2"><RadioGroupItem value="deambulando" id={`ci-deambulando-${victim.id}`} /><Label htmlFor={`ci-deambulando-${victim.id}`} className="font-normal text-xl">Deambulando</Label></div>
-                                <div className="flex items-center space-x-2"><RadioGroupItem value="ao_solo" id={`ci-ao_solo-${victim.id}`} /><Label htmlFor={`ci-ao_solo-${victim.id}`} className="font-normal text-xl">Ao Solo</Label></div>
-                                <div className="flex items-center space-x-2"><RadioGroupItem value="ejetado" id={`ci-ejetado-${victim.id}`} /><Label htmlFor={`ci-ejetado-${victim.id}`} className="font-normal text-xl">Ejetado</Label></div>
-                                <div className="flex items-center space-x-2"><RadioGroupItem value="encarcerado_retido" id={`ci-encarcerado_retido-${victim.id}`} /><Label htmlFor={`ci-encarcerado_retido-${victim.id}`} className="font-normal text-xl">Encarcerado/Retido</Label></div>
-                            </RadioGroup>
+                            {renderRadioGroup(victim.id, 'avaliacao', 'condicao_inicial', [
+                                {id: 'alerta', label: 'Alerta'},
+                                {id: 'verbaliza', label: 'Verbaliza'},
+                                {id: 'doloroso', label: 'Estímulo Doloroso'},
+                                {id: 'inconsciente', label: 'Inconsciente'},
+                                {id: 'deambulando', label: 'Deambulando'},
+                                {id: 'ao_solo', label: 'Ao Solo'},
+                                {id: 'ejetado', label: 'Ejetado'},
+                                {id: 'encarcerado_retido', label: 'Encarcerado/Retido'},
+                            ])}
                         </Field>
                         </div>
                         <SubSectionTitle>Avaliação Primária</SubSectionTitle>
                         <div className="space-y-4">
                             <Field label="X - Hemorragia Exsanguinante">
-                                <RadioGroup value={victim.avaliacao_primaria.hemorragia || ''} onValueChange={(v) => handleVictimChange(victim.id, 'avaliacao_primaria', 'hemorragia', v)} className="flex flex-row space-y-0 gap-4">
-                                    <div className="flex items-center space-x-2"><RadioGroupItem value="nao" id={`hemo-nao-${victim.id}`} /><Label htmlFor={`hemo-nao-${victim.id}`} className="font-normal text-xl">Não</Label></div>
-                                    <div className="flex items-center space-x-2"><RadioGroupItem value="sim" id={`hemo-sim-${victim.id}`} /><Label htmlFor={`hemo-sim-${victim.id}`} className="font-normal text-xl">Sim</Label></div>
-                                </RadioGroup>
+                                {renderRadioGroup(victim.id, 'avaliacao_primaria', 'hemorragia', [{id: 'nao', label: 'Não'}, {id: 'sim', label: 'Sim'}], 'horizontal')}
                             </Field>
                             <Field label="A - Vias Aéreas">
                                 <div className="flex items-center gap-4">
-                                    <RadioGroup value={victim.avaliacao_primaria.vias_aereas_status || ''} onValueChange={(v) => handleVictimChange(victim.id, 'avaliacao_primaria', 'vias_aereas_status', v)} className="flex flex-row space-y-0 gap-4">
-                                    <div className="flex items-center space-x-2"><RadioGroupItem value="pervias" id={`vias-pervias-${victim.id}`} /><Label htmlFor={`vias-pervias-${victim.id}`} className="font-normal text-xl">Pérvias</Label></div>
-                                    <div className="flex items-center space-x-2"><RadioGroupItem value="obstruidas" id={`vias-obstruidas-${victim.id}`} /><Label htmlFor={`vias-obstruidas-${victim.id}`} className="font-normal text-xl">Obstruídas por:</Label></div>
-                                </RadioGroup>
+                                    {renderRadioGroup(victim.id, 'avaliacao_primaria', 'vias_aereas_status', [{id: 'pervias', label: 'Pérvias'}, {id: 'obstruidas', label: 'Obstruídas por:'}], 'horizontal')}
                                 <Input className="text-xl" value={victim.avaliacao_primaria.vias_aereas_obs || ''} onChange={(e) => handleVictimChange(victim.id, 'avaliacao_primaria', 'vias_aereas_obs', e.target.value)} />
                                 </div>
                             </Field>
                             <Field label="B - Ventilação">
-                                <RadioGroup value={victim.avaliacao_primaria.ventilacao_status || ''} onValueChange={(v) => handleVictimChange(victim.id, 'avaliacao_primaria', 'ventilacao_status', v)} className="flex flex-wrap gap-x-4 gap-y-2">
-                                <div className="flex items-center space-x-2"><RadioGroupItem value="presente" id={`vent-presente-${victim.id}`} /><Label htmlFor={`vent-presente-${victim.id}`} className="font-normal text-xl">Presente</Label></div>
-                                <div className="flex items-center space-x-2"><RadioGroupItem value="ausente" id={`vent-ausente-${victim.id}`} /><Label htmlFor={`vent-ausente-${victim.id}`} className="font-normal text-xl">Ausente</Label></div>
-                                <div className="flex items-center space-x-2"><RadioGroupItem value="simetrica" id={`vent-simetrica-${victim.id}`} /><Label htmlFor={`vent-simetrica-${victim.id}`} className="font-normal text-xl">Simétrica</Label></div>
-                                <div className="flex items-center space-x-2"><RadioGroupItem value="assimetrica" id={`vent-assimetrica-${victim.id}`} /><Label htmlFor={`vent-assimetrica-${victim.id}`} className="font-normal text-xl">Assimétrica</Label></div>
-                                <div className="flex items-center space-x-2"><RadioGroupItem value="apneia" id={`vent-apneia-${victim.id}`} /><Label htmlFor={`vent-apneia-${victim.id}`} className="font-normal text-xl">Apneia</Label></div>
-                                <div className="flex items-center space-x-2"><RadioGroupItem value="eupneia" id={`vent-eupneia-${victim.id}`} /><Label htmlFor={`vent-eupneia-${victim.id}`} className="font-normal text-xl">Eupneia</Label></div>
-                                <div className="flex items-center space-x-2"><RadioGroupItem value="taquipneia" id={`vent-taquipneia-${victim.id}`} /><Label htmlFor={`vent-taquipneia-${victim.id}`} className="font-normal text-xl">Taquipneia</Label></div>
-                                <div className="flex items-center space-x-2"><RadioGroupItem value="gasping" id={`vent-gasping-${victim.id}`} /><Label htmlFor={`vent-gasping-${victim.id}`} className="font-normal text-xl">Gasping</Label></div>
-                            </RadioGroup>
+                                {renderRadioGroup(victim.id, 'avaliacao_primaria', 'ventilacao_status', [
+                                    {id: 'presente', label: 'Presente'}, {id: 'ausente', label: 'Ausente'}, {id: 'simetrica', label: 'Simétrica'}, {id: 'assimetrica', label: 'Assimétrica'},
+                                    {id: 'apneia', label: 'Apneia'}, {id: 'eupneia', label: 'Eupneia'}, {id: 'taquipneia', label: 'Taquipneia'}, {id: 'gasping', label: 'Gasping'}
+                                ])}
                             </Field>
                             <SubSectionTitle>C - Circulação e Hemorragias</SubSectionTitle>
-                            <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-                            <Field label="Pulso">
-                                <RadioGroup value={victim.avaliacao_primaria.pulso || ''} onValueChange={(v) => handleVictimChange(victim.id, 'avaliacao_primaria', 'pulso', v)} className="flex flex-row space-y-0 gap-4">
-                                    <div className="flex items-center space-x-2"><RadioGroupItem value="presente" id={`pulso-presente-${victim.id}`} /><Label htmlFor={`pulso-presente-${victim.id}`} className="font-normal text-xl">Presente</Label></div>
-                                    <div className="flex items-center space-x-2"><RadioGroupItem value="cheio" id={`pulso-cheio-${victim.id}`} /><Label htmlFor={`pulso-cheio-${victim.id}`} className="font-normal text-xl">Cheio</Label></div>
-                                    <div className="flex items-center space-x-2"><RadioGroupItem value="filiforme" id={`pulso-filiforme-${victim.id}`} /><Label htmlFor={`pulso-filiforme-${victim.id}`} className="font-normal text-xl">Filiforme</Label></div>
-                                </RadioGroup>
-                            </Field>
-                            <Field label="Pele">
-                                <RadioGroup value={victim.avaliacao_primaria.pele || ''} onValueChange={(v) => handleVictimChange(victim.id, 'avaliacao_primaria', 'pele', v)} className="flex flex-row space-y-0 gap-4">
-                                    <div className="flex items-center space-x-2"><RadioGroupItem value="normal" id={`pele-normal-${victim.id}`} /><Label htmlFor={`pele-normal-${victim.id}`} className="font-normal text-xl">Normal</Label></div>
-                                    <div className="flex items-center space-x-2"><RadioGroupItem value="fria" id={`pele-fria-${victim.id}`} /><Label htmlFor={`pele-fria-${victim.id}`} className="font-normal text-xl">Fria</Label></div>
-                                    <div className="flex items-center space-x-2"><RadioGroupItem value="sudorese" id={`pele-sudorese-${victim.id}`} /><Label htmlFor={`pele-sudorese-${victim.id}`} className="font-normal text-xl">Sudorese</Label></div>
-                                </RadioGroup>
-                            </Field>
-                            <Field label="Perfusão">
-                                <RadioGroup value={victim.avaliacao_primaria.perfusao || ''} onValueChange={(v) => handleVictimChange(victim.id, 'avaliacao_primaria', 'perfusao', v)} className="flex flex-row space-y-0 gap-4">
-                                    <div className="flex items-center space-x-2"><RadioGroupItem value="<2seg" id={`perf-menor-${victim.id}`} /><Label htmlFor={`perf-menor-${victim.id}`} className="font-normal text-xl">&lt; 2seg</Label></div>
-                                    <div className="flex items-center space-x-2"><RadioGroupItem value=">2seg" id={`perf-maior-${victim.id}`} /><Label htmlFor={`perf-maior-${victim.id}`} className="font-normal text-xl">&gt; 2seg</Label></div>
-                                </RadioGroup>
-                            </Field>
+                            <div className="grid grid-cols-1 gap-8">
+                                <Field label="Pulso">
+                                    {renderRadioGroup(victim.id, 'avaliacao_primaria', 'pulso', [{id: 'presente', label: 'Presente'}, {id: 'cheio', label: 'Cheio'}, {id: 'filiforme', label: 'Filiforme'}], 'horizontal')}
+                                </Field>
+                                <Field label="Pele">
+                                    {renderRadioGroup(victim.id, 'avaliacao_primaria', 'pele', [{id: 'normal', label: 'Normal'}, {id: 'fria', label: 'Fria'}, {id: 'sudorese', label: 'Sudorese'}], 'horizontal')}
+                                </Field>
+                                <Field label="Perfusão">
+                                    {renderRadioGroup(victim.id, 'avaliacao_primaria', 'perfusao', [{id: '<2seg', label: '< 2seg'}, {id: '>2seg', label: '> 2seg'}], 'horizontal')}
+                                </Field>
                             </div>
                             <Field label="Sangramento Ativo">
-                                <RadioGroup value={victim.avaliacao_primaria.sangramento || ''} onValueChange={(v) => handleVictimChange(victim.id, 'avaliacao_primaria', 'sangramento', v)} className="flex flex-row space-y-0 gap-4">
-                                <div className="flex items-center space-x-2"><RadioGroupItem value="presente" id={`sang-presente-${victim.id}`} /><Label htmlFor={`sang-presente-${victim.id}`} className="font-normal text-xl">Presente</Label></div>
-                                <div className="flex items-center space-x-2"><RadioGroupItem value="ausente" id={`sang-ausente-${victim.id}`} /><Label htmlFor={`sang-ausente-${victim.id}`} className="font-normal text-xl">Ausente</Label></div>
-                            </RadioGroup>
+                                {renderRadioGroup(victim.id, 'avaliacao_primaria', 'sangramento', [{id: 'presente', label: 'Presente'}, {id: 'ausente', label: 'Ausente'}], 'horizontal')}
                             </Field>
                             <SubSectionTitle>D - Neurológico: Glasgow e Pupilas</SubSectionTitle>
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                            <div className="grid grid-cols-1 gap-8">
                                 <Field label="Pupilas">
-                                    <RadioGroup value={victim.avaliacao_primaria.pupilas || ''} onValueChange={(v) => handleVictimChange(victim.id, 'avaliacao_primaria', 'pupilas', v)} className="flex flex-row space-y-0 gap-4">
-                                        <div className="flex items-center space-x-2"><RadioGroupItem value="isocoricas" id={`pupilas-iso-${victim.id}`} /><Label htmlFor={`pupilas-iso-${victim.id}`} className="font-normal text-xl">Isocóricas</Label></div>
-                                        <div className="flex items-center space-x-2"><RadioGroupItem value="anisocoricas" id={`pupilas-aniso-${victim.id}`} /><Label htmlFor={`pupilas-aniso-${victim.id}`} className="font-normal text-xl">Anisocóricas</Label></div>
-                                    </RadioGroup>
+                                    {renderRadioGroup(victim.id, 'avaliacao_primaria', 'pupilas', [{id: 'isocoricas', label: 'Isocóricas'}, {id: 'anisocoricas', label: 'Anisocóricas'}], 'horizontal')}
                                 </Field>
                                 <Field label="Fotorreagentes">
-                                    <RadioGroup value={victim.avaliacao_primaria.fotorreagentes || ''} onValueChange={(v) => handleVictimChange(victim.id, 'avaliacao_primaria', 'fotorreagentes', v)} className="flex flex-row space-y-0 gap-4">
-                                        <div className="flex items-center space-x-2"><RadioGroupItem value="sim" id={`foto-sim-${victim.id}`} /><Label htmlFor={`foto-sim-${victim.id}`} className="font-normal text-xl">Sim</Label></div>
-                                        <div className="flex items-center space-x-2"><RadioGroupItem value="nao" id={`foto-nao-${victim.id}`} /><Label htmlFor={`foto-nao-${victim.id}`} className="font-normal text-xl">Não</Label></div>
-                                    </RadioGroup>
+                                    {renderRadioGroup(victim.id, 'avaliacao_primaria', 'fotorreagentes', [{id: 'sim', label: 'Sim'}, {id: 'nao', label: 'Não'}], 'horizontal')}
                                 </Field>
                             </div>
                             <SubSectionTitle>E - Exposição</SubSectionTitle>
                             <Field>
-                                <RadioGroup value={victim.avaliacao_primaria.exposicao || ''} onValueChange={(v) => handleVictimChange(victim.id, 'avaliacao_primaria', 'exposicao', v)} className="flex flex-wrap gap-x-4 gap-y-2">
-                                    <div className="flex items-center space-x-2"><RadioGroupItem value="sem_lesoes" id={`expo-sem-${victim.id}`} /><Label htmlFor={`expo-sem-${victim.id}`} className="font-normal text-xl">Sem Lesões Aparentes</Label></div>
-                                    <div className="flex items-center space-x-2"><RadioGroupItem value="hipotermia" id={`expo-hipo-${victim.id}`} /><Label htmlFor={`expo-hipo-${victim.id}`} className="font-normal text-xl">Hipotermia</Label></div>
-                                </RadioGroup>
+                                {renderRadioGroup(victim.id, 'avaliacao_primaria', 'exposicao', [{id: 'sem_lesoes', label: 'Sem Lesões Aparentes'}, {id: 'hipotermia', label: 'Hipotermia'}], 'horizontal')}
                             </Field>
                             <Field label="Lesões Aparentes e Queixas Principais">
                                 <Textarea className="text-xl" value={victim.avaliacao_primaria.lesoes_queixas || ''} onChange={(e) => handleVictimChange(victim.id, 'avaliacao_primaria', 'lesoes_queixas', e.target.value)}/>
@@ -443,31 +433,31 @@ export default function TO16Form({ categorySlug }: { categorySlug: string }) {
                     <div>
                         <div className="grid grid-cols-1 md:grid-cols-3 gap-8 items-start">
                             <Field label="Abertura Ocular">
-                                <RadioGroup value={victim.escala_glasgow.abertura_ocular || ''} onValueChange={v => handleVictimChange(victim.id, 'escala_glasgow', 'abertura_ocular', v)}>
-                                <div className="flex items-center space-x-2"><RadioGroupItem value="4" id={`ocular-4-${victim.id}`} /><Label htmlFor={`ocular-4-${victim.id}`} className="font-normal text-xl">04 Espontânea</Label></div>
-                                <div className="flex items-center space-x-2"><RadioGroupItem value="3" id={`ocular-3-${victim.id}`} /><Label htmlFor={`ocular-3-${victim.id}`} className="font-normal text-xl">03 Estímulo Verbal</Label></div>
-                                <div className="flex items-center space-x-2"><RadioGroupItem value="2" id={`ocular-2-${victim.id}`} /><Label htmlFor={`ocular-2-${victim.id}`} className="font-normal text-xl">02 Estímulo Doloroso</Label></div>
-                                <div className="flex items-center space-x-2"><RadioGroupItem value="1" id={`ocular-1-${victim.id}`} /><Label htmlFor={`ocular-1-${victim.id}`} className="font-normal text-xl">01 Ausente</Label></div>
-                            </RadioGroup>
+                                {renderRadioGroup(victim.id, 'escala_glasgow', 'abertura_ocular', [
+                                    { id: '4', label: '04 Espontânea' },
+                                    { id: '3', label: '03 Estímulo Verbal' },
+                                    { id: '2', label: '02 Estímulo Doloroso' },
+                                    { id: '1', label: '01 Ausente' },
+                                ])}
                             </Field>
                             <Field label="Resposta Verbal">
-                            <RadioGroup value={victim.escala_glasgow.resposta_verbal || ''} onValueChange={v => handleVictimChange(victim.id, 'escala_glasgow', 'resposta_verbal', v)}>
-                                <div className="flex items-center space-x-2"><RadioGroupItem value="5" id={`verbal-5-${victim.id}`} /><Label htmlFor={`verbal-5-${victim.id}`} className="font-normal text-xl">05 Orientado</Label></div>
-                                <div className="flex items-center space-x-2"><RadioGroupItem value="4" id={`verbal-4-${victim.id}`} /><Label htmlFor={`verbal-4-${victim.id}`} className="font-normal text-xl">04 Confuso</Label></div>
-                                <div className="flex items-center space-x-2"><RadioGroupItem value="3" id={`verbal-3-${victim.id}`} /><Label htmlFor={`verbal-3-${victim.id}`} className="font-normal text-xl">03 Palavras Inapropriadas</Label></div>
-                                <div className="flex items-center space-x-2"><RadioGroupItem value="2" id={`verbal-2-${victim.id}`} /><Label htmlFor={`verbal-2-${victim.id}`} className="font-normal text-xl">02 Sons Incompreensíveis</Label></div>
-                                <div className="flex items-center space-x-2"><RadioGroupItem value="1" id={`verbal-1-${victim.id}`} /><Label htmlFor={`verbal-1-${victim.id}`} className="font-normal text-xl">01 Ausente</Label></div>
-                            </RadioGroup>
+                                {renderRadioGroup(victim.id, 'escala_glasgow', 'resposta_verbal', [
+                                    { id: '5', label: '05 Orientado' },
+                                    { id: '4', label: '04 Confuso' },
+                                    { id: '3', label: '03 Palavras Inapropriadas' },
+                                    { id: '2', label: '02 Sons Incompreensíveis' },
+                                    { id: '1', label: '01 Ausente' },
+                                ])}
                             </Field>
                             <Field label="Resposta Motora">
-                            <RadioGroup value={victim.escala_glasgow.resposta_motora || ''} onValueChange={v => handleVictimChange(victim.id, 'escala_glasgow', 'resposta_motora', v)}>
-                                <div className="flex items-center space-x-2"><RadioGroupItem value="6" id={`motora-6-${victim.id}`} /><Label htmlFor={`motora-6-${victim.id}`} className="font-normal text-xl">06 Obedece a Comandos</Label></div>
-                                <div className="flex items-center space-x-2"><RadioGroupItem value="5" id={`motora-5-${victim.id}`} /><Label htmlFor={`motora-5-${victim.id}`} className="font-normal text-xl">05 Localiza a Dor</Label></div>
-                                <div className="flex items-center space-x-2"><RadioGroupItem value="4" id={`motora-4-${victim.id}`} /><Label htmlFor={`motora-4-${victim.id}`} className="font-normal text-xl">04 Retira o Membro à Dor</Label></div>
-                                <div className="flex items-center space-x-2"><RadioGroupItem value="3" id={`motora-3-${victim.id}`} /><Label htmlFor={`motora-3-${victim.id}`} className="font-normal text-xl">03 Decorticação (Flexão Anormal)</Label></div>
-                                <div className="flex items-center space-x-2"><RadioGroupItem value="2" id={`motora-2-${victim.id}`} /><Label htmlFor={`motora-2-${victim.id}`} className="font-normal text-xl">02 Descerebração (Extensão Anormal)</Label></div>
-                                <div className="flex items-center space-x-2"><RadioGroupItem value="1" id={`motora-1-${victim.id}`} /><Label htmlFor={`motora-1-${victim.id}`} className="font-normal text-xl">01 Ausente</Label></div>
-                            </RadioGroup>
+                                {renderRadioGroup(victim.id, 'escala_glasgow', 'resposta_motora', [
+                                    { id: '6', label: '06 Obedece a Comandos' },
+                                    { id: '5', label: '05 Localiza a Dor' },
+                                    { id: '4', label: '04 Retira o Membro à Dor' },
+                                    { id: '3', label: '03 Decorticação (Flexão Anormal)' },
+                                    { id: '2', label: '02 Descerebração (Extensão Anormal)' },
+                                    { id: '1', label: '01 Ausente' },
+                                ])}
                             </Field>
                         </div>
                         <div className="mt-4 text-right">
