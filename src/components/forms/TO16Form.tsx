@@ -96,7 +96,47 @@ export default function TO16Form({ categorySlug }: { categorySlug: string }) {
     setDadosOperacionais((prev: any) => ({ ...prev, [key]: value }));
   };
 
+  const formatPhoneNumber = (value: string) => {
+    if (!value) return value;
+    const phoneNumber = value.replace(/[^\d]/g, '');
+    const phoneNumberLength = phoneNumber.length;
+    if (phoneNumberLength < 3) return `(${phoneNumber}`;
+    if (phoneNumberLength < 8) {
+      return `(${phoneNumber.slice(0, 2)}) ${phoneNumber.slice(2)}`;
+    }
+    return `(${phoneNumber.slice(0, 2)}) ${phoneNumber.slice(2, 7)}-${phoneNumber.slice(7, 11)}`;
+  };
+  
+  const formatCPF = (value: string) => {
+    if (!value) return value;
+    const cpf = value.replace(/[^\d]/g, "");
+    if (cpf.length <= 3) return cpf;
+    if (cpf.length <= 6) return `${cpf.slice(0, 3)}.${cpf.slice(3)}`;
+    if (cpf.length <= 9) return `${cpf.slice(0, 3)}.${cpf.slice(3, 6)}.${cpf.slice(6)}`;
+    return `${cpf.slice(0, 3)}.${cpf.slice(3, 6)}.${cpf.slice(6, 9)}-${cpf.slice(9, 11)}`;
+  };
+
+  const formatRG = (value: string) => {
+      if (!value) return value;
+      const rg = value.replace(/[^\d]/g, "");
+      if (rg.length <= 2) return rg;
+      if (rg.length <= 5) return `${rg.slice(0, 2)}.${rg.slice(2)}`;
+      if (rg.length <= 8) return `${rg.slice(0, 2)}.${rg.slice(2, 5)}.${rg.slice(5)}`;
+      return `${rg.slice(0, 2)}.${rg.slice(2, 5)}.${rg.slice(5, 8)}-${rg.slice(8, 9)}`;
+  };
+
   const handleVictimChange = (victimId: number, section: keyof Omit<Victim, 'id' | 'rol_valores' | 'equipamentos_retidos'>, key: string, value: any) => {
+    
+    if (key === 'telefone') {
+      value = formatPhoneNumber(value);
+    }
+    if (key === 'cpf') {
+      value = formatCPF(value);
+    }
+    if (key === 'rg') {
+      value = formatRG(value);
+    }
+    
     setVictims(prev => prev.map(v => {
       if (v.id === victimId) {
         const updatedSection = { ...v[section], [key]: value };
@@ -268,7 +308,7 @@ export default function TO16Form({ categorySlug }: { categorySlug: string }) {
                         </RadioGroup>
                     </Field>
                 </div>
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mt-8">
+                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 mt-8">
                     <Field label="Acionamento"><Input type="time" className="text-xl" value={dadosOperacionais.acionamento || ''} onChange={(e) => handleOperationalDataChange('acionamento', e.target.value)} /></Field>
                     <Field label="Chegada no Local"><Input type="time" className="text-xl" value={dadosOperacionais.chegada_local || ''} onChange={(e) => handleOperationalDataChange('chegada_local', e.target.value)} /></Field>
                     <Field label="Saída do Local"><Input type="time" className="text-xl" value={dadosOperacionais.saida_local || ''} onChange={(e) => handleOperationalDataChange('saida_local', e.target.value)} /></Field>
@@ -324,9 +364,33 @@ export default function TO16Form({ categorySlug }: { categorySlug: string }) {
                               </Popover>
                             </Field>
                             <Field label="Idade"><Input type="number" placeholder="Ex: 35" className="text-xl" value={victim.dados_cadastrais.idade || ''} onChange={(e) => handleVictimChange(victim.id, 'dados_cadastrais', 'idade', e.target.value)} /></Field>
-                            <Field label="Telefone"><Input className="text-xl" placeholder="(00) 00000-0000" value={victim.dados_cadastrais.telefone || ''} onChange={(e) => handleVictimChange(victim.id, 'dados_cadastrais', 'telefone', e.target.value)} /></Field>
-                            <Field label="CPF"><Input className="text-xl" placeholder="000.000.000-00" value={victim.dados_cadastrais.cpf || ''} onChange={(e) => handleVictimChange(victim.id, 'dados_cadastrais', 'cpf', e.target.value)} /></Field>
-                            <Field label="RG"><Input className="text-xl" placeholder="00.000.000-0" value={victim.dados_cadastrais.rg || ''} onChange={(e) => handleVictimChange(victim.id, 'dados_cadastrais', 'rg', e.target.value)} /></Field>
+                            <Field label="Telefone">
+                                <Input 
+                                    className="text-xl" 
+                                    placeholder="(00) 00000-0000" 
+                                    value={victim.dados_cadastrais.telefone || ''} 
+                                    onChange={(e) => handleVictimChange(victim.id, 'dados_cadastrais', 'telefone', e.target.value)}
+                                    maxLength={15}
+                                />
+                            </Field>
+                            <Field label="CPF">
+                                <Input 
+                                    className="text-xl" 
+                                    placeholder="000.000.000-00" 
+                                    value={victim.dados_cadastrais.cpf || ''} 
+                                    onChange={(e) => handleVictimChange(victim.id, 'dados_cadastrais', 'cpf', e.target.value)}
+                                    maxLength={14}
+                                />
+                            </Field>
+                            <Field label="RG">
+                                <Input 
+                                    className="text-xl" 
+                                    placeholder="00.000.000-0" 
+                                    value={victim.dados_cadastrais.rg || ''} 
+                                    onChange={(e) => handleVictimChange(victim.id, 'dados_cadastrais', 'rg', e.target.value)}
+                                    maxLength={12}
+                                />
+                            </Field>
                         </div>
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mt-8">
                             <Field label="Acompanhante do Usuário"><Input className="text-xl" placeholder="Nome do acompanhante" value={victim.dados_cadastrais.acompanhante || ''} onChange={(e) => handleVictimChange(victim.id, 'dados_cadastrais', 'acompanhante', e.target.value)} /></Field>
@@ -445,7 +509,7 @@ export default function TO16Form({ categorySlug }: { categorySlug: string }) {
                                 {renderRadioGroup(victim.id, 'avaliacao_primaria', 'sangramento', [{id: 'presente', label: 'Presente'}, {id: 'ausente', label: 'Ausente'}], 'horizontal')}
                             </Field>
                             <SubSectionTitle>D - Neurológico: Glasgow e Pupilas</SubSectionTitle>
-                            <div className="grid grid-cols-1 gap-8">
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                                 <Field label="Pupilas">
                                     {renderRadioGroup(victim.id, 'avaliacao_primaria', 'pupilas', [{id: 'isocoricas', label: 'Isocóricas'}, {id: 'anisocoricas', label: 'Anisocóricas'}], 'vertical')}
                                 </Field>
@@ -685,7 +749,3 @@ export default function TO16Form({ categorySlug }: { categorySlug: string }) {
     </div>
   );
 }
-
-    
-
-    
