@@ -50,6 +50,7 @@ const formComponents: { [key: string]: ComponentType<{ categorySlug: string }> }
   'to-15': dynamic(() => import('@/components/forms/TO15Form'), { loading: () => <LoadingSkeleton /> }),
   'to-16': dynamic(() => import('@/components/forms/TO16Form'), { loading: () => <LoadingSkeleton /> }),
   'to-17': dynamic(() => import('@/components/forms/TO17Form'), { loading: () => <LoadingSkeleton /> }),
+  'to-19': dynamic(() => import('@/components/forms/TO19Form'), { loading: () => <LoadingSkeleton /> }),
   'to-33': dynamic(() => import('@/components/forms/TO33Form'), { loading: () => <LoadingSkeleton /> }),
   'to-34': dynamic(() => import('@/components/forms/TO34Form'), { loading: () => <LoadingSkeleton /> }),
   'to-35': dynamic(() => import('@/components/forms/TO35Form'), { loading: () => <LoadingSkeleton /> }),
