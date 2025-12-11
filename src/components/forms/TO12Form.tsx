@@ -244,7 +244,7 @@ export default function TO12Form({ categorySlug }: { categorySlug: string }) {
         <div id="evento">
             <SectionTitle onToggle={() => handleSectionVisibility('evento')} isVisible={visibleSections.evento}>EVENTO</SectionTitle>
             {visibleSections.evento && (
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+            <div className="grid grid-cols-1 gap-8">
                 <Field label="Trauma">
                   {renderCheckboxes('evento', 'trauma', [
                       { id: 'acidente_automobilistico', label: 'Acidente Automobilístico' },
