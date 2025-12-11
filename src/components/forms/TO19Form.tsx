@@ -76,7 +76,7 @@ export default function TO19Form({ categorySlug }: { categorySlug: string }) {
 
   const [generalInfo, setGeneralInfo] = useState<GeneralInfo>({
     rodovia: '',
-    ocorrencia: 'AC01',
+    ocorrencia: 'TO19',
     tipoPane: '',
     qth: '',
     sentido: '',
@@ -286,16 +286,7 @@ export default function TO19Form({ categorySlug }: { categorySlug: string }) {
                 </Select>
             </Field>
             <Field label="OCORRÊNCIA">
-              <Select value={generalInfo.ocorrencia} onValueChange={(value) => handleGeneralInfoChange('ocorrencia', value)}>
-                  <SelectTrigger className="text-xl normal-case placeholder:text-base">
-                      <SelectValue placeholder="Selecione o AC" />
-                  </SelectTrigger>
-                  <SelectContent>
-                      <SelectItem value="ac01">AC01</SelectItem>
-                      <SelectItem value="ac02">AC02</SelectItem>
-                      <SelectItem value="ac03">AC03</SelectItem>
-                  </SelectContent>
-              </Select>
+                <Input className="text-xl uppercase" value={generalInfo.ocorrencia} disabled />
             </Field>
             <Field label="TIPO DE PANE">
                  <Select value={generalInfo.tipoPane} onValueChange={(value) => handleGeneralInfoChange('tipoPane', value)}>
