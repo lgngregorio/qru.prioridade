@@ -152,7 +152,7 @@ export default function HistoricoPage() {
   const { toast } = useToast();
 
   const reportsQuery = useMemoFirebase(() => {
-    if (!firestore || !user?.uid) {
+    if (isUserLoading || !user || !firestore) {
       return null;
     }
     return query(
@@ -160,11 +160,11 @@ export default function HistoricoPage() {
       where('uid', '==', user.uid),
       orderBy('createdAt', 'desc')
     );
-  }, [firestore, user]);
+  }, [firestore, user, isUserLoading]);
 
   const { data: reports, isLoading: reportsLoading } = useCollection<Report>(reportsQuery);
   
-  const isLoading = isUserLoading || (reportsQuery && reportsLoading);
+  const isLoading = isUserLoading || (reportsQuery !== null && reportsLoading);
   
   const getCategoryTitle = (slug: string) => {
     const category = eventCategories.find(c => c.slug === slug);

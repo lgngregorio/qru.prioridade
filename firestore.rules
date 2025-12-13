@@ -126,12 +126,16 @@ service cloud.firestore {
     match /reports/{reportId} {
       // READ: Allow reading a single report if the user is the owner.
       allow get: if isOwnerByContent();
-      // LIST: Allow users to list only their own reports by enforcing a query filter on uid.
-      allow list: if isSignedIn() && request.query.where.uid == request.auth.uid;
+      
       // WRITE: Allow any signed-in user to create a report, but they must set themselves as the owner.
       allow create: if isSignedIn() && hasValidUidOnCreate();
       // UPDATE/DELETE: Allow updating/deleting only if the user is the owner.
       allow update, delete: if isOwnerByContent() && hasValidUidOnUpdate();
+    }
+    
+    match /reports {
+        // LIST: Allow users to list only their own reports by enforcing a query filter on uid.
+        allow list: if isSignedIn() && request.query.where.uid == request.auth.uid;
     }
   }
 }
