@@ -51,7 +51,7 @@ service cloud.firestore {
     }
     
     match /reports {
-        allow list: if isSignedIn() && request.query.where.uid == request.auth.uid;
+        allow list: if isSignedIn() && request.query.where[0] == ['uid', '==', request.auth.uid];
     }
   }
 }
