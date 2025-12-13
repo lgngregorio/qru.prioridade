@@ -33,7 +33,10 @@ service cloud.firestore {
     match /reports/{reportId} {
         allow create: if request.resource.data.uid == request.auth.uid;
         allow read, update, delete: if resource.data.uid == request.auth.uid;
-        allow list: if request.query.resource.data.uid == request.auth.uid;
+    }
+
+    match /reports/{reportId} {
+        allow list: if request.auth.uid != null && request.query.where.field == "uid" && request.query.where.value == request.auth.uid;
     }
   }
 }

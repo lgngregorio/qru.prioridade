@@ -154,7 +154,7 @@ export default function OcorrenciasPage() {
             where('uid', '==', user.uid),
             orderBy('createdAt', 'desc')
         );
-    }, [firestore, user?.uid]);
+    }, [firestore, user]);
 
     const { data: reports, isLoading: isReportsLoading, error } = useCollection<Report>(reportsQuery);
     
