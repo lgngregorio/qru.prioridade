@@ -36,6 +36,8 @@ import { useToast } from '@/hooks/use-toast';
 import { Loader2, ArrowLeft, Trash2, Edit, Plus, ChevronUp, Share2 } from 'lucide-react';
 import Link from 'next/link';
 import { useCollection } from '@/firebase/firestore/use-collection';
+import { FirestorePermissionError } from '@/firebase/errors';
+import { errorEmitter } from '@/firebase/error-emitter';
 
 interface Note {
   id: string;
@@ -63,20 +65,24 @@ export default function NotepadPage() {
   }, [firestore, user?.uid]);
 
   const { data: notes, isLoading: loadingNotes } = useCollection<Note>(notesQuery);
-  const isLoading = isUserLoading || loadingNotes;
+  const isLoading = isUserLoading || (notesQuery && loadingNotes);
   
   const handleDelete = (noteId: string) => {
     if (!firestore) return;
-    deleteDoc(doc(firestore, 'notes', noteId)).then(() => {
-        toast({ title: 'Nota apagada com sucesso!' });
-    }).catch ((error) => {
-      console.error('Error deleting note: ', error);
-      toast({
-        variant: 'destructive',
-        title: 'Erro ao apagar nota.',
-        description: 'Não foi possível apagar a anotação.',
-      });
-    });
+    const noteRef = doc(firestore, 'notes', noteId);
+    
+    deleteDoc(noteRef)
+        .then(() => {
+            toast({ title: 'Nota apagada com sucesso!' });
+        })
+        .catch(async (serverError) => {
+          const permissionError = new FirestorePermissionError({
+              path: noteRef.path,
+              operation: 'delete',
+          });
+    
+          errorEmitter.emit('permission-error', permissionError);
+        });
   };
 
   const handleShareNote = (note: Note) => {
