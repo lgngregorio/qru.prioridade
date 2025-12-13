@@ -1,4 +1,3 @@
-
 'use client';
 
 import { useState, useEffect, useMemo } from 'react';
@@ -52,26 +51,21 @@ export default function NotepadPage() {
   const firestore = useFirestore();
   const { user, isUserLoading } = useUser();
   const { toast } = useToast();
-  const [notesQuery, setNotesQuery] = useState<Query | null>(null);
 
-  useEffect(() => {
-    if (!isUserLoading && user && firestore) {
-      const q = query(
-        collection(firestore, 'notes'),
-        where('uid', '==', user.uid),
-        orderBy('createdAt', 'desc')
-      );
-      setNotesQuery(q);
-    } else {
-      setNotesQuery(null);
+  const notesQuery = useMemoFirebase(() => {
+    if (!firestore || !user?.uid) {
+      return null;
     }
-  }, [isUserLoading, user, firestore]);
-  
-  const memoizedNotesQuery = useMemoFirebase(() => notesQuery, [notesQuery]);
+    return query(
+      collection(firestore, 'notes'),
+      where('uid', '==', user.uid),
+      orderBy('createdAt', 'desc')
+    );
+  }, [firestore, user, isUserLoading]);
 
-  const { data: notes, isLoading: loadingNotes } = useCollection<Note>(memoizedNotesQuery);
+  const { data: notes, isLoading: loadingNotes } = useCollection<Note>(notesQuery);
   
-  const isLoading = isUserLoading || (!!memoizedNotesQuery && loadingNotes);
+  const isLoading = isUserLoading || (!!notesQuery && loadingNotes);
   
   const handleDelete = (noteId: string) => {
     if (!firestore) return;
