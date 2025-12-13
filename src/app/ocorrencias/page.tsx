@@ -191,7 +191,6 @@ export default function OcorrenciasPage() {
         }
     };
     
-    // Combined loading state: wait for user to be identified, then for reports to be loaded.
     const isLoading = isUserLoading || (user && isReportsLoading);
 
     if (isLoading) {
@@ -213,6 +212,19 @@ export default function OcorrenciasPage() {
                  <pre className="mt-4 text-xs text-left bg-muted p-2 rounded-md max-w-full overflow-auto">
                     <code>{error.message}</code>
                 </pre>
+            </main>
+        )
+    }
+
+    if (!user) {
+        return (
+             <main className="flex flex-col items-center p-4 md:p-6 text-center">
+                <AlertCircle className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
+                <h2 className="text-2xl font-bold mb-2">Sessão Expirada</h2>
+                <p className="text-muted-foreground max-w-md">Você precisa estar logado para ver suas ocorrências.</p>
+                 <Button asChild className="mt-4">
+                    <Link href="/login">Fazer Login</Link>
+                </Button>
             </main>
         )
     }
