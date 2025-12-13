@@ -28,6 +28,7 @@ import Link from 'next/link';
 import { useToast } from '@/hooks/use-toast';
 import { eventCategories } from '@/lib/events';
 import { useCollection } from '@/firebase/firestore/use-collection';
+import { cn } from '@/lib/utils';
 
 interface Report {
   id: string;
@@ -261,23 +262,29 @@ export default function HistoricoPage() {
                     {reports.map((report) => (
                         <AccordionItem value={report.id} key={report.id} className="border rounded-lg bg-card/50">
                             <AccordionTrigger className="p-4 text-xl hover:no-underline flex justify-between items-center w-full">
-                                <div className="flex flex-col text-left">
+                               <div className="flex flex-col text-left">
                                     <span className="font-bold">{getCategoryTitle(report.category)}</span>
                                     <span className="text-sm font-normal text-muted-foreground">{formatDate(report.createdAt)}</span>
                                 </div>
-                                <div className="flex items-center gap-0">
-                                     <Button asChild variant="ghost" size="icon" onClick={(e) => e.stopPropagation()}>
+                            </AccordionTrigger>
+                            <AccordionContent className="p-4 pt-0">
+                                <ReportDetail formData={report.formData} />
+                                <div className="flex items-center gap-2 mt-4 pt-4 border-t">
+                                     <Button asChild variant="outline" size="sm">
                                         <Link href={`/${report.category}`}>
-                                          <Edit className="h-5 w-5 text-primary" />
+                                          <Edit className="mr-2 h-4 w-4" />
+                                          Editar
                                         </Link>
                                       </Button>
-                                     <Button variant="ghost" size="icon" className="text-green-500 hover:bg-green-500/10 hover:text-green-500" onClick={(e) => {e.stopPropagation(); handleShare(report);}}>
-                                        <Share2 className="h-5 w-5"/>
+                                     <Button variant="secondary" size="sm" className="text-green-500 hover:bg-green-500/10 hover:text-green-500" onClick={(e) => {e.stopPropagation(); handleShare(report);}}>
+                                        <Share2 className="mr-2 h-4 w-4"/>
+                                        Compartilhar
                                     </Button>
                                     <AlertDialog>
                                         <AlertDialogTrigger asChild>
-                                            <Button variant="ghost" size="icon" className="text-destructive hover:bg-destructive/10 hover:text-destructive" onClick={(e) => e.stopPropagation()}>
-                                                <Trash2 className="h-5 w-5"/>
+                                            <Button variant="destructive" size="sm">
+                                                <Trash2 className="mr-2 h-4 w-4"/>
+                                                Apagar
                                             </Button>
                                         </AlertDialogTrigger>
                                         <AlertDialogContent>
@@ -296,9 +303,6 @@ export default function HistoricoPage() {
                                         </AlertDialogContent>
                                       </AlertDialog>
                                 </div>
-                            </AccordionTrigger>
-                            <AccordionContent className="p-4 pt-0">
-                                <ReportDetail formData={report.formData} />
                             </AccordionContent>
                         </AccordionItem>
                     ))}
@@ -314,5 +318,3 @@ export default function HistoricoPage() {
     </main>
   );
 }
-
-    
