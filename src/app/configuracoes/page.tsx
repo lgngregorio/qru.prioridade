@@ -17,13 +17,17 @@ import { useState, useEffect } from 'react';
 import { useToast } from '@/hooks/use-toast';
 import { useRouter } from 'next/navigation';
 import { useUser } from '@/app/layout';
+import { Label } from '@/components/ui/label';
+import { Input } from '@/components/ui/input';
 
 export default function ConfiguracoesPage() {
   const { theme, setTheme, systemTheme } = useTheme();
   const { toast } = useToast();
   const router = useRouter();
-  const { user } = useUser();
+  const { user, login } = useUser();
 
+  const [name, setName] = useState('');
+  const [email, setEmail] = useState('');
   const [selectedTheme, setSelectedTheme] = useState('');
   const [isSaving, setIsSaving] = useState(false);
   const [isLoaded, setIsLoaded] = useState(false);
@@ -31,16 +35,50 @@ export default function ConfiguracoesPage() {
   useEffect(() => {
     const currentTheme = theme === 'system' ? systemTheme : theme;
     setSelectedTheme(currentTheme || 'light');
+    if (user) {
+        setName(user.name);
+        setEmail(user.email);
+    }
     setIsLoaded(true);
-  }, [theme, systemTheme]);
+  }, [theme, systemTheme, user]);
   
   const handleSave = () => {
     setIsSaving(true);
+    
+    // Theme saving
     setTheme(selectedTheme);
-    toast({
-      title: "Sucesso!",
-      description: "Suas configurações de tema foram salvas.",
-    });
+
+    // User data saving
+    try {
+        const users = JSON.parse(localStorage.getItem('qru-priority-users') || '[]');
+        const currentUserEmail = user?.email;
+        let userToUpdate = users.find((u: any) => u.email === currentUserEmail);
+
+        if (userToUpdate) {
+            userToUpdate.name = name;
+            userToUpdate.email = email;
+            
+            const updatedUsers = users.map((u: any) => u.email === currentUserEmail ? userToUpdate : u);
+            localStorage.setItem('qru-priority-users', JSON.stringify(updatedUsers));
+            
+            // Update the currently logged-in user state
+            login({ name: name, email: email });
+        }
+        
+        toast({
+            title: "Sucesso!",
+            description: "Suas configurações foram salvas.",
+        });
+
+    } catch (error) {
+        console.error("Failed to save user data", error);
+        toast({
+            variant: "destructive",
+            title: "Erro ao salvar perfil",
+            description: "Não foi possível salvar os dados do perfil.",
+        });
+    }
+
     setIsSaving(false);
     router.push('/');
   };
@@ -100,14 +138,26 @@ export default function ConfiguracoesPage() {
                     <User /> Perfil do Usuário
                   </CardTitle>
                 </CardHeader>
-                <CardContent className="space-y-4 text-lg">
-                    <div className="flex flex-col">
-                        <span className="font-semibold text-muted-foreground">Nome</span>
-                        <span>{user?.name}</span>
+                <CardContent className="space-y-6">
+                    <div className="space-y-2">
+                        <Label htmlFor="name" className="text-base">Nome</Label>
+                        <Input
+                            id="name"
+                            type="text"
+                            value={name}
+                            onChange={(e) => setName(e.target.value)}
+                            className="h-12 text-lg"
+                        />
                     </div>
-                     <div className="flex flex-col">
-                        <span className="font-semibold text-muted-foreground">Email</span>
-                        <span>{user?.email}</span>
+                    <div className="space-y-2">
+                        <Label htmlFor="email" className="text-base">E-mail</Label>
+                        <Input
+                            id="email"
+                            type="email"
+                            value={email}
+                            onChange={(e) => setEmail(e.target.value)}
+                            className="h-12 text-lg"
+                        />
                     </div>
                 </CardContent>
             </Card>
