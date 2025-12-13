@@ -39,7 +39,7 @@ export default function ConfiguracoesPage() {
   useEffect(() => {
     async function loadUserProfile() {
       if (user && firestore) {
-        const userDocRef = doc(firestore, 'users', user.uid);
+        const userDocRef = doc(firestore, 'users', user.email!); // Using email as ID
         try {
           const userDoc = await getDoc(userDocRef);
           if (userDoc.exists()) {
@@ -96,9 +96,8 @@ export default function ConfiguracoesPage() {
     }
 
     // 2. Update Firestore Profile
-    const userDocRef = doc(firestore, 'users', user.uid);
+    const userDocRef = doc(firestore, 'users', email); // Using email as ID
     const profileData = {
-      id: user.uid,
       name: name,
       email: email,
       theme: selectedTheme,

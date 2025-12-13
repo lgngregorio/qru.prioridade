@@ -145,11 +145,11 @@ export default function PreviewPage() {
     }
     
     const handleSave = async () => {
-        if (!firestore || !reportData || !user) {
+        if (!firestore || !reportData) {
             toast({
                 variant: "destructive",
                 title: "Erro",
-                description: "Não há dados de relatório para salvar ou usuário não está logado.",
+                description: "Não há dados de relatório para salvar.",
             });
             return;
         }
@@ -158,7 +158,6 @@ export default function PreviewPage() {
         const reportsCollection = collection(firestore, 'reports');
         const dataToSave = {
             ...reportData,
-            uid: user.uid,
             createdAt: serverTimestamp(),
         };
 
@@ -204,23 +203,22 @@ export default function PreviewPage() {
       const generateWhatsappMessage = (data: any): string => {
         let message = '';
         const sectionTitles: { [key: string]: string } = {
-          generalInfo: 'Informações Gerais',
-          vehicles: 'Veículos',
-          caracteristicasEntorno: 'Características do Entorno',
-          tracadoPista: 'Traçado da Pista',
-          sinalizacaoInfo: 'Sinalização',
-          otherInfo: 'Outras Informações',
+          generalInfo: 'INFORMAÇÕES GERAIS',
+          vehicles: 'VEÍCULOS',
+          caracteristicasEntorno: 'CARACTERÍSTICAS DO ENTORNO',
+          tracadoPista: 'TRAÇADO DA PISTA',
+          sinalizacaoInfo: 'SINALIZAÇÃO',
+          otherInfo: 'OUTRAS INFORMAÇÕES',
         };
       
         for (const sectionKey in data) {
-          if (Object.prototype.hasOwnProperty.call(data, sectionKey)) {
+          if (Object.prototype.hasOwnProperty.call(data, sectionKey) && sectionTitles[sectionKey]) {
             const sectionData = data[sectionKey];
             const sectionTitle = sectionTitles[sectionKey];
       
             if (sectionData && Object.keys(sectionData).length > 0) {
-              if (sectionTitle) {
-                message += `\n*${sectionTitle.toUpperCase()}*\n`;
-              }
+              
+              message += `\n*${sectionTitle}*\n`;
       
               if (sectionKey === 'vehicles' && Array.isArray(sectionData)) {
                 sectionData.forEach((vehicle, index) => {

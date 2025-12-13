@@ -57,9 +57,8 @@ export default function SignupPage() {
         });
         
         // Create user profile in Firestore
-        const userDocRef = doc(firestore, 'users', user.uid);
+        const userDocRef = doc(firestore, 'users', user.email!);
         await setDoc(userDocRef, {
-          id: user.uid,
           name: name,
           email: user.email,
           theme: 'light', // Default theme

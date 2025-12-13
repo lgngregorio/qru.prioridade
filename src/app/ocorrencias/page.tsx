@@ -2,7 +2,7 @@
 'use client';
 
 import { useUser, useFirestore, useMemoFirebase } from '@/firebase';
-import { collection, query, where, orderBy, Timestamp } from 'firebase/firestore';
+import { collection, query, orderBy, Timestamp } from 'firebase/firestore';
 import { useCollection } from '@/firebase/firestore/use-collection';
 import { Loader2, History, AlertCircle } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
@@ -16,7 +16,6 @@ interface Report {
     category: string;
     createdAt: Timestamp | { seconds: number; nanoseconds: number };
     formData: any;
-    uid: string;
 }
 
 const formatDate = (timestamp: Report['createdAt']) => {
@@ -43,19 +42,18 @@ export default function OcorrenciasPage() {
     const firestore = useFirestore();
 
     const reportsQuery = useMemoFirebase(() => {
-        if (firestore && user?.uid) {
+        if (firestore) {
             return query(
                 collection(firestore, 'reports'),
-                where('uid', '==', user.uid),
                 orderBy('createdAt', 'desc')
             );
         }
         return null;
-    }, [firestore, user?.uid]);
+    }, [firestore]);
 
     const { data: reports, isLoading: isReportsLoading, error } = useCollection<Report>(reportsQuery);
 
-    const isLoading = isUserLoading || (!reports && !error);
+    const isLoading = isUserLoading || isReportsLoading;
 
     if (isLoading) {
         return (

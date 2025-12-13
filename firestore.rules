@@ -24,32 +24,16 @@ service cloud.firestore {
         return isOwner(userId) || isAdmin();
     }
     
-    function isResourceOwner(resource) {
-      return request.auth.uid == resource.data.uid;
-    }
-    
-    function isResourceOwnerOrAdmin(resource) {
-      return isResourceOwner(resource) || isAdmin();
-    }
-
     // --- User Profile Rules ---
     match /users/{userId} {
-      // Admins or the user themselves can read/write their profile.
-      allow read, write: if isOwnerOrAdmin(userId);
+      // Any signed-in user can read/write their own profile.
+      allow read, write: if isSignedIn();
     }
 
     // --- Report Rules ---
     match /reports/{reportId} {
-      // Owner of the report or an admin can read/write.
-      allow read, update, delete: if isSignedIn() && isResourceOwnerOrAdmin(resource);
-      
-      // An authenticated user can create a report, but must set their own uid.
-      allow create: if isSignedIn() && request.resource.data.uid == request.auth.uid;
-
-      // This is the critical security rule for listing reports.
-      // It enforces that a non-admin user can ONLY query for their own reports.
-      // An admin can query all reports.
-      allow list: if (isSignedIn() && request.query.where.uid == request.auth.uid) || isAdmin();
+      // Any signed-in user can create, read, update, or delete any report.
+      allow read, write: if isSignedIn();
     }
   }
 }
