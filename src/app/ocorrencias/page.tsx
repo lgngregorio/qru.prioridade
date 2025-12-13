@@ -77,7 +77,7 @@ const formatWhatsappValue = (value: any, key: string): string => {
     return formatDate(value);
   }
 
-  if (Array.isArray(value)) return value.join(', ').toUpperCase();
+  if (Array.isArray(value)) return value.join(', ').replace(/-/g, ' ').toUpperCase();
   return String(value).replace(/-/g, ' ').toUpperCase();
 };
 
