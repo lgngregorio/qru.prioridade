@@ -3,12 +3,12 @@
 
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
+import { Card, CardContent } from '@/components/ui/card';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
-import { MoreHorizontal, Trash2, Edit, Share2, Loader2 } from 'lucide-react';
+import { Trash2, Edit, Share2, Loader2 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import type { Note } from '@/lib/types';
+import { cn } from '@/lib/utils';
 
 interface NoteCardProps {
   note: Note;
@@ -42,7 +42,7 @@ export function NoteCard({ note, onEdit, onDelete }: NoteCardProps) {
         title: 'Nota apagada!',
         description: 'Sua nota foi removida com sucesso.',
       });
-      onDelete(); // Callback para atualizar a lista na página principal
+      onDelete(); 
     } catch (error) {
       console.error("Error deleting note: ", error);
       toast({
@@ -64,40 +64,27 @@ export function NoteCard({ note, onEdit, onDelete }: NoteCardProps) {
 
   return (
     <>
-      <Card className="flex flex-col">
-        <CardHeader className="flex-row items-start justify-between">
-          <div>
-            <CardTitle className="text-2xl font-bold">{note.title}</CardTitle>
-             {note.createdAt && (
-                <CardDescription className="text-sm">
-                   Criado em {formatDate(note.createdAt)}
-                </CardDescription>
-             )}
-          </div>
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button variant="ghost" size="icon">
-                <MoreHorizontal className="h-5 w-5" />
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent>
-              <DropdownMenuItem onClick={onEdit} className="text-base p-3">
-                <Edit className="mr-2 h-4 w-4" />
-                <span>Editar</span>
-              </DropdownMenuItem>
-              <DropdownMenuItem onClick={handleShare} className="text-base p-3">
-                <Share2 className="mr-2 h-4 w-4" />
-                <span>Compartilhar</span>
-              </DropdownMenuItem>
-              <DropdownMenuItem onClick={() => setShowDeleteConfirm(true)} className="text-destructive text-base p-3">
-                <Trash2 className="mr-2 h-4 w-4" />
-                <span>Apagar</span>
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
-        </CardHeader>
-        <CardContent className="flex-1">
-          <p className="whitespace-pre-wrap">{note.content}</p>
+      <Card>
+        <CardContent className="p-4 flex items-center justify-between gap-4">
+            <div className="flex-1 overflow-hidden">
+                <h3 className="text-xl font-bold truncate">{note.title}</h3>
+                <p className="text-sm text-muted-foreground truncate">{note.content}</p>
+                 <p className="text-xs text-muted-foreground mt-1">{formatDate(note.createdAt)}</p>
+            </div>
+            <div className="flex gap-2">
+                <Button variant="outline" size="icon" onClick={onEdit} className="border-blue-500 text-blue-500 hover:bg-blue-500 hover:text-white">
+                    <Edit className="h-5 w-5" />
+                    <span className="sr-only">Editar</span>
+                </Button>
+                <Button variant="outline" size="icon" onClick={handleShare} className="border-green-500 text-green-500 hover:bg-green-500 hover:text-white">
+                    <Share2 className="h-5 w-5" />
+                    <span className="sr-only">Compartilhar</span>
+                </Button>
+                 <Button variant="destructive" size="icon" onClick={() => setShowDeleteConfirm(true)}>
+                    <Trash2 className="h-5 w-5" />
+                    <span className="sr-only">Apagar</span>
+                </Button>
+            </div>
         </CardContent>
       </Card>
 

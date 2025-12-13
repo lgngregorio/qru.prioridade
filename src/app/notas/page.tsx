@@ -12,10 +12,10 @@ import type { Note } from '@/lib/types';
 import { useUser } from '@/app/layout';
 
 const LoadingSkeleton = () => (
-    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-        <Skeleton className="h-48 rounded-lg" />
-        <Skeleton className="h-48 rounded-lg" />
-        <Skeleton className="h-48 rounded-lg" />
+    <div className="space-y-4">
+        <Skeleton className="h-20 rounded-lg" />
+        <Skeleton className="h-20 rounded-lg" />
+        <Skeleton className="h-20 rounded-lg" />
     </div>
 );
 
@@ -99,7 +99,7 @@ export default function NotasPage() {
             )}
 
             {!isLoading && notes && notes.length > 0 && (
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                <div className="space-y-4">
                     {notes.map((note) => (
                         <NoteCard 
                             key={note.id} 
