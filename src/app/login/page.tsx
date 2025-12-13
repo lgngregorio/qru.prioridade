@@ -83,8 +83,8 @@ export default function LoginPage() {
               </Link>
             </p>
             <p className="mt-2">
-              <Link href="/forgot-password" passHref legacyBehavior>
-                <a className="font-medium text-primary hover:underline">Esqueceu sua senha?</a>
+              <Link href="/forgot-password" className="font-medium text-primary hover:underline">
+                Esqueceu sua senha?
               </Link>
             </p>
           </div>
