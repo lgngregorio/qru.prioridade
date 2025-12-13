@@ -17,57 +17,88 @@ import { useTheme } from 'next-themes';
 import { useState, useEffect } from 'react';
 import { useToast } from '@/hooks/use-toast';
 import { useRouter } from 'next/navigation';
-
-// This is a mock database. In a real app, you would fetch this from your backend.
-let userProfileDB = {
-  name: 'Lucas',
-  email: 'lgngregorio@icloud.com',
-  theme: 'dark',
-};
-
-// This function simulates fetching the user profile from a database.
-const getUserProfile = () => {
-    return { ...userProfileDB };
-};
-
-// This function simulates updating the user profile in a database.
-const updateUserProfile = (profile: Partial<typeof userProfileDB>) => {
-  userProfileDB = { ...userProfileDB, ...profile };
-  return { ...userProfileDB };
-};
-
+import { useUser, useFirestore } from '@/firebase';
+import { doc, getDoc, setDoc } from 'firebase/firestore';
+import { updateProfile, updateEmail } from 'firebase/auth';
 
 export default function ConfiguracoesPage() {
   const { theme, setTheme } = useTheme();
   const { toast } = useToast();
   const router = useRouter();
+  const { user } = useUser();
+  const firestore = useFirestore();
 
-  // State for the form's current values
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [selectedTheme, setSelectedTheme] = useState('');
-
   const [isSaving, setIsSaving] = useState(false);
   const [isLoaded, setIsLoaded] = useState(false);
 
-  // Load initial data into the form state when the component mounts
   useEffect(() => {
-    const profile = getUserProfile();
-    setName(profile.name);
-    setEmail(profile.email);
-    // Use the theme from next-themes as the source of truth for the radio button
-    setSelectedTheme(theme || profile.theme); 
-    setIsLoaded(true);
-  }, [theme]); // Rerun when theme changes externally
+    async function loadUserProfile() {
+      if (user && firestore) {
+        const userDocRef = doc(firestore, 'users', user.uid);
+        const userDoc = await getDoc(userDocRef);
+        
+        if (userDoc.exists()) {
+          const profile = userDoc.data();
+          setName(profile.name || user.displayName || '');
+          setEmail(profile.email || user.email || '');
+          setSelectedTheme(profile.theme || theme || 'light');
+        } else {
+          // If no profile in Firestore, use auth data and default theme
+          setName(user.displayName || '');
+          setEmail(user.email || '');
+          setSelectedTheme(theme || 'light');
+        }
+        setIsLoaded(true);
+      }
+    }
+    loadUserProfile();
+  }, [user, firestore, theme]);
 
-  const handleSave = () => {
+  const handleSave = async () => {
+    if (!user || !firestore) {
+      toast({
+        variant: 'destructive',
+        title: 'Erro',
+        description: 'Usuário não autenticado.',
+      });
+      return;
+    }
+
     setIsSaving(true);
-    // Simulate saving to a backend
-    setTimeout(() => {
-      // 1. Save Profile Info
-      updateUserProfile({ name, email, theme: selectedTheme });
+    
+    try {
+      // 1. Update Firestore Profile
+      const userDocRef = doc(firestore, 'users', user.uid);
+      const profileData = {
+        name: name,
+        email: email,
+        theme: selectedTheme,
+        id: user.uid,
+      };
+      await setDoc(userDocRef, profileData, { merge: true });
+
+      // 2. Update Firebase Auth Profile (if necessary)
+      if (user.displayName !== name) {
+        await updateProfile(user, { displayName: name });
+      }
+      if (user.email !== email) {
+        // Updating email requires re-authentication, so handle with care
+        // For simplicity, we'll just show a message here.
+        // A real app would require password confirmation.
+        await updateEmail(user, email).catch((authError) => {
+            console.error("Auth email update failed:", authError);
+            toast({
+                variant: "destructive",
+                title: "Erro ao atualizar email",
+                description: "Para sua segurança, esta operação requer uma autenticação recente. Por favor, faça logout e login novamente para alterar o email.",
+            });
+        });
+      }
       
-      // 2. Apply Theme
+      // 3. Apply Theme
       setTheme(selectedTheme);
       
       setIsSaving(false);
@@ -76,7 +107,15 @@ export default function ConfiguracoesPage() {
         description: "Suas configurações foram salvas.",
       });
       router.push('/');
-    }, 1000);
+    } catch (error: any) {
+        setIsSaving(false);
+        console.error("Error saving profile: ", error);
+        toast({
+            variant: "destructive",
+            title: "Erro ao Salvar",
+            description: "Não foi possível salvar suas configurações. Tente novamente.",
+        });
+    }
   };
 
   if (!isLoaded) {

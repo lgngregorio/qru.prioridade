@@ -15,11 +15,22 @@
           "type": "string",
           "description": "The user's email address.",
           "format": "email"
+        },
+        "name": {
+          "type": "string",
+          "description": "The user's display name."
+        },
+        "theme": {
+          "type": "string",
+          "description": "The user's preferred color theme.",
+          "enum": ["light", "dark", "system"]
         }
       },
       "required": [
         "id",
-        "email"
+        "email",
+        "name",
+        "theme"
       ]
     }
   },

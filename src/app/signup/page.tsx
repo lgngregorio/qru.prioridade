@@ -1,8 +1,10 @@
+
 'use client';
 
 import { useState } from 'react';
-import { useAuth } from '@/firebase';
+import { useAuth, useFirestore } from '@/firebase';
 import { createUserWithEmailAndPassword, updateProfile } from 'firebase/auth';
+import { doc, setDoc } from 'firebase/firestore';
 import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -11,11 +13,15 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { useToast } from '@/hooks/use-toast';
 import Link from 'next/link';
 import { Loader2 } from 'lucide-react';
+import { useTheme } from 'next-themes';
 
 export default function SignupPage() {
   const auth = useAuth();
+  const firestore = useFirestore();
   const router = useRouter();
   const { toast } = useToast();
+  const { setTheme } = useTheme();
+  
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -42,11 +48,27 @@ export default function SignupPage() {
     setIsLoading(true);
     try {
       const userCredential = await createUserWithEmailAndPassword(auth, email, password);
-      if (userCredential.user) {
-        await updateProfile(userCredential.user, {
+      const user = userCredential.user;
+      
+      if (user) {
+        // Update Firebase Auth profile
+        await updateProfile(user, {
           displayName: name
         });
+        
+        // Create user profile in Firestore
+        const userDocRef = doc(firestore, 'users', user.uid);
+        await setDoc(userDocRef, {
+          id: user.uid,
+          name: name,
+          email: user.email,
+          theme: 'light', // Default theme for new users
+        });
+
+        // Set theme in the app
+        setTheme('light');
       }
+      
       toast({
         title: 'Sucesso!',
         description: 'Conta criada com sucesso. Você será redirecionado.',
