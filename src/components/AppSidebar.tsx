@@ -16,49 +16,17 @@ import {
   History,
   Settings,
   ShieldCheck,
-  LogOut,
-  User,
 } from 'lucide-react';
 import Link from 'next/link';
-import { usePathname, useRouter } from 'next/navigation';
-import { useAuth, useUser } from '@/firebase';
-import { signOut } from 'firebase/auth';
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu"
-import { Button } from './ui/button';
+import { usePathname } from 'next/navigation';
 
 export default function AppSidebar() {
   const pathname = usePathname();
   const { setOpenMobile } = useSidebar();
-  const auth = useAuth();
-  const { user } = useUser();
-  const router = useRouter();
 
   const handleLinkClick = () => {
     setOpenMobile(false);
   };
-
-  const handleLogout = async () => {
-    try {
-      await signOut(auth);
-      // Força o redirecionamento para a página de login e recarrega para limpar o estado.
-      window.location.href = '/login';
-    } catch (error) {
-      console.error("Erro ao fazer logout:", error);
-    }
-  };
-
-  const isAuthPage = ['/login', '/signup', '/forgot-password'].includes(pathname);
-  if (isAuthPage) {
-    return null; // Não renderiza a sidebar em páginas de autenticação
-  }
-
 
   return (
     <>
@@ -81,23 +49,6 @@ export default function AppSidebar() {
             PRIORIDADE
           </h1>
         </div>
-         {user && (
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button variant="ghost" size="icon" className="rounded-full">
-                <User />
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end">
-              <DropdownMenuLabel>{user.displayName || user.email}</DropdownMenuLabel>
-              <DropdownMenuSeparator />
-              <DropdownMenuItem onClick={handleLogout} className="text-red-500 cursor-pointer">
-                <LogOut className="mr-2 h-4 w-4" />
-                Sair
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
-        )}
       </SidebarHeader>
       <SidebarContent className="flex-1 pt-8">
         <SidebarMenu className="gap-y-8">

@@ -24,30 +24,27 @@ import {
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 import { eventCategories } from '@/lib/events';
 import ReportDetail from '@/components/ReportDetail';
-import { useUser, useFirestore, useCollection, useMemoFirebase } from '@/firebase';
-import { collection, query, where, doc, deleteDoc, Query } from 'firebase/firestore';
+import { useFirestore, useCollection, useMemoFirebase } from '@/firebase';
+import { collection, query, doc, deleteDoc, Query } from 'firebase/firestore';
 
 interface Report {
     id: string;
     category: string;
     createdAt: { seconds: number, nanoseconds: number };
     formData: any;
-    uid: string;
+    uid?: string;
 }
 
 export default function OcorrenciasPage() {
     const router = useRouter();
     const { toast } = useToast();
-    const { user, isUserLoading } = useUser();
     const firestore = useFirestore();
     const [isDeleting, setIsDeleting] = useState<string | null>(null);
 
     const reportsQuery = useMemoFirebase(() => {
-        if (!firestore || !user?.uid) {
-            return null;
-        }
-        return query(collection(firestore, 'reports'), where('uid', '==', user.uid));
-    }, [firestore, user?.uid]);
+        if (!firestore) return null;
+        return collection(firestore, 'reports');
+    }, [firestore]);
 
     const { data: reports, isLoading: isLoadingReports } = useCollection<Report>(reportsQuery);
     
@@ -165,7 +162,7 @@ export default function OcorrenciasPage() {
         }
     };
     
-    if (isUserLoading || (isLoadingReports && !reports)) {
+    if (isLoadingReports && !reports) {
         return (
             <main className="flex flex-col items-center p-4 md:p-6">
                 <div className="flex items-center justify-center h-64">
@@ -174,11 +171,6 @@ export default function OcorrenciasPage() {
             </main>
         );
     }
-    
-    if (!user) {
-        return null;
-    }
-
 
     return (
         <main className="flex flex-col items-center p-4 md:p-6">
@@ -198,7 +190,7 @@ export default function OcorrenciasPage() {
                        Histórico de Ocorrências
                     </h1>
                     <p className="text-muted-foreground mt-1 text-base">
-                        Visualize todos os seus relatórios salvos.
+                        Visualize todos os relatórios salvos.
                     </p>
                 </div>
 

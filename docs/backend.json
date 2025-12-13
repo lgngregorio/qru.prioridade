@@ -1,46 +1,11 @@
 
 {
   "entities": {
-    "User": {
-      "title": "User",
-      "type": "object",
-      "description": "Represents a user in the system.",
-      "properties": {
-        "uid": {
-          "type": "string",
-          "description": "The unique identifier for the user, from Firebase Auth."
-        },
-        "name": {
-          "type": "string",
-          "description": "The display name of the user."
-        },
-        "email": {
-          "type": "string",
-          "format": "email",
-          "description": "The email address of the user."
-        },
-        "createdAt": {
-          "type": "string",
-          "format": "date-time",
-          "description": "The timestamp when the user account was created."
-        }
-      },
-      "required": [
-        "uid",
-        "name",
-        "email",
-        "createdAt"
-      ]
-    },
     "Report": {
       "title": "Report",
       "type": "object",
       "description": "Represents a report submitted by a user.",
       "properties": {
-        "uid": {
-          "type": "string",
-          "description": "The UID of the user who created the report."
-        },
         "category": {
           "type": "string",
           "description": "The category slug of the report (e.g., 'to-01')."
@@ -56,7 +21,6 @@
         }
       },
       "required": [
-        "uid",
         "category",
         "formData",
         "createdAt"
@@ -64,28 +28,10 @@
     }
   },
   "auth": {
-    "providers": [
-      "password"
-    ]
+    "providers": []
   },
   "firestore": {
     "structure": [
-      {
-        "path": "/users/{userId}",
-        "definition": {
-          "entityName": "User",
-          "schema": {
-            "$ref": "#/backend/entities/User"
-          },
-          "description": "Stores public profiles for users.",
-          "params": [
-            {
-              "name": "userId",
-              "description": "The user's unique ID."
-            }
-          ]
-        }
-      },
       {
         "path": "/reports/{reportId}",
         "definition": {

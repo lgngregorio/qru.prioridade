@@ -9,7 +9,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter }
 import { Button } from '@/components/ui/button';
 import { eventCategories } from '@/lib/events';
 import ReportDetail from '@/components/ReportDetail';
-import { useFirestore, useUser } from '@/firebase';
+import { useFirestore } from '@/firebase';
 import { addDoc, collection, doc, setDoc, serverTimestamp } from 'firebase/firestore';
 
 interface Report {
@@ -47,7 +47,6 @@ export default function PreviewPage() {
     const router = useRouter();
     const { toast } = useToast();
     const firestore = useFirestore();
-    const { user } = useUser();
     const [reportData, setReportData] = useState<Report | null>(null);
     const [isSaving, setIsSaving] = useState(false);
     
@@ -140,29 +139,26 @@ export default function PreviewPage() {
     };
     
      const handleSave = async () => {
-        if (!reportData || !user || !firestore) {
+        if (!reportData || !firestore) {
             toast({
                 variant: 'destructive',
                 title: 'Erro',
-                description: 'Dados do relatório ou do usuário ausentes. Faça login e tente novamente.',
+                description: 'Dados do relatório ausentes. Tente novamente.',
             });
             return;
         }
 
         setIsSaving(true);
         try {
-            const reportPayload: Omit<Report, 'id'> = {
+            const reportPayload: Omit<Report, 'id' | 'uid'> = {
                 ...reportData,
-                uid: user.uid,
                 createdAt: serverTimestamp()
             };
 
             if (reportData.id) {
-                // Editing an existing report
                 const reportRef = doc(firestore, 'reports', reportData.id);
                 await setDoc(reportRef, reportPayload, { merge: true });
             } else {
-                // Creating a new report
                 const reportsCollection = collection(firestore, 'reports');
                 await addDoc(reportsCollection, reportPayload);
             }
@@ -172,7 +168,7 @@ export default function PreviewPage() {
                 description: 'Relatório salvo no histórico.',
             });
             localStorage.removeItem('reportPreview');
-            router.push('/');
+            router.push('/ocorrencias');
         } catch (error: any) {
             console.error("Failed to save report to Firestore", error);
             toast({
@@ -213,9 +209,9 @@ export default function PreviewPage() {
                             Editar
                         </Button>
                         <div className="flex gap-4">
-                             <Button onClick={handleSave} disabled={isSaving || !user}>
+                             <Button onClick={handleSave} disabled={isSaving}>
                                 {isSaving ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Save className="mr-2 h-4 w-4" />}
-                                {isSaving ? 'Salvando...' : 'Salvar e Ir para Início'}
+                                {isSaving ? 'Salvando...' : 'Salvar e Ir para Histórico'}
                             </Button>
                             <Button variant="secondary" className="bg-green-500 hover:bg-green-600 text-white" onClick={handleShare} disabled={isSaving}>
                                 <Share2 className="mr-2 h-4 w-4" />

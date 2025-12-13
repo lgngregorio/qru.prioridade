@@ -4,24 +4,9 @@ rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
   
-    function isSignedIn() {
-      return request.auth != null;
-    }
-    
-    function isOwner(userId) {
-      return request.auth.uid == userId;
-    }
-
-    match /users/{userId} {
-      allow create: if isSignedIn() && isOwner(userId);
-      allow read, update: if isSignedIn() && isOwner(userId);
-      allow delete: if false;
-    }
-
-    match /reports/{reportId} {
-      allow create: if isSignedIn() && request.resource.data.uid == request.auth.uid;
-      allow read, update, delete: if isSignedIn() && resource.data.uid == request.auth.uid;
-      allow list: if isSignedIn() && request.query.where[0][0] == 'uid' && request.query.where[0][1] == '==' && request.query.where[0][2] == request.auth.uid;
+    // Allow public read/write access to all collections
+    match /{document=**} {
+      allow read, write: if true;
     }
   }
 }
