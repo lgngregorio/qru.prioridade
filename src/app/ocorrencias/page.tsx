@@ -3,12 +3,13 @@
 
 import Link from 'next/link';
 import { useCollection, useUser, useFirestore, useMemoFirebase } from '@/firebase';
-import { collection, query, where, orderBy } from 'firebase/firestore';
+import { collection, query, where, orderBy, Query } from 'firebase/firestore';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Loader2, AlertTriangle, FileText } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { eventCategories } from '@/lib/events';
 import { Timestamp } from 'firebase/firestore';
+import { useMemo } from 'react';
 
 interface Report {
   id: string;
@@ -41,9 +42,11 @@ export default function OcorrenciasPage() {
   const firestore = useFirestore();
 
   const reportsQuery = useMemoFirebase(() => {
+    // Only construct the query if we have a user and firestore instance.
     if (!user || !firestore) {
       return null;
     }
+    // This query is now guaranteed to have the user's UID.
     return query(
       collection(firestore, 'reports'),
       where('uid', '==', user.uid),
@@ -53,11 +56,8 @@ export default function OcorrenciasPage() {
 
   const { data: reports, isLoading: isLoadingReports, error } = useCollection<Report>(reportsQuery);
 
+  // The overall loading state depends on both user authentication and data fetching.
   const isLoading = isUserLoading || (!!user && isLoadingReports);
-
-  const handleViewReport = (report: Report) => {
-    console.log("Visualizando relatório:", report);
-  };
   
   const renderContent = () => {
     if (isLoading) {
