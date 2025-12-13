@@ -42,6 +42,7 @@ export default function OcorrenciasPage() {
   const firestore = useFirestore();
 
   const reportsQuery = useMemoFirebase(() => {
+    // Garante que a consulta só seja criada quando user e firestore estiverem prontos.
     if (!user || !firestore) {
       return null;
     }
@@ -54,7 +55,8 @@ export default function OcorrenciasPage() {
 
   const { data: reports, isLoading: isLoadingReports, error } = useCollection<Report>(reportsQuery);
 
-  const isLoading = isUserLoading || (user && isLoadingReports);
+  // Combina os estados de carregamento para uma experiência de UI mais suave.
+  const isLoading = isUserLoading || (!!user && isLoadingReports);
 
   const handleViewReport = (report: Report) => {
     console.log("Visualizando relatório:", report);
