@@ -206,6 +206,11 @@ export default function PreviewPage() {
         }
       
         for (const [key, value] of Object.entries(data)) {
+            // Condição para pular qthExato se destinacaoDoObjeto for pr06
+            if (key === 'qthExato' && data.destinacaoDoObjeto === 'pr06') {
+              continue;
+            }
+
             const formattedValue = formatWhatsappValue(value);
             if(formattedValue) {
                 const formattedKey = `*${formatKey(key).toUpperCase()}*`;

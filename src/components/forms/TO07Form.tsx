@@ -64,6 +64,17 @@ export default function TO07Form({ categorySlug }: { categorySlug: string }) {
     qthExato: '',
     numeroOcorrencia: '',
   });
+  
+  useEffect(() => {
+    const savedData = localStorage.getItem('reportPreview');
+    if (savedData) {
+      const { formData } = JSON.parse(savedData);
+      if (formData) {
+        setGeneralInfo(formData.generalInfo || generalInfo);
+        setOtherInfo(formData.otherInfo || otherInfo);
+      }
+    }
+  }, []);
 
   const handleGeneralInfoChange = (field: keyof GeneralInfo, value: string) => {
     setGeneralInfo(prev => ({ ...prev, [field]: value }));
@@ -98,12 +109,51 @@ export default function TO07Form({ categorySlug }: { categorySlug: string }) {
     }
     return data;
   };
+  
+  const validateObject = (obj: any): boolean => {
+    for (const key in obj) {
+        if (Object.prototype.hasOwnProperty.call(obj, key)) {
+            const value = obj[key];
+
+            // Pula a validação de campos opcionais
+            if (key === 'qthExato' && otherInfo.destinacaoDoObjeto !== 'pr13') continue;
+
+            if (typeof value === 'object' && value !== null && !Array.isArray(value)) {
+                if (!validateObject(value)) return false;
+            } else if (Array.isArray(value)) {
+                 if (value.some(item => typeof item === 'object' && !validateObject(item))) return false;
+            } else if (value === '' || value === null || value === undefined) {
+                return false;
+            }
+        }
+    }
+    return true;
+};
+
 
   const prepareReportData = () => {
+     const reportData = {
+      generalInfo,
+      otherInfo,
+    };
+    
+    if (!validateObject(reportData)) {
+      toast({
+        variant: "destructive",
+        title: "Campos obrigatórios",
+        description: "Por favor, preencha todos os campos obrigatórios.",
+      });
+      return null;
+    }
+
     const filledData = {
       generalInfo: fillEmptyFields(generalInfo),
       otherInfo: fillEmptyFields(otherInfo),
     };
+
+    if (otherInfo.destinacaoDoObjeto !== 'pr13') {
+        filledData.otherInfo.qthExato = 'NILL';
+    }
 
     return {
       category: categorySlug,
@@ -113,8 +163,10 @@ export default function TO07Form({ categorySlug }: { categorySlug: string }) {
 
   const handleGenerateReport = () => {
     const reportData = prepareReportData();
-    localStorage.setItem('reportPreview', JSON.stringify(reportData));
-    router.push('/relatorio/preview');
+    if(reportData) {
+      localStorage.setItem('reportPreview', JSON.stringify(reportData));
+      router.push('/relatorio/preview');
+    }
   };
 
 
