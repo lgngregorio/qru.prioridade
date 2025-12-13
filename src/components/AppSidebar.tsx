@@ -88,10 +88,10 @@ export default function AppSidebar() {
             </SidebarMenuButton>
           </SidebarMenuItem>
           <SidebarMenuItem>
-            <SidebarMenuButton asChild isActive={pathname === '/historico'} className="text-base [&_svg]:size-5" onClick={handleLinkClick}>
-              <Link href="/historico">
+            <SidebarMenuButton asChild isActive={pathname === '/ocorrencias'} className="text-base [&_svg]:size-5" onClick={handleLinkClick}>
+              <Link href="/ocorrencias">
                 <History />
-                Histórico
+                Ocorrências
               </Link>
             </SidebarMenuButton>
           </SidebarMenuItem>

@@ -146,13 +146,13 @@ const formatDate = (timestamp: Report['createdAt']) => {
     });
   };
 
-export default function HistoricoPage() {
+export default function OcorrenciasPage() {
   const firestore = useFirestore();
   const { user, isUserLoading } = useUser();
   const { toast } = useToast();
 
   const reportsQuery = useMemoFirebase(() => {
-    if (!user || !firestore) {
+    if (isUserLoading || !user || !firestore) {
       return null;
     }
     return query(
@@ -160,7 +160,7 @@ export default function HistoricoPage() {
       where('uid', '==', user.uid),
       orderBy('createdAt', 'desc')
     );
-  }, [firestore, user]);
+  }, [firestore, user, isUserLoading]);
 
   const { data: reports, isLoading: reportsLoading, error } = useCollection<Report>(reportsQuery);
 
@@ -258,7 +258,7 @@ export default function HistoricoPage() {
 
         <Card>
           <CardHeader>
-            <CardTitle className="text-3xl font-bold">Histórico de Ocorrências</CardTitle>
+            <CardTitle className="text-3xl font-bold">Ocorrências Salvas</CardTitle>
             <CardDescription>Visualize, edite ou apague os relatórios salvos.</CardDescription>
           </CardHeader>
           <CardContent>
@@ -327,5 +327,3 @@ export default function HistoricoPage() {
     </main>
   );
 }
-
-    
