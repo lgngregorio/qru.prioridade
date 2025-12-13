@@ -363,23 +363,10 @@ export default function TO16Form({ categorySlug }: { categorySlug: string }) {
     }
   };
 
-  const handleSave = async () => {
+  const handleGenerateReport = async () => {
     const success = await saveReport();
     if (success) {
       router.push('/historico');
-    }
-  };
-
-  const handleShare = async () => {
-    const success = await saveReport();
-    if (success) {
-      const reportData = prepareReportData().formData;
-      const category = eventCategories.find((c) => c.slug === categorySlug);
-      let message = `*${category ? category.title.toUpperCase() : 'RELATÓRIO DE OCORRÊNCIA'}*\n\n`;
-      
-      // Add data to message...
-       const whatsappUrl = `https://wa.me/?text=${encodeURIComponent(message)}`;
-       window.open(whatsappUrl, '_blank');
     }
   };
 
@@ -860,7 +847,17 @@ export default function TO16Form({ categorySlug }: { categorySlug: string }) {
             </div>
         </div>
 
-        
+        <div className="flex justify-end pt-8">
+            <Button
+              size="lg"
+              className="uppercase text-xl"
+              onClick={handleGenerateReport}
+              disabled={isSaving}
+            >
+              {isSaving ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Save className="mr-2 h-4 w-4" />}
+              {isSaving ? 'Salvando...' : 'Gerar Relatório'}
+            </Button>
+        </div>
       </form>
     </div>
   );

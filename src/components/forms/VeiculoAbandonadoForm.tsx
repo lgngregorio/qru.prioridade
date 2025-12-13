@@ -233,57 +233,17 @@ export default function VeiculoAbandonadoForm({ categorySlug }: { categorySlug: 
     return true;
   };
 
-  const handleSave = async () => {
+  const handleGenerateReport = async () => {
     const success = await saveReport();
     if (success) {
       toast({
         title: "Sucesso!",
-        description: "Relatório salvo e enviado para a fila.",
+        description: "Relatório salvo. Redirecionando para o histórico.",
         className: "bg-green-600 text-white",
       });
       router.push('/historico');
     }
     setIsSaving(false);
-  };
-
-  const handleShare = async () => {
-    const success = await saveReport();
-    if (success) {
-      const reportData = prepareReportData().formData;
-      const category = eventCategories.find(c => c.slug === categorySlug);
-      
-      let message = `*${category ? category.title.toUpperCase() : 'RELATÓRIO DE OCORRÊNCIA'}*\n\n`;
-      
-      message += `*INFORMAÇÕES GERAIS*\n`;
-      Object.entries(reportData.generalInfo).forEach(([key, value]) => {
-          if (value !== 'NILL' && value !== '') {
-             message += `*${key.toUpperCase()}:* ${String(value).toUpperCase()}\n`;
-          }
-      });
-      message += '\n';
-
-      reportData.vehicles.forEach((vehicle: any, index: number) => {
-        message += `*DADOS DO VEÍCULO ${index + 1}*\n`;
-        Object.entries(vehicle).forEach(([key, value]) => {
-            if (key !== 'id' && value !== 'NILL' && value !== '') {
-               message += `*${key.toUpperCase()}:* ${String(value).toUpperCase()}\n`;
-            }
-        });
-        message += '\n';
-      });
-      
-      message += `*OUTRAS INFORMAÇÕES*\n`;
-      Object.entries(reportData.otherInfo).forEach(([key, value]) => {
-          if (value !== 'NILL' && value !== '') {
-             message += `*${key.toUpperCase()}:* ${String(value).toUpperCase()}\n`;
-          }
-      });
-
-      const whatsappUrl = `https://wa.me/?text=${encodeURIComponent(message)}`;
-      window.open(whatsappUrl, '_blank');
-      router.push('/historico');
-    }
-     setIsSaving(false);
   };
 
   return (
@@ -492,10 +452,18 @@ export default function VeiculoAbandonadoForm({ categorySlug }: { categorySlug: 
           </div>
         </div>
 
-        
+        <div className="flex justify-end pt-8">
+            <Button
+              size="lg"
+              className="uppercase text-xl"
+              onClick={handleGenerateReport}
+              disabled={isSaving}
+            >
+              {isSaving ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Save className="mr-2 h-4 w-4" />}
+              {isSaving ? 'Salvando...' : 'Gerar Relatório'}
+            </Button>
+        </div>
       </form>
     </div>
   );
 }
-
-    

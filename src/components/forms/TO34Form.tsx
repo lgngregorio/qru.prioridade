@@ -126,7 +126,7 @@ export default function TO34Form({ categorySlug }: { categorySlug: string }) {
         title: "Erro",
         description: "Não foi possível conectar ao banco de dados.",
       });
-      return;
+      return false;
     }
 
     setIsSaving(true);
@@ -141,6 +141,7 @@ export default function TO34Form({ categorySlug }: { categorySlug: string }) {
       });
       
       router.push('/historico');
+      return true;
 
     } catch (error) {
       console.error("Error saving report: ", error);
@@ -149,35 +150,19 @@ export default function TO34Form({ categorySlug }: { categorySlug: string }) {
         title: "Erro ao salvar",
         description: "Ocorreu um erro ao salvar o relatório. Tente novamente.",
       });
+      return false;
     } finally {
       setIsSaving(false);
     }
   };
 
-  const handleShare = () => {
-    const reportData = prepareReportData().formData;
-    const category = eventCategories.find(c => c.slug === categorySlug);
-    
-    let message = `*${category ? category.title.toUpperCase() : 'RELATÓRIO DE OCORRÊNCIA'}*\n\n`;
-
-    message += `*INFORMAÇÕES GERAIS*\n`;
-    Object.entries(reportData.generalInfo).forEach(([key, value]) => {
-        if (value !== 'NILL' && value !== '') {
-           message += `*${key.toUpperCase()}:* ${String(value).toUpperCase()}\n`;
-        }
-    });
-    message += '\n';
-
-    message += `*OUTRAS INFORMAÇÕES*\n`;
-    Object.entries(reportData.otherInfo).forEach(([key, value]) => {
-        if (value !== 'NILL' && value !== '') {
-           message += `*${key.toUpperCase()}:* ${String(value).toUpperCase()}\n`;
-        }
-    });
-
-    const whatsappUrl = `https://wa.me/?text=${encodeURIComponent(message)}`;
-    window.open(whatsappUrl, '_blank');
+  const handleGenerateReport = async () => {
+    const success = await handleSave();
+    if (success) {
+      router.push('/historico');
+    }
   };
+
 
   return (
     <div className="w-full p-4 sm:p-6 md:p-8">
@@ -288,7 +273,17 @@ export default function TO34Form({ categorySlug }: { categorySlug: string }) {
           </div>
         </div>
 
-        
+        <div className="flex justify-end pt-8">
+            <Button
+              size="lg"
+              className="uppercase text-xl"
+              onClick={handleGenerateReport}
+              disabled={isSaving}
+            >
+              {isSaving ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Save className="mr-2 h-4 w-4" />}
+              {isSaving ? 'Salvando...' : 'Gerar Relatório'}
+            </Button>
+        </div>
       </form>
     </div>
   );

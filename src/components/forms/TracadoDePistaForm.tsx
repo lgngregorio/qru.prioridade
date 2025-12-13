@@ -103,7 +103,7 @@ export default function TracadoDePistaForm({ categorySlug }: { categorySlug: str
         title: "Erro",
         description: "Não foi possível conectar ao banco de dados.",
       });
-      return;
+      return false;
     }
     
     setIsSaving(true);
@@ -120,6 +120,7 @@ export default function TracadoDePistaForm({ categorySlug }: { categorySlug: str
         className: "bg-green-600 text-white",
       });
       router.push('/historico');
+      return true;
     } catch (error) {
       console.error("Error saving report: ", error);
       toast({
@@ -127,8 +128,16 @@ export default function TracadoDePistaForm({ categorySlug }: { categorySlug: str
         title: "Erro ao salvar",
         description: "Ocorreu um erro ao salvar o relatório. Tente novamente.",
       });
+      return false;
     } finally {
       setIsSaving(false);
+    }
+  };
+
+  const handleGenerateReport = async () => {
+    const success = await handleSave();
+    if (success) {
+      router.push('/historico');
     }
   };
 
@@ -294,7 +303,17 @@ export default function TracadoDePistaForm({ categorySlug }: { categorySlug: str
         <Field label="Sinalização horizontal (faixa de bordo, faixa segmentada, pintura de pista...)">{renderRadioGroup('sinalizacao', 'horizontal', [{id: 'existe', label: 'Existe'}, {id: 'nao_existe', label: 'Não existe'}])}</Field>
         <Field label="Sinalização semáforo">{renderRadioGroup('sinalizacao', 'semaforo', [{id: 'funciona', label: 'Funciona'}, {id: 'nao_funciona', label: 'Não funciona'}, {id: 'funciona_defeito', label: 'Funciona com defeito'}, {id: 'inexistente', label: 'Inexistente'}])}</Field>
 
-        
+        <div className="flex justify-end pt-8">
+            <Button
+              size="lg"
+              className="uppercase text-xl"
+              onClick={handleGenerateReport}
+              disabled={isSaving}
+            >
+              {isSaving ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Save className="mr-2 h-4 w-4" />}
+              {isSaving ? 'Salvando...' : 'Gerar Relatório'}
+            </Button>
+        </div>
       </form>
     </div>
   );
