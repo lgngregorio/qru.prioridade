@@ -1,15 +1,31 @@
 
 'use client';
 
-import { useUser, useFirestore, useMemoFirebase } from '@/firebase';
-import { collection, query, orderBy, Timestamp } from 'firebase/firestore';
+import { useFirestore, useMemoFirebase } from '@/firebase';
+import { collection, query, orderBy, Timestamp, doc, deleteDoc } from 'firebase/firestore';
 import { useCollection } from '@/firebase/firestore/use-collection';
-import { Loader2, History, AlertCircle } from 'lucide-react';
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
+import { Loader2, History, AlertCircle, Trash2, Edit, Share2 } from 'lucide-react';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { ArrowLeft } from 'lucide-react';
+import { useRouter } from 'next/navigation';
+import { useToast } from '@/hooks/use-toast';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog"
+import { eventCategories } from '@/lib/events';
+import { useState } from 'react';
+
 
 interface Report {
     id: string;
@@ -37,9 +53,88 @@ const formatDate = (timestamp: Report['createdAt']) => {
     });
 };
 
+const getCategoryTitle = (slug: string) => {
+    const category = eventCategories.find(c => c.slug === slug);
+    return category ? category.title : slug;
+}
+
+const formatKey = (key: string) => {
+    return key
+        .replace(/([A-Z])/g, ' $1')
+        .replace(/_/g, ' ')
+        .replace(/\b\w/g, char => char.toUpperCase());
+};
+
+const formatWhatsappValue = (value: any): string => {
+    if (value === null || value === undefined || value === 'NILL' || value === '') return '';
+    if (typeof value === 'boolean') return value ? 'SIM' : 'NÃO';
+    if (value instanceof Timestamp) return formatDate(value);
+    if (Array.isArray(value)) return value.join(', ').toUpperCase();
+    if (typeof value === 'object' && value.seconds !== undefined && value.nanoseconds !== undefined) {
+      const ts = new Timestamp(value.seconds, value.nanoseconds);
+      return formatDate(ts);
+    }
+    return String(value).toUpperCase();
+  };
+
+  const generateWhatsappMessage = (report: Report): string => {
+    if (!report || !report.formData) return '';
+
+    let message = `*${getCategoryTitle(report.category).toUpperCase()}*\n`;
+    const sectionTitles: { [key: string]: string } = {
+      generalInfo: 'INFORMAÇÕES GERAIS',
+      vehicles: 'VEÍCULOS',
+      caracteristicasEntorno: 'CARACTERÍSTICAS DO ENTORNO',
+      tracadoPista: 'TRAÇADO DA PISTA',
+      sinalizacaoInfo: 'SINALIZAÇÃO',
+      otherInfo: 'OUTRAS INFORMAÇÕES',
+    };
+  
+    for (const sectionKey in report.formData) {
+        if (Object.prototype.hasOwnProperty.call(report.formData, sectionKey) && sectionTitles[sectionKey]) {
+            const sectionData = report.formData[sectionKey];
+            const sectionTitle = sectionTitles[sectionKey];
+    
+            if (sectionData && Object.keys(sectionData).length > 0) {
+            
+            message += `\n*${sectionTitle}*\n`;
+    
+            if (sectionKey === 'vehicles' && Array.isArray(sectionData)) {
+                sectionData.forEach((vehicle, index) => {
+                message += `\n*VEÍCULO ${index + 1}*\n`;
+                for (const [key, value] of Object.entries(vehicle)) {
+                    if (key === 'id') continue;
+                    const formattedValue = formatWhatsappValue(value);
+                    if (formattedValue) {
+                    const formattedKey = `*${formatKey(key).toUpperCase()}*`;
+                    message += `${formattedKey}: ${formattedValue}\n`;
+                    }
+                }
+                });
+            } else if (typeof sectionData === 'object' && !Array.isArray(sectionData)) {
+                for (const [key, value] of Object.entries(sectionData)) {
+                if (key === 'qthExato' && sectionData.destinacaoDoObjeto === 'pr06') {
+                    continue;
+                }
+                const formattedValue = formatWhatsappValue(value);
+                if (formattedValue) {
+                    const formattedKey = `*${formatKey(key).toUpperCase()}*`;
+                    message += `${formattedKey}: ${formattedValue}\n`;
+                }
+                }
+            }
+            }
+        }
+    }
+    return message;
+  };
+
+
 export default function OcorrenciasPage() {
-    const { user, isUserLoading } = useUser();
     const firestore = useFirestore();
+    const router = useRouter();
+    const { toast } = useToast();
+    const [isDeleting, setIsDeleting] = useState<string | null>(null);
 
     const reportsQuery = useMemoFirebase(() => {
         if (firestore) {
@@ -53,9 +148,40 @@ export default function OcorrenciasPage() {
 
     const { data: reports, isLoading: isReportsLoading, error } = useCollection<Report>(reportsQuery);
 
-    const isLoading = isUserLoading || isReportsLoading;
+    const handleEdit = (report: Report) => {
+        localStorage.setItem('reportPreview', JSON.stringify(report));
+        router.push(`/${report.category}`);
+    };
 
-    if (isLoading) {
+    const handleShare = (report: Report) => {
+        const message = generateWhatsappMessage(report);
+        const whatsappUrl = `https://wa.me/?text=${encodeURIComponent(message)}`;
+        window.open(whatsappUrl, '_blank');
+    };
+
+    const handleDelete = async (reportId: string) => {
+        if (!firestore) return;
+        setIsDeleting(reportId);
+        try {
+            const reportDocRef = doc(firestore, 'reports', reportId);
+            await deleteDoc(reportDocRef);
+            toast({
+                title: 'Sucesso',
+                description: 'Relatório apagado.',
+            });
+        } catch (e) {
+            console.error("Erro ao apagar o relatório: ", e);
+            toast({
+                variant: 'destructive',
+                title: 'Erro',
+                description: 'Não foi possível apagar o relatório.',
+            });
+        } finally {
+            setIsDeleting(null);
+        }
+    };
+
+    if (isReportsLoading) {
         return (
             <main className="flex flex-col items-center p-4 md:p-6">
                 <div className="flex items-center justify-center h-64">
@@ -107,7 +233,7 @@ export default function OcorrenciasPage() {
                                 <CardHeader>
                                     <div className="flex justify-between items-start">
                                         <div>
-                                            <CardTitle>{report.formData?.generalInfo?.ocorrencia || 'Relatório'}</CardTitle>
+                                            <CardTitle>{getCategoryTitle(report.category)}</CardTitle>
                                             <CardDescription>{report.formData?.generalInfo?.qth || 'Local não informado'}</CardDescription>
                                         </div>
                                         <Badge variant="secondary">{formatDate(report.createdAt)}</Badge>
@@ -116,6 +242,34 @@ export default function OcorrenciasPage() {
                                 <CardContent>
                                     <p className="text-muted-foreground line-clamp-2">{report.formData?.otherInfo?.observacoes || 'Sem observações.'}</p>
                                 </CardContent>
+                                <CardFooter className="flex justify-end gap-2">
+                                     <Button variant="outline" size="sm" onClick={() => handleEdit(report)}>
+                                        <Edit className="mr-2 h-4 w-4"/> Editar
+                                    </Button>
+                                    <Button variant="secondary" size="sm" className="bg-green-500 hover:bg-green-600 text-white" onClick={() => handleShare(report)}>
+                                        <Share2 className="mr-2 h-4 w-4"/> Compartilhar
+                                    </Button>
+                                    <AlertDialog>
+                                        <AlertDialogTrigger asChild>
+                                            <Button variant="destructive" size="sm" disabled={isDeleting === report.id}>
+                                                {isDeleting === report.id ? <Loader2 className="mr-2 h-4 w-4 animate-spin"/> : <Trash2 className="mr-2 h-4 w-4"/>}
+                                                {isDeleting === report.id ? 'Apagando...' : 'Apagar'}
+                                            </Button>
+                                        </AlertDialogTrigger>
+                                        <AlertDialogContent>
+                                            <AlertDialogHeader>
+                                                <AlertDialogTitle>Você tem certeza?</AlertDialogTitle>
+                                                <AlertDialogDescription>
+                                                   Esta ação não pode ser desfeita. Isso irá apagar permanentemente o relatório.
+                                                </AlertDialogDescription>
+                                            </AlertDialogHeader>
+                                            <AlertDialogFooter>
+                                                <AlertDialogCancel>Cancelar</AlertDialogCancel>
+                                                <AlertDialogAction onClick={() => handleDelete(report.id)}>Apagar</AlertDialogAction>
+                                            </AlertDialogFooter>
+                                        </AlertDialogContent>
+                                    </AlertDialog>
+                                </CardFooter>
                             </Card>
                         ))
                     ) : (
