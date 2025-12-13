@@ -72,22 +72,6 @@ export default function AppSidebar() {
             </SidebarMenuButton>
           </SidebarMenuItem>
           <SidebarMenuItem>
-            <SidebarMenuButton asChild isActive={pathname.startsWith('/bloco-de-notas')} className="text-base [&_svg]:size-5" onClick={handleLinkClick}>
-              <Link href="/bloco-de-notas">
-                <Notebook />
-                Bloco de Nota
-              </Link>
-            </SidebarMenuButton>
-          </SidebarMenuItem>
-          <SidebarMenuItem>
-            <SidebarMenuButton asChild isActive={pathname === '/historico'} className="text-base [&_svg]:size-5" onClick={handleLinkClick}>
-              <Link href="/historico">
-                <History />
-                Histórico de Ocorrências
-              </Link>
-            </SidebarMenuButton>
-          </SidebarMenuItem>
-          <SidebarMenuItem>
             <SidebarMenuButton asChild className="text-base [&_svg]:size-5" onClick={handleLinkClick}>
               <Link href="#">
                 <LayoutGrid />
