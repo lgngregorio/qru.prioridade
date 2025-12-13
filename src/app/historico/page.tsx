@@ -326,4 +326,5 @@ export default function HistoricoPage() {
       </div>
     </main>
   );
-}
+
+    
