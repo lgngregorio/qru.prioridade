@@ -205,17 +205,15 @@ export default function PreviewPage() {
       <main className="flex flex-col items-center p-4 pt-8 md:p-6">
         <div className="w-full max-w-4xl">
           <Card>
-            <CardHeader>
-              <div className="flex justify-between items-start">
-                  <div>
-                    <CardTitle className="text-3xl font-bold">
-                      {getCategoryTitle(report.category)}
-                    </CardTitle>
-                    <CardDescription>
-                      Pré-visualização do Relatório
-                    </CardDescription>
-                  </div>
-              </div>
+            <CardHeader className="text-center">
+                <div>
+                  <CardTitle className="text-3xl font-bold">
+                    {getCategoryTitle(report.category)}
+                  </CardTitle>
+                  <CardDescription>
+                    Pré-visualização do Relatório
+                  </CardDescription>
+                </div>
             </CardHeader>
             <CardContent>
               <ReportDetail formData={report.formData} />
