@@ -80,8 +80,10 @@ export default function ReportPage() {
     const savedData = localStorage.getItem('reportPreview');
     if (savedData) {
       setIsEditing(true);
+    } else {
+      setIsEditing(false);
     }
-  }, []);
+  }, [params.category]); // Re-checa quando a categoria muda
 
   const category = eventCategories.find((c) => c.slug === params.category);
 
