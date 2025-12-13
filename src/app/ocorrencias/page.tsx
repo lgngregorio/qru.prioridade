@@ -81,15 +81,13 @@ export default function OcorrenciasPage() {
         </Button>
       </div>
 
-      <div className="flex items-center justify-between mb-8">
-        <div className="text-left">
-          <h1 className="text-3xl font-bold text-foreground font-headline tracking-wide uppercase">
-            Histórico de Ocorrências
-          </h1>
-          <p className="text-muted-foreground mt-1 text-base">
-            Visualize todos os seus relatórios salvos.
-          </p>
-        </div>
+      <div className="w-full text-center mb-8">
+        <h1 className="text-3xl font-bold text-foreground font-headline tracking-wide uppercase">
+          Histórico de Ocorrências
+        </h1>
+        <p className="text-muted-foreground mt-1 text-base">
+          Visualize todos os seus relatórios salvos.
+        </p>
       </div>
 
       {(isLoading || isUserLoading) && <LoadingSkeleton />}
