@@ -152,7 +152,7 @@ export default function HistoricoPage() {
   const { toast } = useToast();
 
   const reportsQuery = useMemoFirebase(() => {
-    if (isUserLoading || !user || !firestore) {
+    if (isUserLoading || !user) {
       return null;
     }
     return query(
