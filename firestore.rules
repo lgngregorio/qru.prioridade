@@ -50,8 +50,8 @@ service cloud.firestore {
     // This is the critical security rule for listing reports.
     // It enforces that a non-admin user can ONLY query for their own reports.
     // An admin can query all reports.
-    match /reports {
-      allow list: if (isSignedIn() && request.query.where.uid == request.auth.uid) || isAdmin();
+    match /reports/{reportId} {
+       allow list: if (isSignedIn() && request.query.where.uid == request.auth.uid) || isAdmin();
     }
   }
 }
