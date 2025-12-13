@@ -205,16 +205,16 @@ function ReportCard({ report, onDelete }: { report: Report; onDelete: () => void
              </div>
           </CardContent>
         )}
-        <CardFooter className="p-4 grid grid-cols-3 gap-2">
-            <Button variant="outline" size="lg" onClick={handleEdit} className="border-blue-500 text-blue-500 hover:bg-blue-500 hover:text-white">
+        <CardFooter className="p-4 flex flex-wrap justify-center gap-2">
+            <Button variant="outline" size="lg" onClick={handleEdit} className="border-blue-500 text-blue-500 hover:bg-blue-500 hover:text-white flex-grow">
               <Edit className="h-5 w-5 mr-2" />
               Editar
             </Button>
-            <Button variant="outline" size="lg" onClick={handleShare} className="border-green-500 text-green-500 hover:bg-green-500 hover:text-white">
+            <Button variant="outline" size="lg" onClick={handleShare} className="border-green-500 text-green-500 hover:bg-green-500 hover:text-white flex-grow">
               <Share2 className="h-5 w-5 mr-2" />
               Compartilhar
             </Button>
-            <Button variant="destructive" size="lg" onClick={handleDeleteClick}>
+            <Button variant="destructive" size="lg" onClick={handleDeleteClick} className="flex-grow">
               <Trash2 className="h-5 w-5 mr-2" />
               Apagar
             </Button>
