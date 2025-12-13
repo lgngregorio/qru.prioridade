@@ -180,16 +180,8 @@ export default function Home() {
                 <EventCategoryGrid categories={searchResults.categories} />
               </div>
             )}
-            {loadingNotes && (
-              <div>
-                <h2 className="text-2xl font-bold mb-4">Anotações</h2>
-                <div className="space-y-4">
-                    <Skeleton className="h-24 w-full" />
-                    <Skeleton className="h-24 w-full" />
-                </div>
-              </div>
-            )}
-            {!loadingNotes && searchResults.notes.length > 0 && (
+            
+            {searchResults.notes.length > 0 && (
               <div>
                 <h2 className="text-2xl font-bold mb-4">Anotações</h2>
                 <div className="space-y-4">
@@ -245,7 +237,8 @@ export default function Home() {
                 </div>
               </div>
             )}
-             {searchResults.categories.length === 0 && searchResults.notes.length === 0 && searchResults.codes.length === 0 && !loadingNotes && (
+
+            {searchResults.categories.length === 0 && searchResults.notes.length === 0 && searchResults.codes.length === 0 && !loadingNotes && (
                 <p className="text-center text-muted-foreground py-10">
                     Nenhum resultado encontrado para &quot;{searchQuery}&quot;.
                 </p>
