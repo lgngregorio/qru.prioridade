@@ -166,11 +166,11 @@ export default function PreviewPage() {
             await addDoc(reportsCollection, dataToSave);
             toast({
                 title: "Sucesso!",
-                description: "Relatório salvo. Redirecionando para o histórico.",
+                description: "Relatório salvo. Redirecionando para o início.",
                 className: "bg-green-600 text-white",
             });
             localStorage.removeItem('reportPreview');
-            router.push('/historico');
+            router.push('/');
         } catch (serverError) {
             const permissionError = new FirestorePermissionError({
                 path: reportsCollection.path,
@@ -280,7 +280,7 @@ export default function PreviewPage() {
                             </Button>
                             <Button onClick={handleSave} disabled={isSaving}>
                                 {isSaving ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Save className="mr-2 h-4 w-4" />}
-                                {isSaving ? 'Salvando...' : 'Salvar e Ir para Histórico'}
+                                {isSaving ? 'Salvando...' : 'Salvar e Ir para Início'}
                             </Button>
                         </div>
                     </CardFooter>

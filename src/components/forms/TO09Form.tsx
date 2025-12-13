@@ -2,8 +2,8 @@
 'use client';
 
 import { useRouter } from 'next/navigation';
-import { Save, Share, Loader2 } from 'lucide-react';
-import { useState, useEffect } from 'react';
+import { Save, Share, PlusCircle, Trash2, Loader2 } from 'lucide-react';
+import { useState } from 'react';
 import { collection, addDoc, serverTimestamp } from 'firebase/firestore';
 import React from 'react';
 
@@ -127,51 +127,14 @@ export default function TO09Form({ categorySlug }: { categorySlug: string }) {
     return {
       category: categorySlug,
       formData: filledData,
-      createdAt: serverTimestamp(),
     };
   };
   
-  const handleSave = async () => {
-    if (!firestore) {
-      toast({
-        variant: "destructive",
-        title: "Erro",
-        description: "Não foi possível conectar ao banco de dados.",
-      });
-      return false;
-    }
-
-    setIsSaving(true);
-    try {
-      const reportData = prepareReportData();
-      await addDoc(collection(firestore, 'reports'), reportData);
-      
-      toast({
-        title: "Sucesso!",
-        description: "Relatório salvo com sucesso.",
-        className: "bg-green-600 text-white",
-      });
-      
-      router.push('/historico');
-      return true;
-
-    } catch (error) {
-      console.error("Error saving report: ", error);
-      toast({
-        variant: "destructive",
-        title: "Erro ao salvar",
-        description: "Ocorreu um erro ao salvar o relatório. Tente novamente.",
-      });
-      return false;
-    } finally {
-      setIsSaving(false);
-    }
-  };
-
-  const handleGenerateReport = async () => {
-    const success = await handleSave();
-    if (success) {
-      router.push('/historico');
+  const handleGenerateReport = () => {
+    const reportData = prepareReportData();
+    if(reportData) {
+      localStorage.setItem('reportPreview', JSON.stringify(reportData));
+      router.push('/relatorio/preview');
     }
   };
 

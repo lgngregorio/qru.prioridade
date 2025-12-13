@@ -95,14 +95,6 @@ export default function AppSidebar() {
               </Link>
             </SidebarMenuButton>
           </SidebarMenuItem>
-           <SidebarMenuItem>
-            <SidebarMenuButton asChild isActive={pathname === '/historico'} className="text-base [&_svg]:size-5" onClick={handleLinkClick}>
-              <Link href="/historico">
-                <History />
-                Histórico de Ocorrências
-              </Link>
-            </SidebarMenuButton>
-          </SidebarMenuItem>
           <SidebarMenuItem>
             <SidebarMenuButton asChild className="text-base [&_svg]:size-5" onClick={handleLinkClick}>
               <Link href="#">
