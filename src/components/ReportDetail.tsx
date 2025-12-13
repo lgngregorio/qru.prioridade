@@ -32,7 +32,7 @@ const renderValue = (key: string, value: any): React.ReactNode => {
     if (value instanceof Date) return formatDate(value);
     if (value instanceof Timestamp) return formatDate(value);
 
-    if (Array.isArray(value)) return value.join(', ');
+    if (Array.isArray(value)) return value.join(', ').replace(/-/g, ' ').toUpperCase();
 
     if (typeof value === 'object') {
         return (
@@ -47,7 +47,7 @@ const renderValue = (key: string, value: any): React.ReactNode => {
     }
     
     if (typeof value === 'string') {
-        return value.replace(/-/g, ' ').replace(/\b\w/g, char => char.toUpperCase());
+        return value.replace(/-/g, ' ').toUpperCase();
     }
 
     return String(value);
