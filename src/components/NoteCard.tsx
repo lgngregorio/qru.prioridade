@@ -30,6 +30,8 @@ export function NoteCard({ note, onEdit, onDelete }: NoteCardProps) {
   const { toast } = useToast();
   const [isDeleting, setIsDeleting] = useState(false);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+  const [isExpanded, setIsExpanded] = useState(false);
+
 
   const handleDelete = () => {
     setIsDeleting(true);
@@ -56,23 +58,39 @@ export function NoteCard({ note, onEdit, onDelete }: NoteCardProps) {
     }
   };
   
-  const handleShare = () => {
+  const handleShare = (e: React.MouseEvent) => {
+    e.stopPropagation();
     const message = `*${note.title}*\n\n${note.content}`;
     const whatsappUrl = `https://wa.me/?text=${encodeURIComponent(message)}`;
     window.open(whatsappUrl, '_blank');
   };
+  
+  const handleEditClick = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    onEdit();
+  }
+
+  const handleDeleteClick = (e: React.MouseEvent) => {
+      e.stopPropagation();
+      setShowDeleteConfirm(true);
+  }
 
   return (
     <>
-      <Card>
+      <Card onClick={() => setIsExpanded(!isExpanded)} className="cursor-pointer">
         <CardContent className="p-4 flex items-center justify-between gap-4">
             <div className="flex-1 overflow-hidden">
                 <h3 className="text-xl font-bold truncate">{note.title}</h3>
-                <p className="text-sm text-muted-foreground truncate">{note.content}</p>
+                <p className={cn(
+                    "text-sm text-muted-foreground",
+                    isExpanded ? "whitespace-pre-wrap" : "truncate"
+                )}>
+                    {note.content}
+                </p>
                  <p className="text-xs text-muted-foreground mt-1">{formatDate(note.createdAt)}</p>
             </div>
             <div className="flex gap-2">
-                <Button variant="outline" size="icon" onClick={onEdit} className="h-12 w-12 border-blue-500 text-blue-500 hover:bg-blue-500 hover:text-white">
+                <Button variant="outline" size="icon" onClick={handleEditClick} className="h-12 w-12 border-blue-500 text-blue-500 hover:bg-blue-500 hover:text-white">
                     <Edit className="h-6 w-6" />
                     <span className="sr-only">Editar</span>
                 </Button>
@@ -80,7 +98,7 @@ export function NoteCard({ note, onEdit, onDelete }: NoteCardProps) {
                     <Share2 className="h-6 w-6" />
                     <span className="sr-only">Compartilhar</span>
                 </Button>
-                 <Button variant="destructive" size="icon" onClick={() => setShowDeleteConfirm(true)} className="h-12 w-12">
+                 <Button variant="destructive" size="icon" onClick={handleDeleteClick} className="h-12 w-12">
                     <Trash2 className="h-6 w-6" />
                     <span className="sr-only">Apagar</span>
                 </Button>
