@@ -52,7 +52,7 @@ export default function NotepadPage() {
   const { toast } = useToast();
 
   const notesQuery = useMemoFirebase(() => {
-    if (!firestore || !user) return null;
+    if (!firestore || !user?.uid) return null;
     return query(
       collection(firestore, 'notes'),
       where('uid', '==', user.uid),
