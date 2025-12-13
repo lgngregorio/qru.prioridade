@@ -151,6 +151,7 @@ export default function OcorrenciasPage() {
   const { user, isUserLoading } = useUser();
   const { toast } = useToast();
 
+  // This query is now guaranteed to be constructed only when firestore and user are available.
   const reportsQuery = useMemoFirebase(() => {
     if (!firestore || !user) {
       return null;
@@ -164,6 +165,8 @@ export default function OcorrenciasPage() {
 
   const { data: reports, isLoading: reportsLoading, error } = useCollection<Report>(reportsQuery);
 
+  // Unified loading state. It's loading if the user is still being checked,
+  // or if the query has been constructed but data is not yet available.
   const isLoading = isUserLoading || (reportsQuery !== null && reportsLoading);
   
   const getCategoryTitle = (slug: string) => {
