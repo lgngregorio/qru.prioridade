@@ -1,3 +1,4 @@
+
 'use client';
 
 import type { Metadata } from 'next';
@@ -10,16 +11,20 @@ import {
   SidebarInset,
 } from '@/components/ui/sidebar';
 import AppSidebar from '@/components/AppSidebar';
-import { FirebaseProvider } from '@/firebase/provider';
-import FirebaseErrorListener from '@/components/FirebaseErrorListener';
+import { FirebaseClientProvider } from '@/firebase/client-provider';
+import { FirebaseErrorListener } from '@/components/FirebaseErrorListener';
 import { ThemeProvider } from '@/components/theme-provider';
-
+import { AuthProvider } from '@/components/auth/AuthProvider';
+import { usePathname } from 'next/navigation';
 
 export default function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const pathname = usePathname();
+  const isAuthPage = ['/login', '/signup', '/recuperar-senha'].includes(pathname);
+
   return (
     <html lang="en" className="h-full" suppressHydrationWarning>
       <head>
@@ -45,16 +50,22 @@ export default function RootLayout({
           defaultTheme="dark"
           enableSystem
         >
-          <FirebaseProvider>
+          <FirebaseClientProvider>
             <FirebaseErrorListener />
-            <SidebarProvider>
-              <Sidebar>
-                <AppSidebar />
-              </Sidebar>
-              <SidebarInset>{children}</SidebarInset>
-            </SidebarProvider>
+            <AuthProvider>
+               {isAuthPage ? (
+                <>{children}</>
+              ) : (
+                <SidebarProvider>
+                  <Sidebar>
+                    <AppSidebar />
+                  </Sidebar>
+                  <SidebarInset>{children}</SidebarInset>
+                </SidebarProvider>
+              )}
+            </AuthProvider>
             <Toaster />
-          </FirebaseProvider>
+          </FirebaseClientProvider>
         </ThemeProvider>
       </body>
     </html>

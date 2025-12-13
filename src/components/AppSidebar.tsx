@@ -21,14 +21,30 @@ import {
   LogOut,
 } from 'lucide-react';
 import Link from 'next/link';
-import { usePathname } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
+import { useAuth } from '@/firebase';
+import { signOut } from 'firebase/auth';
+import { useToast } from '@/hooks/use-toast';
 
 export default function AppSidebar() {
   const pathname = usePathname();
   const { setOpenMobile } = useSidebar();
+  const auth = useAuth();
+  const router = useRouter();
+  const { toast } = useToast();
 
   const handleLinkClick = () => {
     setOpenMobile(false);
+  };
+  
+  const handleLogout = async () => {
+    try {
+      await signOut(auth);
+      toast({ title: 'Você saiu.' });
+      router.push('/login');
+    } catch (error) {
+      toast({ variant: 'destructive', title: 'Erro ao sair.' });
+    }
   };
 
   return (
@@ -116,11 +132,11 @@ export default function AppSidebar() {
             </SidebarMenuButton>
           </SidebarMenuItem>
           <SidebarMenuItem>
-            <SidebarMenuButton asChild className="text-lg [&_svg]:size-6" onClick={handleLinkClick}>
-              <Link href="#">
+            <SidebarMenuButton asChild className="text-lg [&_svg]:size-6" onClick={handleLogout}>
+              <button>
                 <LogOut />
                 Sair
-              </Link>
+              </button>
             </SidebarMenuButton>
           </SidebarMenuItem>
         </SidebarMenu>
