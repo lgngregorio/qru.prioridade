@@ -13,7 +13,6 @@ import {
 import {
   Home,
   FileCode,
-  History,
   Settings,
   ShieldCheck,
 } from 'lucide-react';
@@ -57,14 +56,6 @@ export default function AppSidebar() {
               <Link href="/">
                 <Home />
                 Início
-              </Link>
-            </SidebarMenuButton>
-          </SidebarMenuItem>
-           <SidebarMenuItem>
-            <SidebarMenuButton asChild isActive={pathname === '/ocorrencias'} className="text-base [&_svg]:size-5" onClick={handleLinkClick}>
-              <Link href="/ocorrencias">
-                <History />
-                Ocorrências
               </Link>
             </SidebarMenuButton>
           </SidebarMenuItem>

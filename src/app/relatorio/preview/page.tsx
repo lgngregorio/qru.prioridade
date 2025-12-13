@@ -171,7 +171,7 @@ export default function PreviewPage() {
                 description: 'Relatório salvo.',
             });
             localStorage.removeItem('reportPreview');
-            router.push('/ocorrencias');
+            router.push('/');
         } catch (error: any) {
             console.error("Failed to save report to Firestore", error);
             toast({
