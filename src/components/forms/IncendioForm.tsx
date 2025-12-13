@@ -122,27 +122,31 @@ export default function IncendioForm({ categorySlug }: { categorySlug: string })
   };
 
   const validateFields = (data: any): boolean => {
-      if (Array.isArray(data)) {
-        return data.every(item => validateFields(item));
+    if (Array.isArray(data)) {
+      return data.every(item => validateFields(item));
+    }
+    if (typeof data === 'object' && data !== null) {
+      for (const key in data) {
+          if (Object.prototype.hasOwnProperty.call(data, key)) {
+            // Campos opcionais podem ser 'NILL' mas não vazios se a checkbox estiver marcada
+            if (key === 'vtrApoio' && !showVtrApoio) continue;
+            
+            const value = data[key];
+            if (value === '' || value === null || value === undefined) {
+                 return false;
+            }
+          }
       }
-      if (typeof data === 'object' && data !== null) {
-        // Naive check for all properties in the object
-        for (const key in data) {
-          if (!validateFields(data[key])) return false;
-        }
-        return true;
-      }
-      // Allow NILL as a valid value
-      if (data === 'NILL') return true;
+      return true;
+    }
+    return data !== '' && data !== null && data !== undefined;
+};
 
-      // Check for empty strings, null, or undefined
-      return data !== '' && data !== null && data !== undefined;
-  };
 
   const prepareReportData = () => {
     const filledData = {
-      generalInfo: fillEmptyFields(generalInfo),
-      otherInfo: fillEmptyFields(otherInfo),
+      generalInfo: generalInfo,
+      otherInfo: otherInfo,
     };
 
     if (!showVtrApoio) {
@@ -165,36 +169,40 @@ export default function IncendioForm({ categorySlug }: { categorySlug: string })
       });
       return false;
     }
-
+    
     const reportData = prepareReportData();
 
     if (!validateFields(reportData.formData)) {
         toast({
             variant: "destructive",
             title: "Campos obrigatórios",
-            description: "Por favor, preencha todos os campos antes de salvar ou compartilhar.",
+            description: "Por favor, preencha todos os campos antes de salvar.",
         });
         return false;
     }
     
+    // Preenche campos vazios com 'NILL' apenas depois da validação
+    const filledReportData = {
+        ...reportData,
+        formData: fillEmptyFields(reportData.formData),
+    };
+
     setIsSaving(true);
     
     const reportsCollection = collection(firestore, 'reports');
 
-    addDoc(reportsCollection, reportData)
-      .then(() => {
-        console.log("Relatório salvo com sucesso em segundo plano.");
-      })
-      .catch((serverError) => {
+    try {
+        await addDoc(reportsCollection, filledReportData);
+        return true;
+    } catch(serverError) {
         const permissionError = new FirestorePermissionError({
           path: reportsCollection.path,
           operation: 'create',
-          requestResourceData: reportData,
+          requestResourceData: filledReportData,
         });
         errorEmitter.emit('permission-error', permissionError);
-      });
-      
-    return true;
+        return false;
+    }
   };
 
   const handleGenerateReport = async () => {
