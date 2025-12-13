@@ -1,139 +1,55 @@
 
-/**
- * This ruleset enforces a strict user-ownership model for the Event Reporter application.
- *
- * Core Philosophy:
- * The security model is built on the principle that users have complete control over their
- * own data, and no access to anyone else's. All data is scoped to the authenticated user,
- * ensuring strong privacy and data isolation from the start.
- *
- * Data Structure:
- *   - /users/{userId}: Stores private user profile information.
- *   - /reports/{reportId}: Stores individual event reports.
- *
- * Key Security Decisions:
- * - User Data Privacy: All access to a user's document at `/users/{userId}` is restricted
- *   to the authenticated user whose UID matches the `userId` in the path.
- * - Ownership of Reports: Access to documents in `/reports` is
- *   restricted based on a `uid` field inside the document, which must match the
- *   authenticated user's UID.
- * - No User Enumeration: Listing the top-level `/users` collection is explicitly disallowed.
- *   This is a critical security measure to prevent malicious actors from scraping user emails
- *   or other profile data.
- * - Relational Integrity: On creation, a user document's internal `id` field must match the
- *   document's ID (`userId`) to ensure data consistency. This ID is immutable and cannot be
- *   changed on update.
- *
- * Denormalization for Authorization:
- * This ruleset uses both path-based authorization (`/users/{userId}`) and content-based
- * authorization (checking `request.resource.data.uid`) for reports. Storing the
- * `uid` directly in each report document avoids complex `get()` calls in rules,
- * making them more performant and scalable.
- */
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
 
-    //-------------------------------------------------------------------------
-    // Helper Functions
-    //-------------------------------------------------------------------------
-
-    /**
-     * Checks if the user is authenticated.
-     */
     function isSignedIn() {
       return request.auth != null;
     }
 
-    /**
-     * Checks if the currently authenticated user's UID matches the provided userId.
-     * This is the primary function for enforcing document ownership via path.
-     */
     function isOwnerByPath(userId) {
       return isSignedIn() && request.auth.uid == userId;
     }
     
-    /**
-     * Checks if the user is the owner of a document by looking at the 'uid' field.
-     * Used for read, update, and delete operations on existing documents.
-     */
     function isOwnerByContent() {
       return isSignedIn() && request.auth.uid == resource.data.uid;
     }
     
-    /**
-     * Validates that the 'uid' field in a new document matches the creator's UID.
-     * Enforces ownership at the moment of creation.
-     */
     function hasValidUidOnCreate() {
         return request.resource.data.uid == request.auth.uid;
     }
 
-    /**
-     * Enforces immutability of the 'uid' field on update.
-     * The owner of a document cannot be changed.
-     */
     function hasValidUidOnUpdate() {
         return request.resource.data.uid == resource.data.uid;
     }
 
 
-    /**
-     * Checks for ownership on an existing document. Used for update and delete
-     * operations to ensure the target document exists before the operation.
-     */
     function isExistingOwner(userId) {
       return isOwnerByPath(userId) && resource != null;
     }
 
-    /**
-     * Validates required authorization fields when a User document is created.
-     * Enforces that the document's internal ID matches the user's auth UID.
-     */
     function hasValidUserDataOnCreate(userId) {
       return request.resource.data.id == userId;
     }
 
-    /**
-     * Enforces immutability of critical authorization fields on a User document.
-     * The internal user ID cannot be changed after creation.
-     */
     function hasValidUserDataOnUpdate() {
       return request.resource.data.id == resource.data.id;
     }
 
-
-    //-------------------------------------------------------------------------
-    // Collection Rules
-    //-------------------------------------------------------------------------
-
-    /**
-     * @description Manages user profile documents, ensuring users can only access their own data.
-     * @path /users/{userId}
-     */
     match /users/{userId} {
       allow get: if isOwnerByPath(userId);
-      allow list: if false; // Prevent user enumeration
+      allow list: if false; 
       allow create: if isOwnerByPath(userId) && hasValidUserDataOnCreate(userId);
       allow update: if isExistingOwner(userId) && hasValidUserDataOnUpdate();
       allow delete: if isExistingOwner(userId);
     }
 
-    /**
-     * @description Manages event reports, ensuring users can only access their own reports.
-     * @path /reports/{reportId}
-     */
     match /reports/{reportId} {
-      // READ: Allow reading a single report if the user is the owner.
       allow get: if isOwnerByContent();
-      
-      // WRITE: Allow any signed-in user to create a report, but they must set themselves as the owner.
       allow create: if isSignedIn() && hasValidUidOnCreate();
-      // UPDATE/DELETE: Allow updating/deleting only if the user is the owner.
       allow update, delete: if isOwnerByContent() && hasValidUidOnUpdate();
     }
     
-    // LIST: Allow users to list only their own reports by enforcing a query filter on uid.
     match /reports {
         allow list: if isSignedIn() && request.query.where.uid == request.auth.uid;
     }
