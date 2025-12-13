@@ -192,9 +192,13 @@ function ReportCard({ report, onDelete }: { report: Report; onDelete: () => void
 
   return (
     <>
-      <Card>
+      <Card className="relative">
+        <Button variant="destructive" size="icon" onClick={handleDeleteClick} className="absolute top-2 right-2 h-8 w-8">
+            <Trash2 className="h-4 w-4" />
+            <span className="sr-only">Apagar</span>
+        </Button>
         <CardHeader className="cursor-pointer" onClick={() => setIsExpanded(!isExpanded)}>
-          <CardTitle className="truncate">{getCategoryTitle(report.category)}</CardTitle>
+          <CardTitle className="truncate pr-10">{getCategoryTitle(report.category)}</CardTitle>
           <CardDescription className="text-sm font-bold text-muted-foreground">{formatDate(report.createdAt)}</CardDescription>
         </CardHeader>
         
@@ -213,10 +217,6 @@ function ReportCard({ report, onDelete }: { report: Report; onDelete: () => void
             <Button variant="outline" size="lg" onClick={handleShare} className="border-green-500 text-green-500 hover:bg-green-500 hover:text-white flex-grow">
               <Share2 className="h-5 w-5 mr-2" />
               Compartilhar
-            </Button>
-            <Button variant="destructive" size="lg" onClick={handleDeleteClick} className="flex-grow">
-              <Trash2 className="h-5 w-5 mr-2" />
-              Apagar
             </Button>
         </CardFooter>
       </Card>
