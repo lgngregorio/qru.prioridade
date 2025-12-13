@@ -87,7 +87,7 @@ export function NoteCard({ note, onEdit, onDelete }: NoteCardProps) {
                 )}>
                     {note.content}
                 </p>
-                 <p className="text-xs text-muted-foreground mt-1">{formatDate(note.createdAt)}</p>
+                 <p className="text-sm font-bold text-muted-foreground mt-1">{formatDate(note.createdAt)}</p>
             </div>
             <div className="flex gap-2">
                 <Button variant="outline" size="icon" onClick={handleEditClick} className="h-12 w-12 border-blue-500 text-blue-500 hover:bg-blue-500 hover:text-white">
