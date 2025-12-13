@@ -1,68 +1,52 @@
 {
   "entities": {
-    "Report": {
-      "title": "Report",
-      "description": "Represents a report submitted by a user.",
+    "User": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "User",
       "type": "object",
+      "description": "Represents a user of the Event Reporter application.",
       "properties": {
-        "category": {
+        "id": {
           "type": "string",
-          "description": "The category of the report (e.g., 'to-01')."
+          "description": "Unique identifier for the User entity."
         },
-        "formData": {
-          "type": "object",
-          "description": "The data from the form, which can vary."
-        },
-        "createdAt": {
+        "email": {
           "type": "string",
-          "format": "date-time",
-          "description": "The timestamp when the report was created."
+          "description": "The user's email address.",
+          "format": "email"
         }
       },
-      "required": ["category", "formData", "createdAt"]
-    },
-    "Note": {
-      "title": "Note",
-      "description": "Represents a user-created note in the notepad.",
-      "type": "object",
-      "properties": {
-        "title": {
-          "type": "string",
-          "description": "The title of the note."
-        },
-        "content": {
-          "type": "string",
-          "description": "The main content of the note."
-        },
-        "createdAt": {
-          "type": "string",
-          "format": "date-time",
-          "description": "The timestamp when the note was created."
-        },
-        "updatedAt": {
-          "type": "string",
-          "format": "date-time",
-          "description": "The timestamp when the note was last updated."
-        }
-      },
-      "required": ["title", "content", "createdAt", "updatedAt"]
+      "required": [
+        "id",
+        "email"
+      ]
     }
   },
   "auth": {
-    "providers": ["anonymous"]
+    "providers": [
+      "password",
+      "anonymous"
+    ]
   },
   "firestore": {
-    "/reports/{reportId}": {
-      "schema": {
-        "$ref": "#/backend/entities/Report"
-      },
-      "description": "Stores individual reports."
-    },
-    "/notes/{noteId}": {
-      "schema": {
-        "$ref": "#/backend/entities/Note"
-      },
-      "description": "Stores user notes for the notepad."
-    }
+    "structure": [
+      {
+        "path": "/users/{userId}",
+        "definition": {
+          "entityName": "User",
+          "schema": {
+            "$ref": "#/backend/entities/User"
+          },
+          "description": "Stores user profile information. Uses path-based authorization: only the user with the matching `userId` can read/write their own document.",
+          "params": [
+            {
+              "name": "userId",
+              "description": "The unique identifier of the user. This is used to enforce path-based ownership."
+            }
+          ]
+        }
+      }
+    ],
+    "reasoning": "This Firestore structure prioritizes security, scalability, and debuggability, following the principles of Authorization Independence and Structural Segregation. It avoids using `get()` calls in security rules by denormalizing authorization data, enabling atomic operations and simplifying debugging. The structure clearly separates user data and uses path-based ownership where appropriate.\n\n*   **Users:** User profiles are stored in `/users/{userId}`.  This leverages path-based authorization, making rules simple (`request.auth.uid == userId`).\n\nThis structure ensures that list operations are secure because each collection will only contain documents that share the same security requirements.  Since we only have Users, the security rules for the Users collection can simply enforce authentication."
   }
 }
