@@ -46,8 +46,21 @@ export default function ForgotPasswordPage() {
     <main className="flex items-center justify-center min-h-screen bg-background p-4">
       <div className="w-full max-w-md">
         <header className="text-center w-full mb-8">
-          <h1 className="text-4xl font-bold text-foreground font-headline tracking-wider">
-            QRU PRIORIDADE
+          <h1 className="text-4xl font-bold text-foreground font-headline tracking-wider flex items-center justify-center gap-4">
+            QRU
+            <div className="flex h-10 items-center gap-1">
+              <div className="w-[2px] h-full bg-foreground"></div>
+              <div
+                className="w-[2px] h-full animate-move-dashes"
+                style={{
+                  backgroundImage:
+                    'linear-gradient(to bottom, hsl(var(--foreground)) 50%, transparent 50%)',
+                  backgroundSize: '2px 20px',
+                  backgroundRepeat: 'repeat-y',
+                }}
+              ></div>
+            </div>
+            PRIORIDADE
           </h1>
           <p className="text-muted-foreground mt-2 text-lg">
             Recuperar Senha
