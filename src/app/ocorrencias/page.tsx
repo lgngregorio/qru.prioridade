@@ -42,7 +42,6 @@ export default function OcorrenciasPage() {
     const { user, isUserLoading } = useUser();
     const firestore = useFirestore();
 
-    // The query is only created when firestore and user.uid are available.
     const reportsQuery = useMemoFirebase(() => {
         if (!firestore || !user?.uid) {
             return null;
@@ -56,9 +55,8 @@ export default function OcorrenciasPage() {
 
     const { data: reports, isLoading: isReportsLoading, error } = useCollection<Report>(reportsQuery);
 
-    // Unified loading state: true if user is loading OR if user is loaded but reports are still loading.
-    const isLoading = isUserLoading || (user && isReportsLoading);
-    
+    const isLoading = isUserLoading || (user && !reports && !error);
+
     if (isLoading) {
         return (
             <main className="flex flex-col items-center p-4 md:p-6">
