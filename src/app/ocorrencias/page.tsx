@@ -1,7 +1,7 @@
 
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useMemo } from 'react';
 import { Loader2, History, Trash2, Edit, Share2 } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -118,17 +118,17 @@ export default function OcorrenciasPage() {
     const firestore = useFirestore();
 
     const reportsQuery = useMemoFirebase(() => {
-        if (firestore && user?.uid) {
-            return query(collection(firestore, 'reports'), where('uid', '==', user.uid));
+        if (!firestore || !user?.uid) {
+            return null;
         }
-        return null;
+        return query(collection(firestore, 'reports'), where('uid', '==', user.uid));
     }, [firestore, user?.uid]);
 
     const { data: reports, isLoading: isLoadingReports } = useCollection<Report>(reportsQuery);
 
     const [isDeleting, setIsDeleting] = useState<string | null>(null);
 
-    const sortedReports = useMemoFirebase(() => {
+    const sortedReports = useMemo(() => {
         if (!reports) return [];
         return [...reports].sort((a, b) => b.createdAt.seconds - a.createdAt.seconds);
     }, [reports]);
@@ -166,7 +166,7 @@ export default function OcorrenciasPage() {
         }
     };
     
-    if (isUserLoading || isLoadingReports) {
+    if (isUserLoading || (user && isLoadingReports)) {
         return (
             <main className="flex flex-col items-center p-4 md:p-6">
                 <div className="flex items-center justify-center h-64">
