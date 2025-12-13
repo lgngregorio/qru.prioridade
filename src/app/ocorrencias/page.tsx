@@ -11,6 +11,7 @@ import {
   CardHeader,
   CardTitle,
   CardDescription,
+  CardFooter,
 } from '@/components/ui/card';
 import {
   AlertDialog,
@@ -39,9 +40,9 @@ interface Report {
 
 const LoadingSkeleton = () => (
   <div className="space-y-6">
-    <Skeleton className="h-24 rounded-lg" />
-    <Skeleton className="h-24 rounded-lg" />
-    <Skeleton className="h-24 rounded-lg" />
+    <Skeleton className="h-36 rounded-lg" />
+    <Skeleton className="h-36 rounded-lg" />
+    <Skeleton className="h-36 rounded-lg" />
   </div>
 );
 
@@ -192,30 +193,32 @@ function ReportCard({ report, onDelete }: { report: Report; onDelete: () => void
   return (
     <>
       <Card>
-        <div className="p-4 flex items-center justify-between gap-4 cursor-pointer" onClick={() => setIsExpanded(!isExpanded)}>
-          <div className="flex-1 overflow-hidden">
-            <h3 className="text-xl font-bold truncate">{getCategoryTitle(report.category)}</h3>
-            <p className="text-sm font-bold text-muted-foreground mt-1">{formatDate(report.createdAt)}</p>
-          </div>
-          <div className="flex gap-2">
-            <Button variant="outline" size="icon" onClick={handleEdit} className="h-12 w-12 border-blue-500 text-blue-500 hover:bg-blue-500 hover:text-white">
-              <Edit className="h-6 w-6" />
-            </Button>
-            <Button variant="outline" size="icon" onClick={handleShare} className="h-12 w-12 border-green-500 text-green-500 hover:bg-green-500 hover:text-white">
-              <Share2 className="h-6 w-6" />
-            </Button>
-            <Button variant="destructive" size="icon" onClick={handleDeleteClick} className="h-12 w-12">
-              <Trash2 className="h-6 w-6" />
-            </Button>
-          </div>
-        </div>
+        <CardHeader className="cursor-pointer" onClick={() => setIsExpanded(!isExpanded)}>
+          <CardTitle className="truncate">{getCategoryTitle(report.category)}</CardTitle>
+          <CardDescription className="text-sm font-bold text-muted-foreground">{formatDate(report.createdAt)}</CardDescription>
+        </CardHeader>
+        
         {isExpanded && (
-          <CardContent className="pt-0">
+          <CardContent>
              <div className="mt-4 pt-4 border-t">
                 <ReportDetail formData={report.formData} />
              </div>
           </CardContent>
         )}
+        <CardFooter className="p-4 grid grid-cols-3 gap-2">
+            <Button variant="outline" size="lg" onClick={handleEdit} className="border-blue-500 text-blue-500 hover:bg-blue-500 hover:text-white">
+              <Edit className="h-5 w-5 mr-2" />
+              Editar
+            </Button>
+            <Button variant="outline" size="lg" onClick={handleShare} className="border-green-500 text-green-500 hover:bg-green-500 hover:text-white">
+              <Share2 className="h-5 w-5 mr-2" />
+              Compartilhar
+            </Button>
+            <Button variant="destructive" size="lg" onClick={handleDeleteClick}>
+              <Trash2 className="h-5 w-5 mr-2" />
+              Apagar
+            </Button>
+        </CardFooter>
       </Card>
       
       <AlertDialog open={showDeleteConfirm} onOpenChange={setShowDeleteConfirm}>
