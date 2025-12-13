@@ -35,82 +35,6 @@ interface Report {
     uid: string;
 }
 
-const formatDate = (timestamp: { seconds: number, nanoseconds: number }) => {
-    if (!timestamp) return 'Data indisponível';
-    try {
-        const date = new Date(timestamp.seconds * 1000 + timestamp.nanoseconds / 1000000);
-        return date.toLocaleString('pt-BR', {
-            day: '2-digit',
-            month: '2-digit',
-            year: 'numeric',
-            hour: '2-digit',
-            minute: '2-digit',
-        });
-    } catch (e) {
-        return 'Data inválida';
-    }
-};
-
-const getCategoryTitle = (slug: string) => {
-    const category = eventCategories.find(c => c.slug === slug);
-    return category ? category.title : slug;
-}
-
-const formatKey = (key: string) => {
-    return key
-        .replace(/([A-Z])/g, ' $1')
-        .replace(/_/g, ' ')
-        .replace(/\b\w/g, char => char.toUpperCase());
-};
-
-const generateWhatsappMessage = (report: Report): string => {
-    if (!report || !report.formData) return '';
-    let message = `*${getCategoryTitle(report.category).toUpperCase()}*\n`;
-    const sectionTitles: { [key: string]: string } = {
-      generalInfo: 'INFORMAÇÕES GERAIS',
-      vehicles: 'VEÍCULOS',
-      caracteristicasEntorno: 'CARACTERÍSTICAS DO ENTORNO',
-      tracadoPista: 'TRAÇADO DA PISTA',
-      sinalizacaoInfo: 'SINALIZAÇÃO',
-      otherInfo: 'OUTRAS INFORMAÇÕES',
-    };
-  
-    for (const sectionKey in report.formData) {
-        if (Object.prototype.hasOwnProperty.call(report.formData, sectionKey) && sectionTitles[sectionKey]) {
-            const sectionData = report.formData[sectionKey];
-            const sectionTitle = sectionTitles[sectionKey];
-    
-            if (sectionData && Object.keys(sectionData).length > 0) {
-            message += `\n*${sectionTitle}*\n`;
-    
-            if (sectionKey === 'vehicles' && Array.isArray(sectionData)) {
-                sectionData.forEach((vehicle, index) => {
-                message += `\n*VEÍCULO ${index + 1}*\n`;
-                for (const [key, value] of Object.entries(vehicle)) {
-                    if (key === 'id') continue;
-                    const formattedValue = String(value).toUpperCase();
-                    if (formattedValue && value !== 'NILL') {
-                    const formattedKey = `*${formatKey(key).toUpperCase()}*`;
-                    message += `${formattedKey}: ${formattedValue}\n`;
-                    }
-                }
-                });
-            } else if (typeof sectionData === 'object' && !Array.isArray(sectionData)) {
-                for (const [key, value] of Object.entries(sectionData)) {
-                const formattedValue = String(value).toUpperCase();
-                if (formattedValue && value !== 'NILL') {
-                    const formattedKey = `*${formatKey(key).toUpperCase()}*`;
-                    message += `${formattedKey}: ${formattedValue}\n`;
-                }
-                }
-            }
-            }
-        }
-    }
-    return message;
-};
-
-
 export default function OcorrenciasPage() {
     const router = useRouter();
     const { toast } = useToast();
@@ -132,6 +56,81 @@ export default function OcorrenciasPage() {
         if (!reports) return [];
         return [...reports].sort((a, b) => b.createdAt.seconds - a.createdAt.seconds);
     }, [reports]);
+
+    const formatDate = (timestamp: { seconds: number, nanoseconds: number }) => {
+        if (!timestamp) return 'Data indisponível';
+        try {
+            const date = new Date(timestamp.seconds * 1000 + timestamp.nanoseconds / 1000000);
+            return date.toLocaleString('pt-BR', {
+                day: '2-digit',
+                month: '2-digit',
+                year: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit',
+            });
+        } catch (e) {
+            return 'Data inválida';
+        }
+    };
+
+    const getCategoryTitle = (slug: string) => {
+        const category = eventCategories.find(c => c.slug === slug);
+        return category ? category.title : slug;
+    }
+
+    const formatKey = (key: string) => {
+        return key
+            .replace(/([A-Z])/g, ' $1')
+            .replace(/_/g, ' ')
+            .replace(/\b\w/g, char => char.toUpperCase());
+    };
+
+    const generateWhatsappMessage = (report: Report): string => {
+        if (!report || !report.formData) return '';
+        let message = `*${getCategoryTitle(report.category).toUpperCase()}*\n`;
+        const sectionTitles: { [key: string]: string } = {
+          generalInfo: 'INFORMAÇÕES GERAIS',
+          vehicles: 'VEÍCULOS',
+          caracteristicasEntorno: 'CARACTERÍSTICAS DO ENTORNO',
+          tracadoPista: 'TRAÇADO DA PISTA',
+          sinalizacaoInfo: 'SINALIZAÇÃO',
+          otherInfo: 'OUTRAS INFORMAÇÕES',
+        };
+      
+        for (const sectionKey in report.formData) {
+            if (Object.prototype.hasOwnProperty.call(report.formData, sectionKey) && sectionTitles[sectionKey]) {
+                const sectionData = report.formData[sectionKey];
+                const sectionTitle = sectionTitles[sectionKey];
+        
+                if (sectionData && Object.keys(sectionData).length > 0) {
+                message += `\n*${sectionTitle}*\n`;
+        
+                if (sectionKey === 'vehicles' && Array.isArray(sectionData)) {
+                    sectionData.forEach((vehicle, index) => {
+                    message += `\n*VEÍCULO ${index + 1}*\n`;
+                    for (const [key, value] of Object.entries(vehicle)) {
+                        if (key === 'id') continue;
+                        const formattedValue = String(value).toUpperCase();
+                        if (formattedValue && value !== 'NILL') {
+                        const formattedKey = `*${formatKey(key).toUpperCase()}*`;
+                        message += `${formattedKey}: ${formattedValue}\n`;
+                        }
+                    }
+                    });
+                } else if (typeof sectionData === 'object' && !Array.isArray(sectionData)) {
+                    for (const [key, value] of Object.entries(sectionData)) {
+                    const formattedValue = String(value).toUpperCase();
+                    if (formattedValue && value !== 'NILL') {
+                        const formattedKey = `*${formatKey(key).toUpperCase()}*`;
+                        message += `${formattedKey}: ${formattedValue}\n`;
+                    }
+                    }
+                }
+                }
+            }
+        }
+        return message;
+    };
 
     const handleEdit = (report: Report) => {
         localStorage.setItem('reportPreview', JSON.stringify(report));
