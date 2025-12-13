@@ -4,7 +4,7 @@
 import { useState, useEffect, useMemo } from 'react';
 import { useRouter } from 'next/navigation';
 import { useToast } from '@/hooks/use-toast';
-import { Loader2, ArrowLeft, Trash2, Edit, Share2 } from 'lucide-react';
+import { Loader2, ArrowLeft, Save, Edit, Share2 } from 'lucide-react';
 import {
   Card,
   CardContent,
@@ -16,101 +16,75 @@ import {
 import { Button } from '@/components/ui/button';
 import {
   collection,
-  query,
-  orderBy,
-  onSnapshot,
+  addDoc,
+  serverTimestamp,
   doc,
-  deleteDoc,
   Timestamp,
 } from 'firebase/firestore';
 import { useFirestore }from '@/firebase';
 import { eventCategories } from '@/lib/events';
 import ReportDetail from '@/components/ReportDetail';
 
-interface Report {
-  id: string;
+interface ReportData {
   category: string;
-  createdAt: Timestamp;
   formData: any;
-  uid?: string;
+  createdAt?: any;
 }
 
-export default function OcorrenciasPage() {
+export default function PreviewPage() {
   const router = useRouter();
   const firestore = useFirestore();
   const { toast } = useToast();
 
-  const [reports, setReports] = useState<Report[]>([]);
+  const [report, setReport] = useState<ReportData | null>(null);
   const [isLoading, setIsLoading] = useState(true);
-  const [selectedReport, setSelectedReport] = useState<Report | null>(null);
-  const [isDeleting, setIsDeleting] = useState<string | null>(null);
+  const [isSaving, setIsSaving] = useState(false);
 
   useEffect(() => {
-    if (!firestore) return;
-
-    const reportsRef = collection(firestore, 'reports');
-    const q = query(reportsRef, orderBy('createdAt', 'desc'));
-
-    const unsubscribe = onSnapshot(
-      q,
-      (snapshot) => {
-        const reportsData = snapshot.docs.map(
-          (doc) => ({ id: doc.id, ...doc.data() } as Report)
-        );
-        setReports(reportsData);
-        setIsLoading(false);
-      },
-      (error) => {
-        console.error('Error fetching reports:', error);
-        toast({
-          variant: 'destructive',
-          title: 'Erro ao buscar relatórios',
-          description:
-            'Não foi possível carregar o histórico. Tente novamente.',
-        });
-        setIsLoading(false);
-      }
-    );
-
-    return () => unsubscribe();
-  }, [firestore, toast]);
-
-  const formatDate = (dateSource: any): string => {
-    if (!dateSource) return 'Carregando...';
-    try {
-      const date =
-        dateSource instanceof Timestamp ? dateSource.toDate() : new Date(dateSource);
-      return date.toLocaleString('pt-BR', {
-        day: '2-digit',
-        month: '2-digit',
-        year: 'numeric',
-        hour: '2-digit',
-        minute: '2-digit',
-      });
-    } catch {
-      return String(dateSource);
+    const savedData = localStorage.getItem('reportPreview');
+    if (savedData) {
+      setReport(JSON.parse(savedData));
+    } else {
+      router.push('/');
     }
-  };
-
+    setIsLoading(false);
+  }, [router]);
+  
   const getCategoryTitle = (slug: string) => {
     const category = eventCategories.find((c) => c.slug === slug);
     return category ? category.title : slug;
   };
   
-    const formatWhatsappValue = (value: any): string => {
+  const formatDate = (dateSource: any): string => {
+      if (!dateSource) return 'Carregando...';
+      try {
+        const date =
+          dateSource instanceof Timestamp ? dateSource.toDate() : new Date(dateSource);
+        return date.toLocaleString('pt-BR', {
+          day: '2-digit',
+          month: '2-digit',
+          year: 'numeric',
+          hour: '2-digit',
+          minute: '2-digit',
+        });
+      } catch {
+        return String(dateSource);
+      }
+    };
+    
+    const formatWhatsappValue = (value: any, key: string): string => {
         if (value === null || value === undefined || value === 'NILL' || value === '') return '';
         if (typeof value === 'boolean') return value ? 'SIM' : 'NÃO';
         if (value instanceof Date) return formatDate(value);
-        if (Array.isArray(value)) return value.join(', ').toUpperCase();
         
         const dateKeys = ['data', 'dn', 'createdAt', 'qtrInicio', 'qtrTermino'];
-        const key = '';
 
         const isDateString = typeof value === 'string' && isNaN(Number(value)) && !/^\d{1,2}$/.test(value) && (new Date(value)).toString() !== 'Invalid Date';
         if (dateKeys.includes(key) || isDateString) {
              return formatDate(value);
         }
 
+        if (Array.isArray(value)) return value.join(', ').toUpperCase();
         return String(value).toUpperCase();
     };
     
@@ -146,7 +120,7 @@ export default function OcorrenciasPage() {
                   message += `\n*VEÍCULO ${index + 1}*\n`;
                   for (const [key, value] of Object.entries(vehicle)) {
                     if (key === 'id') continue;
-                    const formattedValue = formatWhatsappValue(value);
+                    const formattedValue = formatWhatsappValue(value, key);
                     if (formattedValue) {
                       const formattedKey = `*${formatKey(key).toUpperCase()}*`;
                       message += `${formattedKey}: ${formattedValue}\n`;
@@ -158,7 +132,7 @@ export default function OcorrenciasPage() {
                   if (key === 'qthExato' && sectionData.destinacaoDoObjeto === 'pr06') {
                     continue;
                   }
-                  const formattedValue = formatWhatsappValue(value);
+                  const formattedValue = formatWhatsappValue(value, key);
                   if (formattedValue) {
                     const formattedKey = `*${formatKey(key).toUpperCase()}*`;
                     message += `${formattedKey}: ${formattedValue}\n`;
@@ -171,36 +145,42 @@ export default function OcorrenciasPage() {
         return message;
       };
 
-  const handleShare = (report: Report) => {
+  const handleShare = () => {
     if (!report) return;
     const message = generateWhatsappMessage(report.formData, report.category);
     const whatsappUrl = `https://wa.me/?text=${encodeURIComponent(message)}`;
     window.open(whatsappUrl, '_blank');
   };
-
-  const handleDelete = async (reportId: string) => {
-    if (!firestore) return;
-    setIsDeleting(reportId);
+  
+  const handleSave = async () => {
+    if (!firestore || !report) return;
+    setIsSaving(true);
     try {
-      await deleteDoc(doc(firestore, 'reports', reportId));
+      const docData = {
+        ...report,
+        createdAt: serverTimestamp(),
+      };
+      await addDoc(collection(firestore, 'reports'), docData);
       toast({
-        title: 'Sucesso!',
-        description: 'Relatório excluído.',
+        title: "Sucesso!",
+        description: "Relatório salvo com sucesso.",
       });
-      setSelectedReport(null); // Fecha a visualização de detalhes
-    } catch (error: any) {
-      console.error('Error deleting report:', error);
+      localStorage.removeItem('reportPreview');
+      router.push('/');
+    } catch (error) {
+      console.error("Error saving report: ", error);
       toast({
-        variant: 'destructive',
-        title: 'Erro ao excluir',
-        description: 'Não foi possível excluir o relatório.',
+        variant: "destructive",
+        title: "Erro ao salvar",
+        description: "Não foi possível salvar o relatório. Tente novamente.",
       });
     } finally {
-      setIsDeleting(null);
+      setIsSaving(false);
     }
   };
 
-  if (isLoading) {
+
+  if (isLoading || !report) {
     return (
       <main className="flex flex-col items-center p-4 md:p-6">
         <div className="flex justify-center items-center h-64">
@@ -210,8 +190,7 @@ export default function OcorrenciasPage() {
     );
   }
 
-  if (selectedReport) {
-    return (
+  return (
       <main className="flex flex-col items-center p-4 pt-8 md:p-6">
         <div className="w-full max-w-4xl">
           <Card>
@@ -219,112 +198,43 @@ export default function OcorrenciasPage() {
               <div className="flex justify-between items-start">
                   <div>
                     <CardTitle className="text-3xl font-bold">
-                      {getCategoryTitle(selectedReport.category)}
+                      {getCategoryTitle(report.category)}
                     </CardTitle>
                     <CardDescription>
-                      Salvo em: {formatDate(selectedReport.createdAt)}
+                      Pré-visualização do Relatório
                     </CardDescription>
                   </div>
-                   <Button variant="outline" onClick={() => setSelectedReport(null)}>
-                        <ArrowLeft className="mr-2 h-4 w-4" />
-                        Voltar para a Lista
+                   <Button variant="outline" onClick={() => router.push(`/${report.category}`)}>
+                        <Edit className="mr-2 h-4 w-4" />
+                        Editar
                     </Button>
               </div>
             </CardHeader>
             <CardContent>
-              <ReportDetail formData={selectedReport.formData} />
+              <ReportDetail formData={report.formData} />
             </CardContent>
-            <CardFooter className="flex flex-col md:flex-row justify-between gap-4 pt-6">
-                 <Button
-                    variant="destructive"
-                    onClick={() => handleDelete(selectedReport.id)}
-                    disabled={!!isDeleting}
-                  >
-                    {isDeleting === selectedReport.id ? (
-                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                    ) : (
-                      <Trash2 className="mr-2 h-4 w-4" />
-                    )}
-                    Excluir
-                  </Button>
+            <CardFooter className="flex flex-col md:flex-row justify-end gap-4 pt-6">
               <div className="flex gap-4">
                 <Button
                   variant="outline"
-                  onClick={() => {
-                    localStorage.setItem('reportPreview', JSON.stringify(selectedReport));
-                    router.push(`/${selectedReport.category}`);
-                  }}
+                  onClick={handleSave}
+                  disabled={isSaving}
                 >
-                  <Edit className="mr-2 h-4 w-4" />
-                  Editar
+                  {isSaving ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Save className="mr-2 h-4 w-4" />}
+                  {isSaving ? 'Salvando...' : 'Salvar Relatório'}
                 </Button>
                 <Button
                   variant="secondary"
                   className="bg-green-500 hover:bg-green-600 text-white"
-                  onClick={() => handleShare(selectedReport)}
+                  onClick={handleShare}
                 >
                   <Share2 className="mr-2 h-4 w-4" />
-                  Compartilhar
+                  Compartilhar no WhatsApp
                 </Button>
               </div>
             </CardFooter>
           </Card>
         </div>
       </main>
-    );
-  }
-
-  return (
-    <main className="flex flex-col items-center p-4 md:p-6">
-      <div className="w-full max-w-4xl">
-        <div className="text-center mb-8">
-          <h1 className="text-3xl font-bold text-foreground font-headline tracking-wide uppercase">
-            Ocorrências Salvas
-          </h1>
-          <p className="text-muted-foreground mt-1 text-base">
-            Visualize e gerencie os relatórios salvos.
-          </p>
-        </div>
-        <div className="space-y-4">
-          {reports.length === 0 ? (
-            <p className="text-center text-muted-foreground py-10">
-              Nenhum relatório salvo ainda.
-            </p>
-          ) : (
-            reports.map((report) => (
-              <Card
-                key={report.id}
-                className="cursor-pointer hover:bg-accent"
-                onClick={() => setSelectedReport(report)}
-              >
-                <CardContent className="p-4 flex justify-between items-center">
-                  <div>
-                    <h3 className="font-bold text-lg">
-                      {getCategoryTitle(report.category)}
-                    </h3>
-                    <p className="text-sm text-muted-foreground">
-                      {formatDate(report.createdAt)}
-                    </p>
-                  </div>
-                   <Button variant="ghost" size="sm"
-                     onClick={(e) => {
-                        e.stopPropagation();
-                        handleDelete(report.id);
-                    }}
-                    disabled={isDeleting === report.id}
-                   >
-                        {isDeleting === report.id ? (
-                          <Loader2 className="h-4 w-4 animate-spin" />
-                        ) : (
-                          <Trash2 className="h-4 w-4 text-destructive" />
-                        )}
-                   </Button>
-                </CardContent>
-              </Card>
-            ))
-          )}
-        </div>
-      </div>
-    </main>
   );
 }
