@@ -12,7 +12,36 @@ import {
 } from '@/components/ui/sidebar';
 import AppSidebar from '@/components/AppSidebar';
 import { ThemeProvider } from '@/components/theme-provider';
-import { usePathname } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
+import { FirebaseClientProvider, useUser } from '@/firebase';
+import { useEffect } from 'react';
+import { Loader2 } from 'lucide-react';
+
+function AuthGuard({ children }: { children: React.ReactNode }) {
+  const { user, isUserLoading } = useUser();
+  const router = useRouter();
+  const pathname = usePathname();
+
+  useEffect(() => {
+    if (!isUserLoading && !user) {
+      const isPublicPage = ['/login', '/signup', '/forgot-password'].includes(pathname);
+      if (!isPublicPage) {
+        router.replace('/login');
+      }
+    }
+  }, [user, isUserLoading, router, pathname]);
+
+  if (isUserLoading) {
+    return (
+      <div className="flex min-h-screen items-center justify-center">
+        <Loader2 className="h-16 w-16 animate-spin text-primary" />
+      </div>
+    );
+  }
+
+  return <>{children}</>;
+}
+
 
 export default function RootLayout({
   children,
@@ -46,13 +75,17 @@ export default function RootLayout({
           defaultTheme="light"
           enableSystem
         >
-            <SidebarProvider>
-              <Sidebar>
-                <AppSidebar />
-              </Sidebar>
-              <SidebarInset>{children}</SidebarInset>
-            </SidebarProvider>
+          <FirebaseClientProvider>
+            <AuthGuard>
+              <SidebarProvider>
+                <Sidebar>
+                  <AppSidebar />
+                </Sidebar>
+                <SidebarInset>{children}</SidebarInset>
+              </SidebarProvider>
+            </AuthGuard>
             <Toaster />
+          </FirebaseClientProvider>
         </ThemeProvider>
       </body>
     </html>

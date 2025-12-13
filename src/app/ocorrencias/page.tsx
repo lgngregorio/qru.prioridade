@@ -2,7 +2,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { Loader2, History, AlertCircle, Trash2, Edit, Share2 } from 'lucide-react';
+import { Loader2, History, Trash2, Edit, Share2 } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import Link from 'next/link';
@@ -20,27 +20,25 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
   AlertDialogTrigger,
-} from "@/components/ui/alert-dialog"
-import {
-  Accordion,
-  AccordionContent,
-  AccordionItem,
-  AccordionTrigger,
-} from '@/components/ui/accordion';
+} from "@/components/ui/alert-dialog";
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 import { eventCategories } from '@/lib/events';
 import ReportDetail from '@/components/ReportDetail';
+import { useUser, useFirestore, useCollection, useMemoFirebase } from '@/firebase';
+import { collection, query, where, doc, deleteDoc } from 'firebase/firestore';
 
 interface Report {
     id: string;
     category: string;
-    createdAt: string; 
+    createdAt: { seconds: number, nanoseconds: number };
     formData: any;
+    uid: string;
 }
 
-const formatDate = (isoString: string) => {
-    if (!isoString) return 'Data indisponível';
+const formatDate = (timestamp: { seconds: number, nanoseconds: number }) => {
+    if (!timestamp) return 'Data indisponível';
     try {
-        const date = new Date(isoString);
+        const date = new Date(timestamp.seconds * 1000 + timestamp.nanoseconds / 1000000);
         return date.toLocaleString('pt-BR', {
             day: '2-digit',
             month: '2-digit',
@@ -65,23 +63,8 @@ const formatKey = (key: string) => {
         .replace(/\b\w/g, char => char.toUpperCase());
 };
 
-const formatWhatsappValue = (value: any): string => {
-    if (value === null || value === undefined || value === 'NILL' || value === '') return '';
-    if (typeof value === 'boolean') return value ? 'SIM' : 'NÃO';
-    if (value instanceof Date) return formatDate(value.toISOString());
-    if (Array.isArray(value)) return value.join(', ').toUpperCase();
-    
-    // Check if it's a date string
-    if (typeof value === 'string' && !isNaN(Date.parse(value))) {
-        return formatDate(value);
-    }
-
-    return String(value).toUpperCase();
-};
-
 const generateWhatsappMessage = (report: Report): string => {
     if (!report || !report.formData) return '';
-
     let message = `*${getCategoryTitle(report.category).toUpperCase()}*\n`;
     const sectionTitles: { [key: string]: string } = {
       generalInfo: 'INFORMAÇÕES GERAIS',
@@ -98,7 +81,6 @@ const generateWhatsappMessage = (report: Report): string => {
             const sectionTitle = sectionTitles[sectionKey];
     
             if (sectionData && Object.keys(sectionData).length > 0) {
-            
             message += `\n*${sectionTitle}*\n`;
     
             if (sectionKey === 'vehicles' && Array.isArray(sectionData)) {
@@ -106,8 +88,8 @@ const generateWhatsappMessage = (report: Report): string => {
                 message += `\n*VEÍCULO ${index + 1}*\n`;
                 for (const [key, value] of Object.entries(vehicle)) {
                     if (key === 'id') continue;
-                    const formattedValue = formatWhatsappValue(value);
-                    if (formattedValue) {
+                    const formattedValue = String(value).toUpperCase();
+                    if (formattedValue && value !== 'NILL') {
                     const formattedKey = `*${formatKey(key).toUpperCase()}*`;
                     message += `${formattedKey}: ${formattedValue}\n`;
                     }
@@ -115,11 +97,8 @@ const generateWhatsappMessage = (report: Report): string => {
                 });
             } else if (typeof sectionData === 'object' && !Array.isArray(sectionData)) {
                 for (const [key, value] of Object.entries(sectionData)) {
-                if (key === 'qthExato' && sectionData.destinacaoDoObjeto === 'pr06') {
-                    continue;
-                }
-                const formattedValue = formatWhatsappValue(value);
-                if (formattedValue) {
+                const formattedValue = String(value).toUpperCase();
+                if (formattedValue && value !== 'NILL') {
                     const formattedKey = `*${formatKey(key).toUpperCase()}*`;
                     message += `${formattedKey}: ${formattedValue}\n`;
                 }
@@ -135,25 +114,25 @@ const generateWhatsappMessage = (report: Report): string => {
 export default function OcorrenciasPage() {
     const router = useRouter();
     const { toast } = useToast();
-    const [reports, setReports] = useState<Report[]>([]);
-    const [isLoading, setIsLoading] = useState(true);
+    const { user, isUserLoading } = useUser();
+    const firestore = useFirestore();
+
+    const reportsQuery = useMemoFirebase(() => {
+        if (firestore && user?.uid) {
+            return query(collection(firestore, 'reports'), where('uid', '==', user.uid));
+        }
+        return null;
+    }, [firestore, user?.uid]);
+
+    const { data: reports, isLoading: isLoadingReports } = useCollection<Report>(reportsQuery);
+
     const [isDeleting, setIsDeleting] = useState<string | null>(null);
 
-    useEffect(() => {
-        try {
-            const storedReports = localStorage.getItem('ocorrencias-historico');
-            if (storedReports) {
-                const parsedReports: Report[] = JSON.parse(storedReports);
-                parsedReports.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
-                setReports(parsedReports);
-            }
-        } catch (e) {
-            console.error("Erro ao carregar relatórios do localStorage:", e);
-        } finally {
-            setIsLoading(false);
-        }
-    }, []);
-    
+    const sortedReports = useMemoFirebase(() => {
+        if (!reports) return [];
+        return [...reports].sort((a, b) => b.createdAt.seconds - a.createdAt.seconds);
+    }, [reports]);
+
     const handleEdit = (report: Report) => {
         localStorage.setItem('reportPreview', JSON.stringify(report));
         router.push(`/${report.category}`);
@@ -165,12 +144,12 @@ export default function OcorrenciasPage() {
         window.open(whatsappUrl, '_blank');
     };
 
-    const handleDelete = (reportId: string) => {
+    const handleDelete = async (reportId: string) => {
+        if (!firestore) return;
         setIsDeleting(reportId);
         try {
-            const updatedReports = reports.filter(r => r.id !== reportId);
-            localStorage.setItem('ocorrencias-historico', JSON.stringify(updatedReports));
-            setReports(updatedReports);
+            const reportDocRef = doc(firestore, 'reports', reportId);
+            await deleteDoc(reportDocRef);
             toast({
                 title: 'Sucesso',
                 description: 'Relatório apagado.',
@@ -187,7 +166,7 @@ export default function OcorrenciasPage() {
         }
     };
     
-    if (isLoading) {
+    if (isUserLoading || isLoadingReports) {
         return (
             <main className="flex flex-col items-center p-4 md:p-6">
                 <div className="flex items-center justify-center h-64">
@@ -220,8 +199,8 @@ export default function OcorrenciasPage() {
                 </div>
 
                 <Accordion type="single" collapsible className="w-full space-y-4">
-                    {reports && reports.length > 0 ? (
-                        reports.map((report) => (
+                    {sortedReports && sortedReports.length > 0 ? (
+                        sortedReports.map((report) => (
                              <Card key={report.id}>
                                 <AccordionItem value={report.id} className="border-b-0">
                                     <AccordionTrigger className="hover:no-underline p-6">

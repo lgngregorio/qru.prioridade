@@ -1,108 +1,107 @@
+
 {
   "entities": {
-    "EventCategory": {
-      "$schema": "http://json-schema.org/draft-07/schema#",
-      "title": "EventCategory",
+    "User": {
+      "title": "User",
       "type": "object",
-      "description": "Represents a category of events that can be reported.",
+      "description": "Represents a user in the system.",
       "properties": {
-        "id": {
+        "uid": {
           "type": "string",
-          "description": "Unique identifier for the EventCategory entity."
+          "description": "The unique identifier for the user, from Firebase Auth."
         },
         "name": {
           "type": "string",
-          "description": "The name of the event category."
+          "description": "The display name of the user."
         },
-        "description": {
+        "email": {
           "type": "string",
-          "description": "A detailed description of the event category."
+          "format": "email",
+          "description": "The email address of the user."
         },
-        "icon": {
+        "createdAt": {
           "type": "string",
-          "description": "Icon associated with the event category (e.g., a FontAwesome icon class or image URL)."
+          "format": "date-time",
+          "description": "The timestamp when the user account was created."
         }
       },
       "required": [
-        "id",
+        "uid",
         "name",
-        "description",
-        "icon"
+        "email",
+        "createdAt"
       ]
     },
-    "EventReport": {
-      "$schema": "http://json-schema.org/draft-07/schema#",
-      "title": "EventReport",
+    "Report": {
+      "title": "Report",
       "type": "object",
-      "description": "Represents a report generated for a specific event category.",
+      "description": "Represents a report submitted by a user.",
       "properties": {
-        "id": {
+        "uid": {
           "type": "string",
-          "description": "Unique identifier for the EventReport entity."
+          "description": "The UID of the user who created the report."
         },
-        "eventCategoryId": {
+        "category": {
           "type": "string",
-          "description": "Reference to EventCategory. (Relationship: EventCategory 1:N EventReport)"
+          "description": "The category slug of the report (e.g., 'to-01')."
         },
-        "reportData": {
-          "type": "string",
-          "description": "The data associated with the event report. This is a string field, but can be formatted using JSON."
+        "formData": {
+          "type": "object",
+          "description": "An object containing all the form data for the report."
         },
-        "createdDate": {
+        "createdAt": {
           "type": "string",
-          "description": "Date the event report was created.",
-          "format": "date-time"
+          "format": "date-time",
+          "description": "The timestamp when the report was created."
         }
       },
       "required": [
-        "id",
-        "eventCategoryId",
-        "reportData",
-        "createdDate"
+        "uid",
+        "category",
+        "formData",
+        "createdAt"
       ]
     }
   },
   "auth": {
     "providers": [
-      "password",
-      "anonymous"
+      "password"
     ]
   },
   "firestore": {
     "structure": [
       {
-        "path": "/event_categories/{eventCategoryId}",
+        "path": "/users/{userId}",
         "definition": {
-          "entityName": "EventCategory",
+          "entityName": "User",
           "schema": {
-            "$ref": "#/backend/entities/EventCategory"
+            "$ref": "#/backend/entities/User"
           },
-          "description": "Stores event categories, each with an ID, name, description, and icon.",
+          "description": "Stores public profiles for users.",
           "params": [
             {
-              "name": "eventCategoryId",
-              "description": "Unique identifier for the event category."
+              "name": "userId",
+              "description": "The user's unique ID."
             }
           ]
         }
       },
       {
-        "path": "/event_reports/{eventReportId}",
+        "path": "/reports/{reportId}",
         "definition": {
-          "entityName": "EventReport",
+          "entityName": "Report",
           "schema": {
-            "$ref": "#/backend/entities/EventReport"
+            "$ref": "#/backend/entities/Report"
           },
-          "description": "Stores event reports, each associated with an event category via 'eventCategoryId'.",
+          "description": "Stores reports submitted by users.",
           "params": [
             {
-              "name": "eventReportId",
-              "description": "Unique identifier for the event report."
+              "name": "reportId",
+              "description": "The report's unique ID."
             }
           ]
         }
       }
-    ],
-    "reasoning": "The Firestore structure is designed to manage event categories and event reports effectively, focusing on simplicity and security. \n\n`event_categories` Collection:\nThis collection stores the available event categories. Each document represents a category with fields like 'name', 'description', and 'icon'.\n\n`event_reports` Collection:\nThis collection stores the reports associated with each event category. Each report is tied to a specific category using the 'eventCategoryId' field. It includes fields for 'reportData' and 'createdDate'.\n\nAuthorization Independence:\nAuthorization independence is achieved because there are no `get()` calls required in the security rules. The structure does not depend on data in parent documents to authorize access to child documents. Reports do not need to inherit any permissions from categories.\n\nQAPs Support:\nQAPs (Rules are not Filters) is inherently supported due to the flat structure and the absence of complex authorization rules. Listing operations can be securely performed on each collection without filtering based on user-specific attributes.\n\nThis design prioritizes clarity, simplicity, and security, aligning with the core design principles."
+    ]
   }
 }

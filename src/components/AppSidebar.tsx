@@ -16,28 +16,53 @@ import {
   History,
   Settings,
   ShieldCheck,
+  LogOut,
+  User,
 } from 'lucide-react';
 import Link from 'next/link';
-import { usePathname } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
+import { useAuth, useUser } from '@/firebase';
+import { signOut } from 'firebase/auth';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu"
+import { Button } from './ui/button';
 
 export default function AppSidebar() {
   const pathname = usePathname();
   const { setOpenMobile } = useSidebar();
+  const auth = useAuth();
+  const { user } = useUser();
+  const router = useRouter();
 
   const handleLinkClick = () => {
     setOpenMobile(false);
   };
 
+  const handleLogout = async () => {
+    try {
+      await signOut(auth);
+      router.push('/login');
+    } catch (error) {
+      console.error("Erro ao fazer logout:", error);
+    }
+  };
+
   return (
     <>
-      <SidebarHeader className="p-4 flex justify-center">
+      <SidebarHeader className="p-4 flex justify-between items-center">
         <div className="flex items-center justify-center space-x-2">
-           <h1 className="text-3xl font-bold text-sidebar-foreground flex items-center justify-center gap-1">
+           <h1 className="text-2xl font-bold text-sidebar-foreground flex items-center justify-center gap-1">
             QRU
             <div className="flex h-6 items-center gap-1">
-              <div className="w-[2px] h-full bg-sidebar-foreground"></div>
+              <div className="w-[1.5px] h-full bg-sidebar-foreground"></div>
               <div
-                className="w-[2px] h-full animate-move-dashes"
+                className="w-[1.5px] h-full animate-move-dashes"
                 style={{
                   backgroundImage:
                     'linear-gradient(to bottom, hsl(var(--sidebar-foreground)) 50%, transparent 50%)',
@@ -49,6 +74,23 @@ export default function AppSidebar() {
             PRIORIDADE
           </h1>
         </div>
+         {user && (
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="ghost" size="icon" className="rounded-full">
+                <User />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end">
+              <DropdownMenuLabel>{user.displayName || user.email}</DropdownMenuLabel>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem onClick={handleLogout} className="text-red-500">
+                <LogOut className="mr-2 h-4 w-4" />
+                Sair
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+        )}
       </SidebarHeader>
       <SidebarContent className="flex-1 pt-8">
         <SidebarMenu className="gap-y-8">

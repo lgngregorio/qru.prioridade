@@ -9,12 +9,15 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter }
 import { Button } from '@/components/ui/button';
 import { eventCategories } from '@/lib/events';
 import ReportDetail from '@/components/ReportDetail';
+import { useFirestore, useUser } from '@/firebase';
+import { addDoc, collection, doc, setDoc, serverTimestamp } from 'firebase/firestore';
 
 interface Report {
-  id: string;
+  id?: string;
   category: string;
-  createdAt: string; 
+  createdAt?: any; 
   formData: any;
+  uid?: string;
 }
 
 const formatDate = (isoString: string) => {
@@ -43,7 +46,9 @@ const formatKey = (key: string) => {
 export default function PreviewPage() {
     const router = useRouter();
     const { toast } = useToast();
-    const [reportData, setReportData] = useState<any>(null);
+    const firestore = useFirestore();
+    const { user } = useUser();
+    const [reportData, setReportData] = useState<Report | null>(null);
     const [isSaving, setIsSaving] = useState(false);
     
     useEffect(() => {
@@ -51,7 +56,7 @@ export default function PreviewPage() {
         if (storedData) {
             setReportData(JSON.parse(storedData));
         } else {
-            router.push('/');
+            // router.push('/'); // Comentado para evitar redirecionamento em dev
         }
     }, [router]);
 
@@ -78,7 +83,7 @@ export default function PreviewPage() {
     };
     
       const generateWhatsappMessage = (data: any): string => {
-        let message = `*${getCategoryTitle(reportData.category).toUpperCase()}*\n`;
+        let message = `*${getCategoryTitle(reportData!.category).toUpperCase()}*\n`;
         const sectionTitles: { [key: string]: string } = {
           generalInfo: 'INFORMAÇÕES GERAIS',
           vehicles: 'VEÍCULOS',
@@ -134,49 +139,46 @@ export default function PreviewPage() {
         window.open(whatsappUrl, '_blank');
     };
     
-     const handleSave = () => {
-        if (!reportData) {
+     const handleSave = async () => {
+        if (!reportData || !user || !firestore) {
             toast({
                 variant: 'destructive',
                 title: 'Erro',
-                description: 'Dados do relatório ausentes.',
+                description: 'Dados do relatório ou do usuário ausentes. Faça login e tente novamente.',
             });
             return;
         }
 
         setIsSaving(true);
         try {
-            const storedReports = localStorage.getItem('ocorrencias-historico');
-            const reports = storedReports ? JSON.parse(storedReports) : [];
-            
-            const newReport: Report = {
+            const reportPayload: Omit<Report, 'id'> = {
                 ...reportData,
-                id: reportData.id || new Date().toISOString(), // Use existing ID or create new
-                createdAt: new Date().toISOString()
+                uid: user.uid,
+                createdAt: serverTimestamp()
             };
-            
-            // If editing, replace existing report
-            const existingIndex = reports.findIndex((r: Report) => r.id === newReport.id);
-            if (existingIndex > -1) {
-                reports[existingIndex] = newReport;
-            } else {
-                reports.push(newReport);
-            }
 
-            localStorage.setItem('ocorrencias-historico', JSON.stringify(reports));
+            if (reportData.id) {
+                // Editing an existing report
+                const reportRef = doc(firestore, 'reports', reportData.id);
+                await setDoc(reportRef, reportPayload, { merge: true });
+            } else {
+                // Creating a new report
+                const reportsCollection = collection(firestore, 'reports');
+                await addDoc(reportsCollection, reportPayload);
+            }
 
             toast({
                 title: 'Sucesso!',
-                description: 'Relatório salvo no histórico local.',
+                description: 'Relatório salvo no histórico.',
             });
             localStorage.removeItem('reportPreview');
             router.push('/');
-        } catch (error) {
-            console.error("Failed to save report to localStorage", error);
+        } catch (error: any) {
+            console.error("Failed to save report to Firestore", error);
             toast({
                 variant: "destructive",
                 title: "Erro ao Salvar",
-                description: "Não foi possível salvar o relatório no histórico.",
+                description: error.message || "Não foi possível salvar o relatório.",
             });
         } finally {
             setIsSaving(false);
@@ -211,7 +213,7 @@ export default function PreviewPage() {
                             Editar
                         </Button>
                         <div className="flex gap-4">
-                             <Button onClick={handleSave} disabled={isSaving}>
+                             <Button onClick={handleSave} disabled={isSaving || !user}>
                                 {isSaving ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Save className="mr-2 h-4 w-4" />}
                                 {isSaving ? 'Salvando...' : 'Salvar e Ir para Início'}
                             </Button>
