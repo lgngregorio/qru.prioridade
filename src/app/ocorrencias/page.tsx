@@ -145,9 +145,8 @@ export default function OcorrenciasPage() {
     const { toast } = useToast();
     const [isDeleting, setIsDeleting] = useState<string | null>(null);
 
-    // This query is only constructed when the user and firestore objects are available
     const reportsQuery = useMemoFirebase(() => {
-        if (firestore && user) { // Ensure user is not null
+        if (firestore && user?.uid) {
             return query(
                 collection(firestore, 'reports'),
                 where('uid', '==', user.uid),
@@ -155,7 +154,7 @@ export default function OcorrenciasPage() {
             );
         }
         return null;
-    }, [firestore, user]); // Depend on the user object itself
+    }, [firestore, user]);
 
     const { data: reports, isLoading: isReportsLoading, error } = useCollection<Report>(reportsQuery);
     
@@ -192,7 +191,6 @@ export default function OcorrenciasPage() {
         }
     };
     
-    // Combined loading state: wait for user to be confirmed AND for reports to load if a query is active
     const isLoading = isUserLoading || (user && isReportsLoading);
 
     if (isLoading) {

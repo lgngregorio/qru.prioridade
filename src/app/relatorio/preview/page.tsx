@@ -150,8 +150,9 @@ export default function PreviewPage() {
 
         setIsSaving(true);
         const reportToSave = {
-            ...reportData,
+            ...reportData.formData,
             uid: user.uid,
+            category: reportData.category,
             createdAt: serverTimestamp(),
         };
 
