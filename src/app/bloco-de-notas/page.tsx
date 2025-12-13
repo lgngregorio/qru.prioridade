@@ -1,6 +1,7 @@
+
 'use client';
 
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useMemo } from 'react';
 import {
   collection,
   deleteDoc,
@@ -53,7 +54,8 @@ export default function NotepadPage() {
   const { toast } = useToast();
 
   const notesQuery = useMemoFirebase(() => {
-    if (!firestore || !user?.uid) {
+    // Return null if the user is loading or doesn't exist, preventing a query without a UID.
+    if (isUserLoading || !user?.uid) {
       return null;
     }
     return query(
@@ -65,7 +67,8 @@ export default function NotepadPage() {
 
   const { data: notes, isLoading: loadingNotes } = useCollection<Note>(notesQuery);
   
-  const isLoading = isUserLoading || (!!notesQuery && loadingNotes);
+  // The overall loading state depends on both user authentication and the notes query.
+  const isLoading = isUserLoading || (notesQuery ? loadingNotes : false);
   
   const handleDelete = (noteId: string) => {
     if (!firestore) return;
@@ -97,7 +100,7 @@ export default function NotepadPage() {
   };
   
   const groupedNotes = useMemo(() => {
-     if (isLoading || !notes) return {};
+    if (isLoading || !notes) return {};
     return notes.reduce((acc, note) => {
       if(!note.createdAt) return acc;
       const date = formatDate(note.createdAt, { day: '2-digit', month: '2-digit', year: 'numeric' });
