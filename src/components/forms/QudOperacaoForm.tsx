@@ -3,7 +3,7 @@
 
 import { useRouter } from 'next/navigation';
 import { Save, Share, PlusCircle, Trash2, Loader2 } from 'lucide-react';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import React from 'react';
 
 import { cn } from '@/lib/utils';
@@ -91,6 +91,20 @@ export default function QudOperacaoForm({ categorySlug }: { categorySlug: string
     observacoes: '',
     numeroOcorrencia: '',
   });
+
+  useEffect(() => {
+    const savedData = localStorage.getItem('reportPreview');
+    if (savedData) {
+      const { formData } = JSON.parse(savedData);
+      if (formData) {
+        setGeneralInfo(formData.generalInfo || generalInfo);
+        setVehicles(formData.vehicles || vehicles);
+        setOtherInfo(formData.otherInfo || otherInfo);
+        setShowVtrApoio(!!formData.otherInfo?.vtrApoio && formData.otherInfo.vtrApoio !== 'NILL');
+        setShowDanoPatrimonio(!!formData.otherInfo?.danoPatrimonio && formData.otherInfo.danoPatrimonio !== 'NILL');
+      }
+    }
+  }, []);
 
   const handleGeneralInfoChange = (field: keyof GeneralInfo, value: string) => {
     setGeneralInfo(prev => ({ ...prev, [field]: value }));
@@ -472,5 +486,3 @@ export default function QudOperacaoForm({ categorySlug }: { categorySlug: string
     </div>
   );
 }
-
-    
