@@ -64,9 +64,9 @@ export default function AppSidebar() {
         </div>
       </SidebarHeader>
       <SidebarContent className="flex-1 pt-8">
-        <SidebarMenu className="gap-y-8">
+        <SidebarMenu className="gap-y-10">
           <SidebarMenuItem>
-            <SidebarMenuButton asChild isActive={pathname === '/'} className="text-base [&_svg]:size-5" onClick={handleLinkClick}>
+            <SidebarMenuButton asChild isActive={pathname === '/'} className="text-lg [&_svg]:size-6" onClick={handleLinkClick}>
               <Link href="/">
                 <Home />
                 Início
@@ -74,7 +74,7 @@ export default function AppSidebar() {
             </SidebarMenuButton>
           </SidebarMenuItem>
            <SidebarMenuItem>
-            <SidebarMenuButton asChild isActive={pathname === '/notas'} className="text-base [&_svg]:size-5" onClick={handleLinkClick}>
+            <SidebarMenuButton asChild isActive={pathname === '/notas'} className="text-lg [&_svg]:size-6" onClick={handleLinkClick}>
               <Link href="/notas">
                 <Notebook />
                 Bloco de Notas
@@ -82,7 +82,7 @@ export default function AppSidebar() {
             </SidebarMenuButton>
           </SidebarMenuItem>
            <SidebarMenuItem>
-            <SidebarMenuButton asChild isActive={pathname.startsWith('/ocorrencias')} className="text-base [&_svg]:size-5" onClick={handleLinkClick}>
+            <SidebarMenuButton asChild isActive={pathname.startsWith('/ocorrencias')} className="text-lg [&_svg]:size-6" onClick={handleLinkClick}>
               <Link href="/ocorrencias">
                 <ListOrdered />
                 Ocorrências
@@ -90,7 +90,7 @@ export default function AppSidebar() {
             </SidebarMenuButton>
           </SidebarMenuItem>
           <SidebarMenuItem>
-            <SidebarMenuButton asChild isActive={pathname === '/codigos'} className="text-base [&_svg]:size-5" onClick={handleLinkClick}>
+            <SidebarMenuButton asChild isActive={pathname === '/codigos'} className="text-lg [&_svg]:size-6" onClick={handleLinkClick}>
               <Link href="/codigos">
                 <FileCode />
                 Códigos
@@ -98,7 +98,7 @@ export default function AppSidebar() {
             </SidebarMenuButton>
           </SidebarMenuItem>
            <SidebarMenuItem>
-            <SidebarMenuButton asChild isActive={pathname === '/configuracoes'} className="text-base [&_svg]:size-5" onClick={handleLinkClick}>
+            <SidebarMenuButton asChild isActive={pathname === '/configuracoes'} className="text-lg [&_svg]:size-6" onClick={handleLinkClick}>
               <Link href="/configuracoes">
                 <Settings />
                 Configurações
@@ -108,9 +108,9 @@ export default function AppSidebar() {
         </SidebarMenu>
       </SidebarContent>
       <SidebarFooter>
-        <SidebarMenu className="gap-y-8">
+        <SidebarMenu className="gap-y-10">
            <SidebarMenuItem>
-             <SidebarMenuButton asChild isActive={pathname === '/politicas-sgi'} className="text-base [&_svg]:size-5" onClick={handleLinkClick}>
+             <SidebarMenuButton asChild isActive={pathname === '/politicas-sgi'} className="text-lg [&_svg]:size-6" onClick={handleLinkClick}>
                <Link href="/politicas-sgi">
                  <ShieldCheck />
                  Políticas do SGI
@@ -118,7 +118,7 @@ export default function AppSidebar() {
              </SidebarMenuButton>
            </SidebarMenuItem>
            <SidebarMenuItem>
-             <SidebarMenuButton onClick={handleLogout} className="text-base [&_svg]:size-5">
+             <SidebarMenuButton onClick={handleLogout} className="text-lg [&_svg]:size-6">
                <LogOut />
                Sair
              </SidebarMenuButton>
