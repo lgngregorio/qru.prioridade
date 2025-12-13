@@ -133,8 +133,8 @@ service cloud.firestore {
       allow update, delete: if isOwnerByContent() && hasValidUidOnUpdate();
     }
     
+    // LIST: Allow users to list only their own reports by enforcing a query filter on uid.
     match /reports {
-        // LIST: Allow users to list only their own reports by enforcing a query filter on uid.
         allow list: if isSignedIn() && request.query.where.uid == request.auth.uid;
     }
   }
