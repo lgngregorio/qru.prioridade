@@ -37,8 +37,8 @@ export type EventCategory = {
 
 export const eventCategories: EventCategory[] = [
   {
-    name: 'QUD APH',
-    title: 'QUD APH',
+    name: 'QUD RESGATE',
+    title: 'QUD RESGATE',
     slug: 'qud-aph',
     icon: Siren,
     description: 'Relatar QUD APH.',
