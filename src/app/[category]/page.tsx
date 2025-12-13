@@ -73,21 +73,6 @@ function ReportFormComponent({ categorySlug }: { categorySlug: string }) {
 
 export default function ReportPage() {
   const params = useParams<{ category: string }>();
-  const [isEditing, setIsEditing] = useState(false);
-  
-  useEffect(() => {
-    const savedData = localStorage.getItem('reportPreview');
-    if (savedData) {
-      const { id } = JSON.parse(savedData);
-      if (id) {
-        setIsEditing(true);
-      } else {
-        setIsEditing(false);
-      }
-    } else {
-      setIsEditing(false);
-    }
-  }, []);
 
   const category = eventCategories.find((c) => c.slug === params.category);
 
@@ -102,8 +87,8 @@ export default function ReportPage() {
     </>
   );
 
-  const backLink = isEditing ? '/ocorrencias' : '/';
-  const backText = isEditing ? 'Voltar para Ocorrências' : 'Voltar para o início';
+  const backLink = '/';
+  const backText = 'Voltar para o início';
 
   return (
     <main className="flex flex-col items-center">
