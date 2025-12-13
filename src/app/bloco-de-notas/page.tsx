@@ -48,19 +48,20 @@ interface Note {
 
 export default function NotepadPage() {
   const firestore = useFirestore();
-  const { user } = useUser();
+  const { user, isUserLoading } = useUser();
   const { toast } = useToast();
 
   const notesQuery = useMemoFirebase(() => {
-    if (!firestore || !user?.uid) return null;
+    if (isUserLoading || !firestore || !user?.uid) return null;
     return query(
       collection(firestore, 'notes'),
       where('uid', '==', user.uid),
       orderBy('createdAt', 'desc')
     );
-  }, [firestore, user]);
+  }, [firestore, user, isUserLoading]);
 
-  const { data: notes, isLoading: loading } = useCollection<Note>(notesQuery);
+  const { data: notes, isLoading: loadingNotes } = useCollection<Note>(notesQuery);
+  const isLoading = isUserLoading || loadingNotes;
   
   const handleDelete = (noteId: string) => {
     if (!firestore) return;
@@ -88,7 +89,7 @@ export default function NotepadPage() {
   };
   
   const groupedNotes = useMemo(() => {
-     if (loading || !notes) return {};
+     if (isLoading || !notes) return {};
     return notes.reduce((acc, note) => {
       if(!note.createdAt) return acc;
       const date = formatDate(note.createdAt, { day: '2-digit', month: '2-digit', year: 'numeric' });
@@ -98,7 +99,7 @@ export default function NotepadPage() {
       acc[date].push(note);
       return acc;
     }, {} as Record<string, Note[]>);
-  }, [notes, loading]);
+  }, [notes, isLoading]);
 
 
   return (
@@ -134,7 +135,7 @@ export default function NotepadPage() {
              <div className="flex justify-between items-center mb-6">
                 <h2 className="text-2xl font-bold">Anotações Salvas</h2>
              </div>
-             {loading ? (
+             {isLoading ? (
               <div className="flex justify-center items-center h-64">
                 <Loader2 className="h-8 w-8 animate-spin text-primary" />
               </div>
