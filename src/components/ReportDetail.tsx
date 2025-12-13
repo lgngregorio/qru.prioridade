@@ -24,7 +24,6 @@ const renderValue = (key: string, value: any): React.ReactNode => {
     if (value === null || value === undefined || value === 'NILL' || value === '') return 'N/A';
     if (typeof value === 'boolean') return value ? 'Sim' : 'Não';
     
-    // Explicitly check for keys that should be dates
     const dateKeys = ['data', 'dn', 'createdAt', 'qtrInicio', 'qtrTermino'];
     if (dateKeys.includes(key) && (typeof value === 'string' || value instanceof Date || value instanceof Timestamp)) {
        return formatDate(value);
@@ -46,6 +45,11 @@ const renderValue = (key: string, value: any): React.ReactNode => {
             </ul>
         );
     }
+    
+    if (typeof value === 'string') {
+        return value.replace(/_/g, ' ').replace(/\b\w/g, char => char.toUpperCase());
+    }
+
     return String(value);
 };
 
