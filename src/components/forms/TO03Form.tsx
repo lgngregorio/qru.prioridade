@@ -4,17 +4,14 @@
 import { useRouter } from 'next/navigation';
 import { Save, Share, Loader2 } from 'lucide-react';
 import { useState } from 'react';
-import { collection, addDoc, serverTimestamp } from 'firebase/firestore';
 import React from 'react';
 
 import { cn } from '@/lib/utils';
-import { eventCategories } from '@/lib/events';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { useFirestore } from '@/firebase';
 import { useToast } from '@/hooks/use-toast';
 import { Checkbox } from '@/components/ui/checkbox';
 
@@ -60,10 +57,8 @@ type OtherInfo = {
 };
 
 export default function TO03Form({ categorySlug }: { categorySlug: string }) {
-  const firestore = useFirestore();
   const router = useRouter();
   const { toast } = useToast();
-  const [isSaving, setIsSaving] = useState(false);
   const [showVtrApoio, setShowVtrApoio] = useState(false);
 
   const [generalInfo, setGeneralInfo] = useState<GeneralInfo>({
@@ -132,8 +127,45 @@ export default function TO03Form({ categorySlug }: { categorySlug: string }) {
     }
     return data;
   };
+  
+  const validateObject = (obj: any): boolean => {
+    for (const key in obj) {
+        if (Object.prototype.hasOwnProperty.call(obj, key)) {
+            const value = obj[key];
+
+            // Pula a validação de campos opcionais
+            if (key === 'vtrApoio' && !showVtrApoio) continue;
+            if (key === 'qthExato' && otherInfo.destinacaoAnimal !== 'pr13') continue;
+
+            if (typeof value === 'object' && value !== null && !Array.isArray(value)) {
+                if (!validateObject(value)) return false;
+            } else if (Array.isArray(value)) {
+                 if (value.some(item => typeof item === 'object' && !validateObject(item))) return false;
+            } else if (value === '' || value === null || value === undefined) {
+                return false;
+            }
+        }
+    }
+    return true;
+};
 
   const prepareReportData = () => {
+    const reportData = {
+      generalInfo,
+      caracteristicasEntorno,
+      tracadoPista,
+      otherInfo
+    };
+
+    if (!validateObject(reportData)) {
+        toast({
+            variant: "destructive",
+            title: "Campos obrigatórios",
+            description: "Por favor, preencha todos os campos antes de continuar.",
+        });
+        return null;
+    }
+
     const filledData = {
       generalInfo: fillEmptyFields(generalInfo),
       caracteristicasEntorno: fillEmptyFields(caracteristicasEntorno),
@@ -144,54 +176,21 @@ export default function TO03Form({ categorySlug }: { categorySlug: string }) {
     if (!showVtrApoio) {
       filledData.otherInfo.vtrApoio = 'NILL';
     }
+    if (otherInfo.destinacaoAnimal !== 'pr13') {
+        filledData.otherInfo.qthExato = 'NILL';
+    }
 
     return {
       category: categorySlug,
       formData: filledData,
-      createdAt: serverTimestamp(),
     };
   };
   
-  const handleSave = async () => {
-    if (!firestore) {
-      toast({
-        variant: "destructive",
-        title: "Erro",
-        description: "Não foi possível conectar ao banco de dados.",
-      });
-      return false;
-    }
-
-    setIsSaving(true);
-    try {
-      const reportData = prepareReportData();
-      await addDoc(collection(firestore, 'reports'), reportData);
-      
-      toast({
-        title: "Sucesso!",
-        description: "Relatório salvo com sucesso.",
-        className: "bg-green-600 text-white",
-      });
-      
-      router.push('/historico');
-      return true;
-    } catch (error) {
-      console.error("Error saving report: ", error);
-      toast({
-        variant: "destructive",
-        title: "Erro ao salvar",
-        description: "Ocorreu um erro ao salvar o relatório. Tente novamente.",
-      });
-      return false;
-    } finally {
-      setIsSaving(false);
-    }
-  };
-
-  const handleGenerateReport = async () => {
-    const success = await handleSave();
-    if (success) {
-      router.push('/historico');
+  const handleGenerateReport = () => {
+    const reportData = prepareReportData();
+    if (reportData) {
+      localStorage.setItem('reportPreview', JSON.stringify(reportData));
+      router.push('/relatorio/preview');
     }
   };
 
@@ -401,10 +400,9 @@ export default function TO03Form({ categorySlug }: { categorySlug: string }) {
               size="lg"
               className="uppercase text-xl"
               onClick={handleGenerateReport}
-              disabled={isSaving}
             >
-              {isSaving ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Save className="mr-2 h-4 w-4" />}
-              {isSaving ? 'Salvando...' : 'Gerar Relatório'}
+             <Save className="mr-2 h-4 w-4" />
+              Gerar Relatório
             </Button>
         </div>
       </form>

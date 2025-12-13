@@ -125,25 +125,27 @@ export default function IncendioForm({ categorySlug }: { categorySlug: string })
     }
     return data;
   };
+  
+  const validateObject = (obj: any, parentKey = ''): boolean => {
+    for (const key in obj) {
+        if (Object.prototype.hasOwnProperty.call(obj, key)) {
+            const value = obj[key];
+            const fullKey = parentKey ? `${parentKey}.${key}` : key;
 
-  const validateFields = (data: any): boolean => {
-    if (Array.isArray(data)) {
-      return data.every(item => validateFields(item));
-    }
-    if (typeof data === 'object' && data !== null) {
-      for (const key in data) {
-          if (Object.prototype.hasOwnProperty.call(data, key)) {
+            // Pula a validação de campos opcionais
             if (key === 'vtrApoio' && !showVtrApoio) continue;
-            
-            const value = data[key];
-            if (value === '' || value === null || value === undefined) {
-                 return false;
+
+            if (typeof value === 'object' && value !== null && !Array.isArray(value)) {
+                if (!validateObject(value, fullKey)) return false;
+            } else if (Array.isArray(value)) {
+                if (value.some(item => (typeof item === 'object' && !validateObject(item)) || item === '')) return false;
+            } else if (value === '' || value === null || value === undefined) {
+                console.log(`Validation failed for: ${fullKey}`);
+                return false;
             }
-          }
-      }
-      return true;
+        }
     }
-    return data !== '' && data !== null && data !== undefined;
+    return true;
 };
 
 
@@ -153,11 +155,7 @@ export default function IncendioForm({ categorySlug }: { categorySlug: string })
       otherInfo: otherInfo,
     };
 
-    if (!showVtrApoio) {
-      reportData.otherInfo.vtrApoio = 'NILL';
-    }
-    
-    if (!validateFields(reportData)) {
+    if (!validateObject(reportData)) {
         toast({
             variant: "destructive",
             title: "Campos obrigatórios",

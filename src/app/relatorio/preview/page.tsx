@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useState, useEffect } from 'react';
@@ -133,7 +134,6 @@ export default function PreviewPage() {
         if (storedData) {
             setReportData(JSON.parse(storedData));
         } else {
-            // Se não houver dados, talvez redirecionar para a home
             router.push('/');
         }
     }, [router]);
