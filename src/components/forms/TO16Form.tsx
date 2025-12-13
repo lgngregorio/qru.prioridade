@@ -2,9 +2,8 @@
 'use client';
 
 import { useRouter } from 'next/navigation';
-import { Save, Share, Loader2, PlusCircle, Trash2, X, Eye, CalendarIcon } from 'lucide-react';
-import { useState, useEffect, useMemo } from 'react';
-import { collection, addDoc, serverTimestamp } from 'firebase/firestore';
+import { Save, PlusCircle, Trash2, CalendarIcon } from 'lucide-react';
+import { useState, useEffect } from 'react';
 import React from 'react';
 import { format } from 'date-fns';
 
@@ -13,16 +12,11 @@ import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
-import { useFirestore } from '@/firebase';
 import { useToast } from '@/hooks/use-toast';
 import { Checkbox } from '@/components/ui/checkbox';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
-import { Collapsible, CollapsibleTrigger, CollapsibleContent } from '@/components/ui/collapsible';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Calendar } from '@/components/ui/calendar';
-import { eventCategories } from '@/lib/events';
-import { FirestorePermissionError } from '@/firebase/errors';
-import { errorEmitter } from '@/firebase/error-emitter';
 
 function Field({ label, children, className }: { label?: string, children: React.ReactNode, className?: string }) {
   return (
@@ -73,10 +67,8 @@ interface Victim {
 
 
 export default function TO16Form({ categorySlug }: { categorySlug: string }) {
-  const firestore = useFirestore();
   const router = useRouter();
   const { toast } = useToast();
-  const [isSaving, setIsSaving] = useState(false);
 
   const [dadosOperacionais, setDadosOperacionais] = useState<any>({});
   const [victims, setVictims] = useState<Victim[]>([
@@ -99,6 +91,18 @@ export default function TO16Form({ categorySlug }: { categorySlug: string }) {
   const [consumoMateriais, setConsumoMateriais] = useState<ListItem[]>([]);
   const [relatorio, setRelatorio] = useState('');
   
+  useEffect(() => {
+    const savedData = localStorage.getItem('reportPreview');
+    if (savedData) {
+      const { formData } = JSON.parse(savedData);
+      if (formData) {
+        setDadosOperacionais(formData.dadosOperacionais || {});
+        setVictims(formData.victims || victims);
+        setConsumoMateriais(formData.consumoMateriais || []);
+        setRelatorio(formData.relatorio || '');
+      }
+    }
+  }, []);
 
   const handleOperationalDataChange = (key: string, value: any) => {
     setDadosOperacionais((prev: any) => ({ ...prev, [key]: value }));
@@ -286,90 +290,59 @@ export default function TO16Form({ categorySlug }: { categorySlug: string }) {
     return data;
   };
   
-  const validateFields = (data: any): boolean => {
-      if (Array.isArray(data)) {
-        return data.every(item => validateFields(item));
-      }
-      if (typeof data === 'object' && data !== null) {
-        for (const key in data) {
-            // Exclui campos opcionais da validação
-            if (key === 'trauma_outros' || key === 'clinico_outros' || key === 'seguranca_outros' || key === 'cinematica_outros' || key === 'removido_por_terceiros_obs' || key === 'unidade_hospitalar' || key === 'outros') {
+  const validateObject = (obj: any, parentKey = ''): boolean => {
+    for (const key in obj) {
+        if (Object.prototype.hasOwnProperty.call(obj, key)) {
+            const value = obj[key];
+            const fullKey = parentKey ? `${parentKey}.${key}` : key;
+
+            if (['id', 'trauma_outros', 'clinico_outros', 'seguranca_outros', 'cinematica_outros', 'removido_por_terceiros_obs', 'unidade_hospitalar', 'outros'].includes(key)) {
                 continue;
             }
-            if (!validateFields(data[key])) return false;
+
+            if (typeof value === 'object' && value !== null && !Array.isArray(value)) {
+                if (!validateObject(value, fullKey)) return false;
+            } else if (Array.isArray(value)) {
+                if(value.length > 0 && value.some(item => (typeof item === 'object' && !validateObject(item)) || item === '')) return false;
+            } else if (value === '' || value === null || value === undefined) {
+                console.log(`Validation failed for: ${fullKey}`);
+                return false;
+            }
         }
-        return true;
-      }
-      return data !== '' && data !== null && data !== undefined;
+    }
+    return true;
   };
 
   const prepareReportData = () => {
-    const filledData = {
-      dadosOperacionais: fillEmptyFields(dadosOperacionais),
-      victims: fillEmptyFields(victims),
-      consumoMateriais: fillEmptyFields(consumoMateriais),
-      relatorio: fillEmptyFields(relatorio)
+    const reportData = {
+      dadosOperacionais,
+      victims,
+      consumoMateriais,
+      relatorio,
     };
-
-    return {
-      category: categorySlug,
-      formData: filledData,
-      createdAt: serverTimestamp(),
-    };
-  };
-
-  const saveReport = async (): Promise<boolean> => {
-    if (!firestore) {
-      toast({
-        variant: 'destructive',
-        title: 'Erro',
-        description: 'Não foi possível conectar ao banco de dados.',
-      });
-      return false;
-    }
-
-    const reportData = prepareReportData();
-
-    if (!validateFields(reportData.formData)) {
+    
+    if (!validateObject(reportData)) {
         toast({
             variant: "destructive",
             title: "Campos obrigatórios",
-            description: "Por favor, preencha todos os campos antes de salvar ou compartilhar.",
+            description: "Por favor, preencha todos os campos antes de continuar.",
         });
-        return false;
+        return null;
     }
-
-    setIsSaving(true);
-    try {
-      const reportsCollection = collection(firestore, 'reports');
-      await addDoc(reportsCollection, reportData);
-      toast({
-        title: 'Sucesso!',
-        description: 'Relatório salvo com sucesso.',
-        className: 'bg-green-600 text-white',
-      });
-      return true;
-    } catch (error) {
-      console.error('Error saving report: ', error);
-      const permissionError = new FirestorePermissionError({
-          path: (collection(firestore, 'reports')).path,
-          operation: 'create',
-          requestResourceData: reportData,
-      });
-      errorEmitter.emit('permission-error', permissionError);
-      return false;
-    } finally {
-      setIsSaving(false);
-    }
+    
+    return {
+      category: categorySlug,
+      formData: fillEmptyFields(reportData)
+    };
   };
 
-  const handleGenerateReport = async () => {
-    const success = await saveReport();
-    if (success) {
-      router.push('/historico');
+  const handleGenerateReport = () => {
+    const reportData = prepareReportData();
+    if (reportData) {
+      localStorage.setItem('reportPreview', JSON.stringify(reportData));
+      router.push('/relatorio/preview');
     }
   };
-
   
   return (
     <div className="w-full p-4 sm:p-6 md:p-8">
@@ -398,13 +371,13 @@ export default function TO16Form({ categorySlug }: { categorySlug: string }) {
                             )}
                           >
                             <CalendarIcon className="mr-2 h-4 w-4" />
-                            {dadosOperacionais.data ? format(dadosOperacionais.data, "PPP") : <span>Data</span>}
+                            {dadosOperacionais.data ? format(new Date(dadosOperacionais.data), "PPP") : <span>Data</span>}
                           </Button>
                         </PopoverTrigger>
                         <PopoverContent className="w-auto p-0">
                           <Calendar
                             mode="single"
-                            selected={dadosOperacionais.data}
+                            selected={dadosOperacionais.data ? new Date(dadosOperacionais.data) : undefined}
                             onSelect={(date) => handleOperationalDataChange('data', date)}
                             initialFocus
                           />
@@ -463,13 +436,13 @@ export default function TO16Form({ categorySlug }: { categorySlug: string }) {
                                     )}
                                   >
                                     <CalendarIcon className="mr-2 h-4 w-4" />
-                                    {victim.dados_cadastrais.dn ? format(victim.dados_cadastrais.dn, "PPP") : <span>Data</span>}
+                                    {victim.dados_cadastrais.dn ? format(new Date(victim.dados_cadastrais.dn), "PPP") : <span>Data</span>}
                                   </Button>
                                 </PopoverTrigger>
                                 <PopoverContent className="w-auto p-0">
                                   <Calendar
                                     mode="single"
-                                    selected={victim.dados_cadastrais.dn}
+                                    selected={victim.dados_cadastrais.dn ? new Date(victim.dados_cadastrais.dn) : undefined}
                                     onSelect={(date) => handleVictimChange(victim.id, 'dados_cadastrais', 'dn', date)}
                                     initialFocus
                                   />
@@ -852,10 +825,9 @@ export default function TO16Form({ categorySlug }: { categorySlug: string }) {
               size="lg"
               className="uppercase text-xl"
               onClick={handleGenerateReport}
-              disabled={isSaving}
             >
-              {isSaving ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Save className="mr-2 h-4 w-4" />}
-              {isSaving ? 'Salvando...' : 'Gerar Relatório'}
+              <Save className="mr-2 h-4 w-4" />
+              Gerar Relatório
             </Button>
         </div>
       </form>
