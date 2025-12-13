@@ -15,6 +15,7 @@ export default function SignupPage() {
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const router = useRouter();
   const { toast } = useToast();
@@ -23,6 +24,17 @@ export default function SignupPage() {
   const handleSignup = (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
+
+    if (password !== confirmPassword) {
+      toast({
+        variant: 'destructive',
+        title: 'Erro de Senha',
+        description: 'As senhas não coincidem. Por favor, tente novamente.',
+      });
+      setIsLoading(false);
+      return;
+    }
+
     try {
       const users = JSON.parse(localStorage.getItem('qru-priority-users') || '[]');
       const userExists = users.some((u: any) => u.email === email);
@@ -114,6 +126,19 @@ export default function SignupPage() {
               placeholder="Crie uma senha forte"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
+              required
+              minLength={6}
+              className="h-12 text-lg"
+            />
+          </div>
+          <div className="space-y-2">
+            <Label htmlFor="confirmPassword">Confirmar Senha</Label>
+            <Input
+              id="confirmPassword"
+              type="password"
+              placeholder="Repita sua senha"
+              value={confirmPassword}
+              onChange={(e) => setConfirmPassword(e.target.value)}
               required
               minLength={6}
               className="h-12 text-lg"
