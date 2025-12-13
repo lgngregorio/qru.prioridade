@@ -53,7 +53,7 @@ export default function EventCategoryGrid({
   }
 
   return (
-    <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
+    <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
       {categories.map((category) => (
         <Link href={`/${category.slug}`} key={category.slug} className="group">
           <Card 
