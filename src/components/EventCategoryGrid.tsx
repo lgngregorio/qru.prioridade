@@ -1,4 +1,6 @@
 
+'use client';
+
 import Link from 'next/link';
 import { Card, CardHeader, CardTitle } from '@/components/ui/card';
 import type { EventCategory } from '@/lib/events';
@@ -40,6 +42,10 @@ function formatCategoryName(name: string) {
   );
 }
 
+const handleCategoryClick = () => {
+    // Limpa o preview do relatório do localStorage para garantir que o formulário abra vazio.
+    localStorage.removeItem('reportPreview');
+};
 
 export default function EventCategoryGrid({
   categories,
@@ -55,7 +61,12 @@ export default function EventCategoryGrid({
   return (
     <div className="grid grid-cols-4 gap-2 md:gap-4">
       {categories.map((category) => (
-        <Link href={`/${category.slug}`} key={category.slug} className="group">
+        <Link 
+            href={`/${category.slug}`} 
+            key={category.slug} 
+            className="group"
+            onClick={handleCategoryClick}
+        >
           <Card 
             className="h-full text-center shadow-lg rounded-lg border-b-4 border-foreground/20 transform transition-transform duration-150 ease-in-out active:border-b-2 active:translate-y-px group-hover:-translate-y-px bg-card/70 hover:bg-card/90 text-card-foreground"
           >
