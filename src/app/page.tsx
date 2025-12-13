@@ -1,16 +1,7 @@
 
 'use client';
 
-import { useState, useMemo, useEffect } from 'react';
-import {
-  collection,
-  query,
-  orderBy,
-  onSnapshot,
-  Timestamp,
-  where,
-} from 'firebase/firestore';
-import { useFirestore, useUser } from '@/firebase';
+import { useState, useMemo } from 'react';
 import { Input } from '@/components/ui/input';
 import { Search, Notebook, FileCode } from 'lucide-react';
 import { eventCategories } from '@/lib/events';
@@ -27,15 +18,6 @@ import {
   type AlfabetoFonetico,
 } from '@/lib/codes';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Skeleton } from '@/components/ui/skeleton';
-
-interface Note {
-  id: string;
-  title: string;
-  content: string;
-  createdAt: Timestamp | null;
-  uid: string;
-}
 
 type SearchableCode =
   | MessageCode
@@ -47,47 +29,11 @@ type SearchableCode =
 
 export default function Home() {
   const [searchQuery, setSearchQuery] = useState('');
-  const firestore = useFirestore();
-  const { user } = useUser();
-  const [notes, setNotes] = useState<Note[]>([]);
-  const [loadingNotes, setLoadingNotes] = useState(false);
-
-  useEffect(() => {
-    if (!firestore || !user) return;
-
-    setLoadingNotes(true);
-    const notesRef = collection(firestore, 'notes');
-    const q = query(notesRef, where('uid', '==', user.uid), orderBy('createdAt', 'desc'));
-
-    const unsubscribe = onSnapshot(
-      q,
-      (querySnapshot) => {
-        const fetchedNotes = querySnapshot.docs.map((doc) => {
-          const data = doc.data();
-          return {
-            id: doc.id,
-            ...data,
-            createdAt:
-              data.createdAt instanceof Timestamp ? data.createdAt : null,
-          } as Note;
-        });
-        setNotes(fetchedNotes);
-        setLoadingNotes(false);
-      },
-      (error) => {
-        console.error('Error fetching notes: ', error);
-        setLoadingNotes(false);
-      }
-    );
-
-    return () => unsubscribe();
-  }, [firestore, user]);
 
   const searchResults = useMemo(() => {
     if (!searchQuery) {
       return {
         categories: eventCategories,
-        notes: [],
         codes: [],
       };
     }
@@ -101,12 +47,6 @@ export default function Home() {
         category.slug.toLowerCase().includes(lowerCaseQuery)
     );
 
-    const filteredNotes = notes.filter(
-      (note) =>
-        note.title.toLowerCase().includes(lowerCaseQuery) ||
-        note.content.toLowerCase().includes(lowerCaseQuery)
-    );
-
     const filteredCodes = allCodes.filter((item) => {
       const values = Object.values(item).join(' ').toLowerCase();
       return values.includes(lowerCaseQuery);
@@ -114,17 +54,11 @@ export default function Home() {
 
     return {
       categories: filteredCategories,
-      notes: filteredNotes,
       codes: filteredCodes,
     };
-  }, [searchQuery, notes]);
+  }, [searchQuery]);
 
   const isSearching = searchQuery.length > 0;
-
-  const formatDate = (timestamp: Timestamp | null) => {
-    if (!timestamp) return '';
-    return timestamp.toDate().toLocaleDateString('pt-BR');
-  };
 
   return (
     <main className="flex min-h-screen flex-col items-center p-4 pt-16 md:p-6">
@@ -166,11 +100,11 @@ export default function Home() {
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
             <Input
               type="search"
-              placeholder="Buscar em todo o aplicativo..."
+              placeholder="Buscar categorias e códigos..."
               className="w-full pl-9 h-12 text-lg rounded-md shadow-sm bg-card border"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              aria-label="Buscar em todo o aplicativo"
+              aria-label="Buscar categorias e códigos"
             />
           </div>
         </div>
@@ -184,36 +118,6 @@ export default function Home() {
               </div>
             )}
             
-            {searchResults.notes.length > 0 && (
-              <div>
-                <h2 className="text-2xl font-bold mb-4">Anotações</h2>
-                <div className="space-y-4">
-                  {searchResults.notes.map((note) => (
-                    <Link
-                      href={`/bloco-de-notas/editar/${note.id}`}
-                      key={note.id}
-                    >
-                      <Card className="hover:bg-accent cursor-pointer">
-                        <CardHeader>
-                          <CardTitle className="flex items-center gap-2">
-                            <Notebook /> {note.title}
-                          </CardTitle>
-                        </CardHeader>
-                        <CardContent>
-                          <p className="line-clamp-2 text-muted-foreground">
-                            {note.content}
-                          </p>
-                          <p className="text-xs text-muted-foreground mt-2">
-                            {formatDate(note.createdAt)}
-                          </p>
-                        </CardContent>
-                      </Card>
-                    </Link>
-                  ))}
-                </div>
-              </div>
-            )}
-
             {searchResults.codes.length > 0 && (
               <div>
                 <h2 className="text-2xl font-bold mb-4">Códigos</h2>
@@ -241,7 +145,7 @@ export default function Home() {
               </div>
             )}
 
-            {searchResults.categories.length === 0 && searchResults.notes.length === 0 && searchResults.codes.length === 0 && !loadingNotes && (
+            {searchResults.categories.length === 0 && searchResults.codes.length === 0 && (
                 <p className="text-center text-muted-foreground py-10">
                     Nenhum resultado encontrado para &quot;{searchQuery}&quot;.
                 </p>
