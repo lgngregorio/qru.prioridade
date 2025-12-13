@@ -173,24 +173,6 @@ export default function VeiculoAbandonadoForm({ categorySlug }: { categorySlug: 
       createdAt: serverTimestamp(),
     };
   };
-
-  const validateFields = (data: any): boolean => {
-      if (Array.isArray(data)) {
-        return data.every(item => validateFields(item));
-      }
-      if (typeof data === 'object' && data !== null) {
-        // Naive check for all properties in the object
-        for (const key in data) {
-          if (!validateFields(data[key])) return false;
-        }
-        return true;
-      }
-      // Allow NILL as a valid value
-      if (data === 'NILL') return true;
-
-      // Check for empty strings, null, or undefined
-      return data !== '' && data !== null && data !== undefined;
-  };
   
   const saveReport = async () => {
     if (!firestore) {
@@ -203,15 +185,6 @@ export default function VeiculoAbandonadoForm({ categorySlug }: { categorySlug: 
     }
 
     const reportData = prepareReportData();
-
-    if (!validateFields(reportData.formData)) {
-        toast({
-            variant: "destructive",
-            title: "Campos obrigatórios",
-            description: "Por favor, preencha todos os campos antes de salvar ou compartilhar.",
-        });
-        return false;
-    }
     
     setIsSaving(true);
     
