@@ -53,21 +53,21 @@ export default function EventCategoryGrid({
   }
 
   return (
-    <div className="grid grid-cols-4 gap-3">
+    <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4">
       {categories.map((category) => (
         <Link href={`/${category.slug}`} key={category.slug} className="group">
           <Card 
             className="h-full text-center shadow-lg rounded-lg border-b-4 border-foreground/20 transform transition-transform duration-150 ease-in-out active:border-b-2 active:translate-y-px group-hover:-translate-y-px bg-card/70 hover:bg-card/90 text-card-foreground"
           >
-            <CardHeader className="flex flex-col items-center justify-center p-1 aspect-[3/4]">
+            <CardHeader className="flex flex-col items-center justify-center p-2 aspect-[3/4]">
               <div
-                className="w-12 h-12 rounded-full mb-1 flex items-center justify-center"
+                className="w-12 h-12 rounded-full mb-2 flex items-center justify-center"
                 style={{ backgroundColor: category.color }}
               >
                 <category.icon className="h-8 w-8 text-white" />
               </div>
-              <CardTitle className="text-lg font-bold leading-tight text-card-foreground">
-                {category.name}
+              <CardTitle className="text-sm font-bold leading-tight text-card-foreground">
+                {formatCategoryName(category.name)}
               </CardTitle>
             </CardHeader>
           </Card>
