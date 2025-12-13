@@ -154,7 +154,7 @@ export default function OcorrenciasPage() {
             where('uid', '==', user.uid),
             orderBy('createdAt', 'desc')
         );
-    }, [firestore, user]); // Dependency on user object
+    }, [firestore, user?.uid]); // Dependency on user.uid ensures it re-runs when user logs in
 
     const { data: reports, isLoading: isReportsLoading, error } = useCollection<Report>(reportsQuery);
     
@@ -191,7 +191,7 @@ export default function OcorrenciasPage() {
         }
     };
     
-    // Combined loading state: wait for user to be loaded, then for reports to be loaded.
+    // Combined loading state: wait for user to be identified, then for reports to be loaded.
     const isLoading = isUserLoading || (user && isReportsLoading);
 
     if (isLoading) {
