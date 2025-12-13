@@ -245,7 +245,9 @@ export default function OcorrenciasPage() {
                                         <div className="flex justify-between items-start w-full">
                                             <div>
                                                 <CardTitle>{getCategoryTitle(report.category)}</CardTitle>
-                                                <CardDescription>{report.formData?.generalInfo?.qth || 'Local não informado'}</CardDescription>
+                                                <CardDescription>
+                                                   Nº: {report.formData?.otherInfo?.numeroOcorrencia || 'N/A'}
+                                                </CardDescription>
                                             </div>
                                             <Badge variant="secondary">{formatDate(report.createdAt)}</Badge>
                                         </div>
