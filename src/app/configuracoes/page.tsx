@@ -20,6 +20,8 @@ import { useRouter } from 'next/navigation';
 import { useUser, useFirestore } from '@/firebase';
 import { doc, getDoc, setDoc } from 'firebase/firestore';
 import { updateProfile, updateEmail } from 'firebase/auth';
+import { errorEmitter } from '@/firebase/error-emitter';
+import { FirestorePermissionError } from '@/firebase/errors';
 
 export default function ConfiguracoesPage() {
   const { theme, setTheme } = useTheme();
@@ -38,20 +40,27 @@ export default function ConfiguracoesPage() {
     async function loadUserProfile() {
       if (user && firestore) {
         const userDocRef = doc(firestore, 'users', user.uid);
-        const userDoc = await getDoc(userDocRef);
-        
-        if (userDoc.exists()) {
-          const profile = userDoc.data();
-          setName(profile.name || user.displayName || '');
-          setEmail(profile.email || user.email || '');
-          setSelectedTheme(profile.theme || theme || 'light');
-        } else {
-          // If no profile in Firestore, use auth data and default theme
-          setName(user.displayName || '');
-          setEmail(user.email || '');
-          setSelectedTheme(theme || 'light');
+        try {
+          const userDoc = await getDoc(userDocRef);
+          if (userDoc.exists()) {
+            const profile = userDoc.data();
+            setName(profile.name || user.displayName || '');
+            setEmail(profile.email || user.email || '');
+            setSelectedTheme(profile.theme || theme || 'light');
+          } else {
+            setName(user.displayName || '');
+            setEmail(user.email || '');
+            setSelectedTheme(theme || 'light');
+          }
+        } catch (serverError) {
+          const permissionError = new FirestorePermissionError({
+            path: userDocRef.path,
+            operation: 'get',
+          });
+          errorEmitter.emit('permission-error', permissionError);
+        } finally {
+          setIsLoaded(true);
         }
-        setIsLoaded(true);
       }
     }
     loadUserProfile();
@@ -69,53 +78,54 @@ export default function ConfiguracoesPage() {
 
     setIsSaving(true);
     
-    try {
-      // 1. Update Firestore Profile
-      const userDocRef = doc(firestore, 'users', user.uid);
-      const profileData = {
-        name: name,
-        email: email,
-        theme: selectedTheme,
-        id: user.uid,
-      };
-      await setDoc(userDocRef, profileData, { merge: true });
-
-      // 2. Update Firebase Auth Profile (if necessary)
-      if (user.displayName !== name) {
-        await updateProfile(user, { displayName: name });
-      }
-      if (user.email !== email) {
-        // Updating email requires re-authentication, so handle with care
-        // For simplicity, we'll just show a message here.
-        // A real app would require password confirmation.
-        await updateEmail(user, email).catch((authError) => {
-            console.error("Auth email update failed:", authError);
-            toast({
-                variant: "destructive",
-                title: "Erro ao atualizar email",
-                description: "Para sua segurança, esta operação requer uma autenticação recente. Por favor, faça logout e login novamente para alterar o email.",
-            });
-        });
-      }
-      
-      // 3. Apply Theme
-      setTheme(selectedTheme);
-      
-      setIsSaving(false);
-      toast({
-        title: "Sucesso!",
-        description: "Suas configurações foram salvas.",
-      });
-      router.push('/');
-    } catch (error: any) {
-        setIsSaving(false);
-        console.error("Error saving profile: ", error);
-        toast({
-            variant: "destructive",
-            title: "Erro ao Salvar",
-            description: "Não foi possível salvar suas configurações. Tente novamente.",
-        });
+    // 1. Update Auth Profile first (if necessary)
+    if (user.displayName !== name) {
+      await updateProfile(user, { displayName: name });
     }
+    if (user.email !== email) {
+      await updateEmail(user, email).catch((authError) => {
+          console.error("Auth email update failed:", authError);
+          toast({
+              variant: "destructive",
+              title: "Erro ao atualizar email",
+              description: "Para sua segurança, esta operação requer uma autenticação recente. Por favor, faça logout e login novamente para alterar o email.",
+          });
+          setIsSaving(false);
+          return; // Stop execution if auth update fails
+      });
+    }
+
+    // 2. Update Firestore Profile
+    const userDocRef = doc(firestore, 'users', user.uid);
+    const profileData = {
+      id: user.uid,
+      name: name,
+      email: email,
+      theme: selectedTheme,
+    };
+
+    setDoc(userDocRef, profileData, { merge: true })
+      .then(() => {
+        // 3. Apply Theme
+        setTheme(selectedTheme);
+        
+        toast({
+          title: "Sucesso!",
+          description: "Suas configurações foram salvas.",
+        });
+        router.push('/');
+      })
+      .catch(async (serverError) => {
+        const permissionError = new FirestorePermissionError({
+          path: userDocRef.path,
+          operation: 'write',
+          requestResourceData: profileData,
+        });
+        errorEmitter.emit('permission-error', permissionError);
+      })
+      .finally(() => {
+        setIsSaving(false);
+      });
   };
 
   if (!isLoaded) {
