@@ -288,6 +288,10 @@ export default function PreviewPage() {
                             Editar
                         </Button>
                         <div className="flex gap-4">
+                            <Button onClick={handleSave} disabled={isSaving}>
+                                {isSaving ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Save className="mr-2 h-4 w-4" />}
+                                {isSaving ? 'Salvando...' : 'Salvar e Ir para Início'}
+                            </Button>
                             <Button variant="secondary" className="bg-green-500 hover:bg-green-600 text-white" onClick={handleShare} disabled={isSaving}>
                                 <Share2 className="mr-2 h-4 w-4" />
                                 Compartilhar no WhatsApp
