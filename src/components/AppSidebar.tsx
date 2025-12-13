@@ -18,6 +18,7 @@ import {
   Settings,
   ShieldCheck,
   LogOut,
+  User,
 } from 'lucide-react';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
@@ -75,6 +76,14 @@ export default function AppSidebar() {
               <Link href="/">
                 <Home />
                 Início
+              </Link>
+            </SidebarMenuButton>
+          </SidebarMenuItem>
+           <SidebarMenuItem>
+            <SidebarMenuButton asChild isActive={pathname === '/meu-perfil'} className="text-base [&_svg]:size-5" onClick={handleLinkClick}>
+              <Link href="/meu-perfil">
+                <User />
+                Meu Perfil
               </Link>
             </SidebarMenuButton>
           </SidebarMenuItem>

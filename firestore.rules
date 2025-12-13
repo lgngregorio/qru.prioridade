@@ -41,13 +41,10 @@ service cloud.firestore {
     // --- Report Rules ---
     match /reports/{reportId} {
       // Owner of the report or an admin can read.
-      allow get: if isSignedIn() && isResourceOwnerOrAdmin(resource);
+      allow get, update, delete: if isSignedIn() && isResourceOwnerOrAdmin(resource);
       
       // An authenticated user can create a report, but must set their own uid.
       allow create: if isSignedIn() && request.resource.data.uid == request.auth.uid;
-      
-      // Only the owner or an admin can update/delete.
-      allow update, delete: if isSignedIn() && isResourceOwnerOrAdmin(resource);
     }
     
     match /reports {
