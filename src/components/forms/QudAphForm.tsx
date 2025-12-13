@@ -2,8 +2,8 @@
 'use client';
 
 import { useRouter } from 'next/navigation';
-import { Save, Share, Loader2, PlusCircle, Trash2, X, Eye, CalendarIcon } from 'lucide-react';
-import { useState, useEffect, useMemo } from 'react';
+import { Save, PlusCircle, Trash2, CalendarIcon } from 'lucide-react';
+import { useState, useEffect } from 'react';
 import React from 'react';
 import { format } from 'date-fns';
 
@@ -312,7 +312,6 @@ export default function QudAphForm({ categorySlug }: { categorySlug: string }) {
     }
     return true;
   };
-
 
   const prepareReportData = () => {
     const reportData = {

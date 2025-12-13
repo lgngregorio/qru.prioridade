@@ -2,19 +2,15 @@
 'use client';
 
 import { useRouter } from 'next/navigation';
-import { Save, Share, Loader2 } from 'lucide-react';
+import { Save } from 'lucide-react';
 import { useState } from 'react';
-import { collection, addDoc, serverTimestamp } from 'firebase/firestore';
 import React from 'react';
 
 import { cn } from '@/lib/utils';
-import { eventCategories } from '@/lib/events';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
-import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { useFirestore } from '@/firebase';
 import { useToast } from '@/hooks/use-toast';
 import { Checkbox } from '@/components/ui/checkbox';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
@@ -37,9 +33,7 @@ const SectionTitle = ({ children }: { children: React.ReactNode }) => (
 
 export default function TracadoDePistaForm({ categorySlug }: { categorySlug: string }) {
   const [formData, setFormData] = useState<any>({});
-  const [isSaving, setIsSaving] = useState(false);
   const router = useRouter();
-  const firestore = useFirestore();
   const { toast } = useToast();
 
   const handleValueChange = (section: string, key: string, value: any) => {
@@ -96,49 +90,17 @@ export default function TracadoDePistaForm({ categorySlug }: { categorySlug: str
     </RadioGroup>
   );
 
-  const handleSave = async () => {
-    if (!firestore) {
-      toast({
-        variant: "destructive",
-        title: "Erro",
-        description: "Não foi possível conectar ao banco de dados.",
-      });
-      return false;
-    }
-    
-    setIsSaving(true);
-    
-    try {
-      await addDoc(collection(firestore, 'reports'), {
-        category: categorySlug,
-        formData,
-        createdAt: serverTimestamp(),
-      });
-      toast({
-        title: "Sucesso!",
-        description: "Relatório salvo com sucesso.",
-        className: "bg-green-600 text-white",
-      });
-      router.push('/historico');
-      return true;
-    } catch (error) {
-      console.error("Error saving report: ", error);
-      toast({
-        variant: "destructive",
-        title: "Erro ao salvar",
-        description: "Ocorreu um erro ao salvar o relatório. Tente novamente.",
-      });
-      return false;
-    } finally {
-      setIsSaving(false);
-    }
+  const prepareReportData = () => {
+    return {
+      category: categorySlug,
+      formData: formData,
+    };
   };
 
-  const handleGenerateReport = async () => {
-    const success = await handleSave();
-    if (success) {
-      router.push('/historico');
-    }
+  const handleGenerateReport = () => {
+    const reportData = prepareReportData();
+    localStorage.setItem('reportPreview', JSON.stringify(reportData));
+    router.push('/relatorio/preview');
   };
 
   return (
@@ -308,10 +270,9 @@ export default function TracadoDePistaForm({ categorySlug }: { categorySlug: str
               size="lg"
               className="uppercase text-xl"
               onClick={handleGenerateReport}
-              disabled={isSaving}
             >
-              {isSaving ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Save className="mr-2 h-4 w-4" />}
-              {isSaving ? 'Salvando...' : 'Gerar Relatório'}
+              <Save className="mr-2 h-4 w-4" />
+              Gerar Relatório
             </Button>
         </div>
       </form>

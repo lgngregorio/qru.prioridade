@@ -2,24 +2,18 @@
 'use client';
 
 import { useRouter } from 'next/navigation';
-import { Save, Share, PlusCircle, Trash2, Loader2 } from 'lucide-react';
+import { Save, PlusCircle, Trash2 } from 'lucide-react';
 import { useState } from 'react';
-import { collection, addDoc, serverTimestamp } from 'firebase/firestore';
 import React from 'react';
 
 import { cn } from '@/lib/utils';
-import { eventCategories } from '@/lib/events';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { useFirestore } from '@/firebase';
 import { useToast } from '@/hooks/use-toast';
 import { Checkbox } from '@/components/ui/checkbox';
-import { errorEmitter } from '@/firebase/error-emitter';
-import { FirestorePermissionError } from '@/firebase/errors';
-
 
 function Field({ label, children, className }: { label?: string, children: React.ReactNode, className?: string }) {
   return (
@@ -67,10 +61,8 @@ type OtherInfo = {
 };
 
 export default function TO19Form({ categorySlug }: { categorySlug: string }) {
-  const firestore = useFirestore();
   const router = useRouter();
   const { toast } = useToast();
-  const [isSaving, setIsSaving] = useState(false);
   const [showVtrApoio, setShowVtrApoio] = useState(false);
   const [showDanoPatrimonio, setShowDanoPatrimonio] = useState(false);
 
@@ -159,98 +151,35 @@ export default function TO19Form({ categorySlug }: { categorySlug: string }) {
     return data;
   };
 
-  const validateFields = (data: any): boolean => {
-      if (Array.isArray(data)) {
-        return data.every(item => validateFields(item));
-      }
-      if (typeof data === 'object' && data !== null) {
-        // Naive check for all properties in the object
-        for (const key in data) {
-          if (!validateFields(data[key])) return false;
-        }
-        return true;
-      }
-      // Allow NILL as a valid value
-      if (data === 'NILL') return true;
-
-      // Check for empty strings, null, or undefined
-      return data !== '' && data !== null && data !== undefined;
-  };
-
   const prepareReportData = () => {
-    const filledData = {
-      generalInfo: fillEmptyFields(generalInfo),
-      vehicles: fillEmptyFields(vehicles),
-      otherInfo: fillEmptyFields(otherInfo),
+    const reportData = {
+      generalInfo,
+      vehicles,
+      otherInfo,
     };
-
+    
     if (!showVtrApoio) {
-      filledData.otherInfo.vtrApoio = 'NILL';
+      reportData.otherInfo.vtrApoio = 'NILL';
     }
     
     if (!showDanoPatrimonio) {
-      filledData.otherInfo.danoPatrimonio = 'NILL';
+      reportData.otherInfo.danoPatrimonio = 'NILL';
     }
 
-    return {
-      category: categorySlug,
-      formData: filledData,
-      createdAt: serverTimestamp(),
+    const filledReportData = {
+        category: categorySlug,
+        formData: fillEmptyFields(reportData),
     };
+    
+    return filledReportData;
   };
   
-  const saveReport = async () => {
-    if (!firestore) {
-      toast({
-        variant: "destructive",
-        title: "Erro",
-        description: "Não foi possível conectar ao banco de dados.",
-      });
-      return false;
-    }
-
+  const handleGenerateReport = () => {
     const reportData = prepareReportData();
-
-    if (!validateFields(reportData.formData)) {
-        toast({
-            variant: "destructive",
-            title: "Campos obrigatórios",
-            description: "Por favor, preencha todos os campos antes de salvar ou compartilhar.",
-        });
-        return false;
+    if (reportData) {
+      localStorage.setItem('reportPreview', JSON.stringify(reportData));
+      router.push('/relatorio/preview');
     }
-    
-    setIsSaving(true);
-    
-    const reportsCollection = collection(firestore, 'reports');
-
-    addDoc(reportsCollection, reportData)
-      .then(() => {
-        console.log("Relatório salvo com sucesso em segundo plano.");
-      })
-      .catch((serverError) => {
-        const permissionError = new FirestorePermissionError({
-          path: reportsCollection.path,
-          operation: 'create',
-          requestResourceData: reportData,
-        });
-        errorEmitter.emit('permission-error', permissionError);
-      });
-      
-    return true;
-  };
-
-  const handleGenerateReport = async () => {
-    const success = await saveReport();
-    if (success) {
-      toast({
-        title: "Sucesso!",
-        description: "Relatório salvo e enviado para a fila.",
-        className: "bg-green-600 text-white",
-      });
-      router.push('/historico');
-    }
-    setIsSaving(false);
   };
 
   return (
@@ -488,10 +417,9 @@ export default function TO19Form({ categorySlug }: { categorySlug: string }) {
               size="lg"
               className="uppercase text-xl"
               onClick={handleGenerateReport}
-              disabled={isSaving}
             >
-              {isSaving ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Save className="mr-2 h-4 w-4" />}
-              {isSaving ? 'Salvando...' : 'Gerar Relatório'}
+              <Save className="mr-2 h-4 w-4" />
+              Gerar Relatório
             </Button>
         </div>
       </form>
