@@ -152,22 +152,23 @@ export default function OcorrenciasPage() {
   const { toast } = useToast();
 
   const reportsQuery = useMemoFirebase(() => {
-    // A consulta só será criada se o usuário estiver autenticado e o firestore estiver pronto.
-    if (!user || !firestore) {
-      return null;
+    // Only construct the query if the firestore instance and user are available.
+    if (firestore && user) {
+      return query(
+        collection(firestore, 'reports'),
+        where('uid', '==', user.uid),
+        orderBy('createdAt', 'desc')
+      );
     }
-    return query(
-      collection(firestore, 'reports'),
-      where('uid', '==', user.uid),
-      orderBy('createdAt', 'desc')
-    );
+    // Return null if dependencies are not ready, preventing premature queries.
+    return null;
   }, [firestore, user]);
 
   const { data: reports, isLoading: reportsLoading, error } = useCollection<Report>(reportsQuery);
 
-  // O carregamento está ativo se a autenticação estiver em andamento OU
-  // se a consulta foi criada e os relatórios ainda estão carregando.
-  const isLoading = isUserLoading || (reportsQuery !== null && reportsLoading);
+  // The overall loading state is true if the user is being authenticated OR
+  // if the query is ready and reports are being fetched.
+  const isLoading = isUserLoading || (!!reportsQuery && reportsLoading);
   
   const getCategoryTitle = (slug: string) => {
     const category = eventCategories.find(c => c.slug === slug);
