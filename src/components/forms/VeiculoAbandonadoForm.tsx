@@ -2,23 +2,18 @@
 'use client';
 
 import { useRouter } from 'next/navigation';
-import { Save, Share, PlusCircle, Trash2, Loader2 } from 'lucide-react';
-import { useState } from 'react';
-import { collection, addDoc, serverTimestamp } from 'firebase/firestore';
+import { Save, PlusCircle, Trash2 } from 'lucide-react';
+import { useState, useEffect } from 'react';
 import React from 'react';
 
 import { cn } from '@/lib/utils';
-import { eventCategories } from '@/lib/events';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { useFirestore } from '@/firebase';
 import { useToast } from '@/hooks/use-toast';
 import { Checkbox } from '@/components/ui/checkbox';
-import { errorEmitter } from '@/firebase/error-emitter';
-import { FirestorePermissionError } from '@/firebase/errors';
 
 
 function Field({ label, children, className }: { label?: string, children: React.ReactNode, className?: string }) {
@@ -66,10 +61,8 @@ type OtherInfo = {
 };
 
 export default function VeiculoAbandonadoForm({ categorySlug }: { categorySlug: string }) {
-  const firestore = useFirestore();
   const router = useRouter();
   const { toast } = useToast();
-  const [isSaving, setIsSaving] = useState(false);
   const [showVtrApoio, setShowVtrApoio] = useState(false);
 
   const [generalInfo, setGeneralInfo] = useState<GeneralInfo>({
@@ -95,6 +88,19 @@ export default function VeiculoAbandonadoForm({ categorySlug }: { categorySlug: 
     observacoes: '',
     numeroOcorrencia: '',
   });
+  
+  useEffect(() => {
+    const savedData = localStorage.getItem('reportPreview');
+    if (savedData) {
+      const { formData } = JSON.parse(savedData);
+      if (formData) {
+        setGeneralInfo(formData.generalInfo || generalInfo);
+        setVehicles(formData.vehicles || vehicles);
+        setOtherInfo(formData.otherInfo || otherInfo);
+        setShowVtrApoio(!!formData.otherInfo?.vtrApoio && formData.otherInfo.vtrApoio !== 'NILL');
+      }
+    }
+  }, []);
 
   const handleGeneralInfoChange = (field: keyof GeneralInfo, value: string) => {
     setGeneralInfo(prev => ({ ...prev, [field]: value }));
@@ -157,66 +163,30 @@ export default function VeiculoAbandonadoForm({ categorySlug }: { categorySlug: 
   };
 
   const prepareReportData = () => {
-    const filledData = {
-      generalInfo: fillEmptyFields(generalInfo),
-      vehicles: fillEmptyFields(vehicles),
-      otherInfo: fillEmptyFields(otherInfo),
+    const reportData = {
+      generalInfo: generalInfo,
+      vehicles: vehicles,
+      otherInfo: otherInfo,
     };
 
     if (!showVtrApoio) {
-      filledData.otherInfo.vtrApoio = 'NILL';
+      reportData.otherInfo.vtrApoio = 'NILL';
     }
-
-    return {
-      category: categorySlug,
-      formData: filledData,
-      createdAt: serverTimestamp(),
+    
+    const filledReportData = {
+        category: categorySlug,
+        formData: fillEmptyFields(reportData),
     };
+    
+    return filledReportData;
   };
   
-  const saveReport = async () => {
-    if (!firestore) {
-      toast({
-        variant: "destructive",
-        title: "Erro",
-        description: "Não foi possível conectar ao banco de dados.",
-      });
-      return false;
-    }
-
+  const handleGenerateReport = () => {
     const reportData = prepareReportData();
-    
-    setIsSaving(true);
-    
-    const reportsCollection = collection(firestore, 'reports');
-
-    addDoc(reportsCollection, reportData)
-      .then(() => {
-        console.log("Relatório salvo com sucesso em segundo plano.");
-      })
-      .catch((serverError) => {
-        const permissionError = new FirestorePermissionError({
-          path: reportsCollection.path,
-          operation: 'create',
-          requestResourceData: reportData,
-        });
-        errorEmitter.emit('permission-error', permissionError);
-      });
-      
-    return true;
-  };
-
-  const handleGenerateReport = async () => {
-    const success = await saveReport();
-    if (success) {
-      toast({
-        title: "Sucesso!",
-        description: "Relatório salvo. Redirecionando para o histórico.",
-        className: "bg-green-600 text-white",
-      });
-      router.push('/historico');
+    if(reportData) {
+      localStorage.setItem('reportPreview', JSON.stringify(reportData));
+      router.push('/relatorio/preview');
     }
-    setIsSaving(false);
   };
 
   return (
@@ -430,10 +400,9 @@ export default function VeiculoAbandonadoForm({ categorySlug }: { categorySlug: 
               size="lg"
               className="uppercase text-xl"
               onClick={handleGenerateReport}
-              disabled={isSaving}
             >
-              {isSaving ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Save className="mr-2 h-4 w-4" />}
-              {isSaving ? 'Salvando...' : 'Gerar Relatório'}
+              <Save className="mr-2 h-4 w-4" />
+              Gerar Relatório
             </Button>
         </div>
       </form>

@@ -4,21 +4,16 @@
 import { useRouter } from 'next/navigation';
 import { Save, Share, Loader2 } from 'lucide-react';
 import { useState, useEffect } from 'react';
-import { collection, addDoc, serverTimestamp } from 'firebase/firestore';
 import React from 'react';
 
 import { cn } from '@/lib/utils';
-import { eventCategories } from '@/lib/events';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { useFirestore } from '@/firebase';
 import { useToast } from '@/hooks/use-toast';
 import { Checkbox } from '@/components/ui/checkbox';
-import { FirestorePermissionError } from '@/firebase/errors';
-import { errorEmitter } from '@/firebase/error-emitter';
 
 
 function Field({ label, children, className }: { label?: string, children: React.ReactNode, className?: string }) {
@@ -51,10 +46,8 @@ type OtherInfo = {
 };
 
 export default function IncendioForm({ categorySlug }: { categorySlug: string }) {
-  const firestore = useFirestore();
   const router = useRouter();
   const { toast } = useToast();
-  const [isSaving, setIsSaving] = useState(false);
   const [showVtrApoio, setShowVtrApoio] = useState(false);
 
   const [generalInfo, setGeneralInfo] = useState<GeneralInfo>({
@@ -75,6 +68,18 @@ export default function IncendioForm({ categorySlug }: { categorySlug: string })
     observacoes: '',
     numeroOcorrencia: '',
   });
+  
+  useEffect(() => {
+    const savedData = localStorage.getItem('reportPreview');
+    if (savedData) {
+      const { formData } = JSON.parse(savedData);
+      if (formData) {
+        setGeneralInfo(formData.generalInfo || generalInfo);
+        setOtherInfo(formData.otherInfo || otherInfo);
+        setShowVtrApoio(!!formData.otherInfo?.vtrApoio && formData.otherInfo.vtrApoio !== 'NILL');
+      }
+    }
+  }, []);
 
   const handleGeneralInfoChange = (field: keyof GeneralInfo, value: string) => {
     setGeneralInfo(prev => ({ ...prev, [field]: value }));
@@ -128,7 +133,6 @@ export default function IncendioForm({ categorySlug }: { categorySlug: string })
     if (typeof data === 'object' && data !== null) {
       for (const key in data) {
           if (Object.prototype.hasOwnProperty.call(data, key)) {
-            // Campos opcionais podem ser 'NILL' mas não vazios se a checkbox estiver marcada
             if (key === 'vtrApoio' && !showVtrApoio) continue;
             
             const value = data[key];
@@ -144,78 +148,38 @@ export default function IncendioForm({ categorySlug }: { categorySlug: string })
 
 
   const prepareReportData = () => {
-    const filledData = {
+    const reportData = {
       generalInfo: generalInfo,
       otherInfo: otherInfo,
     };
 
     if (!showVtrApoio) {
-      filledData.otherInfo.vtrApoio = 'NILL';
-    }
-
-    return {
-      category: categorySlug,
-      formData: filledData,
-      createdAt: serverTimestamp(),
-    };
-  };
-  
-   const saveReport = async () => {
-    if (!firestore) {
-      toast({
-        variant: "destructive",
-        title: "Erro",
-        description: "Não foi possível conectar ao banco de dados.",
-      });
-      return false;
+      reportData.otherInfo.vtrApoio = 'NILL';
     }
     
-    const reportData = prepareReportData();
-
-    if (!validateFields(reportData.formData)) {
+    if (!validateFields(reportData)) {
         toast({
             variant: "destructive",
             title: "Campos obrigatórios",
-            description: "Por favor, preencha todos os campos antes de salvar.",
+            description: "Por favor, preencha todos os campos antes de continuar.",
         });
-        return false;
+        return null;
     }
     
-    // Preenche campos vazios com 'NILL' apenas depois da validação
     const filledReportData = {
-        ...reportData,
-        formData: fillEmptyFields(reportData.formData),
+        category: categorySlug,
+        formData: fillEmptyFields(reportData),
     };
-
-    setIsSaving(true);
     
-    const reportsCollection = collection(firestore, 'reports');
-
-    try {
-        await addDoc(reportsCollection, filledReportData);
-        return true;
-    } catch(serverError) {
-        const permissionError = new FirestorePermissionError({
-          path: reportsCollection.path,
-          operation: 'create',
-          requestResourceData: filledReportData,
-        });
-        errorEmitter.emit('permission-error', permissionError);
-        return false;
-    }
+    return filledReportData;
   };
-
-  const handleGenerateReport = async () => {
-    const success = await saveReport();
-    if (success) {
-      toast({
-        title: "Sucesso!",
-        description: "Relatório salvo. Redirecionando para o histórico.",
-        className: "bg-green-600 text-white",
-      });
-      router.push('/historico');
+  
+   const handleGenerateReport = () => {
+    const reportData = prepareReportData();
+    if(reportData) {
+      localStorage.setItem('reportPreview', JSON.stringify(reportData));
+      router.push('/relatorio/preview');
     }
-    setIsSaving(false);
   };
 
   return (
@@ -321,10 +285,9 @@ export default function IncendioForm({ categorySlug }: { categorySlug: string })
               size="lg"
               className="uppercase text-xl"
               onClick={handleGenerateReport}
-              disabled={isSaving}
             >
-              {isSaving ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Save className="mr-2 h-4 w-4" />}
-              {isSaving ? 'Salvando...' : 'Gerar Relatório'}
+              <Save className="mr-2 h-4 w-4" />
+              Gerar Relatório
             </Button>
         </div>
       </form>
