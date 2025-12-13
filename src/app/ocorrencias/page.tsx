@@ -1,7 +1,7 @@
 
 'use client';
 
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import { Loader2, History, Trash2, Edit, Share2 } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -25,7 +25,7 @@ import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/
 import { eventCategories } from '@/lib/events';
 import ReportDetail from '@/components/ReportDetail';
 import { useUser, useFirestore, useCollection, useMemoFirebase } from '@/firebase';
-import { collection, query, where, doc, deleteDoc } from 'firebase/firestore';
+import { collection, query, where, doc, deleteDoc, Query } from 'firebase/firestore';
 
 interface Report {
     id: string;
@@ -41,6 +41,8 @@ export default function OcorrenciasPage() {
     const { user, isUserLoading } = useUser();
     const firestore = useFirestore();
 
+    const [isDeleting, setIsDeleting] = useState<string | null>(null);
+
     const reportsQuery = useMemoFirebase(() => {
         if (!firestore || !user?.uid) {
             return null;
@@ -49,9 +51,7 @@ export default function OcorrenciasPage() {
     }, [firestore, user?.uid]);
 
     const { data: reports, isLoading: isLoadingReports } = useCollection<Report>(reportsQuery);
-
-    const [isDeleting, setIsDeleting] = useState<string | null>(null);
-
+    
     const sortedReports = useMemo(() => {
         if (!reports) return [];
         return [...reports].sort((a, b) => b.createdAt.seconds - a.createdAt.seconds);
