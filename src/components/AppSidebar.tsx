@@ -61,14 +61,6 @@ export default function AppSidebar() {
             </SidebarMenuButton>
           </SidebarMenuItem>
           <SidebarMenuItem>
-            <SidebarMenuButton asChild isActive={pathname === '/ocorrencias'} className="text-base [&_svg]:size-5" onClick={handleLinkClick}>
-              <Link href="/ocorrencias">
-                <History />
-                Ocorrências
-              </Link>
-            </SidebarMenuButton>
-          </SidebarMenuItem>
-          <SidebarMenuItem>
             <SidebarMenuButton asChild isActive={pathname === '/codigos'} className="text-base [&_svg]:size-5" onClick={handleLinkClick}>
               <Link href="/codigos">
                 <FileCode />
