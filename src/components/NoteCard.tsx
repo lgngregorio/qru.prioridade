@@ -81,15 +81,15 @@ export function NoteCard({ note, onEdit, onDelete }: NoteCardProps) {
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent>
-              <DropdownMenuItem onClick={onEdit}>
+              <DropdownMenuItem onClick={onEdit} className="text-base p-3">
                 <Edit className="mr-2 h-4 w-4" />
                 <span>Editar</span>
               </DropdownMenuItem>
-              <DropdownMenuItem onClick={handleShare}>
+              <DropdownMenuItem onClick={handleShare} className="text-base p-3">
                 <Share2 className="mr-2 h-4 w-4" />
                 <span>Compartilhar</span>
               </DropdownMenuItem>
-              <DropdownMenuItem onClick={() => setShowDeleteConfirm(true)} className="text-destructive">
+              <DropdownMenuItem onClick={() => setShowDeleteConfirm(true)} className="text-destructive text-base p-3">
                 <Trash2 className="mr-2 h-4 w-4" />
                 <span>Apagar</span>
               </DropdownMenuItem>
