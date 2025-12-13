@@ -160,7 +160,7 @@ export default function HistoricoPage() {
       where('uid', '==', user.uid),
       orderBy('createdAt', 'desc')
     );
-  }, [firestore, user?.uid]);
+  }, [firestore, user]);
 
   const { data: reports, isLoading: reportsLoading } = useCollection<Report>(reportsQuery);
   
@@ -265,7 +265,7 @@ export default function HistoricoPage() {
                 <Accordion type="single" collapsible className="w-full space-y-4">
                     {reports.map((report) => (
                         <AccordionItem value={report.id} key={report.id} className="border rounded-lg bg-card/50">
-                            <AccordionTrigger className="p-4 text-xl hover:no-underline flex justify-between items-center w-full">
+                             <AccordionTrigger className="p-4 text-xl hover:no-underline flex justify-between items-center w-full">
                                <div className="flex flex-col text-left">
                                     <span className="font-bold">{getCategoryTitle(report.category)}</span>
                                     <span className="text-sm font-normal text-muted-foreground">{formatDate(report.createdAt)}</span>
@@ -322,7 +322,3 @@ export default function HistoricoPage() {
     </main>
   );
 }
-
-    
-
-    
