@@ -20,7 +20,7 @@ const formatDate = (isoDate: string) => {
     if (!isoDate) return 'Carregando...';
     try {
         const date = new Date(isoDate);
-        return date.toLocaleString('pt-BR', { day: '2-digit', month: 'long', year: 'numeric', hour: '2-digit', minute: '2-digit' });
+        return date.toLocaleString('pt-BR', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' });
     } catch {
         return 'Data inválida';
     }
