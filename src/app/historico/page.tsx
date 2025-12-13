@@ -28,6 +28,8 @@ import Link from 'next/link';
 import { useToast } from '@/hooks/use-toast';
 import { eventCategories } from '@/lib/events';
 import { useCollection } from '@/firebase/firestore/use-collection';
+import { errorEmitter } from '@/firebase/error-emitter';
+import { FirestorePermissionError } from '@/firebase/errors';
 
 interface Report {
   id: string;
@@ -150,7 +152,7 @@ export default function HistoricoPage() {
   const { toast } = useToast();
 
   const reportsQuery = useMemoFirebase(() => {
-    if (isUserLoading || !user || !firestore) {
+    if (!user || !firestore) {
       return null;
     }
     return query(
@@ -158,11 +160,11 @@ export default function HistoricoPage() {
       where('uid', '==', user.uid),
       orderBy('createdAt', 'desc')
     );
-  }, [firestore, user, isUserLoading]);
+  }, [firestore, user]);
 
   const { data: reports, isLoading: reportsLoading } = useCollection<Report>(reportsQuery);
   
-  const isLoading = isUserLoading || reportsLoading;
+  const isLoading = isUserLoading || (!!user && reportsLoading);
   
   const getCategoryTitle = (slug: string) => {
     const category = eventCategories.find(c => c.slug === slug);
@@ -171,10 +173,15 @@ export default function HistoricoPage() {
   
   const handleDelete = (reportId: string) => {
     if (!firestore) return;
-    deleteDoc(doc(firestore, 'reports', reportId)).then(() => {
+    const docRef = doc(firestore, 'reports', reportId);
+    deleteDoc(docRef).then(() => {
         toast({ title: 'Relatório apagado com sucesso!' });
     }).catch ((error) => {
-      console.error('Error deleting report: ', error);
+      const permissionError = new FirestorePermissionError({
+          path: docRef.path,
+          operation: 'delete',
+        });
+        errorEmitter.emit('permission-error', permissionError);
       toast({
         variant: 'destructive',
         title: 'Erro ao apagar relatório.',
