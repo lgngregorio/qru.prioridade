@@ -72,16 +72,16 @@ export function NoteCard({ note, onEdit, onDelete }: NoteCardProps) {
                  <p className="text-xs text-muted-foreground mt-1">{formatDate(note.createdAt)}</p>
             </div>
             <div className="flex gap-2">
-                <Button variant="outline" size="icon" onClick={onEdit} className="border-blue-500 text-blue-500 hover:bg-blue-500 hover:text-white">
-                    <Edit className="h-5 w-5" />
+                <Button variant="outline" size="icon" onClick={onEdit} className="h-12 w-12 border-blue-500 text-blue-500 hover:bg-blue-500 hover:text-white">
+                    <Edit className="h-6 w-6" />
                     <span className="sr-only">Editar</span>
                 </Button>
-                <Button variant="outline" size="icon" onClick={handleShare} className="border-green-500 text-green-500 hover:bg-green-500 hover:text-white">
-                    <Share2 className="h-5 w-5" />
+                <Button variant="outline" size="icon" onClick={handleShare} className="h-12 w-12 border-green-500 text-green-500 hover:bg-green-500 hover:text-white">
+                    <Share2 className="h-6 w-6" />
                     <span className="sr-only">Compartilhar</span>
                 </Button>
-                 <Button variant="destructive" size="icon" onClick={() => setShowDeleteConfirm(true)}>
-                    <Trash2 className="h-5 w-5" />
+                 <Button variant="destructive" size="icon" onClick={() => setShowDeleteConfirm(true)} className="h-12 w-12">
+                    <Trash2 className="h-6 w-6" />
                     <span className="sr-only">Apagar</span>
                 </Button>
             </div>
