@@ -1,7 +1,6 @@
 
 'use client';
 
-import type { Metadata } from 'next';
 import './globals.css';
 import { cn } from '@/lib/utils';
 import { Toaster } from '@/components/ui/toaster';
@@ -14,32 +13,41 @@ import AppSidebar from '@/components/AppSidebar';
 import { ThemeProvider } from '@/components/theme-provider';
 import { usePathname, useRouter } from 'next/navigation';
 import { FirebaseClientProvider, useUser } from '@/firebase';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { Loader2 } from 'lucide-react';
+
+const PUBLIC_PAGES = ['/login', '/signup', '/forgot-password'];
 
 function AuthGuard({ children }: { children: React.ReactNode }) {
   const { user, isUserLoading } = useUser();
   const router = useRouter();
   const pathname = usePathname();
+  const isPublicPage = PUBLIC_PAGES.includes(pathname);
 
   useEffect(() => {
+    // Se não estiver carregando e não houver usuário logado...
     if (!isUserLoading && !user) {
-      const isPublicPage = ['/login', '/signup', '/forgot-password'].includes(pathname);
+      // E a página não for pública, redireciona para o login.
       if (!isPublicPage) {
         router.replace('/login');
       }
     }
-  }, [user, isUserLoading, router, pathname]);
+  }, [user, isUserLoading, router, pathname, isPublicPage]);
 
-  if (isUserLoading) {
-    return (
-      <div className="flex min-h-screen items-center justify-center">
-        <Loader2 className="h-16 w-16 animate-spin text-primary" />
-      </div>
-    );
+  // Se estiver em uma página pública ou se o usuário estiver logado,
+  // ou se ainda estiver carregando, mostra o conteúdo.
+  // O carregamento é mostrado para evitar piscar a tela de login.
+  if (isUserLoading || isPublicPage || user) {
+     return <>{children}</>;
   }
 
-  return <>{children}</>;
+  // Se não estiver carregando, não for uma página pública e não tiver usuário,
+  // mostra o loader principal enquanto redireciona.
+  return (
+    <div className="flex min-h-screen items-center justify-center">
+      <Loader2 className="h-16 w-16 animate-spin text-primary" />
+    </div>
+  );
 }
 
 
@@ -48,7 +56,6 @@ export default function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  const pathname = usePathname();
 
   return (
     <html lang="en" className="h-full" suppressHydrationWarning>
