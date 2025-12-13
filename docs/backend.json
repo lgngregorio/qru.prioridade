@@ -1,107 +1,108 @@
-
 {
   "entities": {
-    "User": {
-      "title": "User",
-      "description": "Represents a user of the Event Reporter application.",
+    "EventCategory": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "EventCategory",
       "type": "object",
+      "description": "Represents a category of events that can be reported.",
       "properties": {
         "id": {
           "type": "string",
-          "description": "Unique identifier for the User entity, matching Firebase Auth UID."
-        },
-        "email": {
-          "type": "string",
-          "description": "The user's email address.",
-          "format": "email"
+          "description": "Unique identifier for the EventCategory entity."
         },
         "name": {
           "type": "string",
-          "description": "The user's display name."
+          "description": "The name of the event category."
         },
-        "theme": {
+        "description": {
           "type": "string",
-          "description": "The user's preferred color theme.",
-          "enum": [
-            "light",
-            "dark",
-            "system"
-          ]
+          "description": "A detailed description of the event category."
         },
-        "role": {
+        "icon": {
           "type": "string",
-          "description": "The user's role, used for authorization.",
-          "enum": [
-            "admin",
-            "user"
-          ]
+          "description": "Icon associated with the event category (e.g., a FontAwesome icon class or image URL)."
         }
       },
       "required": [
         "id",
-        "email",
-        "name"
+        "name",
+        "description",
+        "icon"
       ]
     },
-    "Report": {
-      "title": "Report",
-      "description": "Represents an event report created by a user.",
+    "EventReport": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "EventReport",
       "type": "object",
+      "description": "Represents a report generated for a specific event category.",
       "properties": {
-        "uid": {
+        "id": {
           "type": "string",
-          "description": "The ID of the user who created the report, matching their Firebase Auth UID."
+          "description": "Unique identifier for the EventReport entity."
         },
-        "category": {
+        "eventCategoryId": {
           "type": "string",
-          "description": "The category slug of the report."
+          "description": "Reference to EventCategory. (Relationship: EventCategory 1:N EventReport)"
         },
-        "createdAt": {
+        "reportData": {
           "type": "string",
-          "format": "date-time",
-          "description": "The timestamp when the report was created."
+          "description": "The data associated with the event report. This is a string field, but can be formatted using JSON."
         },
-        "formData": {
-          "type": "object",
-          "description": "The structured data from the report form."
+        "createdDate": {
+          "type": "string",
+          "description": "Date the event report was created.",
+          "format": "date-time"
         }
       },
       "required": [
-        "uid",
-        "category",
-        "createdAt",
-        "formData"
+        "id",
+        "eventCategoryId",
+        "reportData",
+        "createdDate"
       ]
     }
   },
   "auth": {
     "providers": [
-      "password"
+      "password",
+      "anonymous"
     ]
   },
   "firestore": {
     "structure": [
       {
-        "path": "/users/{userId}",
+        "path": "/event_categories/{eventCategoryId}",
         "definition": {
-          "entityName": "User",
+          "entityName": "EventCategory",
           "schema": {
-            "$ref": "#/backend/entities/User"
+            "$ref": "#/backend/entities/EventCategory"
           },
-          "description": "Stores user profile information. Only the user with the matching `userId` can read or write their own document. This ensures user data privacy."
+          "description": "Stores event categories, each with an ID, name, description, and icon.",
+          "params": [
+            {
+              "name": "eventCategoryId",
+              "description": "Unique identifier for the event category."
+            }
+          ]
         }
       },
       {
-        "path": "/reports/{reportId}",
+        "path": "/event_reports/{eventReportId}",
         "definition": {
-          "entityName": "Report",
+          "entityName": "EventReport",
           "schema": {
-            "$ref": "#/backend/entities/Report"
+            "$ref": "#/backend/entities/EventReport"
           },
-          "description": "Stores individual reports. Authorization is content-based: only the user whose `uid` matches the document's `uid` field can perform operations. This isolates each user's reports."
+          "description": "Stores event reports, each associated with an event category via 'eventCategoryId'.",
+          "params": [
+            {
+              "name": "eventReportId",
+              "description": "Unique identifier for the event report."
+            }
+          ]
         }
       }
     ],
-    "reasoning": "The Firestore structure enforces strict user ownership of data. The `/users/{userId}` path uses path-based security, allowing users to manage only their own profile. The `/reports/{reportId}` collection uses content-based security, where a `uid` field inside each report document ensures that only the report's creator can access or modify it. Listing reports is also restricted, requiring a query that filters by the authenticated user's `uid`, preventing data leakage between users."
+    "reasoning": "The Firestore structure is designed to manage event categories and event reports effectively, focusing on simplicity and security. \n\n`event_categories` Collection:\nThis collection stores the available event categories. Each document represents a category with fields like 'name', 'description', and 'icon'.\n\n`event_reports` Collection:\nThis collection stores the reports associated with each event category. Each report is tied to a specific category using the 'eventCategoryId' field. It includes fields for 'reportData' and 'createdDate'.\n\nAuthorization Independence:\nAuthorization independence is achieved because there are no `get()` calls required in the security rules. The structure does not depend on data in parent documents to authorize access to child documents. Reports do not need to inherit any permissions from categories.\n\nQAPs Support:\nQAPs (Rules are not Filters) is inherently supported due to the flat structure and the absence of complex authorization rules. Listing operations can be securely performed on each collection without filtering based on user-specific attributes.\n\nThis design prioritizes clarity, simplicity, and security, aligning with the core design principles."
   }
 }

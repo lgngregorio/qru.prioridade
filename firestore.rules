@@ -1,10 +1,80 @@
-
 rules_version = '2';
 
+/**
+ * @file firestore.rules
+ * @description Security rules for a public event reporting application.
+ *
+ * @philosophy
+ * This ruleset implements a dual-pattern security model.
+ * 1. Configuration Data (`event_categories`): This data is treated as public and immutable from the client-side. All users, authenticated or not, can read the categories, but no client can write to them. This ensures that the list of available event types is consistent and centrally managed.
+ * 2. Write-Only Dropbox (`event_reports`): This collection functions as a secure "dropbox." Any authenticated user (including anonymous ones) can submit a new report. However, once a report is created, it cannot be read, modified, or deleted by any client. This prevents data enumeration, tampering, and ensures the integrity of submitted reports, which are presumably processed by a backend service.
+ *
+ * @structure
+ * The data is organized into two independent, top-level collections:
+ * - `/event_categories/{eventCategoryId}`: Stores public, read-only configuration data.
+ * - `/event_reports/{eventReportId}`: Stores user-submitted data in a write-once, no-read model.
+ *
+ * @decisions
+ * - Client-Side Immutability: Core configuration data (`event_categories`) is made read-only to prevent unauthorized changes. All modifications must be done via the Firebase Console or a trusted backend environment.
+ * - Anonymous Submissions: The rules support anonymous authentication, allowing any app user to submit an `event_report` without needing a permanent account.
+ * - No Data Leakage: By disallowing `get`, `list`, `update`, and `delete` on `event_reports`, the system prevents any user from seeing or interacting with reports submitted by others, enhancing privacy and security.
+ * - No `get()` Calls: The security model is simple and performant, with no cross-document reads (`get()` or `exists()`) required for authorization decisions.
+ */
 service cloud.firestore {
   match /databases/{database}/documents {
-    match /{document=**} {
-      allow read, write: if true;
+
+    // Helper functions for readable and reusable logic
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    /**
+     * @description
+     *   Rules for the `event_categories` collection. This collection stores
+     *   public configuration data that defines the types of events users can report.
+     *   It is publicly readable by everyone but cannot be modified by any client.
+     * @path
+     *   /event_categories/{eventCategoryId}
+     * @allow
+     *   Any user (authenticated or not) can read a specific category or list all categories.
+     *   e.g., (get) `/event_categories/road_hazard`
+     * @deny
+     *   Any user (authenticated or not) attempting to create, update, or delete a category.
+     *   e.g., (create) Auth: ANY; `/event_categories/new_category`
+     * @principle
+     *   Protects immutable configuration data from client modification, ensuring data integrity.
+     */
+    match /event_categories/{eventCategoryId} {
+      allow get: if true;
+      allow list: if true;
+      allow create: if false;
+      allow update: if false;
+      allow delete: if false;
+    }
+
+    /**
+     * @description
+     *   Rules for the `event_reports` collection. This collection acts as a secure
+     *   "dropbox" where any authenticated user (including anonymous users) can submit
+     *   a new report. Once submitted, reports are immutable and inaccessible to clients.
+     * @path
+     *   /event_reports/{eventReportId}
+     * @allow
+     *   An authenticated user (including anonymous) creates a new event report.
+     *   e.g., (create) Auth: { uid: 'some_anon_uid' }; `/event_reports/new_report`
+     * @deny
+     *   Any user attempting to read, list, update, or delete any event report.
+     *   e.g., (get) Auth: { uid: 'some_anon_uid' }; `/event_reports/some_report_id`
+     * @principle
+     *   Securely collects data from any user without exposing existing data or allowing
+     *   modification after submission.
+     */
+    match /event_reports/{eventReportId} {
+      allow create: if isSignedIn();
+      allow get: if false;
+      allow list: if false;
+      allow update: if false;
+      allow delete: if false;
     }
   }
 }
