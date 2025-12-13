@@ -221,28 +221,31 @@ export default function PreviewPage() {
               <ReportDetail formData={report.formData} />
             </CardContent>
             <CardFooter className="flex flex-col md:flex-row justify-end gap-4 pt-6">
-              <Button
-                variant="outline"
-                onClick={handleEdit}
-              >
-                  <Edit className="mr-2 h-4 w-4" />
-                  Editar
-              </Button>
-              <Button
-                variant="outline"
-                onClick={handleSaveAndGoToHistory}
-              >
-                <Save className="mr-2 h-4 w-4" />
-                Salvar Relatório
-              </Button>
-              <Button
-                variant="secondary"
-                className="bg-green-500 hover:bg-green-600 text-white w-full md:w-auto"
-                onClick={handleShare}
-              >
-                <Share2 className="mr-2 h-4 w-4" />
-                Compartilhar no WhatsApp
-              </Button>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 w-full">
+                    <Button
+                        variant="outline"
+                        onClick={handleEdit}
+                        className="w-full"
+                    >
+                        <Edit className="mr-2 h-4 w-4" />
+                        Editar
+                    </Button>
+                    <Button
+                        onClick={handleSaveAndGoToHistory}
+                        className="w-full bg-blue-500 hover:bg-blue-600 text-white"
+                    >
+                        <Save className="mr-2 h-4 w-4" />
+                        Salvar Relatório
+                    </Button>
+                </div>
+                <Button
+                    variant="secondary"
+                    className="bg-green-500 hover:bg-green-600 text-white w-full"
+                    onClick={handleShare}
+                >
+                    <Share2 className="mr-2 h-4 w-4" />
+                    Compartilhar no WhatsApp
+                </Button>
             </CardFooter>
           </Card>
         </div>
