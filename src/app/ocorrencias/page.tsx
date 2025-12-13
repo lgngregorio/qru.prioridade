@@ -164,7 +164,7 @@ export default function OcorrenciasPage() {
 
   const { data: reports, isLoading: reportsLoading, error } = useCollection<Report>(reportsQuery);
 
-  const isLoading = isUserLoading || (!!user && reportsLoading);
+  const isLoading = isUserLoading || (reportsQuery !== null && reportsLoading);
   
   const getCategoryTitle = (slug: string) => {
     const category = eventCategories.find(c => c.slug === slug);
