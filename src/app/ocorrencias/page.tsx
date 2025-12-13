@@ -152,7 +152,8 @@ export default function OcorrenciasPage() {
   const { toast } = useToast();
 
   const reportsQuery = useMemoFirebase(() => {
-    if (isUserLoading || !user || !firestore) {
+    // A consulta só será criada se o usuário estiver autenticado e o firestore estiver pronto.
+    if (!user || !firestore) {
       return null;
     }
     return query(
@@ -160,10 +161,12 @@ export default function OcorrenciasPage() {
       where('uid', '==', user.uid),
       orderBy('createdAt', 'desc')
     );
-  }, [firestore, user, isUserLoading]);
+  }, [firestore, user]);
 
-  const { data: reports, isLoading: reportsLoading } = useCollection<Report>(reportsQuery);
+  const { data: reports, isLoading: reportsLoading, error } = useCollection<Report>(reportsQuery);
 
+  // O carregamento está ativo se a autenticação estiver em andamento OU
+  // se a consulta foi criada e os relatórios ainda estão carregando.
   const isLoading = isUserLoading || (reportsQuery !== null && reportsLoading);
   
   const getCategoryTitle = (slug: string) => {
@@ -185,7 +188,7 @@ export default function OcorrenciasPage() {
       toast({
         variant: 'destructive',
         title: 'Erro ao apagar relatório.',
-        description: 'Não foi possível apagar o relatório.',
+        description: 'Você não tem permissão para apagar este relatório.',
       });
     });
   };
@@ -327,5 +330,3 @@ export default function OcorrenciasPage() {
     </main>
   );
 }
-
-    

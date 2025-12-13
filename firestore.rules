@@ -45,13 +45,11 @@ service cloud.firestore {
       
       // An authenticated user can create a report, but must set their own uid.
       allow create: if isSignedIn() && request.resource.data.uid == request.auth.uid;
-    }
-    
-    // This is the critical security rule for listing reports.
-    // It enforces that a non-admin user can ONLY query for their own reports.
-    // An admin can query all reports.
-    match /reports/{reportId} {
-       allow list: if (isSignedIn() && request.query.where.uid == request.auth.uid) || isAdmin();
+
+      // This is the critical security rule for listing reports.
+      // It enforces that a non-admin user can ONLY query for their own reports.
+      // An admin can query all reports.
+      allow list: if (isSignedIn() && request.query.where.uid == request.auth.uid) || isAdmin();
     }
   }
 }
