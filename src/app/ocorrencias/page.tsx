@@ -1,8 +1,8 @@
 
 'use client';
 
-import { useFirestore, useMemoFirebase, useUser } from '@/firebase';
-import { collection, query, where, orderBy, Timestamp, doc, deleteDoc } from 'firebase/firestore';
+import { useFirestore, useMemoFirebase } from '@/firebase';
+import { collection, query, orderBy, Timestamp, doc, deleteDoc } from 'firebase/firestore';
 import { useCollection } from '@/firebase/firestore/use-collection';
 import { Loader2, History, AlertCircle, Trash2, Edit, Share2 } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
@@ -39,7 +39,6 @@ interface Report {
     category: string;
     createdAt: Timestamp | { seconds: number; nanoseconds: number };
     formData: any;
-    uid: string;
 }
 
 const formatDate = (timestamp: Report['createdAt']) => {
@@ -140,23 +139,21 @@ const formatWhatsappValue = (value: any): string => {
 
 export default function OcorrenciasPage() {
     const firestore = useFirestore();
-    const { user, isUserLoading } = useUser();
     const router = useRouter();
     const { toast } = useToast();
     const [isDeleting, setIsDeleting] = useState<string | null>(null);
 
     const reportsQuery = useMemoFirebase(() => {
-        if (!firestore || !user?.uid) {
+        if (!firestore) {
             return null;
         }
         return query(
             collection(firestore, 'reports'),
-            where('uid', '==', user.uid),
             orderBy('createdAt', 'desc')
         );
-    }, [firestore, user?.uid]);
+    }, [firestore]);
 
-    const { data: reports, isLoading: isReportsLoading, error } = useCollection<Report>(reportsQuery);
+    const { data: reports, isLoading, error } = useCollection<Report>(reportsQuery);
     
     const handleEdit = (report: Report) => {
         localStorage.setItem('reportPreview', JSON.stringify(report));
@@ -191,8 +188,6 @@ export default function OcorrenciasPage() {
         }
     };
     
-    const isLoading = isUserLoading || (!!user && isReportsLoading);
-
     if (isLoading) {
         return (
             <main className="flex flex-col items-center p-4 md:p-6">
@@ -212,19 +207,6 @@ export default function OcorrenciasPage() {
                  <pre className="mt-4 text-xs text-left bg-muted p-2 rounded-md max-w-full overflow-auto">
                     <code>{error.message}</code>
                 </pre>
-            </main>
-        )
-    }
-
-    if (!user) {
-        return (
-             <main className="flex flex-col items-center p-4 md:p-6 text-center">
-                <AlertCircle className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
-                <h2 className="text-2xl font-bold mb-2">Sessão Expirada</h2>
-                <p className="text-muted-foreground max-w-md">Você precisa estar logado para ver suas ocorrências.</p>
-                 <Button asChild className="mt-4">
-                    <Link href="/login">Fazer Login</Link>
-                </Button>
             </main>
         )
     }
@@ -315,5 +297,3 @@ export default function OcorrenciasPage() {
         </main>
     );
 }
-
-    

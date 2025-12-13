@@ -14,7 +14,6 @@ import AppSidebar from '@/components/AppSidebar';
 import { FirebaseClientProvider } from '@/firebase/client-provider';
 import { FirebaseErrorListener } from '@/components/FirebaseErrorListener';
 import { ThemeProvider } from '@/components/theme-provider';
-import { AuthProvider } from '@/components/auth/AuthProvider';
 import { usePathname } from 'next/navigation';
 
 export default function RootLayout({
@@ -23,7 +22,6 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   const pathname = usePathname();
-  const isAuthPage = ['/login', '/signup', '/recuperar-senha'].includes(pathname);
 
   return (
     <html lang="en" className="h-full" suppressHydrationWarning>
@@ -52,18 +50,12 @@ export default function RootLayout({
         >
           <FirebaseClientProvider>
             <FirebaseErrorListener />
-            <AuthProvider>
-               {isAuthPage ? (
-                <>{children}</>
-              ) : (
-                <SidebarProvider>
-                  <Sidebar>
-                    <AppSidebar />
-                  </Sidebar>
-                  <SidebarInset>{children}</SidebarInset>
-                </SidebarProvider>
-              )}
-            </AuthProvider>
+            <SidebarProvider>
+              <Sidebar>
+                <AppSidebar />
+              </Sidebar>
+              <SidebarInset>{children}</SidebarInset>
+            </SidebarProvider>
             <Toaster />
           </FirebaseClientProvider>
         </ThemeProvider>

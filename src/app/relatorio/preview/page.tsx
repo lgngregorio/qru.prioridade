@@ -4,9 +4,9 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { collection, addDoc, serverTimestamp, Timestamp } from 'firebase/firestore';
-import { useFirestore, useUser } from '@/firebase';
+import { useFirestore } from '@/firebase';
 import { useToast } from '@/hooks/use-toast';
-import { Loader2, Save, Edit, Share2, ArrowLeft } from 'lucide-react';
+import { Loader2, Save, Edit, Share2 } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { eventCategories } from '@/lib/events';
@@ -19,7 +19,6 @@ interface Report {
   category: string;
   createdAt: Timestamp | { seconds: number, nanoseconds: number } | null;
   formData: any;
-  uid: string;
 }
 
 const formatDate = (timestamp: Report['createdAt']) => {
@@ -44,7 +43,6 @@ const formatKey = (key: string) => {
 
 export default function PreviewPage() {
     const firestore = useFirestore();
-    const { user } = useUser();
     const router = useRouter();
     const { toast } = useToast();
     const [reportData, setReportData] = useState<any>(null);
@@ -140,11 +138,11 @@ export default function PreviewPage() {
     };
     
      const handleSave = async () => {
-        if (!firestore || !user || !reportData) {
+        if (!firestore || !reportData) {
             toast({
                 variant: 'destructive',
                 title: 'Erro',
-                description: 'Não foi possível salvar. Verifique sua conexão e autenticação.',
+                description: 'Não foi possível salvar. Verifique sua conexão.',
             });
             return;
         }
@@ -152,7 +150,6 @@ export default function PreviewPage() {
         setIsSaving(true);
         const reportToSave = {
             formData: reportData.formData,
-            uid: user.uid,
             category: reportData.category,
             createdAt: serverTimestamp(),
         };

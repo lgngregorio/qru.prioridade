@@ -14,37 +14,20 @@ import {
   Home,
   FileCode,
   History,
-  LayoutGrid,
   Settings,
   ShieldCheck,
-  LogOut,
-  User,
 } from 'lucide-react';
 import Link from 'next/link';
-import { usePathname, useRouter } from 'next/navigation';
-import { useAuth } from '@/firebase';
-import { signOut } from 'firebase/auth';
+import { usePathname } from 'next/navigation';
 import { useToast } from '@/hooks/use-toast';
 
 export default function AppSidebar() {
   const pathname = usePathname();
   const { setOpenMobile } = useSidebar();
-  const auth = useAuth();
-  const router = useRouter();
   const { toast } = useToast();
 
   const handleLinkClick = () => {
     setOpenMobile(false);
-  };
-  
-  const handleLogout = async () => {
-    try {
-      await signOut(auth);
-      toast({ title: 'Você saiu.' });
-      router.push('/login');
-    } catch (error) {
-      toast({ variant: 'destructive', title: 'Erro ao sair.' });
-    }
   };
 
   return (
@@ -113,14 +96,6 @@ export default function AppSidebar() {
                 <ShieldCheck />
                 Políticas do SGI
               </Link>
-            </SidebarMenuButton>
-          </SidebarMenuItem>
-          <SidebarMenuItem>
-            <SidebarMenuButton asChild className="text-lg [&_svg]:size-6" onClick={handleLogout}>
-              <button>
-                <LogOut />
-                Sair
-              </button>
             </SidebarMenuButton>
           </SidebarMenuItem>
         </SidebarMenu>
