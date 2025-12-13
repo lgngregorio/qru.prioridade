@@ -58,7 +58,7 @@ export default function NotepadPage() {
       where('uid', '==', user.uid),
       orderBy('createdAt', 'desc')
     );
-  }, [firestore, user, isUserLoading]);
+  }, [firestore, user?.uid, isUserLoading]);
 
   const { data: notes, isLoading: loadingNotes } = useCollection<Note>(notesQuery);
   const isLoading = isUserLoading || loadingNotes;
