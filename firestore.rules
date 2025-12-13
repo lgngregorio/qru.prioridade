@@ -3,13 +3,17 @@ rules_version = '2';
 
 service cloud.firestore {
   match /databases/{database}/documents {
-    // Users can only read and write their own reports
+    // Allow public read/write access to reports
     match /reports/{reportId} {
-      allow read, write: if request.auth != null && request.auth.uid == resource.data.uid;
+      allow read, write: if true;
     }
-     // Allow users to list their own reports
-    match /reports {
-      allow list: if request.auth != null && request.query.where.size() == 1 && request.query.where[0].field == 'uid' && request.query.where[0].op == '==' && request.query.where[0].value == request.auth.uid;
+     match /reports {
+      allow list: if true;
+    }
+
+    // Allow public read/write access to notes
+    match /notes/{noteId} {
+      allow read, write: if true;
     }
   }
 }

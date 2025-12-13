@@ -17,31 +17,20 @@ import {
   ShieldCheck,
   LogOut,
   User,
-  ListOrdered
+  ListOrdered,
+  Notebook
 } from 'lucide-react';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
-import { useAuth } from '@/firebase'; // Import useAuth
-import { signOut } from 'firebase/auth'; // Import signOut
 
 export default function AppSidebar() {
   const pathname = usePathname();
   const { setOpenMobile } = useSidebar();
-  const auth = useAuth();
-  const router = useRouter();
 
   const handleLinkClick = () => {
     setOpenMobile(false);
   };
   
-  const handleLogout = async () => {
-    try {
-      await signOut(auth);
-      router.push('/login');
-    } catch (error) {
-      console.error("Error signing out: ", error);
-    }
-  };
 
   return (
     <>
@@ -76,10 +65,10 @@ export default function AppSidebar() {
             </SidebarMenuButton>
           </SidebarMenuItem>
            <SidebarMenuItem>
-            <SidebarMenuButton asChild isActive={pathname === '/ocorrencias'} className="text-base [&_svg]:size-5" onClick={handleLinkClick}>
-              <Link href="/ocorrencias">
-                <ListOrdered />
-                Ocorrências
+            <SidebarMenuButton asChild isActive={pathname === '/notas'} className="text-base [&_svg]:size-5" onClick={handleLinkClick}>
+              <Link href="/notas">
+                <Notebook />
+                Bloco de Notas
               </Link>
             </SidebarMenuButton>
           </SidebarMenuItem>
@@ -111,12 +100,6 @@ export default function AppSidebar() {
                </Link>
              </SidebarMenuButton>
            </SidebarMenuItem>
-           <SidebarMenuItem>
-            <SidebarMenuButton onClick={handleLogout} className="text-base [&_svg]:size-5">
-              <LogOut />
-              Sair
-            </SidebarMenuButton>
-          </SidebarMenuItem>
         </SidebarMenu>
       </SidebarFooter>
     </>

@@ -1,0 +1,122 @@
+
+'use client';
+
+import { useState } from 'react';
+import { doc, deleteDoc } from 'firebase/firestore';
+import { useFirestore } from '@/firebase';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
+import { MoreHorizontal, Trash2, Edit, Share2, Loader2 } from 'lucide-react';
+import { useToast } from '@/hooks/use-toast';
+import type { Note } from '@/lib/types';
+import { Timestamp } from 'firebase/firestore';
+
+interface NoteCardProps {
+  note: Note;
+  onEdit: () => void;
+}
+
+const formatDate = (dateSource: any) => {
+    if (!dateSource) return 'Carregando...';
+    try {
+        const date = (dateSource instanceof Timestamp) ? dateSource.toDate() : new Date(dateSource.seconds * 1000);
+        return date.toLocaleString('pt-BR', { day: '2-digit', month: 'long', year: 'numeric', hour: '2-digit', minute: '2-digit' });
+    } catch {
+        return 'Data inválida';
+    }
+};
+
+export function NoteCard({ note, onEdit }: NoteCardProps) {
+  const firestore = useFirestore();
+  const { toast } = useToast();
+  const [isDeleting, setIsDeleting] = useState(false);
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+
+  const handleDelete = async () => {
+    setIsDeleting(true);
+    try {
+      await deleteDoc(doc(firestore, 'notes', note.id));
+      toast({
+        title: 'Nota apagada!',
+        description: 'Sua nota foi removida com sucesso.',
+      });
+    } catch (error) {
+      console.error("Error deleting note: ", error);
+      toast({
+        variant: 'destructive',
+        title: 'Erro ao apagar',
+        description: 'Não foi possível apagar a nota. Tente novamente.',
+      });
+    } finally {
+      setIsDeleting(false);
+      setShowDeleteConfirm(false);
+    }
+  };
+  
+  const handleShare = () => {
+    const message = `*${note.title}*\n\n${note.content}`;
+    const whatsappUrl = `https://wa.me/?text=${encodeURIComponent(message)}`;
+    window.open(whatsappUrl, '_blank');
+  };
+
+  return (
+    <>
+      <Card className="flex flex-col">
+        <CardHeader className="flex-row items-start justify-between">
+          <div>
+            <CardTitle className="text-2xl font-bold">{note.title}</CardTitle>
+             {note.createdAt && (
+                <CardDescription className="text-sm">
+                   Criado em {formatDate(note.createdAt)}
+                </CardDescription>
+             )}
+          </div>
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="ghost" size="icon">
+                <MoreHorizontal className="h-5 w-5" />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent>
+              <DropdownMenuItem onClick={onEdit}>
+                <Edit className="mr-2 h-4 w-4" />
+                <span>Editar</span>
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={handleShare}>
+                <Share2 className="mr-2 h-4 w-4" />
+                <span>Compartilhar</span>
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => setShowDeleteConfirm(true)} className="text-destructive">
+                <Trash2 className="mr-2 h-4 w-4" />
+                <span>Apagar</span>
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+        </CardHeader>
+        <CardContent className="flex-1">
+          <p className="whitespace-pre-wrap">{note.content}</p>
+        </CardContent>
+      </Card>
+
+      <AlertDialog open={showDeleteConfirm} onOpenChange={setShowDeleteConfirm}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Você tem certeza?</AlertDialogTitle>
+            <AlertDialogDescription>
+              Esta ação não pode ser desfeita. Isso irá apagar permanentemente a sua nota.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancelar</AlertDialogCancel>
+            <AlertDialogAction onClick={handleDelete} disabled={isDeleting} className="bg-destructive hover:bg-destructive/90">
+              {isDeleting ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
+              {isDeleting ? 'Apagando...' : 'Apagar'}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+    </>
+  );
+}
