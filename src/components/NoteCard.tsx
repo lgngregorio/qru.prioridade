@@ -77,16 +77,15 @@ export function NoteCard({ note, onEdit, onDelete }: NoteCardProps) {
 
   return (
     <>
-      <Card onClick={() => setIsExpanded(!isExpanded)} className="cursor-pointer">
+      <Card>
         <CardContent className="p-4 flex items-center justify-between gap-4">
-            <div className="flex-1 overflow-hidden">
+            <div className="flex-1 overflow-hidden cursor-pointer" onClick={() => setIsExpanded(!isExpanded)}>
                 <h3 className="text-xl font-bold truncate">{note.title}</h3>
-                <p className={cn(
-                    "text-sm text-muted-foreground",
-                    isExpanded ? "whitespace-pre-wrap" : "truncate"
-                )}>
-                    {note.content}
-                </p>
+                {isExpanded && (
+                  <p className="text-sm text-muted-foreground whitespace-pre-wrap mt-2">
+                      {note.content}
+                  </p>
+                )}
                  <p className="text-sm font-bold text-muted-foreground mt-1">{formatDate(note.createdAt)}</p>
             </div>
             <div className="flex gap-2">
