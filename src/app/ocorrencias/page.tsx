@@ -1,4 +1,3 @@
-
 'use client';
 
 import { useState, useMemo, useEffect } from 'react';
@@ -40,18 +39,6 @@ export default function OcorrenciasPage() {
     const { toast } = useToast();
     const firestore = useFirestore();
     const [isDeleting, setIsDeleting] = useState<string | null>(null);
-
-    const reportsQuery = useMemoFirebase(() => {
-        if (!firestore) return null;
-        return collection(firestore, 'reports');
-    }, [firestore]);
-
-    const { data: reports, isLoading: isLoadingReports } = useCollection<Report>(reportsQuery);
-    
-    const sortedReports = useMemo(() => {
-        if (!reports) return [];
-        return [...reports].sort((a, b) => b.createdAt.seconds - a.createdAt.seconds);
-    }, [reports]);
 
     const formatDate = (timestamp: { seconds: number, nanoseconds: number }) => {
         if (!timestamp) return 'Data indisponível';
@@ -127,6 +114,19 @@ export default function OcorrenciasPage() {
         }
         return message;
     };
+
+
+    const reportsQuery = useMemoFirebase(() => {
+        if (!firestore) return null;
+        return collection(firestore, 'reports');
+    }, [firestore]);
+
+    const { data: reports, isLoading: isLoadingReports } = useCollection<Report>(reportsQuery);
+    
+    const sortedReports = useMemo(() => {
+        if (!reports) return [];
+        return [...reports].sort((a, b) => b.createdAt.seconds - a.createdAt.seconds);
+    }, [reports]);
 
 
     const handleEdit = (report: Report) => {
