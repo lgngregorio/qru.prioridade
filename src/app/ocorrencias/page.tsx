@@ -165,7 +165,7 @@ export default function OcorrenciasPage() {
         }
     };
     
-    if (isUserLoading || isLoadingReports) {
+    if (isUserLoading || (isLoadingReports && !reports)) {
         return (
             <main className="flex flex-col items-center p-4 md:p-6">
                 <div className="flex items-center justify-center h-64">
@@ -266,5 +266,3 @@ export default function OcorrenciasPage() {
         </main>
     );
 }
-
-    
