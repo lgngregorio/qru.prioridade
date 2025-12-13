@@ -1,10 +1,10 @@
 
 'use client';
 
-import { useState, useEffect, useMemo } from 'react';
-import { collection, onSnapshot, orderBy, query, Timestamp, doc, deleteDoc, where } from 'firebase/firestore';
+import { useMemo } from 'react';
+import { collection, orderBy, query, Timestamp, doc, deleteDoc, where } from 'firebase/firestore';
 import { useFirestore, useUser, useMemoFirebase } from '@/firebase';
-import { Loader2, ArrowLeft, Trash2, ChevronDown, Edit, Share2 } from 'lucide-react';
+import { Loader2, ArrowLeft, Trash2, Edit, Share2 } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import {
@@ -28,7 +28,6 @@ import Link from 'next/link';
 import { useToast } from '@/hooks/use-toast';
 import { eventCategories } from '@/lib/events';
 import { useCollection } from '@/firebase/firestore/use-collection';
-import { cn } from '@/lib/utils';
 
 interface Report {
   id: string;
@@ -48,7 +47,6 @@ const renderValue = (value: any): React.ReactNode => {
     }
     if (Array.isArray(value)) return value.join(', ');
     if (typeof value === 'object') {
-        // Simple object rendering, may need to be more sophisticated
         return (
             <ul className="list-disc pl-5 space-y-1">
                 {Object.entries(value).map(([key, val]) => (
@@ -65,9 +63,9 @@ const renderValue = (value: any): React.ReactNode => {
 
 const formatKey = (key: string) => {
     return key
-        .replace(/([A-Z])/g, ' $1') // Add space before uppercase letters
-        .replace(/_/g, ' ') // Replace underscores with spaces
-        .replace(/\b\w/g, char => char.toUpperCase()); // Capitalize first letter of each word
+        .replace(/([A-Z])/g, ' $1')
+        .replace(/_/g, ' ')
+        .replace(/\b\w/g, char => char.toUpperCase());
 };
 
 
@@ -152,7 +150,7 @@ export default function HistoricoPage() {
   const { toast } = useToast();
 
   const reportsQuery = useMemoFirebase(() => {
-    if (isUserLoading || !user) {
+    if (!user || !firestore) {
       return null;
     }
     return query(
@@ -160,7 +158,7 @@ export default function HistoricoPage() {
       where('uid', '==', user.uid),
       orderBy('createdAt', 'desc')
     );
-  }, [firestore, user, isUserLoading]);
+  }, [firestore, user]);
 
   const { data: reports, isLoading: reportsLoading } = useCollection<Report>(reportsQuery);
   
@@ -322,3 +320,5 @@ export default function HistoricoPage() {
     </main>
   );
 }
+
+    
