@@ -152,7 +152,7 @@ export default function OcorrenciasPage() {
   const { toast } = useToast();
 
   const reportsQuery = useMemoFirebase(() => {
-    if (isUserLoading || !user || !firestore) {
+    if (!firestore || !user) {
       return null;
     }
     return query(
@@ -160,7 +160,7 @@ export default function OcorrenciasPage() {
       where('uid', '==', user.uid),
       orderBy('createdAt', 'desc')
     );
-  }, [firestore, user, isUserLoading]);
+  }, [firestore, user]);
 
   const { data: reports, isLoading: reportsLoading, error } = useCollection<Report>(reportsQuery);
 
