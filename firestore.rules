@@ -4,7 +4,6 @@ rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
   
-    // Funções auxiliares
     function isSignedIn() {
       return request.auth != null;
     }
@@ -13,30 +12,18 @@ service cloud.firestore {
       return request.auth.uid == userId;
     }
 
-    // Regras para a coleção 'users'
     match /users/{userId} {
-      // Qualquer usuário autenticado pode criar seu próprio perfil.
       allow create: if isSignedIn() && isOwner(userId);
-      
-      // Apenas o próprio usuário pode ler ou atualizar seu perfil.
       allow read, update: if isSignedIn() && isOwner(userId);
-      
-      // Ninguém pode deletar um perfil (geralmente uma boa prática).
       allow delete: if false;
     }
 
-    // Regras para a coleção 'reports'
     match /reports/{reportId} {
-      // Apenas usuários autenticados podem criar relatórios.
-      // O relatório deve conter o UID do usuário que o criou.
       allow create: if isSignedIn() && request.resource.data.uid == request.auth.uid;
-      
-      // Apenas o dono do relatório pode ler, atualizar ou deletar.
-      allow read, update, delete: if isSignedIn() && get(/databases/$(database)/documents/reports/$(reportId)).data.uid == request.auth.uid;
-      
-      // Regra de listagem: Um usuário só pode listar os relatórios que ele mesmo criou.
-      // Esta regra é aplicada a queries.
-      allow list: if isSignedIn() && request.query.get('uid') == request.auth.uid;
+      allow read, update, delete: if isSignedIn() && resource.data.uid == request.auth.uid;
+      allow list: if isSignedIn() && request.query.where.size() > 0 && request.query.where[0][0] == 'uid' && request.query.where[0][1] == '==' && request.query.where[0][2] == request.auth.uid;
     }
   }
 }
+
+    
