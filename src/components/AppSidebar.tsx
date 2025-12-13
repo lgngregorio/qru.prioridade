@@ -13,7 +13,6 @@ import {
 import {
   Home,
   FileCode,
-  Notebook,
   History,
   LayoutGrid,
   Settings,
@@ -84,14 +83,6 @@ export default function AppSidebar() {
               <Link href="/codigos">
                 <FileCode />
                 Códigos
-              </Link>
-            </SidebarMenuButton>
-          </SidebarMenuItem>
-           <SidebarMenuItem>
-            <SidebarMenuButton asChild isActive={pathname.startsWith('/bloco-de-notas')} className="text-base [&_svg]:size-5" onClick={handleLinkClick}>
-              <Link href="/bloco-de-notas">
-                <Notebook />
-                Bloco de Nota
               </Link>
             </SidebarMenuButton>
           </SidebarMenuItem>

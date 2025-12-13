@@ -10,12 +10,11 @@
  * Data Structure:
  *   - /users/{userId}: Stores private user profile information.
  *   - /reports/{reportId}: Stores individual event reports.
- *   - /notes/{noteId}: Stores user-created notes.
  *
  * Key Security Decisions:
  * - User Data Privacy: All access to a user's document at `/users/{userId}` is restricted
  *   to the authenticated user whose UID matches the `userId` in the path.
- * - Ownership of Reports and Notes: Access to documents in `/reports` and `/notes` is
+ * - Ownership of Reports: Access to documents in `/reports` is
  *   restricted based on a `uid` field inside the document, which must match the
  *   authenticated user's UID.
  * - No User Enumeration: Listing the top-level `/users` collection is explicitly disallowed.
@@ -27,8 +26,8 @@
  *
  * Denormalization for Authorization:
  * This ruleset uses both path-based authorization (`/users/{userId}`) and content-based
- * authorization (checking `request.resource.data.uid`) for reports and notes. Storing the
- * `uid` directly in each report/note document avoids complex `get()` calls in rules,
+ * authorization (checking `request.resource.data.uid`) for reports. Storing the
+ * `uid` directly in each report document avoids complex `get()` calls in rules,
  * making them more performant and scalable.
  */
 rules_version = '2';
@@ -130,21 +129,6 @@ service cloud.firestore {
       // LIST: Allow users to list only their own reports by enforcing a query filter on uid.
       allow list: if isSignedIn() && request.query.where.uid == request.auth.uid;
       // WRITE: Allow any signed-in user to create a report, but they must set themselves as the owner.
-      allow create: if isSignedIn() && hasValidUidOnCreate();
-      // UPDATE/DELETE: Allow updating/deleting only if the user is the owner.
-      allow update, delete: if isOwnerByContent() && hasValidUidOnUpdate();
-    }
-    
-     /**
-     * @description Manages user notes, ensuring users can only access their own notes.
-     * @path /notes/{noteId}
-     */
-    match /notes/{noteId} {
-      // READ: Allow reading a single note if the user is the owner.
-      allow get: if isOwnerByContent();
-      // LIST: Allow users to list only their own notes by enforcing a query filter on uid.
-      allow list: if isSignedIn() && request.query.where.uid == request.auth.uid;
-      // WRITE: Allow any signed-in user to create a note, but they must set themselves as the owner.
       allow create: if isSignedIn() && hasValidUidOnCreate();
       // UPDATE/DELETE: Allow updating/deleting only if the user is the owner.
       allow update, delete: if isOwnerByContent() && hasValidUidOnUpdate();
