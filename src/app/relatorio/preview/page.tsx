@@ -38,7 +38,6 @@ export default function PreviewPage() {
 
   const [report, setReport] = useState<ReportData | null>(null);
   const [isLoading, setIsLoading] = useState(true);
-  const [isSaving, setIsSaving] = useState(false);
 
   useEffect(() => {
     const savedData = localStorage.getItem('reportPreview');
@@ -55,32 +54,39 @@ export default function PreviewPage() {
     return category ? category.title : slug;
   };
   
-  const formatDate = (dateSource: any): string => {
-      if (!dateSource) return 'Carregando...';
-      try {
-        const date =
-          dateSource instanceof Timestamp ? dateSource.toDate() : new Date(dateSource);
-        return date.toLocaleString('pt-BR', {
-          day: '2-digit',
-          month: '2-digit',
-          year: 'numeric',
-          hour: '2-digit',
-          minute: '2-digit',
-        });
-      } catch {
-        return String(dateSource);
-      }
+    const formatDate = (dateSource: any): string => {
+        if (!dateSource) return 'Carregando...';
+        
+        // Don't format if it's not a valid date string or object
+        if (typeof dateSource !== 'string' && !(dateSource instanceof Date) && !(dateSource instanceof Timestamp)) {
+            return String(dateSource);
+        }
+        
+        try {
+            const date = (dateSource instanceof Timestamp) ? dateSource.toDate() : new Date(dateSource);
+            // Check if date is valid
+            if (isNaN(date.getTime())) {
+                return String(dateSource);
+            }
+            return date.toLocaleString('pt-BR', {
+                day: '2-digit',
+                month: '2-digit',
+                year: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit',
+            });
+        } catch {
+            return String(dateSource); // Fallback for invalid date strings
+        }
     };
     
     const formatWhatsappValue = (value: any, key: string): string => {
         if (value === null || value === undefined || value === 'NILL' || value === '') return '';
         if (typeof value === 'boolean') return value ? 'SIM' : 'NÃO';
-        if (value instanceof Date) return formatDate(value);
         
         const dateKeys = ['data', 'dn', 'createdAt', 'qtrInicio', 'qtrTermino'];
 
-        const isDateString = typeof value === 'string' && isNaN(Number(value)) && !/^\d{1,2}$/.test(value) && (new Date(value)).toString() !== 'Invalid Date';
-        if (dateKeys.includes(key) || isDateString) {
+        if (dateKeys.includes(key)) {
              return formatDate(value);
         }
 
@@ -152,33 +158,6 @@ export default function PreviewPage() {
     window.open(whatsappUrl, '_blank');
   };
   
-  const handleSave = async () => {
-    if (!firestore || !report) return;
-    setIsSaving(true);
-    try {
-      const docData = {
-        ...report,
-        createdAt: serverTimestamp(),
-      };
-      await addDoc(collection(firestore, 'reports'), docData);
-      toast({
-        title: "Sucesso!",
-        description: "Relatório salvo com sucesso.",
-      });
-      localStorage.removeItem('reportPreview');
-      router.push('/');
-    } catch (error) {
-      console.error("Error saving report: ", error);
-      toast({
-        variant: "destructive",
-        title: "Erro ao salvar",
-        description: "Não foi possível salvar o relatório. Tente novamente.",
-      });
-    } finally {
-      setIsSaving(false);
-    }
-  };
-
 
   if (isLoading || !report) {
     return (
@@ -204,10 +183,6 @@ export default function PreviewPage() {
                       Pré-visualização do Relatório
                     </CardDescription>
                   </div>
-                   <Button variant="outline" onClick={() => router.push(`/${report.category}`)}>
-                        <Edit className="mr-2 h-4 w-4" />
-                        Editar
-                    </Button>
               </div>
             </CardHeader>
             <CardContent>
@@ -215,13 +190,9 @@ export default function PreviewPage() {
             </CardContent>
             <CardFooter className="flex flex-col md:flex-row justify-end gap-4 pt-6">
               <div className="flex gap-4">
-                <Button
-                  variant="outline"
-                  onClick={handleSave}
-                  disabled={isSaving}
-                >
-                  {isSaving ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Save className="mr-2 h-4 w-4" />}
-                  {isSaving ? 'Salvando...' : 'Salvar Relatório'}
+                <Button variant="outline" onClick={() => router.push(`/${report.category}`)}>
+                    <Edit className="mr-2 h-4 w-4" />
+                    Editar
                 </Button>
                 <Button
                   variant="secondary"
