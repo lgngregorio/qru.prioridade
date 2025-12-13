@@ -148,19 +148,23 @@ const formatDate = (timestamp: Report['createdAt']) => {
 
 export default function HistoricoPage() {
   const firestore = useFirestore();
-  const { user } = useUser();
+  const { user, isUserLoading } = useUser();
   const { toast } = useToast();
 
   const reportsQuery = useMemoFirebase(() => {
-    if (!firestore || !user) return null;
+    if (isUserLoading || !firestore || !user) {
+      return null;
+    }
     return query(
       collection(firestore, 'reports'),
       where('uid', '==', user.uid),
       orderBy('createdAt', 'desc')
     );
-  }, [firestore, user]);
+  }, [firestore, user, isUserLoading]);
 
-  const { data: reports, isLoading: loading } = useCollection<Report>(reportsQuery);
+  const { data: reports, isLoading: reportsLoading } = useCollection<Report>(reportsQuery);
+  
+  const isLoading = isUserLoading || (reportsQuery !== null && reportsLoading);
   
   const getCategoryTitle = (slug: string) => {
     const category = eventCategories.find(c => c.slug === slug);
@@ -253,7 +257,7 @@ export default function HistoricoPage() {
             <CardDescription>Visualize, edite ou apague os relatórios salvos.</CardDescription>
           </CardHeader>
           <CardContent>
-            {loading ? (
+            {isLoading ? (
               <div className="flex justify-center items-center h-64">
                 <Loader2 className="h-8 w-8 animate-spin text-primary" />
               </div>
@@ -318,3 +322,5 @@ export default function HistoricoPage() {
     </main>
   );
 }
+
+    
