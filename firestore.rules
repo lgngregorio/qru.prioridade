@@ -47,10 +47,11 @@ service cloud.firestore {
       allow create: if isSignedIn() && request.resource.data.uid == request.auth.uid;
     }
     
-    // A user can list their own reports (enforced by client query).
-    // An admin can list all reports.
+    // This is the critical security rule for listing reports.
+    // It enforces that a non-admin user can ONLY query for their own reports.
+    // An admin can query all reports.
     match /reports {
-      allow list: if isSignedIn();
+      allow list: if (isSignedIn() && request.query.where.uid == request.auth.uid) || isAdmin();
     }
   }
 }
