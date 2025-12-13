@@ -1,34 +1,31 @@
 
+
 import { Timestamp } from 'firebase/firestore';
 
 interface Report {
   id: string;
   category: string;
-  createdAt: Timestamp | { seconds: number, nanoseconds: number } | null;
+  createdAt: string; 
   formData: any;
 }
 
-const formatDate = (timestamp: Report['createdAt']) => {
-    if (!timestamp) return 'Carregando...';
-    let date: Date;
-    if (timestamp instanceof Timestamp) {
-      date = timestamp.toDate();
-    } else if (timestamp && typeof timestamp === 'object' && 'seconds' in timestamp && 'nanoseconds' in timestamp) {
-      date = new Timestamp(timestamp.seconds, timestamp.nanoseconds).toDate();
-    } else {
+const formatDate = (isoString: string) => {
+    if (!isoString) return 'Carregando...';
+    try {
+        const date = new Date(isoString);
+        return date.toLocaleString('pt-BR', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' });
+    } catch {
         return 'Data inválida';
     }
-    return date.toLocaleString('pt-BR', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' });
 };
 
 
 const renderValue = (value: any): React.ReactNode => {
     if (value === null || value === undefined || value === 'NILL' || value === '') return 'N/A';
     if (typeof value === 'boolean') return value ? 'Sim' : 'Não';
-    if (value instanceof Timestamp) return formatDate(value);
-    if (typeof value === 'object' && value.seconds !== undefined && value.nanoseconds !== undefined) {
-      const ts = new Timestamp(value.seconds, value.nanoseconds);
-      return formatDate(ts);
+    if (value instanceof Date) return formatDate(value.toISOString());
+    if (typeof value === 'string' && !isNaN(Date.parse(value))) {
+        return formatDate(value);
     }
     if (Array.isArray(value)) return value.join(', ');
     if (typeof value === 'object') {

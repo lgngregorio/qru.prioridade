@@ -11,8 +11,6 @@ import {
   SidebarInset,
 } from '@/components/ui/sidebar';
 import AppSidebar from '@/components/AppSidebar';
-import { FirebaseClientProvider } from '@/firebase/client-provider';
-import { FirebaseErrorListener } from '@/components/FirebaseErrorListener';
 import { ThemeProvider } from '@/components/theme-provider';
 import { usePathname } from 'next/navigation';
 
@@ -48,8 +46,6 @@ export default function RootLayout({
           defaultTheme="light"
           enableSystem
         >
-          <FirebaseClientProvider>
-            <FirebaseErrorListener />
             <SidebarProvider>
               <Sidebar>
                 <AppSidebar />
@@ -57,7 +53,6 @@ export default function RootLayout({
               <SidebarInset>{children}</SidebarInset>
             </SidebarProvider>
             <Toaster />
-          </FirebaseClientProvider>
         </ThemeProvider>
       </body>
     </html>

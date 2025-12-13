@@ -1,9 +1,7 @@
 
 'use client';
 
-import { useFirestore, useMemoFirebase } from '@/firebase';
-import { collection, query, orderBy, Timestamp, doc, deleteDoc } from 'firebase/firestore';
-import { useCollection } from '@/firebase/firestore/use-collection';
+import { useState, useEffect } from 'react';
 import { Loader2, History, AlertCircle, Trash2, Edit, Share2 } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -30,34 +28,29 @@ import {
   AccordionTrigger,
 } from '@/components/ui/accordion';
 import { eventCategories } from '@/lib/events';
-import { useState } from 'react';
 import ReportDetail from '@/components/ReportDetail';
-
 
 interface Report {
     id: string;
     category: string;
-    createdAt: Timestamp | { seconds: number; nanoseconds: number };
+    createdAt: string; 
     formData: any;
 }
 
-const formatDate = (timestamp: Report['createdAt']) => {
-    if (!timestamp) return 'Data indisponível';
-    let date: Date;
-    if (timestamp instanceof Timestamp) {
-        date = timestamp.toDate();
-    } else if (timestamp && typeof timestamp === 'object' && 'seconds' in timestamp && 'nanoseconds' in timestamp) {
-        date = new Timestamp(timestamp.seconds, timestamp.nanoseconds).toDate();
-    } else {
+const formatDate = (isoString: string) => {
+    if (!isoString) return 'Data indisponível';
+    try {
+        const date = new Date(isoString);
+        return date.toLocaleString('pt-BR', {
+            day: '2-digit',
+            month: '2-digit',
+            year: 'numeric',
+            hour: '2-digit',
+            minute: '2-digit',
+        });
+    } catch (e) {
         return 'Data inválida';
     }
-    return date.toLocaleString('pt-BR', {
-        day: '2-digit',
-        month: '2-digit',
-        year: 'numeric',
-        hour: '2-digit',
-        minute: '2-digit',
-    });
 };
 
 const getCategoryTitle = (slug: string) => {
@@ -75,16 +68,18 @@ const formatKey = (key: string) => {
 const formatWhatsappValue = (value: any): string => {
     if (value === null || value === undefined || value === 'NILL' || value === '') return '';
     if (typeof value === 'boolean') return value ? 'SIM' : 'NÃO';
-    if (value instanceof Timestamp) return formatDate(value);
+    if (value instanceof Date) return formatDate(value.toISOString());
     if (Array.isArray(value)) return value.join(', ').toUpperCase();
-    if (typeof value === 'object' && value.seconds !== undefined && value.nanoseconds !== undefined) {
-      const ts = new Timestamp(value.seconds, value.nanoseconds);
-      return formatDate(ts);
+    
+    // Check if it's a date string
+    if (typeof value === 'string' && !isNaN(Date.parse(value))) {
+        return formatDate(value);
     }
-    return String(value).toUpperCase();
-  };
 
-  const generateWhatsappMessage = (report: Report): string => {
+    return String(value).toUpperCase();
+};
+
+const generateWhatsappMessage = (report: Report): string => {
     if (!report || !report.formData) return '';
 
     let message = `*${getCategoryTitle(report.category).toUpperCase()}*\n`;
@@ -134,24 +129,30 @@ const formatWhatsappValue = (value: any): string => {
         }
     }
     return message;
-  };
+};
 
 
 export default function OcorrenciasPage() {
-    const firestore = useFirestore();
     const router = useRouter();
     const { toast } = useToast();
+    const [reports, setReports] = useState<Report[]>([]);
+    const [isLoading, setIsLoading] = useState(true);
     const [isDeleting, setIsDeleting] = useState<string | null>(null);
 
-    const reportsQuery = useMemoFirebase(() => {
-        if (!firestore) return null;
-        return query(
-            collection(firestore, 'reports'),
-            orderBy('createdAt', 'desc')
-        );
-    }, [firestore]);
-
-    const { data: reports, isLoading: isReportsLoading, error } = useCollection<Report>(reportsQuery);
+    useEffect(() => {
+        try {
+            const storedReports = localStorage.getItem('ocorrencias-historico');
+            if (storedReports) {
+                const parsedReports: Report[] = JSON.parse(storedReports);
+                parsedReports.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+                setReports(parsedReports);
+            }
+        } catch (e) {
+            console.error("Erro ao carregar relatórios do localStorage:", e);
+        } finally {
+            setIsLoading(false);
+        }
+    }, []);
     
     const handleEdit = (report: Report) => {
         localStorage.setItem('reportPreview', JSON.stringify(report));
@@ -164,12 +165,12 @@ export default function OcorrenciasPage() {
         window.open(whatsappUrl, '_blank');
     };
 
-    const handleDelete = async (reportId: string) => {
-        if (!firestore) return;
+    const handleDelete = (reportId: string) => {
         setIsDeleting(reportId);
         try {
-            const reportDocRef = doc(firestore, 'reports', reportId);
-            await deleteDoc(reportDocRef);
+            const updatedReports = reports.filter(r => r.id !== reportId);
+            localStorage.setItem('ocorrencias-historico', JSON.stringify(updatedReports));
+            setReports(updatedReports);
             toast({
                 title: 'Sucesso',
                 description: 'Relatório apagado.',
@@ -186,7 +187,7 @@ export default function OcorrenciasPage() {
         }
     };
     
-    if (isReportsLoading) {
+    if (isLoading) {
         return (
             <main className="flex flex-col items-center p-4 md:p-6">
                 <div className="flex items-center justify-center h-64">
@@ -194,19 +195,6 @@ export default function OcorrenciasPage() {
                 </div>
             </main>
         );
-    }
-    
-    if (error) {
-        return (
-            <main className="flex flex-col items-center p-4 md:p-6 text-center">
-                 <AlertCircle className="h-12 w-12 text-destructive mx-auto mb-4" />
-                <h2 className="text-2xl font-bold text-destructive mb-2">Erro ao carregar ocorrências</h2>
-                <p className="text-muted-foreground max-w-md">Não foi possível buscar seus relatórios. Verifique sua conexão ou tente novamente mais tarde.</p>
-                 <pre className="mt-4 text-xs text-left bg-muted p-2 rounded-md max-w-full overflow-auto">
-                    <code>{error.message}</code>
-                </pre>
-            </main>
-        )
     }
 
     return (

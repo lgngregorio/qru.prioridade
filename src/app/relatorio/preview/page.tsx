@@ -3,35 +3,34 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { collection, addDoc, serverTimestamp, Timestamp } from 'firebase/firestore';
-import { useFirestore } from '@/firebase';
 import { useToast } from '@/hooks/use-toast';
 import { Loader2, Save, Edit, Share2 } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { eventCategories } from '@/lib/events';
-import { FirestorePermissionError } from '@/firebase/errors';
-import { errorEmitter } from '@/firebase/error-emitter';
 import ReportDetail from '@/components/ReportDetail';
 
 interface Report {
   id: string;
   category: string;
-  createdAt: Timestamp | { seconds: number, nanoseconds: number } | null;
+  createdAt: string; 
   formData: any;
 }
 
-const formatDate = (timestamp: Report['createdAt']) => {
-    if (!timestamp) return 'Carregando...';
-    let date: Date;
-    if (timestamp instanceof Timestamp) {
-      date = timestamp.toDate();
-    } else if (timestamp && typeof timestamp === 'object' && 'seconds' in timestamp && 'nanoseconds' in timestamp) {
-      date = new Timestamp(timestamp.seconds, timestamp.nanoseconds).toDate();
-    } else {
+const formatDate = (isoString: string) => {
+    if (!isoString) return 'Carregando...';
+    try {
+        const date = new Date(isoString);
+        return date.toLocaleString('pt-BR', {
+            day: '2-digit',
+            month: '2-digit',
+            year: 'numeric',
+            hour: '2-digit',
+            minute: '2-digit'
+        });
+    } catch {
         return 'Data inválida';
     }
-    return date.toLocaleString('pt-BR', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' });
 };
 
 const formatKey = (key: string) => {
@@ -42,7 +41,6 @@ const formatKey = (key: string) => {
 };
 
 export default function PreviewPage() {
-    const firestore = useFirestore();
     const router = useRouter();
     const { toast } = useToast();
     const [reportData, setReportData] = useState<any>(null);
@@ -71,14 +69,13 @@ export default function PreviewPage() {
     const formatWhatsappValue = (value: any): string => {
         if (value === null || value === undefined || value === 'NILL' || value === '') return '';
         if (typeof value === 'boolean') return value ? 'SIM' : 'NÃO';
-        if (value instanceof Timestamp) return formatDate(value);
+        if (value instanceof Date) return formatDate(value.toISOString());
         if (Array.isArray(value)) return value.join(', ').toUpperCase();
-        if (typeof value === 'object' && value.seconds !== undefined && value.nanoseconds !== undefined) {
-          const ts = new Timestamp(value.seconds, value.nanoseconds);
-          return formatDate(ts);
+        if (typeof value === 'string' && !isNaN(Date.parse(value))) {
+            return formatDate(value);
         }
         return String(value).toUpperCase();
-      };
+    };
     
       const generateWhatsappMessage = (data: any): string => {
         let message = `*${getCategoryTitle(reportData.category).toUpperCase()}*\n`;
@@ -137,8 +134,8 @@ export default function PreviewPage() {
         window.open(whatsappUrl, '_blank');
     };
     
-     const handleSave = async () => {
-        if (!firestore || !reportData) {
+     const handleSave = () => {
+        if (!reportData) {
             toast({
                 variant: 'destructive',
                 title: 'Erro',
@@ -148,38 +145,42 @@ export default function PreviewPage() {
         }
 
         setIsSaving(true);
-        const reportToSave = {
-            formData: reportData.formData,
-            category: reportData.category,
-            createdAt: serverTimestamp(),
-        };
+        try {
+            const storedReports = localStorage.getItem('ocorrencias-historico');
+            const reports = storedReports ? JSON.parse(storedReports) : [];
+            
+            const newReport: Report = {
+                ...reportData,
+                id: reportData.id || new Date().toISOString(), // Use existing ID or create new
+                createdAt: new Date().toISOString()
+            };
+            
+            // If editing, replace existing report
+            const existingIndex = reports.findIndex((r: Report) => r.id === newReport.id);
+            if (existingIndex > -1) {
+                reports[existingIndex] = newReport;
+            } else {
+                reports.push(newReport);
+            }
 
-        const collectionRef = collection(firestore, 'reports');
-        addDoc(collectionRef, reportToSave)
-            .then(() => {
-                toast({
-                    title: 'Sucesso!',
-                    description: 'Relatório salvo e enviado para o histórico.',
-                });
-                localStorage.removeItem('reportPreview');
-                router.push('/');
-            })
-            .catch(async (serverError) => {
-                const permissionError = new FirestorePermissionError({
-                    path: collectionRef.path,
-                    operation: 'create',
-                    requestResourceData: reportToSave,
-                });
-                errorEmitter.emit('permission-error', permissionError);
-                 toast({
-                    variant: "destructive",
-                    title: "Erro de Permissão",
-                    description: "Você não tem permissão para salvar este relatório.",
-                });
-            })
-            .finally(() => {
-                setIsSaving(false);
+            localStorage.setItem('ocorrencias-historico', JSON.stringify(reports));
+
+            toast({
+                title: 'Sucesso!',
+                description: 'Relatório salvo no histórico local.',
             });
+            localStorage.removeItem('reportPreview');
+            router.push('/');
+        } catch (error) {
+            console.error("Failed to save report to localStorage", error);
+            toast({
+                variant: "destructive",
+                title: "Erro ao Salvar",
+                description: "Não foi possível salvar o relatório no histórico.",
+            });
+        } finally {
+            setIsSaving(false);
+        }
     };
 
 
