@@ -292,3 +292,5 @@ export default function IncendioForm({ categorySlug }: { categorySlug: string })
     </div>
   );
 }
+
+    

@@ -486,3 +486,5 @@ export default function QudOperacaoForm({ categorySlug }: { categorySlug: string
     </div>
   );
 }
+
+    
