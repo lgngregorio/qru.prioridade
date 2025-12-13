@@ -260,44 +260,41 @@ export default function HistoricoPage() {
                 <Accordion type="single" collapsible className="w-full space-y-4">
                     {reports.map((report) => (
                         <AccordionItem value={report.id} key={report.id} className="border rounded-lg bg-card/50">
-                            <AccordionTrigger className="p-4 text-xl hover:no-underline">
-                                <div className="flex justify-between items-center w-full">
-                                    <div className="flex flex-col text-left">
-                                        <span className="font-bold">{getCategoryTitle(report.category)}</span>
-                                        <span className="text-sm font-normal text-muted-foreground">{formatDate(report.createdAt)}</span>
-                                    </div>
-                                    <div className="flex items-center gap-0">
-                                         <Button asChild variant="ghost" size="icon" onClick={(e) => e.stopPropagation()}>
-                                            <Link href={`/${report.category}`}>
-                                              <Edit className="h-5 w-5 text-primary" />
-                                            </Link>
-                                          </Button>
-                                         <Button variant="ghost" size="icon" className="text-green-500 hover:bg-green-500/10 hover:text-green-500" onClick={(e) => {e.stopPropagation(); handleShare(report);}}>
-                                            <Share2 className="h-5 w-5"/>
-                                        </Button>
-                                        <AlertDialog>
-                                            <AlertDialogTrigger asChild>
-                                                <Button variant="ghost" size="icon" className="text-destructive hover:bg-destructive/10 hover:text-destructive" onClick={(e) => e.stopPropagation()}>
-                                                    <Trash2 className="h-5 w-5"/>
-                                                </Button>
-                                            </AlertDialogTrigger>
-                                            <AlertDialogContent>
-                                              <AlertDialogHeader>
-                                                <AlertDialogTitle>Você tem certeza?</AlertDialogTitle>
-                                                <AlertDialogDescription>
-                                                  Essa ação não pode ser desfeita. Isso irá apagar permanentemente o relatório.
-                                                </AlertDialogDescription>
-                                              </AlertDialogHeader>
-                                              <AlertDialogFooter>
-                                                <AlertDialogCancel>Cancelar</AlertDialogCancel>
-                                                <AlertDialogAction onClick={() => handleDelete(report.id)} className="bg-destructive hover:bg-destructive/80">
-                                                  Apagar
-                                                </AlertDialogAction>
-                                              </AlertDialogFooter>
-                                            </AlertDialogContent>
-                                          </AlertDialog>
-                                        <ChevronDown className="h-5 w-5 transition-transform duration-200" />
-                                    </div>
+                            <AccordionTrigger className="p-4 text-xl hover:no-underline flex justify-between items-center w-full">
+                                <div className="flex flex-col text-left">
+                                    <span className="font-bold">{getCategoryTitle(report.category)}</span>
+                                    <span className="text-sm font-normal text-muted-foreground">{formatDate(report.createdAt)}</span>
+                                </div>
+                                <div className="flex items-center gap-0">
+                                     <Button asChild variant="ghost" size="icon" onClick={(e) => e.stopPropagation()}>
+                                        <Link href={`/${report.category}`}>
+                                          <Edit className="h-5 w-5 text-primary" />
+                                        </Link>
+                                      </Button>
+                                     <Button variant="ghost" size="icon" className="text-green-500 hover:bg-green-500/10 hover:text-green-500" onClick={(e) => {e.stopPropagation(); handleShare(report);}}>
+                                        <Share2 className="h-5 w-5"/>
+                                    </Button>
+                                    <AlertDialog>
+                                        <AlertDialogTrigger asChild>
+                                            <Button variant="ghost" size="icon" className="text-destructive hover:bg-destructive/10 hover:text-destructive" onClick={(e) => e.stopPropagation()}>
+                                                <Trash2 className="h-5 w-5"/>
+                                            </Button>
+                                        </AlertDialogTrigger>
+                                        <AlertDialogContent>
+                                          <AlertDialogHeader>
+                                            <AlertDialogTitle>Você tem certeza?</AlertDialogTitle>
+                                            <AlertDialogDescription>
+                                              Essa ação não pode ser desfeita. Isso irá apagar permanentemente o relatório.
+                                            </AlertDialogDescription>
+                                          </AlertDialogHeader>
+                                          <AlertDialogFooter>
+                                            <AlertDialogCancel>Cancelar</AlertDialogCancel>
+                                            <AlertDialogAction onClick={() => handleDelete(report.id)} className="bg-destructive hover:bg-destructive/80">
+                                              Apagar
+                                            </AlertDialogAction>
+                                          </AlertDialogFooter>
+                                        </AlertDialogContent>
+                                      </AlertDialog>
                                 </div>
                             </AccordionTrigger>
                             <AccordionContent className="p-4 pt-0">
@@ -317,3 +314,5 @@ export default function HistoricoPage() {
     </main>
   );
 }
+
+    
