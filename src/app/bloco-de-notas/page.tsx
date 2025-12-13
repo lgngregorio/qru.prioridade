@@ -54,7 +54,7 @@ export default function NotepadPage() {
   const { toast } = useToast();
 
   const notesQuery = useMemoFirebase(() => {
-    if (!firestore || !user?.uid) {
+    if (isUserLoading || !firestore || !user?.uid) {
       return null;
     }
     return query(
@@ -62,12 +62,10 @@ export default function NotepadPage() {
       where('uid', '==', user.uid),
       orderBy('createdAt', 'desc')
     );
-  }, [firestore, user?.uid]);
+  }, [firestore, user?.uid, isUserLoading]);
 
   const { data: notes, isLoading: loadingNotes } = useCollection<Note>(notesQuery);
   
-  // Combina o estado de carregamento do usuário e das notas.
-  // A consulta só será executada quando o usuário estiver carregado, então `loadingNotes` se torna o indicador principal.
   const isLoading = isUserLoading || (!!notesQuery && loadingNotes);
   
   const handleDelete = (noteId: string) => {
