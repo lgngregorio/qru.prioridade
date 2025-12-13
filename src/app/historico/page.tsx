@@ -1,9 +1,9 @@
 
 'use client';
 
-import { useState, useEffect } from 'react';
-import { collection, onSnapshot, orderBy, query, Timestamp, doc, deleteDoc } from 'firebase/firestore';
-import { useFirestore } from '@/firebase';
+import { useState, useEffect, useMemo } from 'react';
+import { collection, onSnapshot, orderBy, query, Timestamp, doc, deleteDoc, where } from 'firebase/firestore';
+import { useFirestore, useUser, useMemoFirebase } from '@/firebase';
 import { Loader2, ArrowLeft, Trash2, ChevronDown, Edit, Share2 } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -27,12 +27,14 @@ import {
 import Link from 'next/link';
 import { useToast } from '@/hooks/use-toast';
 import { eventCategories } from '@/lib/events';
+import { useCollection } from '@/firebase/firestore/use-collection';
 
 interface Report {
   id: string;
   category: string;
   createdAt: Timestamp | { seconds: number, nanoseconds: number } | null;
   formData: any;
+  uid: string;
 }
 
 const renderValue = (value: any): React.ReactNode => {
@@ -145,45 +147,19 @@ const formatDate = (timestamp: Report['createdAt']) => {
 
 export default function HistoricoPage() {
   const firestore = useFirestore();
+  const { user } = useUser();
   const { toast } = useToast();
-  const [reports, setReports] = useState<Report[]>([]);
-  const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    if (!firestore) {
-      setLoading(true);
-      return;
-    };
-
-    const reportsRef = collection(firestore, 'reports');
-    const q = query(reportsRef, orderBy('createdAt', 'desc'));
-
-    const unsubscribe = onSnapshot(q, 
-      (querySnapshot) => {
-        const fetchedReports = querySnapshot.docs.map((doc) => {
-          const data = doc.data();
-          return {
-            id: doc.id,
-            ...data,
-            createdAt: data.createdAt,
-          } as Report;
-        });
-        setReports(fetchedReports);
-        setLoading(false);
-      },
-      (error) => {
-        console.error('Error fetching reports: ', error);
-        toast({
-          variant: 'destructive',
-          title: 'Erro ao buscar relatórios.',
-          description: 'Houve um problema ao carregar as ocorrências.',
-        });
-        setLoading(false);
-      }
+  const reportsQuery = useMemoFirebase(() => {
+    if (!firestore || !user) return null;
+    return query(
+      collection(firestore, 'reports'),
+      where('uid', '==', user.uid),
+      orderBy('createdAt', 'desc')
     );
+  }, [firestore, user]);
 
-    return () => unsubscribe();
-  }, [firestore, toast]);
+  const { data: reports, isLoading: loading } = useCollection<Report>(reportsQuery);
   
   const getCategoryTitle = (slug: string) => {
     const category = eventCategories.find(c => c.slug === slug);
@@ -280,7 +256,7 @@ export default function HistoricoPage() {
               <div className="flex justify-center items-center h-64">
                 <Loader2 className="h-8 w-8 animate-spin text-primary" />
               </div>
-            ) : reports.length > 0 ? (
+            ) : reports && reports.length > 0 ? (
                 <Accordion type="single" collapsible className="w-full space-y-4">
                     {reports.map((report) => (
                         <AccordionItem value={report.id} key={report.id} className="border rounded-lg bg-card/50">

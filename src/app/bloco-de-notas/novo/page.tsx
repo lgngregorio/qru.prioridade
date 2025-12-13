@@ -9,7 +9,7 @@ import {
   serverTimestamp,
   Timestamp,
 } from 'firebase/firestore';
-import { useFirestore } from '@/firebase';
+import { useFirestore, useUser } from '@/firebase';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
@@ -29,6 +29,7 @@ import { FirestorePermissionError } from '@/firebase/errors';
 
 export default function NovaNotaPage() {
   const firestore = useFirestore();
+  const { user } = useUser();
   const router = useRouter();
   const { toast } = useToast();
   const [title, setTitle] = useState('');
@@ -36,7 +37,7 @@ export default function NovaNotaPage() {
   const [isSaving, setIsSaving] = useState(false);
 
   const handleSave = () => {
-    if (!firestore || !title || !content) {
+    if (!firestore || !title || !content || !user) {
       toast({
         variant: 'destructive',
         title: 'Campos obrigatórios',
@@ -51,6 +52,7 @@ export default function NovaNotaPage() {
     const newNote = {
       title: title,
       content: content,
+      uid: user.uid,
       createdAt: serverTimestamp(),
       updatedAt: serverTimestamp(),
     };

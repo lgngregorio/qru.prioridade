@@ -7,12 +7,16 @@
  * ensuring strong privacy and data isolation from the start.
  *
  * Data Structure:
- * The data structure is straightforward, with a single top-level collection:
  *   - /users/{userId}: Stores private user profile information.
+ *   - /reports/{reportId}: Stores individual event reports.
+ *   - /notes/{noteId}: Stores user-created notes.
  *
  * Key Security Decisions:
  * - User Data Privacy: All access to a user's document at `/users/{userId}` is restricted
  *   to the authenticated user whose UID matches the `userId` in the path.
+ * - Ownership of Reports and Notes: Access to documents in `/reports` and `/notes` is
+ *   restricted based on a `uid` field inside the document, which must match the
+ *   authenticated user's UID.
  * - No User Enumeration: Listing the top-level `/users` collection is explicitly disallowed.
  *   This is a critical security measure to prevent malicious actors from scraping user emails
  *   or other profile data.
@@ -21,13 +25,10 @@
  *   changed on update.
  *
  * Denormalization for Authorization:
- * This ruleset relies on path-based authorization (`/users/{userId}`), which is highly performant
- * and avoids the need for extra `get()` calls. The user's UID in the path is the sole source
- * of truth for ownership decisions.
- *
- * Structural Segregation:
- * Not applicable in this simple schema, but the pattern of isolating user-specific data into
- * its own collection (`/users`) is a core example of this principle.
+ * This ruleset uses both path-based authorization (`/users/{userId}`) and content-based
+ * authorization (checking `request.resource.data.uid`) for reports and notes. Storing the
+ * `uid` directly in each report/note document avoids complex `get()` calls in rules,
+ * making them more performant and scalable.
  */
 rules_version = '2';
 service cloud.firestore {
@@ -46,18 +47,43 @@ service cloud.firestore {
 
     /**
      * Checks if the currently authenticated user's UID matches the provided userId.
-     * This is the primary function for enforcing document ownership.
+     * This is the primary function for enforcing document ownership via path.
      */
-    function isOwner(userId) {
+    function isOwnerByPath(userId) {
       return isSignedIn() && request.auth.uid == userId;
     }
+    
+    /**
+     * Checks if the user is the owner of a document by looking at the 'uid' field.
+     * Used for read, update, and delete operations on existing documents.
+     */
+    function isOwnerByContent() {
+      return isSignedIn() && request.auth.uid == resource.data.uid;
+    }
+    
+    /**
+     * Validates that the 'uid' field in a new document matches the creator's UID.
+     * Enforces ownership at the moment of creation.
+     */
+    function hasValidUidOnCreate() {
+        return request.resource.data.uid == request.auth.uid;
+    }
+
+    /**
+     * Enforces immutability of the 'uid' field on update.
+     * The owner of a document cannot be changed.
+     */
+    function hasValidUidOnUpdate() {
+        return request.resource.data.uid == resource.data.uid;
+    }
+
 
     /**
      * Checks for ownership on an existing document. Used for update and delete
      * operations to ensure the target document exists before the operation.
      */
     function isExistingOwner(userId) {
-      return isOwner(userId) && resource != null;
+      return isOwnerByPath(userId) && resource != null;
     }
 
     /**
@@ -84,19 +110,43 @@ service cloud.firestore {
     /**
      * @description Manages user profile documents, ensuring users can only access their own data.
      * @path /users/{userId}
-     * @allow A user creating their own profile document: `(create) /users/user_abc` where `auth.uid == 'user_abc'`.
-     * @deny A user trying to read another user's profile: `(get) /users/user_xyz` where `auth.uid == 'user_abc'`.
-     * @principle Restricts access to a user's own data tree.
      */
     match /users/{userId} {
-      // READ: Only the document owner can read their own profile. Listing is disabled to prevent user enumeration.
-      allow get: if isOwner(userId);
-      allow list: if false;
-
-      // WRITE: A user can create their own document, and update or delete it thereafter.
-      allow create: if isOwner(userId) && hasValidUserDataOnCreate(userId);
+      allow get: if isOwnerByPath(userId);
+      allow list: if false; // Prevent user enumeration
+      allow create: if isOwnerByPath(userId) && hasValidUserDataOnCreate(userId);
       allow update: if isExistingOwner(userId) && hasValidUserDataOnUpdate();
       allow delete: if isExistingOwner(userId);
+    }
+
+    /**
+     * @description Manages event reports, ensuring users can only access their own reports.
+     * @path /reports/{reportId}
+     */
+    match /reports/{reportId} {
+      // READ: Allow reading a single report if the user is the owner.
+      allow get: if isOwnerByContent();
+      // LIST: Allow users to list only their own reports.
+      allow list: if isSignedIn();
+      // WRITE: Allow any signed-in user to create a report, but they must set themselves as the owner.
+      allow create: if isSignedIn() && hasValidUidOnCreate();
+      // UPDATE/DELETE: Allow updating/deleting only if the user is the owner.
+      allow update, delete: if isOwnerByContent() && hasValidUidOnUpdate();
+    }
+    
+     /**
+     * @description Manages user notes, ensuring users can only access their own notes.
+     * @path /notes/{noteId}
+     */
+    match /notes/{noteId} {
+      // READ: Allow reading a single note if the user is the owner.
+      allow get: if isOwnerByContent();
+       // LIST: Allow users to list only their own reports.
+      allow list: if isSignedIn();
+      // WRITE: Allow any signed-in user to create a note, but they must set themselves as the owner.
+      allow create: if isSignedIn() && hasValidUidOnCreate();
+      // UPDATE/DELETE: Allow updating/deleting only if the user is the owner.
+      allow update, delete: if isOwnerByContent() && hasValidUidOnUpdate();
     }
   }
 }

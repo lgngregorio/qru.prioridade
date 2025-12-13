@@ -4,7 +4,7 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { collection, addDoc, serverTimestamp, Timestamp } from 'firebase/firestore';
-import { useFirestore } from '@/firebase';
+import { useFirestore, useUser } from '@/firebase';
 import { useToast } from '@/hooks/use-toast';
 import { Loader2, Save, Edit, Share2, ArrowLeft } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
@@ -124,6 +124,7 @@ const formatDate = (timestamp: Report['createdAt']) => {
 
 export default function PreviewPage() {
     const firestore = useFirestore();
+    const { user } = useUser();
     const router = useRouter();
     const { toast } = useToast();
     const [reportData, setReportData] = useState<any>(null);
@@ -144,11 +145,11 @@ export default function PreviewPage() {
     }
     
     const handleSave = async () => {
-        if (!firestore || !reportData) {
+        if (!firestore || !reportData || !user) {
             toast({
                 variant: "destructive",
                 title: "Erro",
-                description: "Não há dados de relatório para salvar.",
+                description: "Não há dados de relatório para salvar ou usuário não está logado.",
             });
             return;
         }
@@ -157,6 +158,7 @@ export default function PreviewPage() {
         const reportsCollection = collection(firestore, 'reports');
         const dataToSave = {
             ...reportData,
+            uid: user.uid,
             createdAt: serverTimestamp(),
         };
 

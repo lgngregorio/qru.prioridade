@@ -10,8 +10,9 @@ import {
   orderBy,
   Timestamp,
   onSnapshot,
+  where,
 } from 'firebase/firestore';
-import { useFirestore } from '@/firebase';
+import { useFirestore, useUser, useMemoFirebase } from '@/firebase';
 import { Button } from '@/components/ui/button';
 import {
   Card,
@@ -34,7 +35,7 @@ import {
 import { useToast } from '@/hooks/use-toast';
 import { Loader2, ArrowLeft, Trash2, Edit, Plus, ChevronUp, Share2 } from 'lucide-react';
 import Link from 'next/link';
-
+import { useCollection } from '@/firebase/firestore/use-collection';
 
 interface Note {
   id: string;
@@ -42,50 +43,24 @@ interface Note {
   content: string;
   createdAt: Timestamp | null;
   updatedAt?: Timestamp | null;
+  uid: string;
 }
 
 export default function NotepadPage() {
   const firestore = useFirestore();
+  const { user } = useUser();
   const { toast } = useToast();
-  const [notes, setNotes] = useState<Note[]>([]);
-  const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    if (!firestore) return;
-
-    setLoading(true);
-    const notesRef = collection(firestore, 'notes');
-    const q = query(notesRef, orderBy('createdAt', 'desc'));
-
-    const unsubscribe = onSnapshot(q, 
-      (querySnapshot) => {
-        const fetchedNotes = querySnapshot.docs.map((doc) => {
-          const data = doc.data();
-          return {
-            id: doc.id,
-            ...data,
-            // Firestore Timestamps can be null on the client briefly after creation.
-            createdAt: data.createdAt instanceof Timestamp ? data.createdAt : null,
-            updatedAt: data.updatedAt instanceof Timestamp ? data.updatedAt : null,
-          } as Note;
-        });
-        setNotes(fetchedNotes);
-        setLoading(false);
-      },
-      (error) => {
-        console.error('Error fetching notes: ', error);
-        toast({
-          variant: 'destructive',
-          title: 'Erro ao buscar notas.',
-          description: 'Houve um problema ao carregar as anotações.',
-        });
-        setLoading(false);
-      }
+  const notesQuery = useMemoFirebase(() => {
+    if (!firestore || !user) return null;
+    return query(
+      collection(firestore, 'notes'),
+      where('uid', '==', user.uid),
+      orderBy('createdAt', 'desc')
     );
+  }, [firestore, user]);
 
-    // Cleanup subscription on unmount
-    return () => unsubscribe();
-  }, [firestore, toast]);
+  const { data: notes, isLoading: loading } = useCollection<Note>(notesQuery);
   
   const handleDelete = (noteId: string) => {
     if (!firestore) return;
@@ -113,7 +88,7 @@ export default function NotepadPage() {
   };
   
   const groupedNotes = useMemo(() => {
-     if (loading) return {};
+     if (loading || !notes) return {};
     return notes.reduce((acc, note) => {
       if(!note.createdAt) return acc;
       const date = formatDate(note.createdAt, { day: '2-digit', month: '2-digit', year: 'numeric' });
@@ -163,7 +138,7 @@ export default function NotepadPage() {
               <div className="flex justify-center items-center h-64">
                 <Loader2 className="h-8 w-8 animate-spin text-primary" />
               </div>
-            ) : notes.length === 0 ? (
+            ) : notes && notes.length === 0 ? (
               <p className="text-center text-muted-foreground py-10">Nenhuma anotação encontrada.</p>
             ) : (
                 <div className="space-y-8">

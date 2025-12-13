@@ -10,7 +10,7 @@ import {
   serverTimestamp,
   Timestamp,
 } from 'firebase/firestore';
-import { useFirestore } from '@/firebase';
+import { useFirestore, useUser } from '@/firebase';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
@@ -33,12 +33,14 @@ interface Note {
   id: string;
   title: string;
   content: string;
+  uid: string;
   createdAt: Timestamp;
   updatedAt?: Timestamp;
 }
 
 export default function EditarNotaPage() {
   const firestore = useFirestore();
+  const { user } = useUser();
   const router = useRouter();
   const params = useParams();
   const { toast } = useToast();
@@ -61,6 +63,15 @@ export default function EditarNotaPage() {
 
         if (docSnap.exists()) {
           const fetchedNote = { id: docSnap.id, ...docSnap.data() } as Note;
+          // Security check
+          if (user && fetchedNote.uid !== user.uid) {
+             toast({
+              variant: 'destructive',
+              title: 'Acesso negado.',
+            });
+            router.push('/bloco-de-notas');
+            return;
+          }
           setNote(fetchedNote);
           setTitle(fetchedNote.title);
           setContent(fetchedNote.content);
@@ -82,10 +93,10 @@ export default function EditarNotaPage() {
       }
     }
     fetchNote();
-  }, [firestore, noteId, router, toast]);
+  }, [firestore, noteId, router, toast, user]);
 
   const handleSave = () => {
-    if (!firestore || !title || !content) {
+    if (!firestore || !title || !content || !user) {
       toast({
         variant: 'destructive',
         title: 'Campos obrigatórios',
@@ -99,6 +110,7 @@ export default function EditarNotaPage() {
     const updatedData = {
         title: title,
         content: content,
+        uid: user.uid, // Ensure uid is present
         updatedAt: serverTimestamp(),
       };
     
