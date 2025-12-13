@@ -3,12 +3,11 @@
 
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
 import { Trash2, Edit, Share2, Loader2 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import type { Note } from '@/lib/types';
-import { cn } from '@/lib/utils';
 
 interface NoteCardProps {
   note: Note;
@@ -77,36 +76,33 @@ export function NoteCard({ note, onEdit, onDelete }: NoteCardProps) {
 
   return (
     <>
-      <Card>
-        <CardContent className="p-4">
-            <div className="flex items-center justify-between gap-4">
-                <div className="flex-1 overflow-hidden cursor-pointer" onClick={() => setIsExpanded(!isExpanded)}>
-                    <h3 className="text-xl font-bold truncate">{note.title}</h3>
-                    <p className="text-sm font-bold text-muted-foreground mt-1">{formatDate(note.createdAt)}</p>
-                </div>
-                <div className="flex gap-2">
-                    <Button variant="outline" size="icon" onClick={handleEditClick} className="h-12 w-12 border-blue-500 text-blue-500 hover:bg-blue-500 hover:text-white">
-                        <Edit className="h-6 w-6" />
-                        <span className="sr-only">Editar</span>
-                    </Button>
-                    <Button variant="outline" size="icon" onClick={handleShare} className="h-12 w-12 border-green-500 text-green-500 hover:bg-green-500 hover:text-white">
-                        <Share2 className="h-6 w-6" />
-                        <span className="sr-only">Compartilhar</span>
-                    </Button>
-                     <Button variant="destructive" size="icon" onClick={handleDeleteClick} className="h-12 w-12">
-                        <Trash2 className="h-6 w-6" />
-                        <span className="sr-only">Apagar</span>
-                    </Button>
-                </div>
-            </div>
-            {isExpanded && (
-              <div className="mt-4 pt-4 border-t cursor-pointer" onClick={() => setIsExpanded(!isExpanded)}>
-                <p className="text-muted-foreground whitespace-pre-wrap">
-                    {note.content}
-                </p>
-              </div>
-            )}
-        </CardContent>
+      <Card className="relative">
+        <Button variant="destructive" size="icon" onClick={handleDeleteClick} className="absolute top-2 right-2 h-8 w-8">
+            <Trash2 className="h-4 w-4" />
+            <span className="sr-only">Apagar</span>
+        </Button>
+        <CardHeader className="cursor-pointer" onClick={() => setIsExpanded(!isExpanded)}>
+          <CardTitle className="truncate pr-10">{note.title}</CardTitle>
+          <CardDescription className="text-base font-bold text-muted-foreground">{formatDate(note.createdAt)}</CardDescription>
+        </CardHeader>
+        
+        {isExpanded && (
+          <CardContent>
+             <div className="mt-4 pt-4 border-t whitespace-pre-wrap">
+                <p className="text-muted-foreground">{note.content}</p>
+             </div>
+          </CardContent>
+        )}
+        <CardFooter className="p-4 flex flex-wrap justify-center gap-2">
+            <Button variant="outline" size="default" onClick={handleEditClick} className="border-blue-500 text-blue-500 hover:bg-blue-500 hover:text-white flex-grow">
+              <Edit className="h-5 w-5 mr-2" />
+              Editar
+            </Button>
+            <Button variant="outline" size="default" onClick={handleShare} className="border-green-500 text-green-500 hover:bg-green-500 hover:text-white flex-grow">
+              <Share2 className="h-5 w-5 mr-2" />
+              Compartilhar
+            </Button>
+        </CardFooter>
       </Card>
 
       <AlertDialog open={showDeleteConfirm} onOpenChange={setShowDeleteConfirm}>
