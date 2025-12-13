@@ -1,8 +1,8 @@
 
 'use client';
 
-import { useFirestore, useMemoFirebase, useUser } from '@/firebase';
-import { collection, query, orderBy, Timestamp, doc, deleteDoc, where } from 'firebase/firestore';
+import { useFirestore, useMemoFirebase } from '@/firebase';
+import { collection, query, orderBy, Timestamp, doc, deleteDoc } from 'firebase/firestore';
 import { useCollection } from '@/firebase/firestore/use-collection';
 import { Loader2, History, AlertCircle, Trash2, Edit, Share2 } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
@@ -39,7 +39,6 @@ interface Report {
     category: string;
     createdAt: Timestamp | { seconds: number; nanoseconds: number };
     formData: any;
-    uid: string;
 }
 
 const formatDate = (timestamp: Report['createdAt']) => {
@@ -140,21 +139,17 @@ const formatWhatsappValue = (value: any): string => {
 
 export default function OcorrenciasPage() {
     const firestore = useFirestore();
-    const { user, isUserLoading } = useUser();
     const router = useRouter();
     const { toast } = useToast();
     const [isDeleting, setIsDeleting] = useState<string | null>(null);
 
     const reportsQuery = useMemoFirebase(() => {
-        if (!user?.uid || !firestore) {
-            return null;
-        }
+        if (!firestore) return null;
         return query(
             collection(firestore, 'reports'),
-            where('uid', '==', user.uid),
             orderBy('createdAt', 'desc')
         );
-    }, [firestore, user, user?.uid]);
+    }, [firestore]);
 
     const { data: reports, isLoading: isReportsLoading, error } = useCollection<Report>(reportsQuery);
     
@@ -191,7 +186,7 @@ export default function OcorrenciasPage() {
         }
     };
     
-    if (isUserLoading || (user && isReportsLoading)) {
+    if (isReportsLoading) {
         return (
             <main className="flex flex-col items-center p-4 md:p-6">
                 <div className="flex items-center justify-center h-64">

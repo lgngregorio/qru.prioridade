@@ -4,7 +4,7 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { collection, addDoc, serverTimestamp, Timestamp } from 'firebase/firestore';
-import { useFirestore, useUser } from '@/firebase';
+import { useFirestore } from '@/firebase';
 import { useToast } from '@/hooks/use-toast';
 import { Loader2, Save, Edit, Share2 } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
@@ -43,7 +43,6 @@ const formatKey = (key: string) => {
 
 export default function PreviewPage() {
     const firestore = useFirestore();
-    const { user } = useUser();
     const router = useRouter();
     const { toast } = useToast();
     const [reportData, setReportData] = useState<any>(null);
@@ -139,18 +138,17 @@ export default function PreviewPage() {
     };
     
      const handleSave = async () => {
-        if (!firestore || !reportData || !user) {
+        if (!firestore || !reportData) {
             toast({
                 variant: 'destructive',
                 title: 'Erro',
-                description: 'Usuário não autenticado ou dados do relatório ausentes.',
+                description: 'Dados do relatório ausentes.',
             });
             return;
         }
 
         setIsSaving(true);
         const reportToSave = {
-            uid: user.uid,
             formData: reportData.formData,
             category: reportData.category,
             createdAt: serverTimestamp(),
