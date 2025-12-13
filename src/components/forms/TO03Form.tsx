@@ -2,7 +2,7 @@
 'use client';
 
 import { useRouter } from 'next/navigation';
-import { Save, Share, Loader2 } from 'lucide-react';
+import { Save } from 'lucide-react';
 import { useState } from 'react';
 import React from 'react';
 

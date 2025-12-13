@@ -2,19 +2,16 @@
 'use client';
 
 import { useRouter } from 'next/navigation';
-import { Save, Share, Loader2 } from 'lucide-react';
+import { Save } from 'lucide-react';
 import { useState, useEffect } from 'react';
-import { collection, addDoc, serverTimestamp } from 'firebase/firestore';
 import React from 'react';
 
 import { cn } from '@/lib/utils';
-import { eventCategories } from '@/lib/events';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { useFirestore } from '@/firebase';
 import { useToast } from '@/hooks/use-toast';
 
 
@@ -47,10 +44,8 @@ type OtherInfo = {
 };
 
 export default function TO07Form({ categorySlug }: { categorySlug: string }) {
-  const firestore = useFirestore();
   const router = useRouter();
   const { toast } = useToast();
-  const [isSaving, setIsSaving] = useState(false);
 
   const [generalInfo, setGeneralInfo] = useState<GeneralInfo>({
     rodovia: '',
@@ -113,52 +108,13 @@ export default function TO07Form({ categorySlug }: { categorySlug: string }) {
     return {
       category: categorySlug,
       formData: filledData,
-      createdAt: serverTimestamp(),
     };
   };
-  
-  const handleSave = async () => {
-    if (!firestore) {
-      toast({
-        variant: "destructive",
-        title: "Erro",
-        description: "Não foi possível conectar ao banco de dados.",
-      });
-      return false;
-    }
 
-    setIsSaving(true);
-    try {
-      const reportData = prepareReportData();
-      await addDoc(collection(firestore, 'reports'), reportData);
-      
-      toast({
-        title: "Sucesso!",
-        description: "Relatório salvo com sucesso.",
-        className: "bg-green-600 text-white",
-      });
-      
-      router.push('/historico');
-      return true;
-
-    } catch (error) {
-      console.error("Error saving report: ", error);
-      toast({
-        variant: "destructive",
-        title: "Erro ao salvar",
-        description: "Ocorreu um erro ao salvar o relatório. Tente novamente.",
-      });
-      return false;
-    } finally {
-      setIsSaving(false);
-    }
-  };
-
-  const handleGenerateReport = async () => {
-    const success = await handleSave();
-    if (success) {
-      router.push('/historico');
-    }
+  const handleGenerateReport = () => {
+    const reportData = prepareReportData();
+    localStorage.setItem('reportPreview', JSON.stringify(reportData));
+    router.push('/relatorio/preview');
   };
 
 
@@ -260,10 +216,9 @@ export default function TO07Form({ categorySlug }: { categorySlug: string }) {
               size="lg"
               className="uppercase text-xl"
               onClick={handleGenerateReport}
-              disabled={isSaving}
             >
-              {isSaving ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Save className="mr-2 h-4 w-4" />}
-              {isSaving ? 'Salvando...' : 'Gerar Relatório'}
+              <Save className="mr-2 h-4 w-4" />
+              Gerar Relatório
             </Button>
         </div>
       </form>
