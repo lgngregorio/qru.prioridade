@@ -15,17 +15,32 @@ import {
   FileCode,
   Settings,
   ShieldCheck,
-  ListOrdered,
+  LogOut,
+  User,
+  ListOrdered
 } from 'lucide-react';
 import Link from 'next/link';
-import { usePathname } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
+import { useAuth } from '@/firebase'; // Import useAuth
+import { signOut } from 'firebase/auth'; // Import signOut
 
 export default function AppSidebar() {
   const pathname = usePathname();
   const { setOpenMobile } = useSidebar();
+  const auth = useAuth();
+  const router = useRouter();
 
   const handleLinkClick = () => {
     setOpenMobile(false);
+  };
+  
+  const handleLogout = async () => {
+    try {
+      await signOut(auth);
+      router.push('/login');
+    } catch (error) {
+      console.error("Error signing out: ", error);
+    }
   };
 
   return (
@@ -60,6 +75,14 @@ export default function AppSidebar() {
               </Link>
             </SidebarMenuButton>
           </SidebarMenuItem>
+           <SidebarMenuItem>
+            <SidebarMenuButton asChild isActive={pathname === '/ocorrencias'} className="text-base [&_svg]:size-5" onClick={handleLinkClick}>
+              <Link href="/ocorrencias">
+                <ListOrdered />
+                Ocorrências
+              </Link>
+            </SidebarMenuButton>
+          </SidebarMenuItem>
           <SidebarMenuItem>
             <SidebarMenuButton asChild isActive={pathname === '/codigos'} className="text-base [&_svg]:size-5" onClick={handleLinkClick}>
               <Link href="/codigos">
@@ -80,12 +103,18 @@ export default function AppSidebar() {
       </SidebarContent>
       <SidebarFooter>
         <SidebarMenu className="gap-y-8">
-          <SidebarMenuItem>
-            <SidebarMenuButton asChild isActive={pathname === '/politicas-sgi'} className="text-lg [&_svg]:size-6" onClick={handleLinkClick}>
-              <Link href="/politicas-sgi">
-                <ShieldCheck />
-                Políticas do SGI
-              </Link>
+           <SidebarMenuItem>
+             <SidebarMenuButton asChild isActive={pathname === '/politicas-sgi'} className="text-base [&_svg]:size-5" onClick={handleLinkClick}>
+               <Link href="/politicas-sgi">
+                 <ShieldCheck />
+                 Políticas do SGI
+               </Link>
+             </SidebarMenuButton>
+           </SidebarMenuItem>
+           <SidebarMenuItem>
+            <SidebarMenuButton onClick={handleLogout} className="text-base [&_svg]:size-5">
+              <LogOut />
+              Sair
             </SidebarMenuButton>
           </SidebarMenuItem>
         </SidebarMenu>

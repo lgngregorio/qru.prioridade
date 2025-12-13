@@ -6,6 +6,10 @@
       "type": "object",
       "description": "Represents a report submitted by a user.",
       "properties": {
+        "uid": {
+          "type": "string",
+          "description": "The user ID of the user who created the report."
+        },
         "category": {
           "type": "string",
           "description": "The category slug of the report (e.g., 'to-01')."
@@ -21,6 +25,7 @@
         }
       },
       "required": [
+        "uid",
         "category",
         "formData",
         "createdAt"
@@ -28,7 +33,9 @@
     }
   },
   "auth": {
-    "providers": []
+    "providers": [
+      "password"
+    ]
   },
   "firestore": {
     "structure": [

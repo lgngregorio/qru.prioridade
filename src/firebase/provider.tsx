@@ -4,7 +4,7 @@
 import React, { DependencyList, createContext, useContext, ReactNode, useMemo, useState, useEffect } from 'react';
 import { FirebaseApp } from 'firebase/app';
 import { Firestore } from 'firebase/firestore';
-import { Auth, User } from 'firebase/auth'; // Removed onAuthStateChanged as it is no longer used
+import { Auth, onAuthStateChanged, User } from 'firebase/auth'; // Import onAuthStateChanged
 import { FirebaseErrorListener } from '@/components/FirebaseErrorListener';
 
 // Combined state for the Firebase context
@@ -13,6 +13,9 @@ export interface FirebaseContextState {
   firebaseApp: FirebaseApp | null;
   firestore: Firestore | null;
   auth: Auth | null;
+  user: User | null;
+  isUserLoading: boolean;
+  userError: Error | null;
 }
 
 // React Context
@@ -26,7 +29,7 @@ interface FirebaseProviderProps {
 }
 
 /**
- * FirebaseProvider manages and provides Firebase services.
+ * FirebaseProvider manages and provides Firebase services and auth state.
  */
 export const FirebaseProvider: React.FC<FirebaseProviderProps> = ({
   children,
@@ -34,6 +37,25 @@ export const FirebaseProvider: React.FC<FirebaseProviderProps> = ({
   firestore,
   auth,
 }) => {
+  const [user, setUser] = useState<User | null>(null);
+  const [isUserLoading, setIsUserLoading] = useState(true);
+  const [userError, setUserError] = useState<Error | null>(null);
+
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(
+      auth,
+      (user) => {
+        setUser(user);
+        setIsUserLoading(false);
+      },
+      (error) => {
+        setUserError(error);
+        setIsUserLoading(false);
+      }
+    );
+    return () => unsubscribe();
+  }, [auth]);
+
   // Memoize the context value
   const contextValue = useMemo((): FirebaseContextState => {
     const servicesAvailable = !!(firebaseApp && firestore && auth);
@@ -42,8 +64,11 @@ export const FirebaseProvider: React.FC<FirebaseProviderProps> = ({
       firebaseApp: servicesAvailable ? firebaseApp : null,
       firestore: servicesAvailable ? firestore : null,
       auth: servicesAvailable ? auth : null,
+      user,
+      isUserLoading,
+      userError,
     };
-  }, [firebaseApp, firestore, auth]);
+  }, [firebaseApp, firestore, auth, user, isUserLoading, userError]);
 
   return (
     <FirebaseContext.Provider value={contextValue}>
@@ -53,7 +78,6 @@ export const FirebaseProvider: React.FC<FirebaseProviderProps> = ({
   );
 };
 
-// This is the base hook that other hooks will use.
 const useFirebaseServices = (): Omit<FirebaseContextState, 'user' | 'isUserLoading' | 'userError'> => {
   const context = useContext(FirebaseContext);
 
@@ -73,6 +97,22 @@ const useFirebaseServices = (): Omit<FirebaseContextState, 'user' | 'isUserLoadi
   };
 };
 
+/** Hook to access the current authenticated user and loading state. */
+export const useUser = (): {
+  user: User | null;
+  isUserLoading: boolean;
+  userError: Error | null;
+} => {
+  const context = useContext(FirebaseContext);
+  if (context === undefined) {
+    throw new Error('useUser must be used within a FirebaseProvider.');
+  }
+  return {
+    user: context.user,
+    isUserLoading: context.isUserLoading,
+    userError: context.userError,
+  };
+};
 
 /** Hook to access Firebase Auth instance. */
 export const useAuth = (): Auth => {
@@ -102,9 +142,3 @@ export function useMemoFirebase<T>(factory: () => T, deps: DependencyList): T | 
   
   return memoized;
 }
-
-// Placeholder for useUser hook if it's still imported elsewhere, to avoid breaking imports.
-// It doesn't do anything related to auth state anymore.
-export const useUser = (): { user: null; isUserLoading: boolean; userError: null; } => {
-  return { user: null, isUserLoading: false, userError: null };
-};

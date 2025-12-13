@@ -21,63 +21,120 @@ import {
   doc,
   Timestamp,
 } from 'firebase/firestore';
-import { useFirestore }from '@/firebase';
+import { useFirestore, useAuth } from '@/firebase'; // Import useAuth
+import { onAuthStateChanged, User } from 'firebase/auth'; // Import onAuthStateChanged
 import { eventCategories } from '@/lib/events';
 import ReportDetail from '@/components/ReportDetail';
 
 interface ReportData {
   category: string;
   formData: any;
+  uid?: string; // Add uid to the interface
   createdAt?: any;
 }
 
 export default function PreviewPage() {
   const router = useRouter();
   const firestore = useFirestore();
+  const auth = useAuth(); // Get auth instance
   const { toast } = useToast();
 
   const [report, setReport] = useState<ReportData | null>(null);
+  const [user, setUser] = useState<User | null>(null); // State for the user
   const [isLoading, setIsLoading] = useState(true);
+  const [isSaving, setIsSaving] = useState(false);
+
 
   useEffect(() => {
-    const savedData = localStorage.getItem('reportPreview');
-    if (savedData) {
-      setReport(JSON.parse(savedData));
-    } else {
-      router.push('/');
-    }
-    setIsLoading(false);
-  }, [router]);
+    // Listen for auth state changes
+    const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
+      setUser(currentUser);
+      const savedData = localStorage.getItem('reportPreview');
+      if (savedData) {
+        setReport(JSON.parse(savedData));
+      } else {
+        // If no preview data, redirect to home.
+        // This might happen if the user navigates here directly.
+        router.push('/');
+      }
+      setIsLoading(false);
+    });
+
+    return () => unsubscribe(); // Cleanup subscription
+  }, [router, auth]);
   
+  const handleSaveAndGoToHistory = async () => {
+    if (!report || !firestore || !user) {
+      toast({
+        variant: 'destructive',
+        title: 'Erro',
+        description: 'Relatório ou usuário não encontrado. Não é possível salvar.',
+      });
+      return;
+    }
+
+    setIsSaving(true);
+    try {
+      const reportWithUser = {
+        ...report,
+        uid: user.uid, // Add user's UID to the report
+        createdAt: serverTimestamp(),
+      };
+
+      await addDoc(collection(firestore, 'reports'), reportWithUser.formData);
+
+      toast({
+        title: 'Sucesso!',
+        description: 'Seu relatório foi salvo.',
+      });
+      localStorage.removeItem('reportPreview');
+      router.push('/'); 
+    } catch (error) {
+      console.error('Erro ao salvar o relatório: ', error);
+      toast({
+        variant: 'destructive',
+        title: 'Erro ao Salvar',
+        description: 'Não foi possível salvar o seu relatório. Tente novamente.',
+      });
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
+
   const getCategoryTitle = (slug: string) => {
     const category = eventCategories.find((c) => c.slug === slug);
     return category ? category.title : slug;
   };
   
     const formatDate = (dateSource: any): string => {
-        if (!dateSource) return 'Carregando...';
+        if (!dateSource) return 'N/A';
         
-        // Don't format if it's not a valid date string or object
-        if (typeof dateSource !== 'string' && !(dateSource instanceof Date) && !(dateSource instanceof Timestamp)) {
-            return String(dateSource);
-        }
-        
-        try {
-            const date = (dateSource instanceof Timestamp) ? dateSource.toDate() : new Date(dateSource);
-            // Check if date is valid
-            if (isNaN(date.getTime())) {
+        let date;
+        if (dateSource instanceof Timestamp) {
+            date = dateSource.toDate();
+        } else if (dateSource instanceof Date) {
+            date = dateSource;
+        } else if (typeof dateSource === 'string' || typeof dateSource === 'number') {
+            try {
+                date = new Date(dateSource);
+                if (isNaN(date.getTime())) {
+                    return String(dateSource);
+                }
+            } catch {
                 return String(dateSource);
             }
-            return date.toLocaleString('pt-BR', {
-                day: '2-digit',
-                month: '2-digit',
-                year: 'numeric',
-                hour: '2-digit',
-                minute: '2-digit',
-            });
-        } catch {
-            return String(dateSource); // Fallback for invalid date strings
+        } else {
+            return String(dateSource);
         }
+
+        return date.toLocaleString('pt-BR', {
+            day: '2-digit',
+            month: '2-digit',
+            year: 'numeric',
+            hour: '2-digit',
+            minute: '2-digit',
+        });
     };
     
     const formatWhatsappValue = (value: any, key: string): string => {
@@ -189,20 +246,30 @@ export default function PreviewPage() {
               <ReportDetail formData={report.formData} />
             </CardContent>
             <CardFooter className="flex flex-col md:flex-row justify-end gap-4 pt-6">
-              <div className="flex gap-4">
-                <Button variant="outline" onClick={() => router.push(`/${report.category}`)}>
-                    <Edit className="mr-2 h-4 w-4" />
-                    Editar
-                </Button>
-                <Button
-                  variant="secondary"
-                  className="bg-green-500 hover:bg-green-600 text-white"
-                  onClick={handleShare}
-                >
-                  <Share2 className="mr-2 h-4 w-4" />
-                  Compartilhar no WhatsApp
-                </Button>
-              </div>
+               <Button
+                variant="outline"
+                className="w-full md:w-auto"
+                onClick={() => router.push(`/${report.category}`)}
+              >
+                <Edit className="mr-2 h-4 w-4" />
+                Editar
+              </Button>
+              <Button
+                className="w-full md:w-auto"
+                onClick={handleSaveAndGoToHistory}
+                disabled={isSaving}
+              >
+                {isSaving ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Save className="mr-2 h-4 w-4" />}
+                Salvar Relatório
+              </Button>
+              <Button
+                variant="secondary"
+                className="bg-green-500 hover:bg-green-600 text-white w-full md:w-auto"
+                onClick={handleShare}
+              >
+                <Share2 className="mr-2 h-4 w-4" />
+                Compartilhar no WhatsApp
+              </Button>
             </CardFooter>
           </Card>
         </div>
