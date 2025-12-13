@@ -10,20 +10,19 @@ import { Button } from '@/components/ui/button';
 import { eventCategories } from '@/lib/events';
 import ReportDetail from '@/components/ReportDetail';
 import { useFirestore } from '@/firebase';
-import { addDoc, collection, doc, setDoc, serverTimestamp } from 'firebase/firestore';
+import { addDoc, collection, doc, setDoc, serverTimestamp, Timestamp } from 'firebase/firestore';
 
 interface Report {
   id?: string;
   category: string;
   createdAt?: any; 
   formData: any;
-  uid?: string;
 }
 
-const formatDate = (dateSource: string | Date): string => {
+const formatDate = (dateSource: any): string => {
     if (!dateSource) return 'Carregando...';
     try {
-        const date = new Date(dateSource);
+        const date = (dateSource instanceof Timestamp) ? dateSource.toDate() : new Date(dateSource);
         return date.toLocaleString('pt-BR', {
             day: '2-digit',
             month: '2-digit',
@@ -32,7 +31,7 @@ const formatDate = (dateSource: string | Date): string => {
             minute: '2-digit'
         });
     } catch {
-        return 'Data inválida';
+        return String(dateSource);
     }
 };
 
@@ -172,7 +171,7 @@ export default function PreviewPage() {
                 description: 'Relatório salvo.',
             });
             localStorage.removeItem('reportPreview');
-            router.push('/');
+            router.push('/ocorrencias');
         } catch (error: any) {
             console.error("Failed to save report to Firestore", error);
             toast({
