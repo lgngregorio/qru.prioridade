@@ -1,8 +1,8 @@
 
 'use client';
 
-import { useFirestore, useMemoFirebase } from '@/firebase';
-import { collection, query, orderBy, Timestamp, doc, deleteDoc } from 'firebase/firestore';
+import { useFirestore, useMemoFirebase, useUser } from '@/firebase';
+import { collection, query, orderBy, Timestamp, doc, deleteDoc, where } from 'firebase/firestore';
 import { useCollection } from '@/firebase/firestore/use-collection';
 import { Loader2, History, AlertCircle, Trash2, Edit, Share2 } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
@@ -39,6 +39,7 @@ interface Report {
     category: string;
     createdAt: Timestamp | { seconds: number; nanoseconds: number };
     formData: any;
+    uid: string;
 }
 
 const formatDate = (timestamp: Report['createdAt']) => {
@@ -139,19 +140,21 @@ const formatWhatsappValue = (value: any): string => {
 
 export default function OcorrenciasPage() {
     const firestore = useFirestore();
+    const { user, isUserLoading } = useUser();
     const router = useRouter();
     const { toast } = useToast();
     const [isDeleting, setIsDeleting] = useState<string | null>(null);
 
     const reportsQuery = useMemoFirebase(() => {
-        if (!firestore) {
+        if (!firestore || !user?.uid) {
             return null;
         }
         return query(
             collection(firestore, 'reports'),
+            where('uid', '==', user.uid),
             orderBy('createdAt', 'desc')
         );
-    }, [firestore]);
+    }, [firestore, user?.uid]);
 
     const { data: reports, isLoading, error } = useCollection<Report>(reportsQuery);
     
@@ -188,7 +191,7 @@ export default function OcorrenciasPage() {
         }
     };
     
-    if (isLoading) {
+    if (isLoading || isUserLoading) {
         return (
             <main className="flex flex-col items-center p-4 md:p-6">
                 <div className="flex items-center justify-center h-64">

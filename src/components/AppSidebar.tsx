@@ -16,18 +16,48 @@ import {
   History,
   Settings,
   ShieldCheck,
+  LogOut,
+  Loader2,
 } from 'lucide-react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useToast } from '@/hooks/use-toast';
+import { useAuth, useUser } from '@/firebase';
+import { signOut } from 'firebase/auth';
+import { useRouter } from 'next/navigation';
+import { useState } from 'react';
 
 export default function AppSidebar() {
   const pathname = usePathname();
   const { setOpenMobile } = useSidebar();
   const { toast } = useToast();
+  const auth = useAuth();
+  const router = useRouter();
+  const { user, isUserLoading } = useUser();
+  const [isLoggingOut, setIsLoggingOut] = useState(false);
 
   const handleLinkClick = () => {
     setOpenMobile(false);
+  };
+  
+  const handleLogout = async () => {
+    setIsLoggingOut(true);
+    try {
+      await signOut(auth);
+      toast({
+        title: 'Logout realizado com sucesso!',
+      });
+      router.push('/login');
+    } catch (error) {
+      console.error('Erro ao fazer logout:', error);
+      toast({
+        variant: 'destructive',
+        title: 'Erro!',
+        description: 'Não foi possível fazer logout. Tente novamente.',
+      });
+    } finally {
+      setIsLoggingOut(false);
+    }
   };
 
   return (
@@ -98,6 +128,22 @@ export default function AppSidebar() {
               </Link>
             </SidebarMenuButton>
           </SidebarMenuItem>
+          {user && (
+            <SidebarMenuItem>
+              <SidebarMenuButton
+                className="text-base [&_svg]:size-5"
+                onClick={handleLogout}
+                disabled={isLoggingOut}
+              >
+                {isLoggingOut ? (
+                  <Loader2 className="animate-spin" />
+                ) : (
+                  <LogOut />
+                )}
+                Sair
+              </SidebarMenuButton>
+            </SidebarMenuItem>
+          )}
         </SidebarMenu>
       </SidebarFooter>
     </>
