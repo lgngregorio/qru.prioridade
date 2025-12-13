@@ -122,7 +122,7 @@ export default function PreviewPage() {
         }
 
         if (Array.isArray(value)) return value.join(', ').toUpperCase();
-        return String(value).toUpperCase();
+        return String(value).replace(/-/g, ' ').toUpperCase();
     };
     
     const formatKey = (key: string) => {
@@ -250,4 +250,3 @@ export default function PreviewPage() {
       </main>
   );
 }
-

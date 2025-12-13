@@ -47,7 +47,7 @@ const renderValue = (key: string, value: any): React.ReactNode => {
     }
     
     if (typeof value === 'string') {
-        return value.replace(/_/g, ' ').replace(/\b\w/g, char => char.toUpperCase());
+        return value.replace(/-/g, ' ').replace(/\b\w/g, char => char.toUpperCase());
     }
 
     return String(value);
