@@ -3,7 +3,7 @@
 
 import { useRouter } from 'next/navigation';
 import { Save } from 'lucide-react';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import React from 'react';
 
 import { cn } from '@/lib/utils';
@@ -91,6 +91,20 @@ export default function TO03Form({ categorySlug }: { categorySlug: string }) {
     vtrApoio: '',
     numeroOcorrencia: '',
   });
+  
+  useEffect(() => {
+    const savedData = localStorage.getItem('reportPreview');
+    if (savedData) {
+      const { formData } = JSON.parse(savedData);
+      if (formData) {
+        setGeneralInfo(formData.generalInfo || generalInfo);
+        setCaracteristicasEntorno(formData.caracteristicasEntorno || caracteristicasEntorno);
+        setTracadoPista(formData.tracadoPista || tracadoPista);
+        setOtherInfo(formData.otherInfo || otherInfo);
+        setShowVtrApoio(!!formData.otherInfo?.vtrApoio && formData.otherInfo.vtrApoio !== 'NILL');
+      }
+    }
+  }, []);
 
   const handleGeneralInfoChange = (field: keyof GeneralInfo, value: string) => {
     setGeneralInfo(prev => ({ ...prev, [field]: value }));

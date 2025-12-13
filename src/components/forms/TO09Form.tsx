@@ -3,7 +3,7 @@
 
 import { useRouter } from 'next/navigation';
 import { Save, Share, PlusCircle, Trash2, Loader2 } from 'lucide-react';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { collection, addDoc, serverTimestamp } from 'firebase/firestore';
 import React from 'react';
 
@@ -75,6 +75,17 @@ export default function TO09Form({ categorySlug }: { categorySlug: string }) {
     auxilios: '',
     numeroOcorrencia: '',
   });
+  
+  useEffect(() => {
+    const savedData = localStorage.getItem('reportPreview');
+    if (savedData) {
+      const { formData } = JSON.parse(savedData);
+      if (formData) {
+        setGeneralInfo(formData.generalInfo || generalInfo);
+        setOtherInfo(formData.otherInfo || otherInfo);
+      }
+    }
+  }, []);
 
   const formatPhoneNumber = (value: string) => {
     if (!value) return value;
