@@ -43,19 +43,19 @@ export default function OcorrenciasPage() {
     const firestore = useFirestore();
 
     const reportsQuery = useMemoFirebase(() => {
-        if (!firestore || !user?.uid) {
-            return null;
+        if (firestore && user?.uid) {
+            return query(
+                collection(firestore, 'reports'),
+                where('uid', '==', user.uid),
+                orderBy('createdAt', 'desc')
+            );
         }
-        return query(
-            collection(firestore, 'reports'),
-            where('uid', '==', user.uid),
-            orderBy('createdAt', 'desc')
-        );
+        return null;
     }, [firestore, user?.uid]);
 
     const { data: reports, isLoading: isReportsLoading, error } = useCollection<Report>(reportsQuery);
 
-    const isLoading = isUserLoading || (user && !reports && !error);
+    const isLoading = isUserLoading || (!reports && !error);
 
     if (isLoading) {
         return (
