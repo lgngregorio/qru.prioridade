@@ -152,7 +152,7 @@ export default function HistoricoPage() {
   const { toast } = useToast();
 
   const reportsQuery = useMemoFirebase(() => {
-    if (isUserLoading || !firestore || !user) {
+    if (!firestore || !user?.uid) {
       return null;
     }
     return query(
@@ -160,11 +160,11 @@ export default function HistoricoPage() {
       where('uid', '==', user.uid),
       orderBy('createdAt', 'desc')
     );
-  }, [firestore, user, isUserLoading]);
+  }, [firestore, user?.uid]);
 
   const { data: reports, isLoading: reportsLoading } = useCollection<Report>(reportsQuery);
   
-  const isLoading = isUserLoading || (reportsQuery !== null && reportsLoading);
+  const isLoading = isUserLoading || (reportsQuery && reportsLoading);
   
   const getCategoryTitle = (slug: string) => {
     const category = eventCategories.find(c => c.slug === slug);
@@ -274,7 +274,7 @@ export default function HistoricoPage() {
                             <AccordionContent className="p-4 pt-0">
                                 <ReportDetail formData={report.formData} />
                                 <div className="flex items-center gap-2 mt-4 pt-4 border-t">
-                                     <Button asChild variant="outline" size="sm">
+                                     <Button asChild variant="outline" size="sm" onClick={(e) => e.stopPropagation()}>
                                         <Link href={`/${report.category}`}>
                                           <Edit className="mr-2 h-4 w-4" />
                                           Editar
@@ -286,7 +286,7 @@ export default function HistoricoPage() {
                                     </Button>
                                     <AlertDialog>
                                         <AlertDialogTrigger asChild>
-                                            <Button variant="destructive" size="sm">
+                                            <Button variant="destructive" size="sm" onClick={(e) => e.stopPropagation()}>
                                                 <Trash2 className="mr-2 h-4 w-4"/>
                                                 Apagar
                                             </Button>
@@ -322,5 +322,7 @@ export default function HistoricoPage() {
     </main>
   );
 }
+
+    
 
     
