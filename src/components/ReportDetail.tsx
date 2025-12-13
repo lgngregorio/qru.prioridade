@@ -9,10 +9,10 @@ interface Report {
   formData: any;
 }
 
-const formatDate = (isoString: string) => {
-    if (!isoString) return 'Carregando...';
+const formatDate = (dateSource: string | Date | Timestamp) => {
+    if (!dateSource) return 'Carregando...';
     try {
-        const date = new Date(isoString);
+        const date = (dateSource instanceof Timestamp) ? dateSource.toDate() : new Date(dateSource);
         return date.toLocaleString('pt-BR', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' });
     } catch {
         return 'Data inválida';
@@ -20,20 +20,27 @@ const formatDate = (isoString: string) => {
 };
 
 
-const renderValue = (value: any): React.ReactNode => {
+const renderValue = (key: string, value: any): React.ReactNode => {
     if (value === null || value === undefined || value === 'NILL' || value === '') return 'N/A';
     if (typeof value === 'boolean') return value ? 'Sim' : 'Não';
-    if (value instanceof Date) return formatDate(value.toISOString());
-    if (typeof value === 'string' && !isNaN(Date.parse(value))) {
-        return formatDate(value);
+    
+    // Explicitly check for keys that should be dates
+    const dateKeys = ['data', 'dn', 'createdAt', 'qtrInicio', 'qtrTermino'];
+    if (dateKeys.includes(key) && (typeof value === 'string' || value instanceof Date || value instanceof Timestamp)) {
+       return formatDate(value);
     }
+    
+    if (value instanceof Date) return formatDate(value);
+    if (value instanceof Timestamp) return formatDate(value);
+
     if (Array.isArray(value)) return value.join(', ');
+
     if (typeof value === 'object') {
         return (
             <ul className="list-disc pl-5 space-y-1">
-                {Object.entries(value).map(([key, val]) => (
-                    <li key={key}>
-                        <span className="font-semibold capitalize">{key.replace(/_/g, ' ')}:</span> {renderValue(val)}
+                {Object.entries(value).map(([subKey, val]) => (
+                    <li key={subKey}>
+                        <span className="font-semibold capitalize">{subKey.replace(/_/g, ' ')}:</span> {renderValue(subKey, val)}
                     </li>
                 ))}
             </ul>
@@ -64,7 +71,7 @@ export default function ReportDetail({ formData }: { formData: any }) {
                     {filteredData.map(([key, value]) => (
                          <div key={key} className="flex flex-col">
                             <span className="font-bold text-muted-foreground">{formatKey(key)}</span>
-                            <span>{renderValue(value)}</span>
+                            <span>{renderValue(key, value)}</span>
                         </div>
                     ))}
                 </div>
@@ -86,7 +93,7 @@ export default function ReportDetail({ formData }: { formData: any }) {
                                 return (
                                     <div key={key} className="flex flex-col">
                                         <span className="font-bold text-muted-foreground">{formatKey(key)}</span>
-                                        <span>{renderValue(value)}</span>
+                                        <span>{renderValue(key, value)}</span>
                                     </div>
                                 );
                             })}

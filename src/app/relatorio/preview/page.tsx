@@ -2,7 +2,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { useRouter } from 'next/navigation';
+import { useRouter }from 'next/navigation';
 import { useToast } from '@/hooks/use-toast';
 import { Loader2, Save, Edit, Share2 } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
@@ -20,10 +20,10 @@ interface Report {
   uid?: string;
 }
 
-const formatDate = (isoString: string) => {
-    if (!isoString) return 'Carregando...';
+const formatDate = (dateSource: string | Date): string => {
+    if (!dateSource) return 'Carregando...';
     try {
-        const date = new Date(isoString);
+        const date = new Date(dateSource);
         return date.toLocaleString('pt-BR', {
             day: '2-digit',
             month: '2-digit',
@@ -73,11 +73,15 @@ export default function PreviewPage() {
     const formatWhatsappValue = (value: any): string => {
         if (value === null || value === undefined || value === 'NILL' || value === '') return '';
         if (typeof value === 'boolean') return value ? 'SIM' : 'NÃO';
-        if (value instanceof Date) return formatDate(value.toISOString());
+        if (value instanceof Date) return formatDate(value);
         if (Array.isArray(value)) return value.join(', ').toUpperCase();
-        if (typeof value === 'string' && !isNaN(Date.parse(value))) {
-            return formatDate(value);
+        
+        // Check if it's a date-like string but not just numbers
+        const isDateString = typeof value === 'string' && isNaN(Number(value)) && !/^\d{1,2}$/.test(value) && (new Date(value)).toString() !== 'Invalid Date';
+        if (isDateString) {
+             return formatDate(value);
         }
+
         return String(value).toUpperCase();
     };
     
@@ -150,7 +154,7 @@ export default function PreviewPage() {
 
         setIsSaving(true);
         try {
-            const reportPayload: Omit<Report, 'id' | 'uid'> = {
+            const reportPayload: Omit<Report, 'id'> = {
                 ...reportData,
                 createdAt: serverTimestamp()
             };
@@ -165,10 +169,10 @@ export default function PreviewPage() {
 
             toast({
                 title: 'Sucesso!',
-                description: 'Relatório salvo no histórico.',
+                description: 'Relatório salvo.',
             });
             localStorage.removeItem('reportPreview');
-            router.push('/ocorrencias');
+            router.push('/');
         } catch (error: any) {
             console.error("Failed to save report to Firestore", error);
             toast({
@@ -211,7 +215,7 @@ export default function PreviewPage() {
                         <div className="flex gap-4">
                              <Button onClick={handleSave} disabled={isSaving}>
                                 {isSaving ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Save className="mr-2 h-4 w-4" />}
-                                {isSaving ? 'Salvando...' : 'Salvar e Ir para Histórico'}
+                                {isSaving ? 'Salvando...' : 'Salvar Relatório'}
                             </Button>
                             <Button variant="secondary" className="bg-green-500 hover:bg-green-600 text-white" onClick={handleShare} disabled={isSaving}>
                                 <Share2 className="mr-2 h-4 w-4" />
