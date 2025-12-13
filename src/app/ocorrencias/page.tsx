@@ -1,8 +1,8 @@
 
 'use client';
 
-import { useFirestore, useMemoFirebase } from '@/firebase';
-import { collection, query, orderBy, Timestamp, doc, deleteDoc } from 'firebase/firestore';
+import { useFirestore, useMemoFirebase, useUser } from '@/firebase';
+import { collection, query, where, orderBy, Timestamp, doc, deleteDoc } from 'firebase/firestore';
 import { useCollection } from '@/firebase/firestore/use-collection';
 import { Loader2, History, AlertCircle, Trash2, Edit, Share2 } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
@@ -23,8 +23,15 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog"
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from '@/components/ui/accordion';
 import { eventCategories } from '@/lib/events';
 import { useState } from 'react';
+import ReportDetail from '@/components/ReportDetail';
 
 
 interface Report {
@@ -132,6 +139,7 @@ const formatWhatsappValue = (value: any): string => {
 
 export default function OcorrenciasPage() {
     const firestore = useFirestore();
+    const { user, isUserLoading } = useUser();
     const router = useRouter();
     const { toast } = useToast();
     const [isDeleting, setIsDeleting] = useState<string | null>(null);
@@ -144,10 +152,10 @@ export default function OcorrenciasPage() {
             );
         }
         return null;
-    }, [firestore]);
+    }, [firestore, user]);
 
     const { data: reports, isLoading: isReportsLoading, error } = useCollection<Report>(reportsQuery);
-
+    
     const handleEdit = (report: Report) => {
         localStorage.setItem('reportPreview', JSON.stringify(report));
         router.push(`/${report.category}`);
@@ -180,8 +188,10 @@ export default function OcorrenciasPage() {
             setIsDeleting(null);
         }
     };
+    
+    const isLoading = isUserLoading || isReportsLoading;
 
-    if (isReportsLoading) {
+    if (isLoading) {
         return (
             <main className="flex flex-col items-center p-4 md:p-6">
                 <div className="flex items-center justify-center h-64">
@@ -226,51 +236,55 @@ export default function OcorrenciasPage() {
                     </p>
                 </div>
 
-                <div className="space-y-4">
+                <Accordion type="single" collapsible className="w-full space-y-4">
                     {reports && reports.length > 0 ? (
                         reports.map((report) => (
-                            <Card key={report.id}>
-                                <CardHeader>
-                                    <div className="flex justify-between items-start">
-                                        <div>
-                                            <CardTitle>{getCategoryTitle(report.category)}</CardTitle>
-                                            <CardDescription>{report.formData?.generalInfo?.qth || 'Local não informado'}</CardDescription>
+                             <Card key={report.id}>
+                                <AccordionItem value={report.id} className="border-b-0">
+                                    <AccordionTrigger className="hover:no-underline p-6">
+                                        <div className="flex justify-between items-start w-full">
+                                            <div>
+                                                <CardTitle>{getCategoryTitle(report.category)}</CardTitle>
+                                                <CardDescription>{report.formData?.generalInfo?.qth || 'Local não informado'}</CardDescription>
+                                            </div>
+                                            <Badge variant="secondary">{formatDate(report.createdAt)}</Badge>
                                         </div>
-                                        <Badge variant="secondary">{formatDate(report.createdAt)}</Badge>
-                                    </div>
-                                </CardHeader>
-                                <CardContent>
-                                    <p className="text-muted-foreground line-clamp-2">{report.formData?.otherInfo?.observacoes || 'Sem observações.'}</p>
-                                </CardContent>
-                                <CardFooter className="flex justify-end gap-2">
-                                     <Button variant="outline" size="sm" onClick={() => handleEdit(report)}>
-                                        <Edit className="mr-2 h-4 w-4"/> Editar
-                                    </Button>
-                                    <Button variant="secondary" size="sm" className="bg-green-500 hover:bg-green-600 text-white" onClick={() => handleShare(report)}>
-                                        <Share2 className="mr-2 h-4 w-4"/> Compartilhar
-                                    </Button>
-                                    <AlertDialog>
-                                        <AlertDialogTrigger asChild>
-                                            <Button variant="destructive" size="sm" disabled={isDeleting === report.id}>
-                                                {isDeleting === report.id ? <Loader2 className="mr-2 h-4 w-4 animate-spin"/> : <Trash2 className="mr-2 h-4 w-4"/>}
-                                                {isDeleting === report.id ? 'Apagando...' : 'Apagar'}
+                                    </AccordionTrigger>
+                                     <AccordionContent>
+                                        <CardContent>
+                                            <ReportDetail formData={report.formData} />
+                                        </CardContent>
+                                        <CardFooter className="flex justify-end gap-2 pt-4">
+                                            <Button variant="outline" size="sm" onClick={() => handleEdit(report)}>
+                                                <Edit className="mr-2 h-4 w-4"/> Editar
                                             </Button>
-                                        </AlertDialogTrigger>
-                                        <AlertDialogContent>
-                                            <AlertDialogHeader>
-                                                <AlertDialogTitle>Você tem certeza?</AlertDialogTitle>
-                                                <AlertDialogDescription>
-                                                   Esta ação não pode ser desfeita. Isso irá apagar permanentemente o relatório.
-                                                </AlertDialogDescription>
-                                            </AlertDialogHeader>
-                                            <AlertDialogFooter>
-                                                <AlertDialogCancel>Cancelar</AlertDialogCancel>
-                                                <AlertDialogAction onClick={() => handleDelete(report.id)}>Apagar</AlertDialogAction>
-                                            </AlertDialogFooter>
-                                        </AlertDialogContent>
-                                    </AlertDialog>
-                                </CardFooter>
-                            </Card>
+                                            <Button variant="secondary" size="sm" className="bg-green-500 hover:bg-green-600 text-white" onClick={() => handleShare(report)}>
+                                                <Share2 className="mr-2 h-4 w-4"/> Compartilhar
+                                            </Button>
+                                            <AlertDialog>
+                                                <AlertDialogTrigger asChild>
+                                                    <Button variant="destructive" size="sm" disabled={isDeleting === report.id}>
+                                                        {isDeleting === report.id ? <Loader2 className="mr-2 h-4 w-4 animate-spin"/> : <Trash2 className="mr-2 h-4 w-4"/>}
+                                                        {isDeleting === report.id ? 'Apagando...' : 'Apagar'}
+                                                    </Button>
+                                                </AlertDialogTrigger>
+                                                <AlertDialogContent>
+                                                    <AlertDialogHeader>
+                                                        <AlertDialogTitle>Você tem certeza?</AlertDialogTitle>
+                                                        <AlertDialogDescription>
+                                                        Esta ação não pode ser desfeita. Isso irá apagar permanentemente o relatório.
+                                                        </AlertDialogDescription>
+                                                    </AlertDialogHeader>
+                                                    <AlertDialogFooter>
+                                                        <AlertDialogCancel>Cancelar</AlertDialogCancel>
+                                                        <AlertDialogAction onClick={() => handleDelete(report.id)}>Apagar</AlertDialogAction>
+                                                    </AlertDialogFooter>
+                                                </AlertDialogContent>
+                                            </AlertDialog>
+                                        </CardFooter>
+                                    </AccordionContent>
+                                </AccordionItem>
+                             </Card>
                         ))
                     ) : (
                         <div className="text-center py-16 border-2 border-dashed rounded-lg">
@@ -279,7 +293,7 @@ export default function OcorrenciasPage() {
                            <p className="text-muted-foreground">Você ainda não salvou nenhuma ocorrência.</p>
                         </div>
                     )}
-                </div>
+                </Accordion>
             </div>
         </main>
     );

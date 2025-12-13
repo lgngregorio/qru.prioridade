@@ -12,6 +12,7 @@ import { Button } from '@/components/ui/button';
 import { eventCategories } from '@/lib/events';
 import { FirestorePermissionError } from '@/firebase/errors';
 import { errorEmitter } from '@/firebase/error-emitter';
+import ReportDetail from '@/components/ReportDetail';
 
 interface Report {
   id: string;
@@ -19,95 +20,6 @@ interface Report {
   createdAt: Timestamp | { seconds: number, nanoseconds: number } | null;
   formData: any;
 }
-
-const renderValue = (value: any): React.ReactNode => {
-    if (value === null || value === undefined || value === 'NILL' || value === '') return 'N/A';
-    if (typeof value === 'boolean') return value ? 'Sim' : 'Não';
-    if (value instanceof Timestamp) return formatDate(value);
-    if (typeof value === 'object' && value.seconds !== undefined && value.nanoseconds !== undefined) {
-      const ts = new Timestamp(value.seconds, value.nanoseconds);
-      return formatDate(ts);
-    }
-    if (Array.isArray(value)) return value.join(', ');
-    if (typeof value === 'object') {
-        return (
-            <ul className="list-disc pl-5 space-y-1">
-                {Object.entries(value).map(([key, val]) => (
-                    <li key={key}>
-                        <span className="font-semibold capitalize">{key.replace(/_/g, ' ')}:</span> {renderValue(val)}
-                    </li>
-                ))}
-            </ul>
-        );
-    }
-    return String(value);
-};
-
-const formatKey = (key: string) => {
-    return key
-        .replace(/([A-Z])/g, ' $1')
-        .replace(/_/g, ' ')
-        .replace(/\b\w/g, char => char.toUpperCase());
-};
-
-const ReportDetail = ({ formData }: { formData: any }) => {
-    if (!formData) return <p>Sem detalhes para exibir.</p>;
-
-    const renderSection = (title: string, data: any) => {
-        if (!data || Object.keys(data).length === 0) return null;
-        const filteredData = Object.entries(data).filter(([_, value]) => value !== 'NILL' && value !== '' && (!Array.isArray(value) || value.length > 0));
-        if (filteredData.length === 0) return null;
-
-        return (
-            <div className="mb-4">
-                <h4 className="text-lg font-semibold mb-2 text-primary">{title}</h4>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-2 text-lg">
-                    {filteredData.map(([key, value]) => (
-                         <div key={key} className="flex flex-col">
-                            <span className="font-bold text-muted-foreground">{formatKey(key)}</span>
-                            <span>{renderValue(value)}</span>
-                        </div>
-                    ))}
-                </div>
-            </div>
-        );
-    };
-
-    const renderVehicleSection = (vehicles: any[]) => {
-        if (!vehicles || vehicles.length === 0) return null;
-        return (
-            <div>
-                 {vehicles.map((vehicle, index) => (
-                    <div key={index} className="mb-6 mt-4 border-t pt-4">
-                        <h4 className="text-xl font-semibold mb-2 text-primary">Veículo {index + 1}</h4>
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-2 text-lg">
-                             {Object.entries(vehicle).map(([key, value]) => {
-                                if (value === 'NILL' || value === '' || (Array.isArray(value) && value.length === 0)) return null;
-                                return (
-                                    <div key={key} className="flex flex-col">
-                                        <span className="font-bold text-muted-foreground">{formatKey(key)}</span>
-                                        <span>{renderValue(value)}</span>
-                                    </div>
-                                );
-                            })}
-                        </div>
-                    </div>
-                 ))}
-            </div>
-        )
-    };
-
-    return (
-        <div className="space-y-4">
-            {renderSection("Informações Gerais", formData.generalInfo)}
-            {renderVehicleSection(formData.vehicles)}
-            {renderSection("Características do Entorno", formData.caracteristicasEntorno)}
-            {renderSection("Traçado da Pista", formData.tracadoPista)}
-            {renderSection("Sinalização", formData.sinalizacaoInfo)}
-            {renderSection("Outras Informações", formData.otherInfo)}
-        </div>
-    );
-};
 
 const formatDate = (timestamp: Report['createdAt']) => {
     if (!timestamp) return 'Carregando...';
@@ -120,6 +32,13 @@ const formatDate = (timestamp: Report['createdAt']) => {
         return 'Data inválida';
     }
     return date.toLocaleString('pt-BR', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' });
+};
+
+const formatKey = (key: string) => {
+    return key
+        .replace(/([A-Z])/g, ' $1')
+        .replace(/_/g, ' ')
+        .replace(/\b\w/g, char => char.toUpperCase());
 };
 
 export default function PreviewPage() {
@@ -143,44 +62,6 @@ export default function PreviewPage() {
         const category = eventCategories.find(c => c.slug === slug);
         return category ? category.title : slug;
     }
-    
-    const handleSave = async () => {
-        if (!firestore || !reportData) {
-            toast({
-                variant: "destructive",
-                title: "Erro",
-                description: "Não há dados de relatório para salvar.",
-            });
-            return;
-        }
-
-        setIsSaving(true);
-        const reportsCollection = collection(firestore, 'reports');
-        const dataToSave = {
-            ...reportData,
-            createdAt: serverTimestamp(),
-        };
-
-        try {
-            await addDoc(reportsCollection, dataToSave);
-            toast({
-                title: "Sucesso!",
-                description: "Relatório salvo. Redirecionando para o início.",
-                className: "bg-green-600 text-white",
-            });
-            localStorage.removeItem('reportPreview');
-            router.push('/');
-        } catch (serverError) {
-            const permissionError = new FirestorePermissionError({
-                path: reportsCollection.path,
-                operation: 'create',
-                requestResourceData: dataToSave,
-            });
-            errorEmitter.emit('permission-error', permissionError);
-        } finally {
-            setIsSaving(false);
-        }
-    };
 
     const handleEdit = () => {
         if (reportData) {
@@ -286,10 +167,6 @@ export default function PreviewPage() {
                             Editar
                         </Button>
                         <div className="flex gap-4">
-                            <Button onClick={handleSave} disabled={isSaving}>
-                                {isSaving ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Save className="mr-2 h-4 w-4" />}
-                                {isSaving ? 'Salvando...' : 'Salvar e Ir para Início'}
-                            </Button>
                             <Button variant="secondary" className="bg-green-500 hover:bg-green-600 text-white" onClick={handleShare} disabled={isSaving}>
                                 <Share2 className="mr-2 h-4 w-4" />
                                 Compartilhar no WhatsApp
