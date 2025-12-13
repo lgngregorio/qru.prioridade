@@ -64,8 +64,8 @@ export default function NotasPage() {
 
     return (
         <main className="flex flex-col p-4 md:p-6">
-            <div className="flex items-center justify-between mb-8 pt-4">
-                <div className="text-left">
+            <div className="w-full mb-8 pt-4">
+                <div className="text-left mb-6">
                     <h1 className="text-3xl font-bold text-foreground font-headline tracking-wide uppercase">
                         Bloco de Notas
                     </h1>
@@ -73,18 +73,18 @@ export default function NotasPage() {
                         Crie, edite e gerencie suas anotações.
                     </p>
                 </div>
-                <Button onClick={handleAddNew} className="text-lg">
+                <Button onClick={handleAddNew} className="text-lg w-full" size="lg">
                     <Plus className="mr-2 h-5 w-5" />
-                    Adicionar Nota
+                    Adicionar Nova Nota
                 </Button>
             </div>
 
             {(isLoading || isUserLoading) && <LoadingSkeleton />}
 
             {!isLoading && !isUserLoading && notes.length === 0 && (
-                <div className="text-center py-10 border-2 border-dashed rounded-lg">
+                <div className="text-center py-10 border-2 border-dashed rounded-lg mt-8">
                     <p className="text-muted-foreground text-lg">Nenhuma nota encontrada.</p>
-                    <p className="text-muted-foreground">Clique em "Adicionar Nota" para começar.</p>
+                    <p className="text-muted-foreground">Clique em "Adicionar Nova Nota" para começar.</p>
                 </div>
             )}
 
