@@ -8,8 +8,9 @@ import {
   orderBy,
   onSnapshot,
   Timestamp,
+  where,
 } from 'firebase/firestore';
-import { useFirestore } from '@/firebase';
+import { useFirestore, useUser } from '@/firebase';
 import { Input } from '@/components/ui/input';
 import { Search, Notebook, FileCode } from 'lucide-react';
 import { eventCategories } from '@/lib/events';
@@ -33,6 +34,7 @@ interface Note {
   title: string;
   content: string;
   createdAt: Timestamp | null;
+  uid: string;
 }
 
 type SearchableCode =
@@ -44,17 +46,18 @@ type SearchableCode =
   | AlfabetoFonetico;
 
 export default function Home() {
-  const firestore = useFirestore();
   const [searchQuery, setSearchQuery] = useState('');
+  const firestore = useFirestore();
+  const { user } = useUser();
   const [notes, setNotes] = useState<Note[]>([]);
-  const [loadingNotes, setLoadingNotes] = useState(true);
+  const [loadingNotes, setLoadingNotes] = useState(false);
 
   useEffect(() => {
-    if (!firestore) return;
+    if (!firestore || !user) return;
 
     setLoadingNotes(true);
     const notesRef = collection(firestore, 'notes');
-    const q = query(notesRef, orderBy('createdAt', 'desc'));
+    const q = query(notesRef, where('uid', '==', user.uid), orderBy('createdAt', 'desc'));
 
     const unsubscribe = onSnapshot(
       q,
@@ -78,7 +81,7 @@ export default function Home() {
     );
 
     return () => unsubscribe();
-  }, [firestore]);
+  }, [firestore, user]);
 
   const searchResults = useMemo(() => {
     if (!searchQuery) {
