@@ -1,7 +1,7 @@
 
 'use client';
 
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useToast } from '@/hooks/use-toast';
 import { Loader2, ArrowLeft, Save, Edit, Share2 } from 'lucide-react';
@@ -14,51 +14,38 @@ import {
   CardFooter,
 } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import {
-  collection,
-  addDoc,
-  serverTimestamp,
-  doc,
-  Timestamp,
-} from 'firebase/firestore';
-import { useFirestore, useAuth, useUser } from '@/firebase'; // Import useUser
 import { eventCategories } from '@/lib/events';
 import ReportDetail from '@/components/ReportDetail';
+import { useUser } from '@/app/layout';
 
 interface ReportData {
   category: string;
   formData: any;
-  uid?: string; // Add uid to the interface
+  userEmail?: string;
   createdAt?: any;
 }
 
 export default function PreviewPage() {
   const router = useRouter();
-  const firestore = useFirestore();
   const { toast } = useToast();
-  const { user, isUserLoading } = useUser(); // Use the hook to get user
+  const { user, isLoading: isUserLoading } = useUser();
 
   const [report, setReport] = useState<ReportData | null>(null);
   const [isLoading, setIsLoading] = useState(true);
-  const [isSaving, setIsSaving] = useState(false);
-
 
   useEffect(() => {
     const savedData = localStorage.getItem('reportPreview');
     if (savedData) {
       const parsedData = JSON.parse(savedData);
       setReport(parsedData);
-      if (user && firestore) {
-        handleSaveAndGoToHistory(parsedData);
-      }
     } else {
       router.push('/');
     }
     setIsLoading(false);
-  }, [router, user, firestore]);
-  
-  const handleSaveAndGoToHistory = async (reportToSave: ReportData) => {
-    if (!reportToSave || !firestore || !user) {
+  }, [router]);
+
+  const handleSaveAndGoToHistory = () => {
+    if (!report || !user) {
       toast({
         variant: 'destructive',
         title: 'Erro',
@@ -67,16 +54,17 @@ export default function PreviewPage() {
       return;
     }
 
-    setIsSaving(true);
     try {
-      const reportWithUser = {
-        ...reportToSave.formData,
-        uid: user.uid, // Add user's UID to the report
-        category: reportToSave.category,
-        createdAt: serverTimestamp(),
+      const allReports = JSON.parse(localStorage.getItem('qru-priority-reports') || '[]');
+      const newReport = {
+        ...report,
+        id: new Date().toISOString() + Math.random(), // Unique ID
+        userEmail: user.email,
+        createdAt: new Date().toISOString(),
       };
 
-      await addDoc(collection(firestore, 'reports'), reportWithUser);
+      allReports.push(newReport);
+      localStorage.setItem('qru-priority-reports', JSON.stringify(allReports));
 
       toast({
         title: 'Sucesso!',
@@ -91,48 +79,36 @@ export default function PreviewPage() {
         title: 'Erro ao Salvar',
         description: 'Não foi possível salvar o seu relatório. Tente novamente.',
       });
-    } finally {
-      setIsSaving(false);
     }
   };
 
+  const handleEdit = () => {
+      if (report) {
+          router.push(`/${report.category}`);
+      }
+  };
 
   const getCategoryTitle = (slug: string) => {
     const category = eventCategories.find((c) => c.slug === slug);
     return category ? category.title : slug;
   };
-  
+    
     const formatDate = (dateSource: any): string => {
         if (!dateSource) return 'N/A';
         
-        let date;
-        if (dateSource instanceof Timestamp) {
-            date = dateSource.toDate();
-        } else if (dateSource instanceof Date) {
-            date = dateSource;
-        } else if (typeof dateSource === 'string' || typeof dateSource === 'number') {
-            const d = new Date(dateSource);
-            if (!isNaN(d.getTime())) {
-                date = d;
-            } else {
-                 return String(dateSource);
-            }
-        } else {
-            return String(dateSource);
-        }
-
-        const dateKeys = ['data', 'dn', 'createdAt', 'qtrInicio', 'qtrTermino'];
-        if (dateKeys.some(key => typeof dateSource === 'string' && dateSource.includes(key))) {
-            return date.toLocaleString('pt-BR', {
-                day: '2-digit',
-                month: '2-digit',
-                year: 'numeric',
-                hour: '2-digit',
-                minute: '2-digit',
-            });
+        // Check if it's an ISO string or a Date object
+        const date = new Date(dateSource);
+        if (isNaN(date.getTime())) {
+            return String(dateSource); // Not a valid date, return as is
         }
         
-        return String(dateSource);
+        return date.toLocaleString('pt-BR', {
+            day: '2-digit',
+            month: '2-digit',
+            year: 'numeric',
+            hour: '2-digit',
+            minute: '2-digit',
+        });
     };
     
     const formatWhatsappValue = (value: any, key: string): string => {
@@ -214,12 +190,12 @@ export default function PreviewPage() {
   };
   
 
-  if (isLoading || isUserLoading || !report || isSaving) {
+  if (isLoading || isUserLoading || !report) {
     return (
       <main className="flex flex-col items-center p-4 md:p-6">
         <div className="flex justify-center items-center h-64">
           <Loader2 className="h-8 w-8 animate-spin text-primary" />
-          <p className="ml-4 text-lg">Salvando relatório e redirecionando...</p>
+          <p className="ml-4 text-lg">Carregando pré-visualização...</p>
         </div>
       </main>
     );
@@ -245,6 +221,20 @@ export default function PreviewPage() {
               <ReportDetail formData={report.formData} />
             </CardContent>
             <CardFooter className="flex flex-col md:flex-row justify-end gap-4 pt-6">
+              <Button
+                variant="outline"
+                onClick={handleEdit}
+              >
+                  <Edit className="mr-2 h-4 w-4" />
+                  Editar
+              </Button>
+              <Button
+                variant="outline"
+                onClick={handleSaveAndGoToHistory}
+              >
+                <Save className="mr-2 h-4 w-4" />
+                Salvar Relatório
+              </Button>
               <Button
                 variant="secondary"
                 className="bg-green-500 hover:bg-green-600 text-white w-full md:w-auto"

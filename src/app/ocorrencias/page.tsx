@@ -1,9 +1,7 @@
 
 'use client';
 
-import { useMemo } from 'react';
-import { useCollection, useFirestore, useUser, useMemoFirebase } from '@/firebase';
-import { collection, query, where, orderBy, Timestamp } from 'firebase/firestore';
+import { useState, useEffect } from 'react';
 import {
   Card,
   CardContent,
@@ -14,12 +12,14 @@ import {
 import { Skeleton } from '@/components/ui/skeleton';
 import ReportDetail from '@/components/ReportDetail';
 import { eventCategories } from '@/lib/events';
+import { useUser } from '@/app/layout';
 
 interface Report {
   id: string;
   category: string;
-  createdAt: Timestamp;
+  createdAt: string; // ISO string
   formData: any;
+  userEmail: string;
 }
 
 const LoadingSkeleton = () => (
@@ -35,9 +35,9 @@ const getCategoryTitle = (slug: string) => {
   return category ? category.title : slug;
 };
 
-const formatDate = (timestamp: Timestamp) => {
-  if (!timestamp) return 'Data indisponível';
-  return timestamp.toDate().toLocaleString('pt-BR', {
+const formatDate = (isoDate: string) => {
+  if (!isoDate) return 'Data indisponível';
+  return new Date(isoDate).toLocaleString('pt-BR', {
     day: '2-digit',
     month: 'long',
     year: 'numeric',
@@ -47,19 +47,25 @@ const formatDate = (timestamp: Timestamp) => {
 };
 
 export default function OcorrenciasPage() {
-  const firestore = useFirestore();
-  const { user, isUserLoading } = useUser();
+  const { user, isLoading: isUserLoading } = useUser();
+  const [reports, setReports] = useState<Report[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
 
-  const reportsQuery = useMemoFirebase(() => {
-    if (!user) return null;
-    return query(
-      collection(firestore, 'reports'),
-      where('uid', '==', user.uid),
-      orderBy('createdAt', 'desc')
-    );
-  }, [firestore, user]);
-
-  const { data: reports, isLoading, error } = useCollection<Omit<Report, 'id'>>(reportsQuery);
+  useEffect(() => {
+    if (!isUserLoading && user) {
+      try {
+        const allReports = JSON.parse(localStorage.getItem('qru-priority-reports') || '[]');
+        const userReports = allReports.filter((report: Report) => report.userEmail === user.email);
+        setReports(userReports.sort((a: Report, b: Report) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()));
+      } catch (error) {
+        console.error("Failed to load reports from localStorage", error);
+      } finally {
+        setIsLoading(false);
+      }
+    } else if (!isUserLoading && !user) {
+        setIsLoading(false);
+    }
+  }, [user, isUserLoading]);
 
   return (
     <main className="flex flex-col p-4 md:p-6">
@@ -76,15 +82,7 @@ export default function OcorrenciasPage() {
 
       {(isLoading || isUserLoading) && <LoadingSkeleton />}
 
-      {error && (
-        <div className="text-center py-10">
-          <p className="text-destructive-foreground bg-destructive p-4 rounded-md">
-            Ocorreu um erro ao carregar o histórico: {error.message}
-          </p>
-        </div>
-      )}
-
-      {!isLoading && !isUserLoading && !error && reports?.length === 0 && (
+      {!isLoading && !isUserLoading && reports.length === 0 && (
         <div className="text-center py-10 border-2 border-dashed rounded-lg">
           <p className="text-muted-foreground text-lg">Nenhum relatório encontrado.</p>
           <p className="text-muted-foreground">
@@ -93,7 +91,7 @@ export default function OcorrenciasPage() {
         </div>
       )}
 
-      {!isLoading && reports && reports.length > 0 && (
+      {!isLoading && reports.length > 0 && (
         <div className="space-y-6">
           {reports.map((report) => (
             <Card key={report.id}>
@@ -106,7 +104,7 @@ export default function OcorrenciasPage() {
                 </CardDescription>
               </CardHeader>
               <CardContent>
-                <ReportDetail formData={report} />
+                <ReportDetail formData={report.formData} />
               </CardContent>
             </Card>
           ))}

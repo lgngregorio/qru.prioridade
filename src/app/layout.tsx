@@ -2,9 +2,7 @@
 'use client';
 
 import { usePathname, useRouter } from 'next/navigation';
-import React, { ReactNode, useEffect } from 'react';
-import { onAuthStateChanged, User } from 'firebase/auth'; // Import onAuthStateChanged
-import { useAuth } from '@/firebase'; // Assuming useAuth gives you the auth instance
+import React, { ReactNode, useEffect, useState, createContext, useContext } from 'react';
 
 import './globals.css';
 import { cn } from '@/lib/utils';
@@ -16,19 +14,76 @@ import {
 } from '@/components/ui/sidebar';
 import AppSidebar from '@/components/AppSidebar';
 import { ThemeProvider } from '@/components/theme-provider';
-import { FirebaseClientProvider } from '@/firebase';
 import { Loader2 } from 'lucide-react';
+
+// --- User Context for localStorage Auth ---
+interface User {
+  name: string;
+  email: string;
+}
+
+interface UserContextType {
+  user: User | null;
+  isLoading: boolean;
+  login: (user: User) => void;
+  logout: () => void;
+}
+
+const UserContext = createContext<UserContextType | undefined>(undefined);
+
+export function UserProvider({ children }: { children: ReactNode }) {
+  const [user, setUser] = useState<User | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    try {
+      const storedUser = localStorage.getItem('qru-priority-user');
+      if (storedUser) {
+        setUser(JSON.parse(storedUser));
+      }
+    } catch (error) {
+      console.error("Failed to parse user from localStorage", error);
+    } finally {
+      setIsLoading(false);
+    }
+  }, []);
+
+  const login = (userData: User) => {
+    localStorage.setItem('qru-priority-user', JSON.stringify(userData));
+    setUser(userData);
+  };
+
+  const logout = () => {
+    localStorage.removeItem('qru-priority-user');
+    setUser(null);
+  };
+
+  return (
+    <UserContext.Provider value={{ user, isLoading, login, logout }}>
+      {children}
+    </UserContext.Provider>
+  );
+}
+
+export function useUser() {
+  const context = useContext(UserContext);
+  if (context === undefined) {
+    throw new Error('useUser must be used within a UserProvider');
+  }
+  return context;
+}
+// --- End User Context ---
+
 
 const publicRoutes = ['/login', '/signup', '/forgot-password'];
 
 function AuthGuard({ children }: { children: ReactNode }) {
-  const auth = useAuth();
+  const { user, isLoading } = useUser();
   const router = useRouter();
   const pathname = usePathname();
-  const [isLoading, setIsLoading] = React.useState(true);
 
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, (user) => {
+    if (!isLoading) {
       const isPublicRoute = publicRoutes.includes(pathname);
 
       if (user) {
@@ -40,11 +95,8 @@ function AuthGuard({ children }: { children: ReactNode }) {
           router.replace('/login');
         }
       }
-      setIsLoading(false);
-    });
-
-    return () => unsubscribe();
-  }, [auth, router, pathname]);
+    }
+  }, [user, isLoading, router, pathname]);
 
   if (isLoading) {
     return (
@@ -92,7 +144,7 @@ export default function RootLayout({
           defaultTheme="light"
           enableSystem
         >
-          <FirebaseClientProvider>
+          <UserProvider>
             {isAuthPage ? (
                 children
               ) : (
@@ -107,7 +159,7 @@ export default function RootLayout({
               )
             }
             <Toaster />
-          </FirebaseClientProvider>
+          </UserProvider>
         </ThemeProvider>
       </body>
     </html>

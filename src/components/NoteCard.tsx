@@ -2,8 +2,6 @@
 'use client';
 
 import { useState } from 'react';
-import { doc, deleteDoc } from 'firebase/firestore';
-import { useFirestore } from '@/firebase';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
@@ -11,37 +9,40 @@ import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, 
 import { MoreHorizontal, Trash2, Edit, Share2, Loader2 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import type { Note } from '@/lib/types';
-import { Timestamp } from 'firebase/firestore';
 
 interface NoteCardProps {
   note: Note;
   onEdit: () => void;
+  onDelete: () => void;
 }
 
-const formatDate = (dateSource: any) => {
-    if (!dateSource) return 'Carregando...';
+const formatDate = (isoDate: string) => {
+    if (!isoDate) return 'Carregando...';
     try {
-        const date = (dateSource instanceof Timestamp) ? dateSource.toDate() : new Date(dateSource.seconds * 1000);
+        const date = new Date(isoDate);
         return date.toLocaleString('pt-BR', { day: '2-digit', month: 'long', year: 'numeric', hour: '2-digit', minute: '2-digit' });
     } catch {
         return 'Data inválida';
     }
 };
 
-export function NoteCard({ note, onEdit }: NoteCardProps) {
-  const firestore = useFirestore();
+export function NoteCard({ note, onEdit, onDelete }: NoteCardProps) {
   const { toast } = useToast();
   const [isDeleting, setIsDeleting] = useState(false);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
 
-  const handleDelete = async () => {
+  const handleDelete = () => {
     setIsDeleting(true);
     try {
-      await deleteDoc(doc(firestore, 'notes', note.id));
+      const allNotes = JSON.parse(localStorage.getItem('qru-priority-notes') || '[]');
+      const updatedNotes = allNotes.filter((n: Note) => n.id !== note.id);
+      localStorage.setItem('qru-priority-notes', JSON.stringify(updatedNotes));
+      
       toast({
         title: 'Nota apagada!',
         description: 'Sua nota foi removida com sucesso.',
       });
+      onDelete(); // Callback para atualizar a lista na página principal
     } catch (error) {
       console.error("Error deleting note: ", error);
       toast({

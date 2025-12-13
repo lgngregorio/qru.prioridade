@@ -22,21 +22,21 @@ import {
 } from 'lucide-react';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
-import { useAuth } from '@/firebase';
+import { useUser } from '@/app/layout';
 
 export default function AppSidebar() {
   const pathname = usePathname();
   const { setOpenMobile } = useSidebar();
-  const auth = useAuth();
   const router = useRouter();
+  const { logout } = useUser();
 
 
   const handleLinkClick = () => {
     setOpenMobile(false);
   };
 
-  const handleLogout = async () => {
-    await auth.signOut();
+  const handleLogout = () => {
+    logout();
     router.push('/login');
   };
   

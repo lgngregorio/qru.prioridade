@@ -4,34 +4,41 @@
 import { useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { signInWithEmailAndPassword } from 'firebase/auth';
-import { useAuth } from '@/firebase';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { useToast } from '@/hooks/use-toast';
 import { Loader2 } from 'lucide-react';
+import { useUser } from '@/app/layout';
 
 export default function LoginPage() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [isLoading, setIsLoading] = useState(false);
-  const auth = useAuth();
   const router = useRouter();
   const { toast } = useToast();
+  const { login } = useUser();
 
-  const handleLogin = async (e: React.FormEvent) => {
+  const handleLogin = (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
+
     try {
-      await signInWithEmailAndPassword(auth, email, password);
-      router.push('/');
+      const users = JSON.parse(localStorage.getItem('qru-priority-users') || '[]');
+      const user = users.find((u: any) => u.email === email && u.password === password);
+
+      if (user) {
+        login({ name: user.name, email: user.email });
+        router.push('/');
+      } else {
+        throw new Error('Credenciais inválidas. Por favor, tente novamente.');
+      }
     } catch (error: any) {
       console.error(error);
       toast({
         variant: 'destructive',
         title: 'Erro de Login',
-        description: 'Credenciais inválidas. Por favor, tente novamente.',
+        description: error.message || 'Ocorreu um erro durante o login.',
       });
     } finally {
       setIsLoading(false);

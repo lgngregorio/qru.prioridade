@@ -4,29 +4,38 @@
 import { useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { createUserWithEmailAndPassword, updateProfile } from 'firebase/auth';
-import { useAuth } from '@/firebase';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { useToast } from '@/hooks/use-toast';
 import { Loader2 } from 'lucide-react';
+import { useUser } from '@/app/layout';
 
 export default function SignupPage() {
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [isLoading, setIsLoading] = useState(false);
-  const auth = useAuth();
   const router = useRouter();
   const { toast } = useToast();
+  const { login } = useUser();
 
-  const handleSignup = async (e: React.FormEvent) => {
+  const handleSignup = (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
     try {
-      const userCredential = await createUserWithEmailAndPassword(auth, email, password);
-      await updateProfile(userCredential.user, { displayName: name });
+      const users = JSON.parse(localStorage.getItem('qru-priority-users') || '[]');
+      const userExists = users.some((u: any) => u.email === email);
+
+      if (userExists) {
+        throw new Error('Este e-mail já está em uso.');
+      }
+
+      const newUser = { name, email, password };
+      users.push(newUser);
+      localStorage.setItem('qru-priority-users', JSON.stringify(users));
+
+      login({ name, email });
       
       toast({
         title: 'Conta criada com sucesso!',
