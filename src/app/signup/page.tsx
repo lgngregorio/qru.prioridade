@@ -62,7 +62,8 @@ export default function SignupPage() {
           id: user.uid,
           name: name,
           email: user.email,
-          theme: 'light', // Default theme for new users
+          theme: 'light', // Default theme
+          role: 'user', // Default role for new users
         });
 
         // Set theme in the app

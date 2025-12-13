@@ -2,56 +2,57 @@
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
-
+    
+    // --- Helper Functions ---
     function isSignedIn() {
       return request.auth != null;
     }
 
-    function isOwnerByPath(userId) {
-      return isSignedIn() && request.auth.uid == userId;
+    function isOwner(userId) {
+      return request.auth.uid == userId;
+    }
+
+    function getUserRole(userId) {
+        return get(/databases/$(database)/documents/users/$(userId)).data.role;
+    }
+
+    function isAdmin() {
+        return isSignedIn() && getUserRole(request.auth.uid) == 'admin';
+    }
+
+    function isOwnerOrAdmin(userId) {
+        return isOwner(userId) || isAdmin();
     }
     
-    function isOwnerByContent() {
-      return isSignedIn() && request.auth.uid == resource.data.uid;
+    function isResourceOwner(resource) {
+      return request.auth.uid == resource.data.uid;
     }
     
-    function hasValidUidOnCreate() {
-        return request.resource.data.uid == request.auth.uid;
+    function isResourceOwnerOrAdmin(resource) {
+      return isResourceOwner(resource) || isAdmin();
     }
 
-    function hasValidUidOnUpdate() {
-        return request.resource.data.uid == resource.data.uid;
-    }
-
-
-    function isExistingOwner(userId) {
-      return isOwnerByPath(userId) && resource != null;
-    }
-
-    function hasValidUserDataOnCreate(userId) {
-      return request.resource.data.id == userId;
-    }
-
-    function hasValidUserDataOnUpdate() {
-      return request.resource.data.id == resource.data.id;
-    }
-
+    // --- User Profile Rules ---
     match /users/{userId} {
-      allow get: if isOwnerByPath(userId);
-      allow list: if false; 
-      allow create: if isOwnerByPath(userId) && hasValidUserDataOnCreate(userId);
-      allow update: if isExistingOwner(userId) && hasValidUserDataOnUpdate();
-      allow delete: if isExistingOwner(userId);
+      // Admins or the user themselves can read/write their profile.
+      allow read, write: if isOwnerOrAdmin(userId);
     }
 
+    // --- Report Rules ---
     match /reports/{reportId} {
-      allow get: if isOwnerByContent();
-      allow create: if isSignedIn() && hasValidUidOnCreate();
-      allow update, delete: if isOwnerByContent() && hasValidUidOnUpdate();
+      // Owner of the report or an admin can read.
+      allow get: if isSignedIn() && isResourceOwnerOrAdmin(resource);
+      
+      // An authenticated user can create a report, but must set their own uid.
+      allow create: if isSignedIn() && request.resource.data.uid == request.auth.uid;
+      
+      // Only the owner or an admin can update/delete.
+      allow update, delete: if isSignedIn() && isResourceOwnerOrAdmin(resource);
     }
     
     match /reports {
-        allow list: if isSignedIn() && request.query.where[0] == ['uid', '==', request.auth.uid];
+        // A user can list their own reports. An admin can list all reports.
+        allow list: if (isSignedIn() && request.query.where[0] == ['uid', '==', request.auth.uid]) || isAdmin();
     }
   }
 }

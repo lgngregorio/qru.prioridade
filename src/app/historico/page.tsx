@@ -152,6 +152,7 @@ export default function HistoricoPage() {
   const { toast } = useToast();
 
   const reportsQuery = useMemoFirebase(() => {
+    // Only construct the query if the user is loaded and exists
     if (isUserLoading || !user || !firestore) {
       return null;
     }
@@ -164,7 +165,8 @@ export default function HistoricoPage() {
 
   const { data: reports, isLoading: reportsLoading } = useCollection<Report>(reportsQuery);
   
-  const isLoading = isUserLoading || (!!user && reportsLoading);
+  // The page is loading if the user is loading OR if the query is built and reports are loading.
+  const isLoading = isUserLoading || (!!reportsQuery && reportsLoading);
   
   const getCategoryTitle = (slug: string) => {
     const category = eventCategories.find(c => c.slug === slug);
