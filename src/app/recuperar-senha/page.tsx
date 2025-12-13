@@ -45,13 +45,13 @@ export default function ForgotPasswordPage() {
           <CardTitle className="text-4xl font-bold text-foreground font-headline tracking-wider flex items-center justify-center gap-4">
             QRU
             <div className="flex h-10 items-center gap-1">
-              <div className="w-[1.5px] h-full bg-foreground"></div>
+              <div className="w-[2px] h-full bg-foreground"></div>
               <div
-                className="w-[1.5px] h-full animate-move-dashes"
+                className="w-[2px] h-full animate-move-dashes"
                 style={{
                   backgroundImage:
                     'linear-gradient(to bottom, hsl(var(--foreground)) 50%, transparent 50%)',
-                  backgroundSize: '1.5px 20px',
+                  backgroundSize: '2px 20px',
                   backgroundRepeat: 'repeat-y',
                 }}
               ></div>
