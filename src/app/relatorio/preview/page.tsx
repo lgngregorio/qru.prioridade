@@ -292,10 +292,6 @@ export default function PreviewPage() {
                                 <Share2 className="mr-2 h-4 w-4" />
                                 Compartilhar no WhatsApp
                             </Button>
-                            <Button onClick={handleSave} disabled={isSaving}>
-                                {isSaving ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Save className="mr-2 h-4 w-4" />}
-                                {isSaving ? 'Salvando...' : 'Salvar e Ir para Início'}
-                            </Button>
                         </div>
                     </CardFooter>
                  </Card>
