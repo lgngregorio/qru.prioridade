@@ -1,8 +1,9 @@
+
 'use client';
 
 import { useMemo } from 'react';
 import Link from 'next/link';
-import { useCollection, useUser, useFirestore } from '@/firebase';
+import { useCollection, useUser, useFirestore, useMemoFirebase } from '@/firebase';
 import { collection, query, where, orderBy } from 'firebase/firestore';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Loader2, AlertTriangle, FileText } from 'lucide-react';
@@ -40,8 +41,7 @@ export default function OcorrenciasPage() {
   const { user, isUserLoading } = useUser();
   const firestore = useFirestore();
 
-  // 1. A consulta só é criada quando temos certeza que o user.uid e o firestore existem.
-  const reportsQuery = useMemo(() => {
+  const reportsQuery = useMemoFirebase(() => {
     if (!user || !firestore) {
       return null;
     }
@@ -52,15 +52,11 @@ export default function OcorrenciasPage() {
     );
   }, [user, firestore]);
 
-  // 2. O hook `useCollection` recebe a consulta (ou null) e gerencia a busca.
   const { data: reports, isLoading: isLoadingReports, error } = useCollection<Report>(reportsQuery);
 
-  // 3. O estado de carregamento combinado aguarda o usuário e os relatórios.
   const isLoading = isUserLoading || (user && isLoadingReports);
 
   const handleViewReport = (report: Report) => {
-    // A lógica para visualizar um relatório pode ser adicionada aqui no futuro.
-    // Por exemplo, navegar para uma página de detalhes.
     console.log("Visualizando relatório:", report);
   };
   
@@ -114,8 +110,6 @@ export default function OcorrenciasPage() {
               </CardDescription>
             </CardHeader>
             <CardContent>
-              {/* Futuramente, podemos adicionar um botão para ver detalhes */}
-              {/* <Button onClick={() => handleViewReport(report)}>Ver Detalhes</Button> */}
                <p className="text-sm text-muted-foreground">ID do Relatório: {report.id}</p>
             </CardContent>
           </Card>
