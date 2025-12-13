@@ -201,39 +201,53 @@ export default function PreviewPage() {
         return String(value).toUpperCase();
       };
     
-      const generateWhatsappMessage = (data: any, sectionTitle?: string): string => {
+      const generateWhatsappMessage = (data: any): string => {
         let message = '';
-        if (sectionTitle) {
-          message += `*${sectionTitle.toUpperCase()}*\n`;
-        }
+        const sectionTitles: { [key: string]: string } = {
+          generalInfo: 'Informações Gerais',
+          vehicles: 'Veículos',
+          caracteristicasEntorno: 'Características do Entorno',
+          tracadoPista: 'Traçado da Pista',
+          sinalizacaoInfo: 'Sinalização',
+          otherInfo: 'Outras Informações',
+        };
       
-        for (const [key, value] of Object.entries(data)) {
-            // Condição para pular qthExato se destinacaoDoObjeto for pr06
-            if (key === 'qthExato' && data.destinacaoDoObjeto === 'pr06') {
-              continue;
-            }
-
-            const formattedValue = formatWhatsappValue(value);
-            if(formattedValue) {
-                const formattedKey = `*${formatKey(key).toUpperCase()}*`;
-        
-                if (key.toLowerCase().includes('veiculo') || key.toLowerCase().includes('vehicles')) {
-                    if (Array.isArray(value)) {
-                    value.forEach((vehicle, index) => {
-                        message += `\n*VEÍCULO ${index + 1}*\n`;
-                        message += generateWhatsappMessage(vehicle);
-                    });
+        for (const sectionKey in data) {
+          if (Object.prototype.hasOwnProperty.call(data, sectionKey)) {
+            const sectionData = data[sectionKey];
+            const sectionTitle = sectionTitles[sectionKey];
+      
+            if (sectionData && Object.keys(sectionData).length > 0) {
+              if (sectionTitle) {
+                message += `\n*${sectionTitle.toUpperCase()}*\n`;
+              }
+      
+              if (sectionKey === 'vehicles' && Array.isArray(sectionData)) {
+                sectionData.forEach((vehicle, index) => {
+                  message += `\n*VEÍCULO ${index + 1}*\n`;
+                  for (const [key, value] of Object.entries(vehicle)) {
+                    if (key === 'id') continue;
+                    const formattedValue = formatWhatsappValue(value);
+                    if (formattedValue) {
+                      const formattedKey = `*${formatKey(key).toUpperCase()}*`;
+                      message += `${formattedKey}: ${formattedValue}\n`;
                     }
-                } else if (typeof value === 'object' && value !== null && !(value instanceof Timestamp) && !Array.isArray(value)) {
-                    if (value.seconds === undefined || value.nanoseconds === undefined) {
-                        message += `\n${generateWhatsappMessage(value, formatKey(key))}`;
-                    } else {
-                        message += `${formattedKey}: ${formattedValue}\n`;
-                    }
-                } else {
+                  }
+                });
+              } else if (typeof sectionData === 'object' && !Array.isArray(sectionData)) {
+                for (const [key, value] of Object.entries(sectionData)) {
+                  if (key === 'qthExato' && sectionData.destinacaoDoObjeto === 'pr06') {
+                    continue;
+                  }
+                  const formattedValue = formatWhatsappValue(value);
+                  if (formattedValue) {
+                    const formattedKey = `*${formatKey(key).toUpperCase()}*`;
                     message += `${formattedKey}: ${formattedValue}\n`;
+                  }
                 }
+              }
             }
+          }
         }
         return message;
       };
@@ -242,7 +256,7 @@ export default function PreviewPage() {
         if (!reportData) return;
         const title = `*${getCategoryTitle(reportData.category).toUpperCase()}*`;
         const reportDetails = generateWhatsappMessage(reportData.formData);
-        const message = `${title}\n\n${reportDetails}`;
+        const message = `${title}\n${reportDetails}`;
         const whatsappUrl = `https://wa.me/?text=${encodeURIComponent(message)}`;
         window.open(whatsappUrl, '_blank');
     };
