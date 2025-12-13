@@ -42,7 +42,22 @@ export default function ForgotPasswordPage() {
     <main className="flex min-h-screen flex-col items-center justify-center p-4">
       <Card className="w-full max-w-md">
         <CardHeader className="text-center">
-          <CardTitle className="text-3xl font-bold">Recuperar Senha</CardTitle>
+          <CardTitle className="text-4xl font-bold text-foreground font-headline tracking-wider flex items-center justify-center gap-4">
+            QRU
+            <div className="flex h-10 items-center gap-1">
+              <div className="w-[1.5px] h-full bg-foreground"></div>
+              <div
+                className="w-[1.5px] h-full animate-move-dashes"
+                style={{
+                  backgroundImage:
+                    'linear-gradient(to bottom, hsl(var(--foreground)) 50%, transparent 50%)',
+                  backgroundSize: '1.5px 20px',
+                  backgroundRepeat: 'repeat-y',
+                }}
+              ></div>
+            </div>
+            PRIORIDADE
+          </CardTitle>
           <CardDescription>
             {isSent 
               ? 'Um email foi enviado com as instruções.'
