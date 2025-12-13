@@ -129,7 +129,7 @@ export function NoteEditor({ isOpen, onClose, note }: NoteEditorProps) {
             />
           </div>
         </div>
-        <DialogFooter>
+        <DialogFooter className="gap-2">
           <DialogClose asChild>
             <Button type="button" variant="secondary">
               Cancelar
