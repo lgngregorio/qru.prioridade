@@ -121,8 +121,8 @@ export default function PreviewPage() {
              return formatDate(value);
         }
 
-        if (Array.isArray(value)) return value.join(', ').replace(/-/g, ' ').toUpperCase();
-        return String(value).replace(/-/g, ' ').toUpperCase();
+        if (Array.isArray(value)) return value.join(', ').replace(/[-_]/g, ' ').toUpperCase();
+        return String(value).replace(/[-_]/g, ' ').toUpperCase();
     };
     
     const formatKey = (key: string) => {
