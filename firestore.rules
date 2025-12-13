@@ -26,20 +26,14 @@ service cloud.firestore {
     
     // --- User Profile Rules ---
     match /users/{userId} {
-      // Any signed-in user can read/write their own profile.
-      allow read, write: if isOwner(userId) || isAdmin();
+      allow read, write: if isOwner(userId);
     }
 
     // --- Report Rules ---
     match /reports/{reportId} {
-        // Users can create any report, as long as the 'uid' field matches their own auth uid.
         allow create: if request.resource.data.uid == request.auth.uid;
-        
-        // Users can only read, update, or delete reports they own. Admins can do anything.
-        allow read, update, delete: if isOwner(resource.data.uid) || isAdmin();
-
-        // Queries (list) must include a 'where('uid', '==', request.auth.uid)' clause, unless the user is an admin.
-        allow list: if (isAdmin() || (request.query.resource.data.uid == request.auth.uid));
+        allow read, update, delete: if resource.data.uid == request.auth.uid;
+        allow list: if request.query.resource.data.uid == request.auth.uid;
     }
   }
 }

@@ -19,6 +19,7 @@ interface Report {
   category: string;
   createdAt: Timestamp | { seconds: number, nanoseconds: number } | null;
   formData: any;
+  uid: string;
 }
 
 const formatDate = (timestamp: Report['createdAt']) => {
@@ -150,7 +151,7 @@ export default function PreviewPage() {
 
         setIsSaving(true);
         const reportToSave = {
-            ...reportData.formData,
+            formData: reportData.formData,
             uid: user.uid,
             category: reportData.category,
             createdAt: serverTimestamp(),
