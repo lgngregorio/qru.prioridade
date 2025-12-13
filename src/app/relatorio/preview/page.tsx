@@ -46,15 +46,19 @@ export default function PreviewPage() {
   useEffect(() => {
     const savedData = localStorage.getItem('reportPreview');
     if (savedData) {
-      setReport(JSON.parse(savedData));
+      const parsedData = JSON.parse(savedData);
+      setReport(parsedData);
+      if (user && firestore) {
+        handleSaveAndGoToHistory(parsedData);
+      }
     } else {
       router.push('/');
     }
     setIsLoading(false);
-  }, [router]);
+  }, [router, user, firestore]);
   
-  const handleSaveAndGoToHistory = async () => {
-    if (!report || !firestore || !user) {
+  const handleSaveAndGoToHistory = async (reportToSave: ReportData) => {
+    if (!reportToSave || !firestore || !user) {
       toast({
         variant: 'destructive',
         title: 'Erro',
@@ -66,9 +70,9 @@ export default function PreviewPage() {
     setIsSaving(true);
     try {
       const reportWithUser = {
-        ...report.formData,
+        ...reportToSave.formData,
         uid: user.uid, // Add user's UID to the report
-        category: report.category,
+        category: reportToSave.category,
         createdAt: serverTimestamp(),
       };
 
@@ -107,7 +111,6 @@ export default function PreviewPage() {
         } else if (dateSource instanceof Date) {
             date = dateSource;
         } else if (typeof dateSource === 'string' || typeof dateSource === 'number') {
-            // Attempt to parse if it looks like a timestamp or ISO string
             const d = new Date(dateSource);
             if (!isNaN(d.getTime())) {
                 date = d;
@@ -118,13 +121,18 @@ export default function PreviewPage() {
             return String(dateSource);
         }
 
-        return date.toLocaleString('pt-BR', {
-            day: '2-digit',
-            month: '2-digit',
-            year: 'numeric',
-            hour: '2-digit',
-            minute: '2-digit',
-        });
+        const dateKeys = ['data', 'dn', 'createdAt', 'qtrInicio', 'qtrTermino'];
+        if (dateKeys.some(key => typeof dateSource === 'string' && dateSource.includes(key))) {
+            return date.toLocaleString('pt-BR', {
+                day: '2-digit',
+                month: '2-digit',
+                year: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit',
+            });
+        }
+        
+        return String(dateSource);
     };
     
     const formatWhatsappValue = (value: any, key: string): string => {
@@ -206,11 +214,12 @@ export default function PreviewPage() {
   };
   
 
-  if (isLoading || isUserLoading || !report) {
+  if (isLoading || isUserLoading || !report || isSaving) {
     return (
       <main className="flex flex-col items-center p-4 md:p-6">
         <div className="flex justify-center items-center h-64">
           <Loader2 className="h-8 w-8 animate-spin text-primary" />
+          <p className="ml-4 text-lg">Salvando relatório e redirecionando...</p>
         </div>
       </main>
     );
@@ -236,22 +245,6 @@ export default function PreviewPage() {
               <ReportDetail formData={report.formData} />
             </CardContent>
             <CardFooter className="flex flex-col md:flex-row justify-end gap-4 pt-6">
-               <Button
-                variant="outline"
-                className="w-full md:w-auto"
-                onClick={() => router.back()}
-              >
-                <Edit className="mr-2 h-4 w-4" />
-                Editar
-              </Button>
-              <Button
-                className="w-full md:w-auto"
-                onClick={handleSaveAndGoToHistory}
-                disabled={isSaving}
-              >
-                {isSaving ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Save className="mr-2 h-4 w-4" />}
-                Salvar Relatório
-              </Button>
               <Button
                 variant="secondary"
                 className="bg-green-500 hover:bg-green-600 text-white w-full md:w-auto"
