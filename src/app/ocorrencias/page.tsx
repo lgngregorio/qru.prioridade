@@ -154,7 +154,7 @@ export default function OcorrenciasPage() {
             where('uid', '==', user.uid),
             orderBy('createdAt', 'desc')
         );
-    }, [firestore, user]);
+    }, [firestore, user?.uid]);
 
     const { data: reports, isLoading: isReportsLoading, error } = useCollection<Report>(reportsQuery);
     
@@ -191,7 +191,7 @@ export default function OcorrenciasPage() {
         }
     };
     
-    const isLoading = isUserLoading || (user && isReportsLoading);
+    const isLoading = isUserLoading || isReportsLoading;
 
     if (isLoading) {
         return (
@@ -315,3 +315,5 @@ export default function OcorrenciasPage() {
         </main>
     );
 }
+
+    
