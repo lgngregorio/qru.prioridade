@@ -146,8 +146,8 @@ export default function OcorrenciasPage() {
     const [isDeleting, setIsDeleting] = useState<string | null>(null);
 
     const reportsQuery = useMemoFirebase(() => {
-        if (!firestore || !user?.uid) {
-            return null;
+        if (!user?.uid || !firestore) {
+            return null; // Return null if user or firestore is not available
         }
         return query(
             collection(firestore, 'reports'),
@@ -156,7 +156,7 @@ export default function OcorrenciasPage() {
         );
     }, [firestore, user]);
 
-    const { data: reports, isLoading, error } = useCollection<Report>(reportsQuery);
+    const { data: reports, isLoading: isReportsLoading, error } = useCollection<Report>(reportsQuery);
     
     const handleEdit = (report: Report) => {
         localStorage.setItem('reportPreview', JSON.stringify(report));
@@ -191,7 +191,7 @@ export default function OcorrenciasPage() {
         }
     };
     
-    if (isLoading || isUserLoading) {
+    if (isUserLoading || (user && isReportsLoading)) {
         return (
             <main className="flex flex-col items-center p-4 md:p-6">
                 <div className="flex items-center justify-center h-64">
