@@ -1,5 +1,6 @@
 
 rules_version = '2';
+
 service cloud.firestore {
   match /databases/{database}/documents {
     
@@ -11,18 +12,6 @@ service cloud.firestore {
     function isOwner(userId) {
       return request.auth.uid == userId;
     }
-
-    function getUserRole(userId) {
-        return get(/databases/$(database)/documents/users/$(userId)).data.role;
-    }
-
-    function isAdmin() {
-        return isSignedIn() && getUserRole(request.auth.uid) == 'admin';
-    }
-
-    function isOwnerOrAdmin(userId) {
-        return isOwner(userId) || isAdmin();
-    }
     
     // --- User Profile Rules ---
     match /users/{userId} {
@@ -31,12 +20,17 @@ service cloud.firestore {
 
     // --- Report Rules ---
     match /reports/{reportId} {
-        allow create: if request.resource.data.uid == request.auth.uid;
-        allow read, update, delete: if resource.data.uid == request.auth.uid;
+      // Users can only create reports for themselves.
+      allow create: if isSignedIn() && request.resource.data.uid == request.auth.uid;
+      
+      // Only the owner of a report can read, update, or delete it.
+      allow read, update, delete: if isSignedIn() && resource.data.uid == request.auth.uid;
     }
-
+    
+    // Allow a user to list ONLY their own reports by filtering on uid.
+    // Deny broad collection queries.
     match /reports/{reportId} {
-        allow list: if request.auth.uid != null && request.query.where.field == "uid" && request.query.where.value == request.auth.uid;
+      allow list: if isSignedIn() && request.query.where.field == "uid" && request.query.where.value == request.auth.uid;
     }
   }
 }

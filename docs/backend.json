@@ -2,14 +2,13 @@
 {
   "entities": {
     "User": {
-      "$schema": "http://json-schema.org/draft-07/schema#",
       "title": "User",
-      "type": "object",
       "description": "Represents a user of the Event Reporter application.",
+      "type": "object",
       "properties": {
         "id": {
           "type": "string",
-          "description": "Unique identifier for the User entity."
+          "description": "Unique identifier for the User entity, matching Firebase Auth UID."
         },
         "email": {
           "type": "string",
@@ -23,31 +22,35 @@
         "theme": {
           "type": "string",
           "description": "The user's preferred color theme.",
-          "enum": ["light", "dark", "system"]
+          "enum": [
+            "light",
+            "dark",
+            "system"
+          ]
         },
         "role": {
           "type": "string",
-          "description": "The user's role.",
-          "enum": ["admin", "user"]
+          "description": "The user's role, used for authorization.",
+          "enum": [
+            "admin",
+            "user"
+          ]
         }
       },
       "required": [
         "id",
         "email",
-        "name",
-        "theme",
-        "role"
+        "name"
       ]
     },
     "Report": {
-      "$schema": "http://json-schema.org/draft-07/schema#",
       "title": "Report",
-      "type": "object",
       "description": "Represents an event report created by a user.",
+      "type": "object",
       "properties": {
         "uid": {
           "type": "string",
-          "description": "The ID of the user who created the report."
+          "description": "The ID of the user who created the report, matching their Firebase Auth UID."
         },
         "category": {
           "type": "string",
@@ -60,7 +63,7 @@
         },
         "formData": {
           "type": "object",
-          "description": "The data from the report form."
+          "description": "The structured data from the report form."
         }
       },
       "required": [
@@ -74,13 +77,7 @@
   "auth": {
     "providers": [
       "password"
-    ],
-    "customClaims": {
-        "role": {
-            "type": "string",
-            "enum": ["admin", "user"]
-        }
-    }
+    ]
   },
   "firestore": {
     "structure": [
@@ -91,13 +88,7 @@
           "schema": {
             "$ref": "#/backend/entities/User"
           },
-          "description": "Stores user profile information. Uses path-based authorization and role-based access. Only the user with the matching `userId` or an admin can read/write their own document.",
-          "params": [
-            {
-              "name": "userId",
-              "description": "The unique identifier of the user."
-            }
-          ]
+          "description": "Stores user profile information. Only the user with the matching `userId` can read or write their own document. This ensures user data privacy."
         }
       },
       {
@@ -107,16 +98,10 @@
           "schema": {
             "$ref": "#/backend/entities/Report"
           },
-          "description": "Stores individual reports. Authorization is content-based: only the user whose `uid` matches the document's `uid` field or an admin can perform operations.",
-          "params": [
-            {
-              "name": "reportId",
-              "description": "The unique identifier of the report."
-            }
-          ]
+          "description": "Stores individual reports. Authorization is content-based: only the user whose `uid` matches the document's `uid` field can perform operations. This isolates each user's reports."
         }
       }
     ],
-    "reasoning": "This Firestore structure prioritizes security with role-based access control (RBAC). It uses custom claims for user roles (`admin`, `user`) to manage permissions centrally. This avoids complex, repetitive rule logic and enhances security.\n\n*   **Users (`/users/{userId}`):** User profiles are secured so that only the owner or an admin can access them.\n*   **Reports (`/reports/{reportId}`):** Report data access is restricted to the content owner (`uid` field) or an admin. List operations are secured to ensure users can only query their own reports, while admins can query all reports.\n\nThis design ensures secure data segregation and scalable permission management."
+    "reasoning": "The Firestore structure enforces strict user ownership of data. The `/users/{userId}` path uses path-based security, allowing users to manage only their own profile. The `/reports/{reportId}` collection uses content-based security, where a `uid` field inside each report document ensures that only the report's creator can access or modify it. Listing reports is also restricted, requiring a query that filters by the authenticated user's `uid`, preventing data leakage between users."
   }
 }

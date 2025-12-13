@@ -191,7 +191,7 @@ export default function OcorrenciasPage() {
         }
     };
     
-    const isLoading = isUserLoading || isReportsLoading;
+    const isLoading = isUserLoading || (!!user && isReportsLoading);
 
     if (isLoading) {
         return (

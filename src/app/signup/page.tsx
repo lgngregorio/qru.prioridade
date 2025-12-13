@@ -61,7 +61,7 @@ export default function SignupPage() {
         // Create user profile in Firestore using UID as document ID
         const userDocRef = doc(firestore, 'users', user.uid);
         const profileData = {
-          uid: user.uid,
+          id: user.uid,
           name: name,
           email: user.email,
           theme: 'light', // Default theme
