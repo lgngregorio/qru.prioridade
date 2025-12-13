@@ -1,7 +1,8 @@
+
 'use client';
 
 import { useUser, useFirestore, useMemoFirebase } from '@/firebase';
-import { collection, query, where, orderBy } from 'firebase/firestore';
+import { collection, query, where, orderBy, Timestamp } from 'firebase/firestore';
 import { useCollection } from '@/firebase/firestore/use-collection';
 import { Loader2, History, AlertCircle } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
@@ -9,7 +10,6 @@ import { Badge } from '@/components/ui/badge';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { ArrowLeft } from 'lucide-react';
-import { Timestamp } from 'firebase/firestore';
 
 interface Report {
     id: string;
@@ -42,8 +42,11 @@ export default function OcorrenciasPage() {
     const { user, isUserLoading } = useUser();
     const firestore = useFirestore();
 
+    // The query is only created when firestore and user.uid are available.
     const reportsQuery = useMemoFirebase(() => {
-        if (!firestore || !user?.uid) return null;
+        if (!firestore || !user?.uid) {
+            return null;
+        }
         return query(
             collection(firestore, 'reports'),
             where('uid', '==', user.uid),
@@ -53,8 +56,9 @@ export default function OcorrenciasPage() {
 
     const { data: reports, isLoading: isReportsLoading, error } = useCollection<Report>(reportsQuery);
 
-    const isLoading = isUserLoading || (user && !reports && isReportsLoading);
-
+    // Unified loading state: true if user is loading OR if user is loaded but reports are still loading.
+    const isLoading = isUserLoading || (user && isReportsLoading);
+    
     if (isLoading) {
         return (
             <main className="flex flex-col items-center p-4 md:p-6">
