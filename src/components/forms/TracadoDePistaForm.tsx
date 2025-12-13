@@ -294,18 +294,8 @@ export default function TracadoDePistaForm({ categorySlug }: { categorySlug: str
         <Field label="Sinalização horizontal (faixa de bordo, faixa segmentada, pintura de pista...)">{renderRadioGroup('sinalizacao', 'horizontal', [{id: 'existe', label: 'Existe'}, {id: 'nao_existe', label: 'Não existe'}])}</Field>
         <Field label="Sinalização semáforo">{renderRadioGroup('sinalizacao', 'semaforo', [{id: 'funciona', label: 'Funciona'}, {id: 'nao_funciona', label: 'Não funciona'}, {id: 'funciona_defeito', label: 'Funciona com defeito'}, {id: 'inexistente', label: 'Inexistente'}])}</Field>
 
-        <div className="flex sm:flex-row gap-4 pt-6">
-          <Button size="lg" className="flex-1 bg-green-600 hover:bg-green-700 uppercase text-base" disabled={isSaving}>
-              <Share className="mr-2 h-4 w-4" />
-              Compartilhar WhatsApp
-          </Button>
-          <Button size="lg" className="w-32 bg-primary hover:bg-primary/90 uppercase text-base" onClick={handleSave} disabled={isSaving}>
-              {isSaving ? <Loader2 className="animate-spin" /> : <Save className="mr-2 h-4 w-4" />}
-              {isSaving ? 'Salvando...' : 'Salvar'}
-          </Button>
-        </div>
+        
       </form>
     </div>
   );
 }
-

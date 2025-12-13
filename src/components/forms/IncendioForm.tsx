@@ -219,23 +219,19 @@ export default function IncendioForm({ categorySlug }: { categorySlug: string })
         let message = `*${category ? category.title.toUpperCase() : 'RELATÓRIO DE OCORRÊNCIA'}*\n\n`;
 
         message += `*INFORMAÇÕES GERAIS*\n`;
-        message += `*Rodovia:* ${reportData.generalInfo.rodovia.toUpperCase()}\n`;
-        message += `*Ocorrência:* ${reportData.generalInfo.ocorrencia.toUpperCase()}\n`;
-        message += `*QTH (Local):* ${reportData.generalInfo.qth.toUpperCase()}\n`;
-        message += `*Sentido:* ${reportData.generalInfo.sentido.toUpperCase()}\n`;
-        message += `*Local/Área:* ${reportData.generalInfo.localArea.toUpperCase()}\n`;
-        message += `*QTH de Início:* ${reportData.generalInfo.qthInicio.toUpperCase()}\n`;
-        message += `*QTH de Término:* ${reportData.generalInfo.qthTermino.toUpperCase()}\n`;
-        message += `*Proporção em Metros:* ${reportData.generalInfo.proporcaoMetros.toUpperCase()}\n`;
-        message += `*Área Total (m²):* ${reportData.generalInfo.areaTotal.toUpperCase()}\n\n`;
+        Object.entries(reportData.generalInfo).forEach(([key, value]) => {
+            if (value !== 'NILL' && value !== '') {
+                message += `*${key.toUpperCase()}:* ${String(value).toUpperCase()}\n`;
+            }
+        });
+        message += '\n';
         
         message += `*OUTRAS INFORMAÇÕES*\n`;
-        message += `*Auxílios/PR:* ${reportData.otherInfo.auxilios.toUpperCase()}\n`;
-        if (showVtrApoio) {
-            message += `*VTR de Apoio:* ${reportData.otherInfo.vtrApoio.toUpperCase()}\n`;
-        }
-        message += `*Observações:* ${reportData.otherInfo.observacoes.toUpperCase()}\n`;
-        message += `*Nº Ocorrência:* ${reportData.otherInfo.numeroOcorrencia.toUpperCase()}\n`;
+        Object.entries(reportData.otherInfo).forEach(([key, value]) => {
+            if (value !== 'NILL' && value !== '') {
+                message += `*${key.toUpperCase()}:* ${String(value).toUpperCase()}\n`;
+            }
+        });
 
         const whatsappUrl = `https://wa.me/?text=${encodeURIComponent(message)}`;
         window.open(whatsappUrl, '_blank');
@@ -342,16 +338,7 @@ export default function IncendioForm({ categorySlug }: { categorySlug: string })
           </div>
         </div>
 
-        <div className="flex sm:flex-row gap-4 pt-6">
-          <Button size="lg" className="flex-1 bg-green-600 hover:bg-green-700 uppercase text-base" onClick={handleShare} disabled={isSaving}>
-              {isSaving ? <Loader2 className="animate-spin" /> :<Share className="mr-2 h-4 w-4" />}
-              {isSaving ? 'Salvando...' : 'Compartilhar WhatsApp'}
-          </Button>
-          <Button size="lg" className="w-32 bg-primary hover:bg-primary/90 uppercase text-base" onClick={handleSave} disabled={isSaving}>
-              {isSaving ? <Loader2 className="animate-spin" /> : <Save className="mr-2 h-4 w-4" />}
-              {isSaving ? 'Salvando...' : 'Salvar'}
-          </Button>
-        </div>
+        
       </form>
     </div>
   );

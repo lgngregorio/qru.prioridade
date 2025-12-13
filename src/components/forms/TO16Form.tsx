@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useRouter } from 'next/navigation';
@@ -859,16 +860,7 @@ export default function TO16Form({ categorySlug }: { categorySlug: string }) {
             </div>
         </div>
 
-        <div className="flex sm:flex-row gap-4 pt-6">
-          <Button size="lg" className="flex-1 bg-green-600 hover:bg-green-700 uppercase text-base" onClick={handleShare} disabled={isSaving}>
-              {isSaving ? <Loader2 className="animate-spin" /> : <Share className="mr-2 h-4 w-4" />}
-              Compartilhar WhatsApp
-          </Button>
-          <Button size="lg" className="w-32 bg-primary hover:bg-primary/90 uppercase text-base" onClick={handleSave} disabled={isSaving}>
-              {isSaving ? <Loader2 className="animate-spin" /> : <Save className="mr-2 h-4 w-4" />}
-              Salvar
-          </Button>
-        </div>
+        
       </form>
     </div>
   );

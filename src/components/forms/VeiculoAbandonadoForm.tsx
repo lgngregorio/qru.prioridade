@@ -252,43 +252,32 @@ export default function VeiculoAbandonadoForm({ categorySlug }: { categorySlug: 
       const reportData = prepareReportData().formData;
       const category = eventCategories.find(c => c.slug === categorySlug);
       
-      let message = `*RELATÓRIO DE ${category ? category.name.toUpperCase() : 'OCORRÊNCIA'}*\n\n`;
-
+      let message = `*${category ? category.title.toUpperCase() : 'RELATÓRIO DE OCORRÊNCIA'}*\n\n`;
+      
       message += `*INFORMAÇÕES GERAIS*\n`;
-      message += `*Rodovia:* ${reportData.generalInfo.rodovia.toUpperCase()}\n`;
-      message += `*Ocorrência:* ${reportData.generalInfo.ocorrencia.toUpperCase()}\n`;
-      message += `*Tipo de Pane:* ${reportData.generalInfo.tipoPane.toUpperCase()}\n`;
-      message += `*QTH (Local):* ${reportData.generalInfo.qth.toUpperCase()}\n`;
-      message += `*Sentido:* ${reportData.generalInfo.sentido.toUpperCase()}\n`;
-      message += `*Local/Área:* ${reportData.generalInfo.localArea.toUpperCase()}\n\n`;
+      Object.entries(reportData.generalInfo).forEach(([key, value]) => {
+          if (value !== 'NILL' && value !== '') {
+             message += `*${key.toUpperCase()}:* ${String(value).toUpperCase()}\n`;
+          }
+      });
+      message += '\n';
 
       reportData.vehicles.forEach((vehicle: any, index: number) => {
         message += `*DADOS DO VEÍCULO ${index + 1}*\n`;
-        message += `*Marca:* ${vehicle.marca.toUpperCase()}\n`;
-        message += `*Modelo:* ${vehicle.modelo.toUpperCase()}\n`;
-        message += `*Ano:* ${vehicle.ano.toUpperCase()}\n`;
-        message += `*Cor:* ${vehicle.cor.toUpperCase()}\n`;
-        message += `*Placa:* ${vehicle.placa.toUpperCase()}\n`;
-        message += `*Cidade Emplacamento:* ${vehicle.cidade.toUpperCase()}\n`;
-        message += `*Vindo de:* ${vehicle.vindoDe.toUpperCase()}\n`;
-        message += `*Indo para:* ${vehicle.indoPara.toUpperCase()}\n`;
-        message += `*Eixos:* ${vehicle.eixos.toUpperCase()}\n`;
-        message += `*Tipo:* ${vehicle.tipo.toUpperCase()}\n`;
-        message += `*Pneu:* ${vehicle.pneu.toUpperCase()}\n`;
-        message += `*Carga:* ${vehicle.carga.toUpperCase()}\n\n`;
-        message += `*CONDUTOR*\n`;
-        message += `*QRA:* ${vehicle.condutor.toUpperCase()}\n`;
-        message += `*Telefone:* ${vehicle.telefone.toUpperCase()}\n`;
-        message += `*Ocupantes:* ${vehicle.ocupantes.toUpperCase()}\n\n`;
+        Object.entries(vehicle).forEach(([key, value]) => {
+            if (key !== 'id' && value !== 'NILL' && value !== '') {
+               message += `*${key.toUpperCase()}:* ${String(value).toUpperCase()}\n`;
+            }
+        });
+        message += '\n';
       });
       
       message += `*OUTRAS INFORMAÇÕES*\n`;
-      message += `*Auxílios/PR:* ${reportData.otherInfo.auxilios.toUpperCase()}\n`;
-      if (showVtrApoio) {
-        message += `*VTR de Apoio:* ${reportData.otherInfo.vtrApoio.toUpperCase()}\n`;
-      }
-      message += `*Observações:* ${reportData.otherInfo.observacoes.toUpperCase()}\n`;
-      message += `*Nº Ocorrência:* ${reportData.otherInfo.numeroOcorrencia.toUpperCase()}\n`;
+      Object.entries(reportData.otherInfo).forEach(([key, value]) => {
+          if (value !== 'NILL' && value !== '') {
+             message += `*${key.toUpperCase()}:* ${String(value).toUpperCase()}\n`;
+          }
+      });
 
       const whatsappUrl = `https://wa.me/?text=${encodeURIComponent(message)}`;
       window.open(whatsappUrl, '_blank');
@@ -503,16 +492,7 @@ export default function VeiculoAbandonadoForm({ categorySlug }: { categorySlug: 
           </div>
         </div>
 
-        <div className="flex sm:flex-row gap-4 pt-6">
-          <Button size="lg" className="flex-1 bg-green-600 hover:bg-green-700 uppercase text-base" onClick={handleShare} disabled={isSaving}>
-              {isSaving ? <Loader2 className="animate-spin" /> :<Share className="mr-2 h-4 w-4" />}
-              {isSaving ? 'Salvando...' : 'Compartilhar WhatsApp'}
-          </Button>
-          <Button size="lg" className="w-32 bg-primary hover:bg-primary/90 uppercase text-base" onClick={handleSave} disabled={isSaving}>
-              {isSaving ? <Loader2 className="animate-spin" /> : <Save className="mr-2 h-4 w-4" />}
-              {isSaving ? 'Salvando...' : 'Salvar'}
-          </Button>
-        </div>
+        
       </form>
     </div>
   );
