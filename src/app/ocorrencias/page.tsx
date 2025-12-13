@@ -2,6 +2,9 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import Link from 'next/link';
+import { ArrowLeft } from 'lucide-react';
+import { Button } from '@/components/ui/button';
 import {
   Card,
   CardContent,
@@ -69,7 +72,16 @@ export default function OcorrenciasPage() {
 
   return (
     <main className="flex flex-col p-4 md:p-6">
-      <div className="flex items-center justify-between mb-8 pt-4">
+       <div className="w-full mb-6 pt-4 flex items-center">
+        <Button asChild variant="outline" className="rounded-full">
+          <Link href="/">
+            <ArrowLeft className="mr-2 h-4 w-4" />
+            Voltar para o início
+          </Link>
+        </Button>
+      </div>
+
+      <div className="flex items-center justify-between mb-8">
         <div className="text-left">
           <h1 className="text-3xl font-bold text-foreground font-headline tracking-wide uppercase">
             Histórico de Ocorrências
