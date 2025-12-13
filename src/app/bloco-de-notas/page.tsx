@@ -54,6 +54,7 @@ export default function NotepadPage() {
   const { toast } = useToast();
 
   const notesQuery = useMemoFirebase(() => {
+    // A consulta só será criada se o firestore e o user.uid estiverem disponíveis.
     if (!firestore || !user?.uid) {
       return null;
     }
