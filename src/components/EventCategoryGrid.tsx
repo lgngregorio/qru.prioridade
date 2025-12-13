@@ -61,12 +61,12 @@ export default function EventCategoryGrid({
           >
             <CardHeader className="flex flex-col items-center justify-center p-2 aspect-[3/4]">
               <div
-                className="w-12 h-12 rounded-full mb-2 flex items-center justify-center"
+                className="w-12 h-12 rounded-full mb-1 flex items-center justify-center"
                 style={{ backgroundColor: category.color }}
               >
                 <category.icon className="h-8 w-8 text-white" />
               </div>
-              <CardTitle className="text-sm font-bold leading-tight text-card-foreground">
+              <CardTitle className="text-base font-bold leading-tight text-card-foreground">
                 {formatCategoryName(category.name)}
               </CardTitle>
             </CardHeader>
