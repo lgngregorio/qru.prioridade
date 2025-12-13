@@ -19,6 +19,7 @@ import ReportDetail from '@/components/ReportDetail';
 import { useUser } from '@/app/layout';
 
 interface ReportData {
+  id?: string;
   category: string;
   formData: any;
   userEmail?: string;
@@ -56,20 +57,45 @@ export default function PreviewPage() {
 
     try {
       const allReports = JSON.parse(localStorage.getItem('qru-priority-reports') || '[]');
-      const newReport = {
-        ...report,
-        id: new Date().toISOString() + Math.random(), // Unique ID
-        userEmail: user.email,
-        createdAt: new Date().toISOString(),
-      };
+      
+      if (report.id) {
+        // Editing an existing report
+        const reportIndex = allReports.findIndex((r: any) => r.id === report.id);
+        if (reportIndex > -1) {
+          allReports[reportIndex] = {
+            ...allReports[reportIndex],
+            ...report,
+            formData: report.formData,
+          };
+          toast({
+            title: 'Sucesso!',
+            description: 'Seu relatório foi atualizado.',
+          });
+        } else {
+          // Fallback in case the report to be edited is not found, create a new one.
+          const newReport = { ...report, userEmail: user.email, createdAt: new Date().toISOString() };
+          allReports.push(newReport);
+           toast({
+            title: 'Sucesso!',
+            description: 'Seu relatório foi salvo como um novo registro.',
+          });
+        }
+      } else {
+        // Creating a new report
+        const newReport = {
+          ...report,
+          id: new Date().toISOString() + Math.random(), // Unique ID for new report
+          userEmail: user.email,
+          createdAt: new Date().toISOString(),
+        };
+        allReports.push(newReport);
+        toast({
+            title: 'Sucesso!',
+            description: 'Seu relatório foi salvo.',
+        });
+      }
 
-      allReports.push(newReport);
       localStorage.setItem('qru-priority-reports', JSON.stringify(allReports));
-
-      toast({
-        title: 'Sucesso!',
-        description: 'Seu relatório foi salvo.',
-      });
       localStorage.removeItem('reportPreview');
       router.push('/ocorrencias'); 
     } catch (error) {
@@ -112,17 +138,17 @@ export default function PreviewPage() {
     };
     
     const formatWhatsappValue = (value: any, key: string): string => {
-        if (value === null || value === undefined || value === 'NILL' || value === '') return '';
-        if (typeof value === 'boolean') return value ? 'SIM' : 'NÃO';
-        
-        const dateKeys = ['data', 'dn', 'createdAt', 'qtrInicio', 'qtrTermino'];
+      if (value === null || value === undefined || value === 'NILL' || value === '') return '';
+      if (typeof value === 'boolean') return value ? 'SIM' : 'NÃO';
 
-        if (dateKeys.includes(key)) {
-             return formatDate(value);
-        }
+      const dateKeys = ['data', 'dn', 'createdAt', 'qtrInicio', 'qtrTermino'];
 
-        if (Array.isArray(value)) return value.join(', ').replace(/[-_]/g, ' ').toUpperCase();
-        return String(value).replace(/[-_]/g, ' ').toUpperCase();
+      if (dateKeys.includes(key)) {
+        return formatDate(value);
+      }
+
+      if (Array.isArray(value)) return value.join(', ').replace(/[-_]/g, ' ').toUpperCase();
+      return String(value).replace(/[-_]/g, ' ').toUpperCase();
     };
     
     const formatKey = (key: string) => {
