@@ -52,13 +52,15 @@ export default function NotepadPage() {
   const { toast } = useToast();
 
   const notesQuery = useMemoFirebase(() => {
-    if (isUserLoading || !firestore || !user?.uid) return null;
+    if (!firestore || !user?.uid) {
+      return null;
+    }
     return query(
       collection(firestore, 'notes'),
       where('uid', '==', user.uid),
       orderBy('createdAt', 'desc')
     );
-  }, [firestore, user?.uid, isUserLoading]);
+  }, [firestore, user?.uid]);
 
   const { data: notes, isLoading: loadingNotes } = useCollection<Note>(notesQuery);
   const isLoading = isUserLoading || loadingNotes;
