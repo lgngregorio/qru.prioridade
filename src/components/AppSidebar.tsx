@@ -54,9 +54,9 @@ export default function AppSidebar() {
            <h1 className="text-3xl font-bold text-sidebar-foreground flex items-center justify-center gap-1">
             QRU
             <div className="flex h-6 items-center gap-1">
-              <div className="w-[1.5px] h-full bg-sidebar-foreground"></div>
+              <div className="w-[2px] h-full bg-sidebar-foreground"></div>
               <div
-                className="w-[1.5px] h-full animate-move-dashes"
+                className="w-[2px] h-full animate-move-dashes"
                 style={{
                   backgroundImage:
                     'linear-gradient(to bottom, hsl(var(--sidebar-foreground)) 50%, transparent 50%)',
@@ -80,18 +80,18 @@ export default function AppSidebar() {
             </SidebarMenuButton>
           </SidebarMenuItem>
           <SidebarMenuItem>
-            <SidebarMenuButton asChild isActive={pathname === '/codigos'} className="text-base [&_svg]:size-5" onClick={handleLinkClick}>
-              <Link href="/codigos">
-                <FileCode />
-                Códigos
-              </Link>
-            </SidebarMenuButton>
-          </SidebarMenuItem>
-          <SidebarMenuItem>
             <SidebarMenuButton asChild isActive={pathname === '/ocorrencias'} className="text-base [&_svg]:size-5" onClick={handleLinkClick}>
               <Link href="/ocorrencias">
                 <History />
                 Ocorrências
+              </Link>
+            </SidebarMenuButton>
+          </SidebarMenuItem>
+          <SidebarMenuItem>
+            <SidebarMenuButton asChild isActive={pathname === '/codigos'} className="text-base [&_svg]:size-5" onClick={handleLinkClick}>
+              <Link href="/codigos">
+                <FileCode />
+                Códigos
               </Link>
             </SidebarMenuButton>
           </SidebarMenuItem>
