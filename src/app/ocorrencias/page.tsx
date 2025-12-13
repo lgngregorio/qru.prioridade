@@ -199,7 +199,7 @@ function ReportCard({ report, onDelete }: { report: Report; onDelete: () => void
         </Button>
         <CardHeader className="cursor-pointer" onClick={() => setIsExpanded(!isExpanded)}>
           <CardTitle className="truncate pr-10">{getCategoryTitle(report.category)}</CardTitle>
-          <CardDescription className="text-sm font-bold text-muted-foreground">{formatDate(report.createdAt)}</CardDescription>
+          <CardDescription className="text-base font-bold text-muted-foreground">{formatDate(report.createdAt)}</CardDescription>
         </CardHeader>
         
         {isExpanded && (
@@ -210,11 +210,11 @@ function ReportCard({ report, onDelete }: { report: Report; onDelete: () => void
           </CardContent>
         )}
         <CardFooter className="p-4 flex flex-wrap justify-center gap-2">
-            <Button variant="outline" size="lg" onClick={handleEdit} className="border-blue-500 text-blue-500 hover:bg-blue-500 hover:text-white flex-grow">
+            <Button variant="outline" size="default" onClick={handleEdit} className="border-blue-500 text-blue-500 hover:bg-blue-500 hover:text-white flex-grow">
               <Edit className="h-5 w-5 mr-2" />
               Editar
             </Button>
-            <Button variant="outline" size="lg" onClick={handleShare} className="border-green-500 text-green-500 hover:bg-green-500 hover:text-white flex-grow">
+            <Button variant="outline" size="default" onClick={handleShare} className="border-green-500 text-green-500 hover:bg-green-500 hover:text-white flex-grow">
               <Share2 className="h-5 w-5 mr-2" />
               Compartilhar
             </Button>
