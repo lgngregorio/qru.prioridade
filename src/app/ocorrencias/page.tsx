@@ -147,14 +147,14 @@ export default function OcorrenciasPage() {
 
     const reportsQuery = useMemoFirebase(() => {
         if (!user?.uid || !firestore) {
-            return null; // Return null if user or firestore is not available
+            return null;
         }
         return query(
             collection(firestore, 'reports'),
             where('uid', '==', user.uid),
             orderBy('createdAt', 'desc')
         );
-    }, [firestore, user]);
+    }, [firestore, user, user?.uid]);
 
     const { data: reports, isLoading: isReportsLoading, error } = useCollection<Report>(reportsQuery);
     

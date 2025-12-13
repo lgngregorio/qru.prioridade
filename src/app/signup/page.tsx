@@ -12,6 +12,8 @@ import { Label } from '@/components/ui/label';
 import { useToast } from '@/hooks/use-toast';
 import { Loader2 } from 'lucide-react';
 import Link from 'next/link';
+import { FirestorePermissionError } from '@/firebase/errors';
+import { errorEmitter } from '@/firebase/error-emitter';
 
 export default function SignupPage() {
   const [name, setName] = useState('');
@@ -30,15 +32,23 @@ export default function SignupPage() {
       const userCredential = await createUserWithEmailAndPassword(auth, email, password);
       const user = userCredential.user;
 
-      // Update profile in Firebase Auth
       await updateProfile(user, { displayName: name });
 
-      // Create user document in Firestore
       const userDocRef = doc(firestore, 'users', user.uid);
-      await setDoc(userDocRef, {
+      const userData = {
         name: name,
         email: email,
         uid: user.uid,
+      };
+
+      await setDoc(userDocRef, userData).catch(async (serverError) => {
+          const permissionError = new FirestorePermissionError({
+            path: userDocRef.path,
+            operation: 'create',
+            requestResourceData: userData,
+          });
+          errorEmitter.emit('permission-error', permissionError);
+          throw permissionError;
       });
 
       toast({
