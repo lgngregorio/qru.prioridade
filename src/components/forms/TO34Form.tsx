@@ -52,6 +52,8 @@ export default function TO34Form({ categorySlug }: { categorySlug: string }) {
   const router = useRouter();
   const { toast } = useToast();
   const [showVtrApoio, setShowVtrApoio] = useState(false);
+  const [existingReport, setExistingReport] = useState<any>(null);
+
 
   const [generalInfo, setGeneralInfo] = useState<GeneralInfo>({
     rodovia: '',
@@ -71,6 +73,21 @@ export default function TO34Form({ categorySlug }: { categorySlug: string }) {
     vtrApoio: '',
     numeroOcorrencia: '',
   });
+
+  useEffect(() => {
+    const savedData = localStorage.getItem('reportPreview');
+    if (savedData) {
+      const parsedData = JSON.parse(savedData);
+      setExistingReport(parsedData);
+      const { formData } = parsedData;
+
+      if (formData) {
+        setGeneralInfo(formData.generalInfo || generalInfo);
+        setOtherInfo(formData.otherInfo || otherInfo);
+        setShowVtrApoio(!!formData.otherInfo?.vtrApoio && formData.otherInfo.vtrApoio !== 'NILL');
+      }
+    }
+  }, []);
 
   const handleGeneralInfoChange = (field: keyof GeneralInfo, value: string) => {
     setGeneralInfo(prev => ({ ...prev, [field]: value }));
@@ -101,19 +118,24 @@ export default function TO34Form({ categorySlug }: { categorySlug: string }) {
   };
 
   const prepareReportData = () => {
+    const reportData = {
+      generalInfo,
+      otherInfo
+    }
     const filledData = {
-      generalInfo: fillEmptyFields(generalInfo),
-      otherInfo: fillEmptyFields(otherInfo),
+      ...existingReport,
+      category: categorySlug,
+      formData: {
+        generalInfo: fillEmptyFields(reportData.generalInfo),
+        otherInfo: fillEmptyFields(reportData.otherInfo),
+      }
     };
 
     if (!showVtrApoio) {
-      filledData.otherInfo.vtrApoio = 'NILL';
+      filledData.formData.otherInfo.vtrApoio = 'NILL';
     }
 
-    return {
-      category: categorySlug,
-      formData: filledData,
-    };
+    return filledData;
   };
   
   const handleGenerateReport = () => {

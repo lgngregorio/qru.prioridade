@@ -64,6 +64,8 @@ export default function VeiculoAbandonadoForm({ categorySlug }: { categorySlug: 
   const router = useRouter();
   const { toast } = useToast();
   const [showVtrApoio, setShowVtrApoio] = useState(false);
+  const [existingReport, setExistingReport] = useState<any>(null);
+
 
   const [generalInfo, setGeneralInfo] = useState<GeneralInfo>({
     rodovia: '',
@@ -92,7 +94,10 @@ export default function VeiculoAbandonadoForm({ categorySlug }: { categorySlug: 
   useEffect(() => {
     const savedData = localStorage.getItem('reportPreview');
     if (savedData) {
-      const { formData } = JSON.parse(savedData);
+      const parsedData = JSON.parse(savedData);
+      setExistingReport(parsedData);
+      const { formData } = parsedData;
+
       if (formData) {
         setGeneralInfo(formData.generalInfo || generalInfo);
         setVehicles(formData.vehicles || vehicles);
@@ -174,8 +179,9 @@ export default function VeiculoAbandonadoForm({ categorySlug }: { categorySlug: 
     }
     
     const filledReportData = {
-        category: categorySlug,
-        formData: fillEmptyFields(reportData),
+      ...existingReport,
+      category: categorySlug,
+      formData: fillEmptyFields(reportData),
     };
     
     return filledReportData;

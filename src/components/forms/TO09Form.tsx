@@ -54,6 +54,8 @@ export default function TO09Form({ categorySlug }: { categorySlug: string }) {
   const router = useRouter();
   const { toast } = useToast();
   const [isSaving, setIsSaving] = useState(false);
+  const [existingReport, setExistingReport] = useState<any>(null);
+
 
   const [generalInfo, setGeneralInfo] = useState<GeneralInfo>({
     rodovia: '',
@@ -79,7 +81,10 @@ export default function TO09Form({ categorySlug }: { categorySlug: string }) {
   useEffect(() => {
     const savedData = localStorage.getItem('reportPreview');
     if (savedData) {
-      const { formData } = JSON.parse(savedData);
+      const parsedData = JSON.parse(savedData);
+      setExistingReport(parsedData);
+      const { formData } = parsedData;
+
       if (formData) {
         setGeneralInfo(formData.generalInfo || generalInfo);
         setOtherInfo(formData.otherInfo || otherInfo);
@@ -130,15 +135,21 @@ export default function TO09Form({ categorySlug }: { categorySlug: string }) {
   };
 
   const prepareReportData = () => {
-    const filledData = {
-      generalInfo: fillEmptyFields(generalInfo),
-      otherInfo: fillEmptyFields(otherInfo),
+    const reportData = {
+      generalInfo,
+      otherInfo
     };
 
-    return {
+    const filledData = {
+      ...existingReport,
       category: categorySlug,
-      formData: filledData,
+      formData: {
+        generalInfo: fillEmptyFields(reportData.generalInfo),
+        otherInfo: fillEmptyFields(reportData.otherInfo),
+      }
     };
+
+    return filledData;
   };
   
   const handleGenerateReport = () => {

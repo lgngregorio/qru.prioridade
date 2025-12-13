@@ -66,6 +66,8 @@ export default function QudOperacaoForm({ categorySlug }: { categorySlug: string
   const { toast } = useToast();
   const [showVtrApoio, setShowVtrApoio] = useState(false);
   const [showDanoPatrimonio, setShowDanoPatrimonio] = useState(false);
+  const [existingReport, setExistingReport] = useState<any>(null);
+
 
   const [generalInfo, setGeneralInfo] = useState<GeneralInfo>({
     rodovia: '',
@@ -95,7 +97,10 @@ export default function QudOperacaoForm({ categorySlug }: { categorySlug: string
   useEffect(() => {
     const savedData = localStorage.getItem('reportPreview');
     if (savedData) {
-      const { formData } = JSON.parse(savedData);
+      const parsedData = JSON.parse(savedData);
+      setExistingReport(parsedData);
+      const { formData } = parsedData;
+
       if (formData) {
         setGeneralInfo(formData.generalInfo || generalInfo);
         setVehicles(formData.vehicles || vehicles);
@@ -206,23 +211,24 @@ export default function QudOperacaoForm({ categorySlug }: { categorySlug: string
     }
 
     const filledData = {
-      generalInfo: fillEmptyFields(generalInfo),
-      vehicles: fillEmptyFields(vehicles),
-      otherInfo: fillEmptyFields(otherInfo),
+      ...existingReport,
+      category: categorySlug,
+      formData: {
+        generalInfo: fillEmptyFields(generalInfo),
+        vehicles: fillEmptyFields(vehicles),
+        otherInfo: fillEmptyFields(otherInfo),
+      }
     };
 
     if (!showVtrApoio) {
-      filledData.otherInfo.vtrApoio = 'NILL';
+      filledData.formData.otherInfo.vtrApoio = 'NILL';
     }
     
     if (!showDanoPatrimonio) {
-      filledData.otherInfo.danoPatrimonio = 'NILL';
+      filledData.formData.otherInfo.danoPatrimonio = 'NILL';
     }
 
-    return {
-      category: categorySlug,
-      formData: filledData,
-    };
+    return filledData;
   };
   
   const handleGenerateReport = () => {

@@ -60,6 +60,7 @@ export default function TO03Form({ categorySlug }: { categorySlug: string }) {
   const router = useRouter();
   const { toast } = useToast();
   const [showVtrApoio, setShowVtrApoio] = useState(false);
+  const [existingReport, setExistingReport] = useState<any>(null);
 
   const [generalInfo, setGeneralInfo] = useState<GeneralInfo>({
     rodovia: '',
@@ -95,7 +96,10 @@ export default function TO03Form({ categorySlug }: { categorySlug: string }) {
   useEffect(() => {
     const savedData = localStorage.getItem('reportPreview');
     if (savedData) {
-      const { formData } = JSON.parse(savedData);
+      const parsedData = JSON.parse(savedData);
+      setExistingReport(parsedData);
+      const { formData } = parsedData;
+
       if (formData) {
         setGeneralInfo(formData.generalInfo || generalInfo);
         setCaracteristicasEntorno(formData.caracteristicasEntorno || caracteristicasEntorno);
@@ -181,23 +185,24 @@ export default function TO03Form({ categorySlug }: { categorySlug: string }) {
     }
 
     const filledData = {
-      generalInfo: fillEmptyFields(generalInfo),
-      caracteristicasEntorno: fillEmptyFields(caracteristicasEntorno),
-      tracadoPista: fillEmptyFields(tracadoPista),
-      otherInfo: fillEmptyFields(otherInfo),
+      ...existingReport,
+      category: categorySlug,
+      formData: {
+        generalInfo: fillEmptyFields(generalInfo),
+        caracteristicasEntorno: fillEmptyFields(caracteristicasEntorno),
+        tracadoPista: fillEmptyFields(tracadoPista),
+        otherInfo: fillEmptyFields(otherInfo),
+      }
     };
     
     if (!showVtrApoio) {
-      filledData.otherInfo.vtrApoio = 'NILL';
+      filledData.formData.otherInfo.vtrApoio = 'NILL';
     }
     if (otherInfo.destinacaoAnimal !== 'pr13') {
-        filledData.otherInfo.qthExato = 'NILL';
+        filledData.formData.otherInfo.qthExato = 'NILL';
     }
 
-    return {
-      category: categorySlug,
-      formData: filledData,
-    };
+    return filledData;
   };
   
   const handleGenerateReport = () => {

@@ -52,6 +52,8 @@ type OtherInfo = {
 export default function TO50Form({ categorySlug }: { categorySlug: string }) {
   const router = useRouter();
   const { toast } = useToast();
+  const [existingReport, setExistingReport] = useState<any>(null);
+
 
   const [generalInfo, setGeneralInfo] = useState<GeneralInfo>({
     rodovia: '',
@@ -73,6 +75,20 @@ export default function TO50Form({ categorySlug }: { categorySlug: string }) {
     auxilios: '',
     numeroOcorrencia: '',
   });
+  
+  useEffect(() => {
+    const savedData = localStorage.getItem('reportPreview');
+    if (savedData) {
+      const parsedData = JSON.parse(savedData);
+      setExistingReport(parsedData);
+      const { formData } = parsedData;
+
+      if (formData) {
+        setGeneralInfo(formData.generalInfo || generalInfo);
+        setOtherInfo(formData.otherInfo || otherInfo);
+      }
+    }
+  }, []);
 
   const formatPhoneNumber = (value: string) => {
     if (!value) return value;
@@ -141,15 +157,20 @@ export default function TO50Form({ categorySlug }: { categorySlug: string }) {
   };
 
   const prepareReportData = () => {
+    const reportData = {
+      generalInfo,
+      otherInfo
+    }
     const filledData = {
-      generalInfo: fillEmptyFields(generalInfo),
-      otherInfo: fillEmptyFields(otherInfo),
+      ...existingReport,
+      category: categorySlug,
+      formData: {
+        generalInfo: fillEmptyFields(reportData.generalInfo),
+        otherInfo: fillEmptyFields(reportData.otherInfo),
+      }
     };
 
-    return {
-      category: categorySlug,
-      formData: filledData,
-    };
+    return filledData;
   };
 
   const handleGenerateReport = () => {

@@ -49,6 +49,8 @@ export default function IncendioForm({ categorySlug }: { categorySlug: string })
   const router = useRouter();
   const { toast } = useToast();
   const [showVtrApoio, setShowVtrApoio] = useState(false);
+  const [existingReport, setExistingReport] = useState<any>(null);
+
 
   const [generalInfo, setGeneralInfo] = useState<GeneralInfo>({
     rodovia: '',
@@ -72,7 +74,9 @@ export default function IncendioForm({ categorySlug }: { categorySlug: string })
   useEffect(() => {
     const savedData = localStorage.getItem('reportPreview');
     if (savedData) {
-      const { formData } = JSON.parse(savedData);
+      const parsedData = JSON.parse(savedData);
+      setExistingReport(parsedData); 
+      const { formData } = parsedData;
       if (formData) {
         setGeneralInfo(formData.generalInfo || generalInfo);
         setOtherInfo(formData.otherInfo || otherInfo);
@@ -164,12 +168,13 @@ export default function IncendioForm({ categorySlug }: { categorySlug: string })
         return null;
     }
     
-    const filledReportData = {
-        category: categorySlug,
-        formData: fillEmptyFields(reportData),
+    const finalReport = {
+      ...existingReport,
+      category: categorySlug,
+      formData: fillEmptyFields(reportData),
     };
     
-    return filledReportData;
+    return finalReport;
   };
   
    const handleGenerateReport = () => {
