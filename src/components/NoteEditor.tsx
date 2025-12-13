@@ -2,8 +2,8 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { doc, setDoc, addDoc, collection, serverTimestamp, Timestamp } from 'firebase/firestore';
-import { useFirestore } from '@/firebase';
+import { doc, setDoc, addDoc, collection, serverTimestamp } from 'firebase/firestore';
+import { useFirestore, useUser } from '@/firebase';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogClose } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
@@ -22,6 +22,7 @@ interface NoteEditorProps {
 
 export function NoteEditor({ isOpen, onClose, note }: NoteEditorProps) {
   const firestore = useFirestore();
+  const { user } = useUser();
   const { toast } = useToast();
   const [title, setTitle] = useState('');
   const [content, setContent] = useState('');
@@ -38,6 +39,15 @@ export function NoteEditor({ isOpen, onClose, note }: NoteEditorProps) {
   }, [note, isOpen]);
 
   const handleSave = async () => {
+    if (!user) {
+        toast({
+            variant: 'destructive',
+            title: 'Usuário não autenticado',
+            description: 'Por favor, faça login para salvar uma nota.',
+        });
+        return;
+    }
+
     if (!title || !content) {
       toast({
         variant: 'destructive',
@@ -64,6 +74,7 @@ export function NoteEditor({ isOpen, onClose, note }: NoteEditorProps) {
           title,
           content,
           createdAt: serverTimestamp(),
+          uid: user.uid, // Associate note with user
         });
         toast({
           title: 'Nota criada!',

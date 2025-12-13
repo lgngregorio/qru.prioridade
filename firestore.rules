@@ -3,17 +3,30 @@ rules_version = '2';
 
 service cloud.firestore {
   match /databases/{database}/documents {
-    // Allow public read/write access to reports
-    match /reports/{reportId} {
-      allow read, write: if true;
-    }
-     match /reports {
-      allow list: if true;
+
+    function isSignedIn() {
+      return request.auth != null;
     }
 
-    // Allow public read/write access to notes
+    function isOwner(userId) {
+      return request.auth.uid == userId;
+    }
+
+    match /reports/{reportId} {
+      allow read: if isSignedIn() && isOwner(resource.data.uid);
+      allow create: if isSignedIn() && isOwner(request.resource.data.uid);
+    }
+    match /reports {
+      // Users can only query their own reports
+      allow list: if isSignedIn() && request.query.where.size() > 0 && request.query.where[0][0] == 'uid' && request.query.where[0][2] == request.auth.uid;
+    }
+    
     match /notes/{noteId} {
-      allow read, write: if true;
+      allow read, update, delete: if isSignedIn() && isOwner(resource.data.uid);
+      allow create: if isSignedIn() && isOwner(request.resource.data.uid);
+    }
+    match /notes {
+      allow list: if isSignedIn() && request.query.where.size() > 0 && request.query.where[0][0] == 'uid' && request.query.where[0][2] == request.auth.uid;
     }
   }
 }

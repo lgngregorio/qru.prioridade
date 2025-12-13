@@ -1,10 +1,10 @@
 
 'use client';
 
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import { Plus } from 'lucide-react';
-import { useCollection, useFirestore } from '@/firebase';
-import { collection, query, orderBy } from 'firebase/firestore';
+import { useCollection, useFirestore, useUser, useMemoFirebase } from '@/firebase';
+import { collection, query, where, orderBy } from 'firebase/firestore';
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
 import { NoteEditor } from '@/components/NoteEditor';
@@ -26,7 +26,13 @@ export default function NotasPage() {
     const [editingNote, setEditingNote] = useState<Note | null>(null);
 
     const firestore = useFirestore();
-    const notesQuery = query(collection(firestore, 'notes'), orderBy('createdAt', 'desc'));
+    const { user, isUserLoading } = useUser();
+
+    const notesQuery = useMemoFirebase(() => {
+        if (!user) return null;
+        return query(collection(firestore, 'notes'), where('uid', '==', user.uid), orderBy('createdAt', 'desc'));
+    }, [firestore, user]);
+
     const { data: notes, isLoading, error } = useCollection<Omit<Note, 'id'>>(notesQuery);
 
     const handleEdit = (note: Note) => {
@@ -61,7 +67,7 @@ export default function NotasPage() {
                 </Button>
             </div>
 
-            {isLoading && <LoadingSkeleton />}
+            {(isLoading || isUserLoading) && <LoadingSkeleton />}
 
             {error && (
                 <div className="text-center py-10">
@@ -71,7 +77,7 @@ export default function NotasPage() {
                 </div>
             )}
 
-            {!isLoading && !error && notes?.length === 0 && (
+            {!isLoading && !isUserLoading && !error && notes?.length === 0 && (
                 <div className="text-center py-10 border-2 border-dashed rounded-lg">
                     <p className="text-muted-foreground text-lg">Nenhuma nota encontrada.</p>
                     <p className="text-muted-foreground">Clique em "Adicionar Nota" para começar.</p>

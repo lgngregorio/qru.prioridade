@@ -21,8 +21,7 @@ import {
   doc,
   Timestamp,
 } from 'firebase/firestore';
-import { useFirestore, useAuth } from '@/firebase'; // Import useAuth
-import { onAuthStateChanged, User } from 'firebase/auth'; // Import onAuthStateChanged
+import { useFirestore, useAuth, useUser } from '@/firebase'; // Import useUser
 import { eventCategories } from '@/lib/events';
 import ReportDetail from '@/components/ReportDetail';
 
@@ -36,32 +35,23 @@ interface ReportData {
 export default function PreviewPage() {
   const router = useRouter();
   const firestore = useFirestore();
-  const auth = useAuth(); // Get auth instance
   const { toast } = useToast();
+  const { user, isUserLoading } = useUser(); // Use the hook to get user
 
   const [report, setReport] = useState<ReportData | null>(null);
-  const [user, setUser] = useState<User | null>(null); // State for the user
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
 
 
   useEffect(() => {
-    // Listen for auth state changes
-    const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
-      setUser(currentUser);
-      const savedData = localStorage.getItem('reportPreview');
-      if (savedData) {
-        setReport(JSON.parse(savedData));
-      } else {
-        // If no preview data, redirect to home.
-        // This might happen if the user navigates here directly.
-        router.push('/');
-      }
-      setIsLoading(false);
-    });
-
-    return () => unsubscribe(); // Cleanup subscription
-  }, [router, auth]);
+    const savedData = localStorage.getItem('reportPreview');
+    if (savedData) {
+      setReport(JSON.parse(savedData));
+    } else {
+      router.push('/');
+    }
+    setIsLoading(false);
+  }, [router]);
   
   const handleSaveAndGoToHistory = async () => {
     if (!report || !firestore || !user) {
@@ -76,19 +66,20 @@ export default function PreviewPage() {
     setIsSaving(true);
     try {
       const reportWithUser = {
-        ...report,
+        ...report.formData,
         uid: user.uid, // Add user's UID to the report
+        category: report.category,
         createdAt: serverTimestamp(),
       };
 
-      await addDoc(collection(firestore, 'reports'), reportWithUser.formData);
+      await addDoc(collection(firestore, 'reports'), reportWithUser);
 
       toast({
         title: 'Sucesso!',
         description: 'Seu relatório foi salvo.',
       });
       localStorage.removeItem('reportPreview');
-      router.push('/'); 
+      router.push('/ocorrencias'); 
     } catch (error) {
       console.error('Erro ao salvar o relatório: ', error);
       toast({
@@ -116,13 +107,12 @@ export default function PreviewPage() {
         } else if (dateSource instanceof Date) {
             date = dateSource;
         } else if (typeof dateSource === 'string' || typeof dateSource === 'number') {
-            try {
-                date = new Date(dateSource);
-                if (isNaN(date.getTime())) {
-                    return String(dateSource);
-                }
-            } catch {
-                return String(dateSource);
+            // Attempt to parse if it looks like a timestamp or ISO string
+            const d = new Date(dateSource);
+            if (!isNaN(d.getTime())) {
+                date = d;
+            } else {
+                 return String(dateSource);
             }
         } else {
             return String(dateSource);
@@ -216,7 +206,7 @@ export default function PreviewPage() {
   };
   
 
-  if (isLoading || !report) {
+  if (isLoading || isUserLoading || !report) {
     return (
       <main className="flex flex-col items-center p-4 md:p-6">
         <div className="flex justify-center items-center h-64">
@@ -249,7 +239,7 @@ export default function PreviewPage() {
                <Button
                 variant="outline"
                 className="w-full md:w-auto"
-                onClick={() => router.push(`/${report.category}`)}
+                onClick={() => router.back()}
               >
                 <Edit className="mr-2 h-4 w-4" />
                 Editar

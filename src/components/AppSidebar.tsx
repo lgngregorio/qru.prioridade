@@ -22,13 +22,22 @@ import {
 } from 'lucide-react';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
+import { useAuth } from '@/firebase';
 
 export default function AppSidebar() {
   const pathname = usePathname();
   const { setOpenMobile } = useSidebar();
+  const auth = useAuth();
+  const router = useRouter();
+
 
   const handleLinkClick = () => {
     setOpenMobile(false);
+  };
+
+  const handleLogout = async () => {
+    await auth.signOut();
+    router.push('/login');
   };
   
 
@@ -72,6 +81,14 @@ export default function AppSidebar() {
               </Link>
             </SidebarMenuButton>
           </SidebarMenuItem>
+           <SidebarMenuItem>
+            <SidebarMenuButton asChild isActive={pathname.startsWith('/ocorrencias')} className="text-base [&_svg]:size-5" onClick={handleLinkClick}>
+              <Link href="/ocorrencias">
+                <ListOrdered />
+                Ocorrências
+              </Link>
+            </SidebarMenuButton>
+          </SidebarMenuItem>
           <SidebarMenuItem>
             <SidebarMenuButton asChild isActive={pathname === '/codigos'} className="text-base [&_svg]:size-5" onClick={handleLinkClick}>
               <Link href="/codigos">
@@ -98,6 +115,12 @@ export default function AppSidebar() {
                  <ShieldCheck />
                  Políticas do SGI
                </Link>
+             </SidebarMenuButton>
+           </SidebarMenuItem>
+           <SidebarMenuItem>
+             <SidebarMenuButton onClick={handleLogout} className="text-base [&_svg]:size-5">
+               <LogOut />
+               Sair
              </SidebarMenuButton>
            </SidebarMenuItem>
         </SidebarMenu>

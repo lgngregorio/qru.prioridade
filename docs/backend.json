@@ -25,6 +25,7 @@
         }
       },
       "required": [
+        "uid",
         "category",
         "formData",
         "createdAt"
@@ -35,6 +36,10 @@
       "type": "object",
       "description": "Represents a single note in the notepad.",
       "properties": {
+        "uid": {
+          "type": "string",
+          "description": "The user ID of the user who created the note."
+        },
         "title": {
           "type": "string",
           "description": "The title of the note."
@@ -55,6 +60,7 @@
         }
       },
       "required": [
+        "uid",
         "title",
         "content",
         "createdAt"
@@ -62,7 +68,9 @@
     }
   },
   "auth": {
-    "providers": []
+    "providers": [
+      "password"
+    ]
   },
   "firestore": {
     "structure": [
