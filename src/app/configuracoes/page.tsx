@@ -2,7 +2,7 @@
 'use client';
 
 import Link from 'next/link';
-import { ArrowLeft, Save, Moon, Sun, Monitor, Loader2 } from 'lucide-react';
+import { ArrowLeft, Save, Moon, Sun, Monitor, Loader2, User } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import {
@@ -10,16 +10,19 @@ import {
   CardContent,
   CardHeader,
   CardTitle,
+  CardDescription,
 } from '@/components/ui/card';
 import { useTheme } from 'next-themes';
 import { useState, useEffect } from 'react';
 import { useToast } from '@/hooks/use-toast';
 import { useRouter } from 'next/navigation';
+import { useUser } from '@/app/layout';
 
 export default function ConfiguracoesPage() {
   const { theme, setTheme, systemTheme } = useTheme();
   const { toast } = useToast();
   const router = useRouter();
+  const { user } = useUser();
 
   const [selectedTheme, setSelectedTheme] = useState('');
   const [isSaving, setIsSaving] = useState(false);
@@ -42,7 +45,7 @@ export default function ConfiguracoesPage() {
     router.push('/');
   };
 
-  if (!isLoaded) {
+  if (!isLoaded || !user) {
       return (
          <main className="flex flex-col items-center p-4 md:p-6">
             <div className="w-full max-w-2xl animate-pulse">
@@ -55,6 +58,10 @@ export default function ConfiguracoesPage() {
                 </div>
                  <div className="space-y-8">
                     <div className="bg-card p-6 rounded-lg space-y-6 border">
+                         <div className="h-7 w-32 bg-muted rounded-md" />
+                         <div className="space-y-3"><div className="h-5 w-16 bg-muted rounded-md" /><div className="h-20 w-full bg-muted rounded-md" /></div>
+                    </div>
+                     <div className="bg-card p-6 rounded-lg space-y-6 border">
                          <div className="h-7 w-32 bg-muted rounded-md" />
                          <div className="space-y-3"><div className="h-5 w-16 bg-muted rounded-md" /><div className="h-20 w-full bg-muted rounded-md" /></div>
                     </div>
@@ -82,14 +89,32 @@ export default function ConfiguracoesPage() {
             CONFIGURAÇÕES
           </h1>
           <p className="text-muted-foreground mt-1 text-base">
-            Gerencie suas preferências.
+            Gerencie suas preferências e perfil.
           </p>
         </div>
 
         <div className="space-y-8">
+            <Card>
+                <CardHeader>
+                  <CardTitle className="text-2xl flex items-center gap-2">
+                    <User /> Perfil do Usuário
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-4 text-lg">
+                    <div className="flex flex-col">
+                        <span className="font-semibold text-muted-foreground">Nome</span>
+                        <span>{user?.name}</span>
+                    </div>
+                     <div className="flex flex-col">
+                        <span className="font-semibold text-muted-foreground">Email</span>
+                        <span>{user?.email}</span>
+                    </div>
+                </CardContent>
+            </Card>
+
           <Card>
             <CardHeader>
-              <CardTitle className="text-2xl">Preferências</CardTitle>
+              <CardTitle className="text-2xl">Preferências de Tema</CardTitle>
             </CardHeader>
             <CardContent className="space-y-6">
               <div className="space-y-3">
