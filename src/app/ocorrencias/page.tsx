@@ -41,8 +41,9 @@ export default function OcorrenciasPage() {
   const { user, isUserLoading } = useUser();
   const firestore = useFirestore();
 
+  // Step 1: Memoize the query creation. It will only run when user or firestore instances are resolved.
+  // If user or firestore is not available, it returns null.
   const reportsQuery = useMemoFirebase(() => {
-    // Only construct the query if we have a user and firestore instance.
     if (!user || !firestore) {
       return null;
     }
@@ -54,12 +55,15 @@ export default function OcorrenciasPage() {
     );
   }, [user, firestore]);
 
+  // Step 2: The useCollection hook will now receive a query only when it's ready.
+  // If reportsQuery is null, the hook will wait and not execute a fetch.
   const { data: reports, isLoading: isLoadingReports, error } = useCollection<Report>(reportsQuery);
 
-  // The overall loading state depends on both user authentication and data fetching.
-  const isLoading = isUserLoading || (!!user && isLoadingReports);
+  // Step 3: The overall loading state depends on both user authentication and data fetching.
+  const isLoading = isUserLoading || (!reports && !error && !!user);
   
   const renderContent = () => {
+    // Primary loading state: Waiting for user auth or initial data fetch.
     if (isLoading) {
       return (
         <div className="flex flex-col items-center justify-center text-center py-20">
@@ -69,6 +73,7 @@ export default function OcorrenciasPage() {
       );
     }
   
+    // Error state: Something went wrong during the data fetch.
     if (error) {
       return (
         <Card className="bg-destructive/10 border-destructive/50 text-destructive-foreground">
@@ -85,6 +90,7 @@ export default function OcorrenciasPage() {
       );
     }
   
+    // Empty state: User is authenticated, data fetch is complete, but no reports found.
     if (reports && reports.length === 0) {
       return (
          <div className="text-center py-20">
@@ -98,6 +104,7 @@ export default function OcorrenciasPage() {
       );
     }
   
+    // Success state: Display the reports.
     return (
        <div className="space-y-4">
         {reports?.map((report) => (
