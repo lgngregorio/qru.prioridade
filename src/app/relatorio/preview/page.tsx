@@ -82,7 +82,7 @@ export default function PreviewPage() {
       };
     
       const generateWhatsappMessage = (data: any): string => {
-        let message = '';
+        let message = `*${getCategoryTitle(reportData.category).toUpperCase()}*\n`;
         const sectionTitles: { [key: string]: string } = {
           generalInfo: 'INFORMAÇÕES GERAIS',
           vehicles: 'VEÍCULOS',
@@ -133,12 +133,56 @@ export default function PreviewPage() {
 
     const handleShare = () => {
         if (!reportData) return;
-        const title = `*${getCategoryTitle(reportData.category).toUpperCase()}*`;
-        const reportDetails = generateWhatsappMessage(reportData.formData);
-        const message = `${title}\n${reportDetails}`;
+        const message = generateWhatsappMessage(reportData.formData);
         const whatsappUrl = `https://wa.me/?text=${encodeURIComponent(message)}`;
         window.open(whatsappUrl, '_blank');
     };
+    
+     const handleSave = async () => {
+        if (!firestore || !user || !reportData) {
+            toast({
+                variant: 'destructive',
+                title: 'Erro',
+                description: 'Não foi possível salvar. Verifique sua conexão e autenticação.',
+            });
+            return;
+        }
+
+        setIsSaving(true);
+        const reportToSave = {
+            ...reportData,
+            uid: user.uid,
+            createdAt: serverTimestamp(),
+        };
+
+        const collectionRef = collection(firestore, 'reports');
+        addDoc(collectionRef, reportToSave)
+            .then(() => {
+                toast({
+                    title: 'Sucesso!',
+                    description: 'Relatório salvo e enviado para o histórico.',
+                });
+                localStorage.removeItem('reportPreview');
+                router.push('/');
+            })
+            .catch(async (serverError) => {
+                const permissionError = new FirestorePermissionError({
+                    path: collectionRef.path,
+                    operation: 'create',
+                    requestResourceData: reportToSave,
+                });
+                errorEmitter.emit('permission-error', permissionError);
+                 toast({
+                    variant: "destructive",
+                    title: "Erro de Permissão",
+                    description: "Você não tem permissão para salvar este relatório.",
+                });
+            })
+            .finally(() => {
+                setIsSaving(false);
+            });
+    };
+
 
     if (!reportData) {
         return (
@@ -167,6 +211,10 @@ export default function PreviewPage() {
                             Editar
                         </Button>
                         <div className="flex gap-4">
+                             <Button onClick={handleSave} disabled={isSaving}>
+                                {isSaving ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Save className="mr-2 h-4 w-4" />}
+                                {isSaving ? 'Salvando...' : 'Salvar e Ir para Início'}
+                            </Button>
                             <Button variant="secondary" className="bg-green-500 hover:bg-green-600 text-white" onClick={handleShare} disabled={isSaving}>
                                 <Share2 className="mr-2 h-4 w-4" />
                                 Compartilhar no WhatsApp

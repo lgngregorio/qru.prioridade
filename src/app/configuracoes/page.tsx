@@ -39,7 +39,7 @@ export default function ConfiguracoesPage() {
   useEffect(() => {
     async function loadUserProfile() {
       if (user && firestore) {
-        const userDocRef = doc(firestore, 'users', user.email!); // Using email as ID
+        const userDocRef = doc(firestore, 'users', user.uid);
         try {
           const userDoc = await getDoc(userDocRef);
           if (userDoc.exists()) {
@@ -48,6 +48,7 @@ export default function ConfiguracoesPage() {
             setEmail(profile.email || user.email || '');
             setSelectedTheme(profile.theme || theme || 'light');
           } else {
+            // Pre-fill from auth if no Firestore doc exists
             setName(user.displayName || '');
             setEmail(user.email || '');
             setSelectedTheme(theme || 'light');
@@ -61,6 +62,9 @@ export default function ConfiguracoesPage() {
         } finally {
           setIsLoaded(true);
         }
+      } else if (!user) {
+          // If there is no user, stop loading and maybe show a message or redirect
+          setIsLoaded(true);
       }
     }
     loadUserProfile();
@@ -79,24 +83,29 @@ export default function ConfiguracoesPage() {
     setIsSaving(true);
     
     // 1. Update Auth Profile first (if necessary)
-    if (user.displayName !== name) {
-      await updateProfile(user, { displayName: name });
-    }
-    if (user.email !== email) {
-      await updateEmail(user, email).catch((authError) => {
-          console.error("Auth email update failed:", authError);
-          toast({
-              variant: "destructive",
-              title: "Erro ao atualizar email",
-              description: "Para sua segurança, esta operação requer uma autenticação recente. Por favor, faça logout e login novamente para alterar o email.",
-          });
-          setIsSaving(false);
-          return; // Stop execution if auth update fails
-      });
+    try {
+        if (user.displayName !== name) {
+            await updateProfile(user, { displayName: name });
+        }
+        if (user.email !== email) {
+            await updateEmail(user, email);
+        }
+    } catch (authError: any) {
+        console.error("Auth profile update failed:", authError);
+        toast({
+            variant: "destructive",
+            title: "Erro ao atualizar perfil",
+            description: authError.code === 'auth/requires-recent-login'
+              ? "Para sua segurança, esta operação requer uma autenticação recente. Por favor, faça logout e login novamente para alterar o email."
+              : "Não foi possível atualizar seu perfil de autenticação.",
+        });
+        setIsSaving(false);
+        return; // Stop execution if auth update fails
     }
 
+
     // 2. Update Firestore Profile
-    const userDocRef = doc(firestore, 'users', email); // Using email as ID
+    const userDocRef = doc(firestore, 'users', user.uid);
     const profileData = {
       name: name,
       email: email,
@@ -121,6 +130,11 @@ export default function ConfiguracoesPage() {
           requestResourceData: profileData,
         });
         errorEmitter.emit('permission-error', permissionError);
+        toast({
+            variant: "destructive",
+            title: "Erro no Banco de Dados",
+            description: "Não foi possível salvar suas configurações no banco de dados.",
+        });
       })
       .finally(() => {
         setIsSaving(false);

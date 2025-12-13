@@ -39,6 +39,7 @@ interface Report {
     category: string;
     createdAt: Timestamp | { seconds: number; nanoseconds: number };
     formData: any;
+    uid: string;
 }
 
 const formatDate = (timestamp: Report['createdAt']) => {
@@ -145,9 +146,10 @@ export default function OcorrenciasPage() {
     const [isDeleting, setIsDeleting] = useState<string | null>(null);
 
     const reportsQuery = useMemoFirebase(() => {
-        if (firestore) {
+        if (firestore && user?.uid) {
             return query(
                 collection(firestore, 'reports'),
+                where('uid', '==', user.uid),
                 orderBy('createdAt', 'desc')
             );
         }
@@ -189,7 +191,7 @@ export default function OcorrenciasPage() {
         }
     };
     
-    const isLoading = isUserLoading || isReportsLoading;
+    const isLoading = isUserLoading || (user && isReportsLoading);
 
     if (isLoading) {
         return (

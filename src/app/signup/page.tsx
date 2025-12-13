@@ -14,6 +14,8 @@ import { useToast } from '@/hooks/use-toast';
 import Link from 'next/link';
 import { Loader2 } from 'lucide-react';
 import { useTheme } from 'next-themes';
+import { errorEmitter } from '@/firebase/error-emitter';
+import { FirestorePermissionError } from '@/firebase/errors';
 
 export default function SignupPage() {
   const auth = useAuth();
@@ -56,13 +58,31 @@ export default function SignupPage() {
           displayName: name
         });
         
-        // Create user profile in Firestore
-        const userDocRef = doc(firestore, 'users', user.email!);
-        await setDoc(userDocRef, {
+        // Create user profile in Firestore using UID as document ID
+        const userDocRef = doc(firestore, 'users', user.uid);
+        const profileData = {
+          uid: user.uid,
           name: name,
           email: user.email,
           theme: 'light', // Default theme
           role: 'user', // Default role for new users
+        };
+
+        // Use a non-blocking write and handle permissions errors
+        setDoc(userDocRef, profileData)
+          .catch(async (serverError) => {
+            const permissionError = new FirestorePermissionError({
+              path: userDocRef.path,
+              operation: 'create',
+              requestResourceData: profileData,
+            });
+            errorEmitter.emit('permission-error', permissionError);
+            // Also show a toast to the user
+            toast({
+                variant: 'destructive',
+                title: 'Erro de Permissão',
+                description: 'Não foi possível salvar o perfil de usuário.'
+            });
         });
 
         // Set theme in the app
