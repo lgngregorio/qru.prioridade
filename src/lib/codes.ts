@@ -212,7 +212,7 @@ const mapRelacionamentos: { [key: string]: { acoes: string[], panes?: string[] }
     'TO05': { acoes: ['PR01', 'PR02', 'PR13', 'PR22', 'PR27', 'PR37', 'PR51'], panes: getPanes(['TP01', 'TP02', 'TP03']).map(p => p.code) },
     'TO06': { acoes: ['PR01', 'PR13', 'PR17', 'PR24', 'PR25', 'PR27', 'PR45', 'PR51', 'PR54', 'PR55'], panes: tiposPaneCodes.map(p => p.code) },
     'TO07': { acoes: ['PR06', 'PR13', 'PR51'], panes: [] },
-    'TO09': { acoes: ['PR08', 'PR13', 'PR37', 'PR48', 'PR51'], panes: [] },
+    'TO09': { acoes: ['PR08', 'PR10', 'PR13', 'PR37', 'PR48', 'PR51'], panes: [] },
     'TO11': { acoes: ['PR13', 'PR29', 'PR51'], panes: [] },
     'TO12': { acoes: ['PR11', 'PR17', 'PR50', 'PR57', 'PR58', 'PR59', 'PR61', 'PR51'], panes: [] },
     'TO13': { acoes: ['PR12', 'PR13', 'PR37', 'PR51'], panes: [] },
@@ -248,3 +248,6 @@ export const relacionamentosOcorrencias: RelacionamentoOcorrencia[] = ocorrencia
         panes: rel?.panes ? getPanes(rel.panes) : [],
     };
 });
+
+
+    
