@@ -45,7 +45,7 @@ export default function AppSidebar() {
     <>
       <SidebarHeader className="p-4 flex justify-between items-center">
         <div className="flex items-center justify-center space-x-2">
-           <h1 className="text-2xl font-bold text-sidebar-foreground flex items-center justify-center gap-1">
+           <h1 className="text-2xl font-bold text-sidebar-foreground flex items-center justify-center gap-px">
             QRU
             <div className="flex h-6 items-center gap-px">
               <div className="w-[1.5px] h-full bg-sidebar-foreground"></div>
@@ -108,7 +108,7 @@ export default function AppSidebar() {
         </SidebarMenu>
       </SidebarContent>
       <SidebarFooter>
-        <SidebarMenu className="gap-y-10">
+        <SidebarMenu className="gap-y-4">
            <SidebarMenuItem>
              <SidebarMenuButton asChild isActive={pathname === '/politicas-sgi'} className="text-lg [&_svg]:size-6" onClick={handleLinkClick}>
                <Link href="/politicas-sgi">
