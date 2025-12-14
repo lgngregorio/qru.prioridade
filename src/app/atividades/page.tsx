@@ -86,33 +86,32 @@ export default function AtividadesPage() {
 
   return (
     <main className="flex flex-col p-4 md:p-6">
-      <div className="w-full mb-6 pt-4 flex items-center">
+      <div className="w-full mb-6 pt-4 flex items-center justify-between">
         <Button asChild variant="outline" className="rounded-full">
           <Link href="/">
             <ArrowLeft className="mr-2 h-4 w-4" />
             Voltar para o início
           </Link>
         </Button>
-      </div>
-
-      <div className="w-full text-center mb-8 relative">
-        <h1 className="text-3xl font-bold text-foreground font-headline tracking-wide uppercase">
-          Histórico de Atividades
-        </h1>
-        <p className="text-muted-foreground mt-1 text-base">
-          Veja e gerencie suas ações recentes no aplicativo.
-        </p>
-         {activities.length > 0 && (
+        {activities.length > 0 && (
             <Button
                 variant="destructive"
                 onClick={() => setShowClearAllConfirm(true)}
-                className="absolute top-1/2 right-0 -translate-y-1/2"
                 size="sm"
             >
                 <Trash2 className="mr-2 h-4 w-4" />
                 Limpar Histórico
             </Button>
         )}
+      </div>
+
+      <div className="w-full text-center mb-8">
+        <h1 className="text-3xl font-bold text-foreground font-headline tracking-wide uppercase">
+          Histórico de Atividades
+        </h1>
+        <p className="text-muted-foreground mt-1 text-base">
+          Veja e gerencie suas ações recentes no aplicativo.
+        </p>
       </div>
 
       {(isLoading || isUserLoading) && (
