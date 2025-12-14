@@ -166,7 +166,7 @@ export const eventCategories: EventCategory[] = [
   },
   {
     name: 'TO 19',
-    title: 'TO 19',
+    title: 'INCIDENTE',
     slug: 'to-19',
     icon: Siren,
     description: 'Relatar TO 19.',
