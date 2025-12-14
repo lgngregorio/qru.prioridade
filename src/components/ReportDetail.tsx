@@ -10,7 +10,7 @@ interface Report {
 }
 
 const formatDate = (dateSource: string | Date | Timestamp) => {
-    if (!dateSource) return 'Carregando...';
+    if (!dateSource || dateSource === 'NILL') return 'N/A';
     try {
         const date = (dateSource instanceof Timestamp) ? dateSource.toDate() : new Date(dateSource);
         if (isNaN(date.getTime())) { // Check if date is invalid
@@ -28,7 +28,7 @@ const formatDate = (dateSource: string | Date | Timestamp) => {
 
 
 const renderValue = (key: string, value: any): React.ReactNode => {
-    if (value === null || value === undefined || value === 'NILL' || value === '') return 'N/A';
+    if (value === null || value === undefined || value === 'NILL' || value === '') return null;
     if (typeof value === 'boolean') return value ? 'Sim' : 'Não';
     
     // Handle time-only fields separately
@@ -50,11 +50,15 @@ const renderValue = (key: string, value: any): React.ReactNode => {
     if (typeof value === 'object') {
         return (
             <ul className="list-disc pl-5 space-y-1">
-                {Object.entries(value).map(([subKey, val]) => (
-                    <li key={subKey}>
-                        <span className="font-semibold capitalize">{subKey.replace(/_/g, ' ')}:</span> {renderValue(subKey, val)}
-                    </li>
-                ))}
+                {Object.entries(value).map(([subKey, val]) => {
+                     const renderedVal = renderValue(subKey, val);
+                     if (renderedVal === null) return null;
+                     return (
+                        <li key={subKey}>
+                            <span className="font-semibold capitalize">{formatKey(subKey)}:</span> {renderedVal}
+                        </li>
+                     )
+                })}
             </ul>
         );
     }
@@ -85,12 +89,16 @@ export default function ReportDetail({ formData }: { formData: any }) {
             <div className="mb-4">
                 <h4 className="text-lg font-semibold mb-2 text-primary">{title}</h4>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-2 text-lg">
-                    {filteredData.map(([key, value]) => (
-                         <div key={key} className="flex flex-col">
-                            <span className="font-bold text-muted-foreground">{formatKey(key)}</span>
-                            <span>{renderValue(key, value)}</span>
-                        </div>
-                    ))}
+                    {filteredData.map(([key, value]) => {
+                         const renderedVal = renderValue(key, value);
+                         if (renderedVal === null) return null;
+                         return (
+                             <div key={key} className="flex flex-col">
+                                <span className="font-bold text-muted-foreground">{formatKey(key)}</span>
+                                <span>{renderedVal}</span>
+                            </div>
+                         )
+                    })}
                 </div>
             </div>
         );
@@ -100,23 +108,28 @@ export default function ReportDetail({ formData }: { formData: any }) {
         if (!vehicles || vehicles.length === 0) return null;
         return (
             <div>
-                 {vehicles.map((vehicle, index) => (
-                    <div key={index} className="mb-6 mt-4 border-t pt-4">
-                        <h4 className="text-xl font-semibold mb-2 text-primary">Veículo {index + 1}</h4>
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-2 text-lg">
-                             {Object.entries(vehicle).map(([key, value]) => {
-                                if (key === 'id') return null;
-                                if (value === 'NILL' || value === '' || (Array.isArray(value) && value.length === 0)) return null;
-                                return (
-                                    <div key={key} className="flex flex-col">
-                                        <span className="font-bold text-muted-foreground">{formatKey(key)}</span>
-                                        <span>{renderValue(key, value)}</span>
-                                    </div>
-                                );
-                            })}
+                 {vehicles.map((vehicle, index) => {
+                    const filteredVehicleData = Object.entries(vehicle).filter(([key, value]) => key !== 'id' && value !== 'NILL' && value !== '' && (!Array.isArray(value) || value.length > 0));
+                    if(filteredVehicleData.length === 0) return null;
+
+                    return (
+                        <div key={index} className="mb-6 mt-4 border-t pt-4">
+                            <h4 className="text-xl font-semibold mb-2 text-primary">Veículo {index + 1}</h4>
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-2 text-lg">
+                                {filteredVehicleData.map(([key, value]) => {
+                                    const renderedVal = renderValue(key, value);
+                                    if(renderedVal === null) return null;
+                                    return (
+                                        <div key={key} className="flex flex-col">
+                                            <span className="font-bold text-muted-foreground">{formatKey(key)}</span>
+                                            <span>{renderedVal}</span>
+                                        </div>
+                                    );
+                                })}
+                            </div>
                         </div>
-                    </div>
-                 ))}
+                    )
+                 })}
             </div>
         )
     };

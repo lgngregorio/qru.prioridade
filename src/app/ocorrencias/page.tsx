@@ -77,15 +77,20 @@ const formatWhatsappValue = (value: any, key: string): string => {
   if (value === null || value === undefined || value === 'NILL' || value === '') return '';
   if (typeof value === 'boolean') return value ? 'SIM' : 'NÃO';
 
-  const dateKeys = ['data', 'dn', 'createdAt', 'qtrInicio', 'qtrTermino', 'updatedAt'];
+  const dateKeys = ['data', 'dn', 'createdAt', 'updatedAt'];
+  const timeKeys = ['qtrInicio', 'qtrTermino'];
+
+
+  if (timeKeys.includes(key) && typeof value === 'string') {
+     if (value.match(/^\d{2}:\d{2}$/)) {
+        return value;
+     }
+  }
 
   if (dateKeys.includes(key)) {
      if (value instanceof Timestamp) {
       return formatDate(value);
     }
-     if (typeof value === 'string' && value.match(/^\d{2}:\d{2}$/)) {
-        return value;
-     }
     return formatDate(new Timestamp(value.seconds, value.nanoseconds));
   }
   
@@ -121,6 +126,10 @@ const generateWhatsappMessage = (data: any, category: string): string => {
       const sectionTitle = sectionTitles[sectionKey];
 
       if (sectionData && Object.keys(sectionData).length > 0) {
+        
+        const sectionEntries = Object.entries(sectionData).filter(([_, value]) => value !== 'NILL' && value !== '');
+        if (sectionEntries.length === 0) continue;
+
         message += `\n*${sectionTitle}*\n`;
 
         if (sectionKey === 'vehicles' && Array.isArray(sectionData)) {
@@ -229,7 +238,7 @@ function ReportCard({ report, onDelete }: { report: Report; onDelete: () => void
         <CardHeader className="cursor-pointer" onClick={() => setIsExpanded(!isExpanded)}>
           <CardTitle className="truncate pr-10">{title}</CardTitle>
           <CardDescription className="text-base font-bold text-muted-foreground">
-            {formatDate(displayDate)} {report.updatedAt ? '(Editado)' : ''}
+            {formatDate(displayDate)} {report.updatedAt && report.createdAt.seconds !== report.updatedAt.seconds ? '(Editado)' : ''}
           </CardDescription>
         </CardHeader>
         

@@ -109,7 +109,7 @@ export default function PreviewPage() {
   };
     
     const formatDate = (dateSource: any): string => {
-        if (!dateSource) return 'N/A';
+        if (!dateSource || dateSource === 'NILL') return '';
         
         let date;
         if (dateSource instanceof Timestamp) {
@@ -184,6 +184,9 @@ export default function PreviewPage() {
             const sectionTitle = sectionTitles[sectionKey];
       
             if (sectionData && Object.keys(sectionData).length > 0) {
+              
+              const sectionEntries = Object.entries(sectionData).filter(([_, value]) => value !== 'NILL' && value !== '');
+              if (sectionEntries.length === 0) continue;
               
               message += `\n*${sectionTitle}*\n`;
       

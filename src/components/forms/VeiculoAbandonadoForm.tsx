@@ -67,7 +67,6 @@ const paneTypes = [
     { id: 'tp04', label: 'TP04' },
     { id: 'tp05', label: 'TP05' },
     { id: 'tp07', label: 'TP07' },
-    { id: 'nill', label: 'NILL' },
 ]
 
 export default function VeiculoAbandonadoForm({ categorySlug }: { categorySlug: string }) {
@@ -260,6 +259,14 @@ export default function VeiculoAbandonadoForm({ categorySlug }: { categorySlug: 
                             <Label htmlFor={`pane-${pane.id}`} className="font-normal text-xl">{pane.label}</Label>
                         </div>
                     ))}
+                    <div className="flex items-center space-x-2">
+                        <Checkbox 
+                            id="pane-nill"
+                            checked={generalInfo.tipoPane.includes('nill')}
+                            onCheckedChange={(checked) => handlePaneTypeChange('nill', !!checked)}
+                        />
+                        <Label htmlFor="pane-nill" className="font-normal text-xl">NILL</Label>
+                    </div>
                  </div>
             </Field>
             <Field label="QTH (LOCAL)">
