@@ -3,7 +3,7 @@
 
 import { useRouter } from 'next/navigation';
 import { Save, PlusCircle, Trash2 } from 'lucide-react';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import React from 'react';
 
 import { cn } from '@/lib/utils';
@@ -60,6 +60,8 @@ export default function TO04Form({ categorySlug }: { categorySlug: string }) {
   const router = useRouter();
   const { toast } = useToast();
   const [showVtrApoio, setShowVtrApoio] = useState(false);
+  const [existingReport, setExistingReport] = useState<any>(null);
+
 
   const [generalInfo, setGeneralInfo] = useState<GeneralInfo>({
     rodovia: '',
@@ -82,6 +84,24 @@ export default function TO04Form({ categorySlug }: { categorySlug: string }) {
     observacoes: '',
     numeroOcorrencia: '',
   });
+
+  useEffect(() => {
+    const savedData = localStorage.getItem('reportPreview');
+    if (savedData) {
+        const parsedData = JSON.parse(savedData);
+        if (parsedData.category === categorySlug) {
+            setExistingReport(parsedData);
+            const { formData } = parsedData;
+            if (formData) {
+                setGeneralInfo(formData.generalInfo || generalInfo);
+                setVehicles(formData.vehicles && formData.vehicles.length > 0 ? formData.vehicles : vehicles);
+                setOtherInfo(formData.otherInfo || otherInfo);
+                setShowVtrApoio(!!formData.otherInfo?.vtrApoio && formData.otherInfo.vtrApoio !== 'NILL');
+            }
+        }
+    }
+  }, [categorySlug]);
+
 
   const handleGeneralInfoChange = (field: keyof GeneralInfo, value: string) => {
     setGeneralInfo(prev => ({ ...prev, [field]: value }));
@@ -111,6 +131,7 @@ export default function TO04Form({ categorySlug }: { categorySlug: string }) {
   
   const fillEmptyFields = (data: any): any => {
     if (Array.isArray(data)) {
+      if (data.length === 0) return 'NILL';
       return data.map(item => fillEmptyFields(item));
     }
     if (typeof data === 'object' && data !== null) {
@@ -128,26 +149,6 @@ export default function TO04Form({ categorySlug }: { categorySlug: string }) {
     return data;
   };
 
-  const validateObject = (obj: any): boolean => {
-    for (const key in obj) {
-        if (Object.prototype.hasOwnProperty.call(obj, key)) {
-            const value = obj[key];
-
-            if (key === 'vtrApoio' && !showVtrApoio) continue;
-            if (key === 'id') continue;
-
-            if (typeof value === 'object' && value !== null && !Array.isArray(value)) {
-                if (!validateObject(value)) return false;
-            } else if (Array.isArray(value)) {
-                 if (value.some(item => typeof item === 'object' && !validateObject(item))) return false;
-            } else if (value === '' || value === null || value === undefined) {
-                return false;
-            }
-        }
-    }
-    return true;
-};
-
   const prepareReportData = () => {
     const reportData = {
       generalInfo,
@@ -155,30 +156,17 @@ export default function TO04Form({ categorySlug }: { categorySlug: string }) {
       otherInfo
     };
 
-    if (!validateObject(reportData)) {
-      toast({
-          variant: "destructive",
-          title: "Campos obrigatórios",
-          description: "Por favor, preencha todos os campos antes de continuar.",
-      });
-      return null;
-    }
-
     const filledData = {
-      generalInfo: fillEmptyFields(generalInfo),
-      vehicles: fillEmptyFields(vehicles),
-      otherInfo: fillEmptyFields(otherInfo),
+      ...existingReport,
+      category: categorySlug,
+      formData: fillEmptyFields(reportData)
     };
     
     if (!showVtrApoio) {
-      filledData.otherInfo.vtrApoio = 'NILL';
+      filledData.formData.otherInfo.vtrApoio = 'NILL';
     }
 
-
-    return {
-      category: categorySlug,
-      formData: filledData,
-    };
+    return filledData;
   };
 
   const handleGenerateReport = () => {
