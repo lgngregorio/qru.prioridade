@@ -30,7 +30,7 @@ import { useUser } from '@/app/layout';
 import { useRouter } from 'next/navigation';
 import { useToast } from '@/hooks/use-toast';
 import { useFirestore, useCollection, useMemoFirebase } from '@/firebase';
-import { collection, query, where, Timestamp, doc, deleteDoc } from 'firebase/firestore';
+import { collection, query, where, Timestamp, doc, deleteDoc, orderBy } from 'firebase/firestore';
 
 interface Report {
   id: string;
@@ -292,28 +292,18 @@ export default function OcorrenciasPage() {
     if (!user || !firestore) return null;
     return query(
       collection(firestore, 'reports'),
-      where('uid', '==', user.uid)
+      where('uid', '==', user.uid),
+      orderBy('updatedAt', 'desc')
     );
   }, [user, firestore]);
 
   const { data: reportsData, isLoading: areReportsLoading, error } = useCollection<Report>(reportsQuery);
   
-  const sortedReports = useMemo(() => {
-    if (!reportsData) return [];
-    return [...reportsData].sort((a, b) => {
-      const dateA = a.updatedAt || a.createdAt;
-      const dateB = b.updatedAt || b.createdAt;
-      if (!dateA || !dateB) return 0;
-      return dateB.toMillis() - dateA.toMillis();
-    });
-  }, [reportsData]);
-
   const handleDeleteReport = async (reportId: string) => {
     if (!firestore) return;
     try {
       const reportRef = doc(firestore, 'reports', reportId);
       await deleteDoc(reportRef);
-      // useCollection will update the UI automatically
       toast({
         title: 'Relatório apagado!',
         description: 'Seu relatório foi removido com sucesso.',
@@ -360,7 +350,7 @@ export default function OcorrenciasPage() {
       )}
 
 
-      {!isLoading && !error && (!sortedReports || sortedReports.length === 0) && (
+      {!isLoading && !error && (!reportsData || reportsData.length === 0) && (
         <div className="text-center py-10 border-2 border-dashed rounded-lg">
           <p className="text-muted-foreground text-lg">Nenhum relatório encontrado.</p>
           <p className="text-muted-foreground">
@@ -369,9 +359,9 @@ export default function OcorrenciasPage() {
         </div>
       )}
 
-      {!isLoading && !error && sortedReports && sortedReports.length > 0 && (
+      {!isLoading && !error && reportsData && reportsData.length > 0 && (
         <div className="space-y-6">
-          {sortedReports.map((report) => (
+          {reportsData.map((report) => (
             <ReportCard key={report.id} report={report} onDelete={() => handleDeleteReport(report.id)} />
           ))}
         </div>
