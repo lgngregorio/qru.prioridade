@@ -250,7 +250,15 @@ export default function TO05Form({ categorySlug }: { categorySlug: string }) {
                 </Select>
             </Field>
             <Field label="OCORRÊNCIA">
-                <Input className="text-xl uppercase" value={generalInfo.ocorrencia} disabled />
+                <Select value={generalInfo.ocorrencia} onValueChange={(value) => handleGeneralInfoChange('ocorrencia', value)}>
+                    <SelectTrigger className="text-xl normal-case placeholder:text-base">
+                        <SelectValue placeholder="Selecione a ocorrência" />
+                    </SelectTrigger>
+                    <SelectContent>
+                        <SelectItem value="TO-05">TO-05</SelectItem>
+                        <SelectItem value="TO-05-com-TO-06">TO-05 com TO-06</SelectItem>
+                    </SelectContent>
+                </Select>
             </Field>
             <Field label="TIPO DE PANE">
                  <div className="flex flex-col space-y-2">
@@ -289,6 +297,7 @@ export default function TO05Form({ categorySlug }: { categorySlug: string }) {
                         <SelectItem value="acostamento">ACOSTAMENTO</SelectItem>
                         <SelectItem value="area_dominio">ÁREA DE DOMÍNIO</SelectItem>
                         <SelectItem value="terceira_faixa">TERCEIRA FAIXA</SelectItem>
+                        <SelectItem value="faixa_rolamento">FAIXA DE ROLAMENTO</SelectItem>
                         <SelectItem value="faixa_rolamento_acostamento">FAIXA DE ROLAMENTO/ACOSTAMENTO</SelectItem>
                     </SelectContent>
                 </Select>
@@ -449,3 +458,5 @@ export default function TO05Form({ categorySlug }: { categorySlug: string }) {
     </div>
   );
 }
+
+    
