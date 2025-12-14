@@ -60,13 +60,7 @@ export default function PreviewPage() {
     }
 
     try {
-      const reportData = {
-        ...report.formData,
-        category: report.category,
-        uid: user.uid,
-        updatedAt: serverTimestamp(),
-      };
-
+      
       if (report.id) {
         const reportRef = doc(firestore, 'reports', report.id);
         await updateDoc(reportRef, {
@@ -80,8 +74,10 @@ export default function PreviewPage() {
         });
       } else {
         await addDoc(collection(firestore, 'reports'), {
-          ...reportData,
+          ...report,
+          uid: user.uid,
           createdAt: serverTimestamp(),
+          updatedAt: serverTimestamp(),
         });
         toast({
             title: 'Sucesso!',

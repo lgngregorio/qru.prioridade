@@ -170,10 +170,9 @@ function ReportCard({ report, onDelete }: { report: Report; onDelete: () => void
 
   const handleEdit = (e: React.MouseEvent) => {
     e.stopPropagation();
-    // Convert Timestamps to ISO strings for JSON serialization
     const serializableReport = {
       ...report,
-      createdAt: report.createdAt.toDate().toISOString(),
+      createdAt: report.createdAt?.toDate().toISOString(),
       updatedAt: report.updatedAt ? report.updatedAt.toDate().toISOString() : undefined,
     };
     localStorage.setItem('reportPreview', JSON.stringify(serializableReport));
@@ -278,6 +277,7 @@ function ReportCard({ report, onDelete }: { report: Report; onDelete: () => void
 export default function OcorrenciasPage() {
   const { user, isLoading: isUserLoading } = useUser();
   const firestore = useFirestore();
+  const { toast } = useToast();
   
   const [reports, setReports] = useState<Report[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -291,7 +291,6 @@ export default function OcorrenciasPage() {
     setIsLoading(true);
     try {
       const reportsRef = collection(firestore, 'reports');
-      // Query by user and order by the last update time.
       const q = query(reportsRef, where('uid', '==', user.uid), orderBy('updatedAt', 'desc'));
       
       const querySnapshot = await getDocs(q);
@@ -309,7 +308,7 @@ export default function OcorrenciasPage() {
     } finally {
       setIsLoading(false);
     }
-  }, [user, firestore, isUserLoading]);
+  }, [user, firestore, isUserLoading, toast]);
 
   useEffect(() => {
     fetchReports();
@@ -320,7 +319,6 @@ export default function OcorrenciasPage() {
     try {
       const reportRef = doc(firestore, 'reports', reportId);
       await deleteDoc(reportRef);
-      // Refetch reports after deletion to update the UI
       fetchReports();
     } catch(error) {
        console.error("Error deleting report: ", error);
