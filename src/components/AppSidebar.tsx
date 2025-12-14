@@ -46,9 +46,9 @@ export default function AppSidebar() {
     <>
       <SidebarHeader className="p-4 pt-6 flex justify-between items-center">
         <div className="flex items-center justify-center space-x-2">
-           <h1 className="text-3xl font-bold text-sidebar-foreground flex items-center justify-center gap-px">
+           <h1 className="text-3xl font-bold text-sidebar-foreground flex items-center justify-center gap-2">
             QRU
-            <div className="flex h-6 items-center gap-px">
+            <div className="flex h-6 items-center gap-2">
               <div className="w-[1.5px] h-full bg-sidebar-foreground"></div>
               <div
                 className="w-[1.5px] h-full animate-move-dashes"

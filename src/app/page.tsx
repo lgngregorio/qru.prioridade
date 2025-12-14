@@ -100,7 +100,7 @@ export default function Home() {
           <div className="flex items-center gap-4 justify-center relative">
             <h1 className="text-4xl font-bold text-foreground font-headline tracking-wider flex items-center justify-center gap-4">
               QRU
-              <div className="flex h-10 items-center gap-px">
+              <div className="flex h-10 items-center gap-2">
                 <div className="w-[2px] h-full bg-foreground"></div>
                 <div
                   className="w-[2px] h-full animate-move-dashes"
