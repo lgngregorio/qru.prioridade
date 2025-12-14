@@ -186,16 +186,12 @@ const RelacionamentoOcorrencias = () => (
 
 const codeSections = [
     {
-        title: 'Códigos de Mensagem',
-        content: <MessageCodesTable />
+        title: 'Tipos de Ocorrência',
+        content: <OcorrenciaCodesTable />
     },
     {
         title: 'Tipos de Ação/Providência',
         content: <AcaoProvidenciaTable />
-    },
-    {
-        title: 'Tipos de Ocorrência',
-        content: <OcorrenciaCodesTable />
     },
     {
         title: 'Tipos de Pane',
@@ -204,6 +200,10 @@ const codeSections = [
     {
         title: 'Outras Mensagens',
         content: <OutrasMensagensTable />
+    },
+    {
+        title: 'Códigos de Mensagem',
+        content: <MessageCodesTable />
     },
     {
         title: 'Código Q (Alfabeto Fonético)',
