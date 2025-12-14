@@ -117,10 +117,9 @@ export default function AtividadesPage() {
             <Button
                 variant="destructive"
                 size="icon"
-                className="h-8 w-8"
                 onClick={() => setShowClearAllConfirm(true)}
             >
-                <Trash2 className="h-4 w-4" />
+                <Trash2 className="h-5 w-5" />
                 <span className="sr-only">Limpar Histórico</span>
             </Button>
         </div>
