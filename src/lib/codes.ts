@@ -107,7 +107,7 @@ export const ocorrenciaCodes: OcorrenciaCode[] = [
     { code: 'TO12', message: 'Atendimento Clinico', group: 'Incidentes' },
     { code: 'TO13', message: 'Congestionamento', group: 'Incidentes' },
     { code: 'TO14', message: 'Ocorrência Policial', group: 'Incidentes' },
-    { code: 'TO15', message: 'Verificação Faixa De Domínio', group: 'Incidentes' },
+    { code: 'TO15', message: 'Verificação Faixa De Domínio', group: 'Avarias, Panes' },
     { code: 'TO16', message: 'Atendimento A Funcionário', group: 'Todos' },
     { code: 'TO17', message: 'Andarilho Na Rodovia', group: 'Incidentes' },
     { code: 'TO18', message: 'Alagamento', group: 'Incidentes' },
@@ -198,77 +198,16 @@ export type RelacionamentoOcorrencia = {
     panes?: TiposPaneCode[];
 };
 
-const findAcoes = (codes: string[]) => acaoProvidenciaCodes.filter(a => codes.includes(a.code));
-
 export const relacionamentosOcorrencias: RelacionamentoOcorrencia[] = ocorrenciaCodes.map(ocorrencia => {
     let rel: RelacionamentoOcorrencia = {
         ocorrencia,
-        acoes: [],
+        acoes: acaoProvidenciaCodes, 
         panes: [],
     };
-
-    switch (ocorrencia.code) {
-        case 'AC02':
-            rel.acoes = findAcoes(['PR01', 'PR11', 'PR13', 'PR31', 'PR58']);
-            break;
-        case 'ACO3':
-            rel.acoes = findAcoes(['PR01', 'PR13', 'PR27']);
-            break;
-        case 'TO06':
-            rel.acoes = findAcoes(['PR25', 'PR27']);
-            rel.panes = tiposPaneCodes;
-            break;
-        case 'TO03':
-            rel.acoes = findAcoes(['PRO3', 'PRO4', 'PR05', 'PR56']);
-            break;
-        case 'TO01':
-             rel.acoes = findAcoes(['PR13', 'PR27']);
-             break;
-        case 'TO02':
-            rel.acoes = findAcoes(['PRO2', 'PR13']);
-            break;
-        case 'TO04':
-            rel.acoes = findAcoes(['PR27']);
-            break;
-        case 'TO05':
-            rel.acoes = findAcoes(['PRO2', 'PR13']);
-            rel.panes = tiposPaneCodes;
-            break;
-        case 'TO07':
-            rel.acoes = findAcoes(['PR06', 'PR13']);
-            break;
-        case 'TO11':
-            rel.acoes = findAcoes(['PR13']);
-            break;
-        case 'TO12':
-            rel.acoes = findAcoes(['PR57', 'PR58', 'PR59', 'PR11', 'PR50']);
-            break;
-        case 'TO17':
-            rel.acoes = findAcoes(['PR15', 'PR16']);
-            break;
-         case 'TO33':
-            rel.acoes = findAcoes(['PR63', 'PR27']);
-            rel.panes = tiposPaneCodes;
-            break;
-        case 'TO34':
-            rel.acoes = findAcoes(['PR14', 'PR13']);
-            break;
-        case 'TO35':
-            rel.acoes = findAcoes(['PR23', 'PR13']);
-            break;
-        case 'TO37':
-            rel.acoes = findAcoes(['PR29']);
-            break;
-        case 'TO38':
-            rel.acoes = findAcoes(['PR34']);
-            break;
-        case 'TO39':
-            rel.acoes = findAcoes(['PR32', 'PR13']);
-            break;
-        default:
-            rel.acoes = [];
-            rel.panes = [];
-            break;
+    
+    if(ocorrencia.group === 'Incidentes' || ocorrencia.group === 'Acidentes' || ocorrencia.group === 'Avarias, Panes') {
+         rel.panes = tiposPaneCodes;
     }
+
     return rel;
-}).filter(r => r.acoes.length > 0 || (r.panes && r.panes.length > 0));
+});
