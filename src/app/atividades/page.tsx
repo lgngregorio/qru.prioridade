@@ -46,10 +46,10 @@ export default function AtividadesPage() {
   const [showClearAllConfirm, setShowClearAllConfirm] = useState(false);
 
   useEffect(() => {
-    if (!isUserLoading && user) {
-      setActivities(getActivityLog(user.email));
-      setIsLoading(false);
-    } else if (!isUserLoading && !user) {
+    if (!isUserLoading) {
+      if (user) {
+        setActivities(getActivityLog(user.email));
+      }
       setIsLoading(false);
     }
   }, [user, isUserLoading]);
@@ -116,11 +116,10 @@ export default function AtividadesPage() {
           <div className="w-full flex justify-end mb-8">
             <Button
                 variant="destructive"
-                size="icon"
                 onClick={() => setShowClearAllConfirm(true)}
             >
-                <Trash2 className="h-5 w-5" />
-                <span className="sr-only">Limpar Histórico</span>
+                <Trash2 className="mr-2 h-4 w-4" />
+                Apagar
             </Button>
         </div>
        )}
