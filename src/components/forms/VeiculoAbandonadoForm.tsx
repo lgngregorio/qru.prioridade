@@ -28,7 +28,7 @@ function Field({ label, children, className }: { label?: string, children: React
 type GeneralInfo = {
   rodovia: string;
   ocorrencia: string;
-  tipoPane: string;
+  tipoPane: string[];
   qth: string;
   sentido: string;
   localArea: string;
@@ -60,6 +60,16 @@ type OtherInfo = {
   numeroOcorrencia: string;
 };
 
+const paneTypes = [
+    { id: 'tp01', label: 'TP01' },
+    { id: 'tp02', label: 'TP02' },
+    { id: 'tp03', label: 'TP03' },
+    { id: 'tp04', label: 'TP04' },
+    { id: 'tp05', label: 'TP05' },
+    { id: 'tp07', label: 'TP07' },
+    { id: 'nill', label: 'NILL' },
+]
+
 export default function VeiculoAbandonadoForm({ categorySlug }: { categorySlug: string }) {
   const router = useRouter();
   const { toast } = useToast();
@@ -69,8 +79,8 @@ export default function VeiculoAbandonadoForm({ categorySlug }: { categorySlug: 
 
   const [generalInfo, setGeneralInfo] = useState<GeneralInfo>({
     rodovia: '',
-    ocorrencia: categorySlug.toUpperCase(),
-    tipoPane: '',
+    ocorrencia: 'TO-01',
+    tipoPane: [],
     qth: '',
     sentido: '',
     localArea: '',
@@ -107,8 +117,17 @@ export default function VeiculoAbandonadoForm({ categorySlug }: { categorySlug: 
     }
   }, []);
 
-  const handleGeneralInfoChange = (field: keyof GeneralInfo, value: string) => {
+  const handleGeneralInfoChange = (field: keyof Omit<GeneralInfo, 'tipoPane'>, value: string) => {
     setGeneralInfo(prev => ({ ...prev, [field]: value }));
+  };
+
+  const handlePaneTypeChange = (paneId: string, checked: boolean) => {
+    setGeneralInfo(prev => {
+        const newPaneTypes = checked 
+            ? [...prev.tipoPane, paneId]
+            : prev.tipoPane.filter(id => id !== paneId);
+        return { ...prev, tipoPane: newPaneTypes };
+    });
   };
 
   const handleVehicleChange = (index: number, field: keyof Vehicle, value: string) => {
@@ -150,6 +169,7 @@ export default function VeiculoAbandonadoForm({ categorySlug }: { categorySlug: 
   
   const fillEmptyFields = (data: any): any => {
     if (Array.isArray(data)) {
+      if (data.length === 0) return 'NILL';
       return data.map(item => fillEmptyFields(item));
     }
     if (typeof data === 'object' && data !== null) {
@@ -220,26 +240,24 @@ export default function VeiculoAbandonadoForm({ categorySlug }: { categorySlug: 
                         <SelectValue placeholder="Selecione a ocorrência" />
                     </SelectTrigger>
                     <SelectContent>
-                        <SelectItem value="to-01">TO-01</SelectItem>
-                        <SelectItem value="to-01-com-to-06">TO-01 com TO-06</SelectItem>
+                        <SelectItem value="TO-01">TO-01</SelectItem>
+                        <SelectItem value="TO-01-com-TO-06">TO-01 com TO-06</SelectItem>
                     </SelectContent>
                 </Select>
             </Field>
             <Field label="TIPO DE PANE">
-                 <Select value={generalInfo.tipoPane} onValueChange={(value) => handleGeneralInfoChange('tipoPane', value)}>
-                    <SelectTrigger className="text-xl normal-case placeholder:text-base">
-                        <SelectValue placeholder="Selecione o tipo de pane" />
-                    </SelectTrigger>
-                    <SelectContent>
-                        <SelectItem value="tp01">TP01</SelectItem>
-                        <SelectItem value="tp02">TP02</SelectItem>
-                        <SelectItem value="tp03">TP03</SelectItem>
-                        <SelectItem value="tp04">TP04</SelectItem>
-                        <SelectItem value="tp05">TP05</SelectItem>
-                        <SelectItem value="tp07">TP07</SelectItem>
-                        <SelectItem value="nill">NILL</SelectItem>
-                    </SelectContent>
-                </Select>
+                 <div className="flex flex-col space-y-2">
+                    {paneTypes.map(pane => (
+                        <div key={pane.id} className="flex items-center space-x-2">
+                            <Checkbox 
+                                id={`pane-${pane.id}`}
+                                checked={generalInfo.tipoPane.includes(pane.id)}
+                                onCheckedChange={(checked) => handlePaneTypeChange(pane.id, !!checked)}
+                            />
+                            <Label htmlFor={`pane-${pane.id}`} className="font-normal text-xl">{pane.label}</Label>
+                        </div>
+                    ))}
+                 </div>
             </Field>
             <Field label="QTH (LOCAL)">
                 <Input className="text-xl placeholder:capitalize placeholder:text-sm" placeholder="Ex: Km 125 da MS-112" value={generalInfo.qth} onChange={(e) => handleGeneralInfoChange('qth', e.target.value)}/>
@@ -263,7 +281,6 @@ export default function VeiculoAbandonadoForm({ categorySlug }: { categorySlug: 
                     <SelectContent>
                         <SelectItem value="acostamento">ACOSTAMENTO</SelectItem>
                         <SelectItem value="area_dominio">ÁREA DE DOMÍNIO</SelectItem>
-                        <SelectItem value="terceira_faixa">TERCEIRA FAIXA</SelectItem>
                         <SelectItem value="faixa_de_rolamento">FAIXA DE ROLAMENTO</SelectItem>
                     </SelectContent>
                 </Select>
