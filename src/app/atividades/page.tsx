@@ -101,19 +101,9 @@ export default function AtividadesPage() {
             Voltar para o início
           </Link>
         </Button>
-        {activities.length > 0 && (
-            <Button
-                variant="destructive"
-                size="sm"
-                onClick={() => setShowClearAllConfirm(true)}
-            >
-                <Trash2 className="mr-2 h-4 w-4" />
-                Limpar Histórico
-            </Button>
-        )}
       </div>
 
-      <div className="w-full text-center mb-8">
+      <div className="w-full text-center mb-4">
         <h1 className="text-3xl font-bold text-foreground font-headline tracking-wide uppercase">
           Histórico de Atividades
         </h1>
@@ -122,7 +112,18 @@ export default function AtividadesPage() {
         </p>
       </div>
       
-       
+       {activities.length > 0 && (
+          <div className="w-full flex justify-end mb-8">
+            <Button
+                variant="destructive"
+                size="sm"
+                onClick={() => setShowClearAllConfirm(true)}
+            >
+                <Trash2 className="mr-2 h-4 w-4" />
+                Limpar Histórico
+            </Button>
+        </div>
+       )}
 
       {(isLoading || isUserLoading) && (
         <div className="flex justify-center items-center py-10">
