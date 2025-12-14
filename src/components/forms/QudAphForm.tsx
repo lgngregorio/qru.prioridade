@@ -270,6 +270,30 @@ export default function QudAphForm({ categorySlug }: { categorySlug: string }) {
       </RadioGroup>
     );
   };
+  
+  const renderCheckboxes = (victimId: number, section: keyof Victim, key: string, options: { id: string, label: string }[]) => {
+    const victim = victims.find(v => v.id === victimId);
+    if (!victim) return null;
+
+    const currentValues = (victim[section] as any)?.[key] || [];
+    
+    return (
+      <div className="flex flex-col space-y-2">
+        {options.map((option) => (
+          <div key={option.id} className="flex items-center space-x-3">
+            <Checkbox
+              id={`${section}-${key}-${option.id}-${victimId}`}
+              checked={currentValues.includes(option.id)}
+              onCheckedChange={(checked) => handleVictimCheckboxChange(victimId, section, key, option.id, !!checked)}
+            />
+            <label htmlFor={`${section}-${key}-${option.id}-${victimId}`} className="text-xl font-normal leading-none">
+              {option.label}
+            </label>
+          </div>
+        ))}
+      </div>
+    );
+  }
 
   const fillEmptyFields = (data: any): any => {
     if (Array.isArray(data)) {
@@ -549,7 +573,7 @@ export default function QudAphForm({ categorySlug }: { categorySlug: string }) {
                     <div>
                         <div className="space-y-4">
                         <Field label="Condição Inicial">
-                            {renderRadioGroup(victim.id, 'avaliacao', 'condicao_inicial', [
+                            {renderCheckboxes(victim.id, 'avaliacao', 'condicao_inicial', [
                                 {id: 'alerta', label: 'Alerta'},
                                 {id: 'verbaliza', label: 'Verbaliza'},
                                 {id: 'doloroso', label: 'Estímulo Doloroso'},
@@ -558,7 +582,7 @@ export default function QudAphForm({ categorySlug }: { categorySlug: string }) {
                                 {id: 'ao_solo', label: 'Ao Solo'},
                                 {id: 'ejetado', label: 'Ejetado'},
                                 {id: 'encarcerado_retido', label: 'Encarcerado/Retido'},
-                            ], 'vertical')}
+                            ])}
                         </Field>
                         </div>
                         <SubSectionTitle>Avaliação Primária</SubSectionTitle>
