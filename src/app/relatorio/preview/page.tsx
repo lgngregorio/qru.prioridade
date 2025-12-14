@@ -17,8 +17,6 @@ import { Button } from '@/components/ui/button';
 import { eventCategories } from '@/lib/events';
 import ReportDetail from '@/components/ReportDetail';
 import { useUser } from '@/app/layout';
-import { useFirestore } from '@/firebase';
-import { collection, addDoc, serverTimestamp, doc, updateDoc, Timestamp } from 'firebase/firestore';
 
 interface ReportData {
   id?: string;
@@ -29,11 +27,15 @@ interface ReportData {
   updatedAt?: any;
 }
 
+function getHistoryKey(userEmail: string | null): string | null {
+  if (!userEmail) return null;
+  return `ocorrencias-historico-${userEmail}`;
+}
+
 export default function PreviewPage() {
   const router = useRouter();
   const { toast } = useToast();
   const { user, isLoading: isUserLoading } = useUser();
-  const firestore = useFirestore();
 
   const [report, setReport] = useState<ReportData | null>(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -44,55 +46,64 @@ export default function PreviewPage() {
     if (savedData) {
       const parsedData = JSON.parse(savedData);
       setReport(parsedData);
-    } else {
-      // Allow access but show loading until check is complete
     }
     setIsLoading(false);
   }, []);
 
-  const handleSaveAndGoToHistory = async () => {
-    if (!report || !user || !firestore) {
+  const handleSaveAndGoToHistory = () => {
+    if (!report || !user) {
       toast({
         variant: 'destructive',
         title: 'Erro',
-        description: 'Relatório, usuário ou conexão com banco de dados não encontrado.',
+        description: 'Relatório ou usuário não encontrado.',
       });
       return;
     }
     
     setIsSaving(true);
+    
+    const historyKey = getHistoryKey(user.email);
+    if (!historyKey) {
+        toast({ variant: "destructive", title: "Erro", description: "Não foi possível identificar o usuário." });
+        setIsSaving(false);
+        return;
+    }
 
     try {
-      
-      const now = serverTimestamp();
-      if (report.id) {
-        const reportRef = doc(firestore, 'reports', report.id);
-        await updateDoc(reportRef, {
-            formData: report.formData,
-            category: report.category,
+        const savedReportsRaw = localStorage.getItem(historyKey);
+        const savedReports = savedReportsRaw ? JSON.parse(savedReportsRaw) : [];
+
+        const now = new Date().toISOString();
+        let isEditing = false;
+        
+        const reportToSave = {
+            ...report,
+            uid: user.uid, // Keep uid for potential future use
             updatedAt: now,
-        });
+        };
+
+        let newReports = [];
+
+        if (report.id) { // Editing existing report
+            isEditing = true;
+            newReports = savedReports.map((r: ReportData) => r.id === report.id ? reportToSave : r);
+        } else { // Creating new report
+            reportToSave.id = `report-${Date.now()}`;
+            reportToSave.createdAt = now;
+            newReports = [reportToSave, ...savedReports];
+        }
+
+        localStorage.setItem(historyKey, JSON.stringify(newReports));
+
         toast({
           title: 'Sucesso!',
-          description: 'Seu relatório foi atualizado.',
+          description: `Seu relatório foi ${isEditing ? 'atualizado' : 'salvo'}.`,
         });
-      } else {
-        await addDoc(collection(firestore, 'reports'), {
-          ...report,
-          uid: user.uid,
-          createdAt: now,
-          updatedAt: now,
-        });
-        toast({
-            title: 'Sucesso!',
-            description: 'Seu relatório foi salvo.',
-        });
-      }
 
       localStorage.removeItem('reportPreview');
       router.push('/ocorrencias'); 
     } catch (error) {
-      console.error('Erro ao salvar o relatório: ', error);
+      console.error('Erro ao salvar o relatório no localStorage: ', error);
       toast({
         variant: 'destructive',
         title: 'Erro ao Salvar',
@@ -118,9 +129,7 @@ export default function PreviewPage() {
         if (!dateSource || dateSource === 'NILL') return '';
         
         let date;
-        if (dateSource instanceof Timestamp) {
-            date = dateSource.toDate();
-        } else if (typeof dateSource === 'string' && dateSource.match(/^\d{2}:\d{2}$/)) {
+        if (typeof dateSource === 'string' && dateSource.match(/^\d{2}:\d{2}$/)) {
             return dateSource;
         } else {
             date = new Date(dateSource);
@@ -155,13 +164,6 @@ export default function PreviewPage() {
         return formatDate(value);
       }
       
-      if (value instanceof Timestamp) {
-        return formatDate(value.toDate());
-      }
-      if (value.seconds && typeof value.seconds === 'number') {
-        return formatDate(new Timestamp(value.seconds, value.nanoseconds).toDate());
-      }
-
       if (Array.isArray(value)) return value.join(', ').replace(/[-_]/g, ' ').toUpperCase();
       return String(value).replace(/[-_]/g, ' ').toUpperCase();
     };

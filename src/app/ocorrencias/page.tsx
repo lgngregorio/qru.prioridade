@@ -1,7 +1,7 @@
 
 'use client';
 
-import { useState, useMemo } from 'react';
+import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { ArrowLeft, Edit, Share2, Trash2, Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -29,16 +29,16 @@ import { eventCategories } from '@/lib/events';
 import { useUser } from '@/app/layout';
 import { useRouter } from 'next/navigation';
 import { useToast } from '@/hooks/use-toast';
-import { useFirestore, useCollection, useMemoFirebase } from '@/firebase';
-import { collection, query, where, Timestamp, doc, deleteDoc, orderBy } from 'firebase/firestore';
+import { Timestamp } from 'firebase/firestore';
+
 
 interface Report {
   id: string;
   category: string;
-  createdAt: Timestamp;
-  updatedAt?: Timestamp;
+  createdAt: string; // ISO string
   formData: any;
-  uid: string;
+  uid?: string; // Kept for potential future use
+  updatedAt?: string; // ISO string
 }
 
 const LoadingSkeleton = () => (
@@ -57,10 +57,10 @@ const getCategoryInfo = (slug: string) => {
     };
 };
 
-const formatDate = (timestamp: Timestamp | undefined) => {
-  if (!timestamp) return 'Data indisponível';
+const formatDate = (dateString: string | undefined) => {
+  if (!dateString) return 'Data indisponível';
   try {
-    const date = timestamp.toDate();
+    const date = new Date(dateString);
     return date.toLocaleString('pt-BR', {
       day: '2-digit',
       month: '2-digit',
@@ -88,13 +88,14 @@ const formatWhatsappValue = (value: any, key: string): string => {
   }
 
   if (dateKeys.includes(key)) {
-     if (value instanceof Timestamp) {
-      return formatDate(value);
-    }
-    if (value.seconds) {
-        return formatDate(new Timestamp(value.seconds, value.nanoseconds));
-    }
-    return String(value);
+    try {
+        const date = new Date(value);
+        if(!isNaN(date.getTime())) {
+            return date.toLocaleString('pt-BR', {
+                day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit'
+            });
+        }
+    } catch { /* ignore and proceed */ }
   }
   
   if (Array.isArray(value)) return value.join(', ').replace(/[-_]/g, ' ').toUpperCase();
@@ -172,9 +173,13 @@ const hexToRgba = (hex: string, alpha: number) => {
     return `rgba(${r}, ${g}, ${b}, ${alpha})`;
 };
 
+function getHistoryKey(userEmail: string | null): string | null {
+  if (!userEmail) return null;
+  return `ocorrencias-historico-${userEmail}`;
+}
+
 function ReportCard({ report, onDelete }: { report: Report; onDelete: () => void }) {
   const router = useRouter();
-  const { toast } = useToast();
   const [isExpanded, setIsExpanded] = useState(false);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
@@ -182,12 +187,7 @@ function ReportCard({ report, onDelete }: { report: Report; onDelete: () => void
 
   const handleEdit = (e: React.MouseEvent) => {
     e.stopPropagation();
-    const serializableReport = {
-      ...report,
-      createdAt: report.createdAt?.toDate().toISOString(),
-      updatedAt: report.updatedAt ? report.updatedAt.toDate().toISOString() : undefined,
-    };
-    localStorage.setItem('reportPreview', JSON.stringify(serializableReport));
+    localStorage.setItem('reportPreview', JSON.stringify(report));
     router.push(`/${report.category}`);
   };
 
@@ -203,25 +203,11 @@ function ReportCard({ report, onDelete }: { report: Report; onDelete: () => void
     setShowDeleteConfirm(true);
   };
   
-  const handleDeleteConfirm = async () => {
+  const handleDeleteConfirm = () => {
     setIsDeleting(true);
-    try {
-      await onDelete();
-      toast({
-        title: 'Relatório apagado!',
-        description: 'Seu relatório foi removido com sucesso.',
-      });
-    } catch (error) {
-      console.error("Error deleting report: ", error);
-      toast({
-        variant: 'destructive',
-        title: 'Erro ao apagar',
-        description: 'Não foi possível apagar o relatório. Tente novamente.',
-      });
-    } finally {
-      setIsDeleting(false);
-      setShowDeleteConfirm(false);
-    }
+    onDelete();
+    setIsDeleting(false);
+    setShowDeleteConfirm(false);
   };
 
   const displayDate = report.updatedAt || report.createdAt;
@@ -241,7 +227,7 @@ function ReportCard({ report, onDelete }: { report: Report; onDelete: () => void
         <CardHeader className="cursor-pointer" onClick={() => setIsExpanded(!isExpanded)}>
           <CardTitle className="truncate pr-10">{title}</CardTitle>
           <CardDescription className="text-base font-bold text-muted-foreground">
-            {formatDate(displayDate)} {report.updatedAt && report.createdAt.seconds !== report.updatedAt.seconds ? '(Editado)' : ''}
+            {formatDate(displayDate)} {report.updatedAt && report.createdAt !== report.updatedAt ? '(Editado)' : ''}
           </CardDescription>
         </CardHeader>
         
@@ -288,38 +274,48 @@ function ReportCard({ report, onDelete }: { report: Report; onDelete: () => void
 
 export default function OcorrenciasPage() {
   const { user, isLoading: isUserLoading } = useUser();
-  const firestore = useFirestore();
   const { toast } = useToast();
+  const [reports, setReports] = useState<Report[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
 
-  const reportsQuery = useMemoFirebase(() => 
-    user 
-      ? query(collection(firestore, 'reports'), where('uid', '==', user.uid), orderBy('updatedAt', 'desc'))
-      : null
-  , [firestore, user]);
+  useEffect(() => {
+    if (isUserLoading) return;
+    if (!user) {
+        setIsLoading(false);
+        return;
+    }
+    
+    const historyKey = getHistoryKey(user.email);
+    if (historyKey) {
+        const savedReports = localStorage.getItem(historyKey);
+        if (savedReports) {
+            const parsedReports: Report[] = JSON.parse(savedReports);
+            // Sort reports by updatedAt (or createdAt as a fallback) in descending order
+            parsedReports.sort((a, b) => {
+                const dateA = new Date(a.updatedAt || a.createdAt).getTime();
+                const dateB = new Date(b.updatedAt || b.createdAt).getTime();
+                return dateB - dateA;
+            });
+            setReports(parsedReports);
+        }
+    }
+    setIsLoading(false);
+  }, [user, isUserLoading]);
 
-  const { data: reports, isLoading: areReportsLoading, error } = useCollection<Report>(reportsQuery);
-  
-  const handleDeleteReport = async (reportId: string) => {
-    if (!firestore) return;
-    try {
-      const reportRef = doc(firestore, 'reports', reportId);
-      await deleteDoc(reportRef);
-      // No need to manually update state, useCollection handles it
-      toast({
-        title: 'Relatório apagado!',
-        description: 'Seu relatório foi removido com sucesso.',
-      });
-    } catch(error) {
-       console.error("Error deleting report: ", error);
-       toast({
-        variant: 'destructive',
-        title: 'Erro ao apagar',
-        description: 'Não foi possível apagar o relatório. Tente novamente.',
-      });
+  const handleDeleteReport = (reportId: string) => {
+    if (!user) return;
+    const historyKey = getHistoryKey(user.email);
+    if (historyKey) {
+        const updatedReports = reports.filter(r => r.id !== reportId);
+        localStorage.setItem(historyKey, JSON.stringify(updatedReports));
+        setReports(updatedReports);
+        toast({
+            title: 'Relatório apagado!',
+            description: 'Seu relatório foi removido com sucesso.',
+        });
     }
   };
 
-  const isLoading = isUserLoading || areReportsLoading;
 
   return (
     <main className="flex flex-col p-4 md:p-6">
@@ -342,16 +338,8 @@ export default function OcorrenciasPage() {
       </div>
 
       {isLoading && <LoadingSkeleton />}
-      
-      {error && !isLoading && (
-        <div className="text-center py-10 border-2 border-dashed border-destructive rounded-lg">
-          <p className="text-destructive text-lg">Erro ao carregar relatórios.</p>
-          <p className="text-muted-foreground">Tente novamente mais tarde.</p>
-        </div>
-      )}
 
-
-      {!isLoading && !error && (!reports || reports.length === 0) && (
+      {!isLoading && reports.length === 0 && (
         <div className="text-center py-10 border-2 border-dashed rounded-lg">
           <p className="text-muted-foreground text-lg">Nenhum relatório encontrado.</p>
           <p className="text-muted-foreground">
@@ -360,7 +348,7 @@ export default function OcorrenciasPage() {
         </div>
       )}
 
-      {!isLoading && !error && reports && reports.length > 0 && (
+      {!isLoading && reports.length > 0 && (
         <div className="space-y-6">
           {reports.map((report) => (
             <ReportCard key={report.id} report={report} onDelete={() => handleDeleteReport(report.id)} />

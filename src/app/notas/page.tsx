@@ -82,15 +82,22 @@ export default function NotasPage() {
             </div>
 
             {(isUserLoading || areNotesLoading) && <LoadingSkeleton />}
+            
+            {error && (
+                <div className="text-center py-10 border-2 border-dashed border-destructive rounded-lg mt-8">
+                    <p className="text-destructive text-lg">Erro ao carregar notas.</p>
+                     <p className="text-muted-foreground text-sm max-w-md mx-auto">{error.message}</p>
+                </div>
+            )}
 
-            {!isUserLoading && !areNotesLoading && (!notes || notes.length === 0) && (
+            {!isUserLoading && !areNotesLoading && !error && (!notes || notes.length === 0) && (
                 <div className="text-center py-10 border-2 border-dashed rounded-lg mt-8">
                     <p className="text-muted-foreground text-lg">Nenhuma nota encontrada.</p>
                     <p className="text-muted-foreground">Clique em "Adicionar Nova Nota" para começar.</p>
                 </div>
             )}
 
-            {!isUserLoading && !areNotesLoading && notes && notes.length > 0 && (
+            {!isUserLoading && !areNotesLoading && !error && notes && notes.length > 0 && (
                 <div className="space-y-4">
                     {notes.map((note) => (
                         <NoteCard 

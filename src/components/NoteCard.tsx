@@ -13,13 +13,13 @@ import { Timestamp } from 'firebase/firestore';
 interface NoteCardProps {
   note: Note;
   onEdit: () => void;
-  onDelete: () => void;
+  onDelete: () => Promise<void>;
 }
 
-const formatDate = (timestamp: Timestamp) => {
+const formatDate = (timestamp: Timestamp | Date) => {
     if (!timestamp) return 'Carregando...';
     try {
-        const date = timestamp.toDate();
+        const date = (timestamp instanceof Timestamp) ? timestamp.toDate() : timestamp;
         return date.toLocaleString('pt-BR', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' });
     } catch {
         return 'Data inválida';
