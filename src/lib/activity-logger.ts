@@ -57,3 +57,14 @@ export const deleteActivity = (userEmail: string | null, activityId: string) => 
     console.error("Failed to delete activity:", error);
   }
 };
+
+export const clearAllActivities = (userEmail: string | null) => {
+  const key = getActivityLogKey(userEmail);
+  if (!key) return;
+
+  try {
+    localStorage.removeItem(key);
+  } catch (error) {
+    console.error("Failed to clear activity log:", error);
+  }
+};

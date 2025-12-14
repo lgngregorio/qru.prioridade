@@ -8,7 +8,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { useUser } from '@/app/layout';
 import { useToast } from '@/hooks/use-toast';
-import { getActivityLog, deleteActivity, type Activity } from '@/lib/activity-logger';
+import { getActivityLog, deleteActivity, clearAllActivities, type Activity } from '@/lib/activity-logger';
 import { useRouter } from 'next/navigation';
 import {
   AlertDialog,
@@ -43,6 +43,7 @@ export default function AtividadesPage() {
   const [activities, setActivities] = useState<Activity[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [activityToDelete, setActivityToDelete] = useState<string | null>(null);
+  const [showClearAllConfirm, setShowClearAllConfirm] = useState(false);
 
   useEffect(() => {
     if (!isUserLoading && user) {
@@ -65,6 +66,18 @@ export default function AtividadesPage() {
     setActivityToDelete(null);
   };
   
+  const handleClearAll = () => {
+    if (user && user.email) {
+        clearAllActivities(user.email);
+        setActivities([]);
+        toast({
+            title: 'Histórico limpo!',
+            description: 'Todas as suas atividades foram apagadas.',
+        });
+    }
+    setShowClearAllConfirm(false);
+  }
+  
   const handleCardClick = (activity: Activity) => {
     if (activity.url) {
       router.push(activity.url);
@@ -82,13 +95,24 @@ export default function AtividadesPage() {
         </Button>
       </div>
 
-      <div className="w-full text-center mb-8">
+      <div className="w-full text-center mb-8 relative">
         <h1 className="text-3xl font-bold text-foreground font-headline tracking-wide uppercase">
           Histórico de Atividades
         </h1>
         <p className="text-muted-foreground mt-1 text-base">
           Veja e gerencie suas ações recentes no aplicativo.
         </p>
+         {activities.length > 0 && (
+            <Button
+                variant="destructive"
+                onClick={() => setShowClearAllConfirm(true)}
+                className="absolute top-1/2 right-0 -translate-y-1/2"
+                size="sm"
+            >
+                <Trash2 className="mr-2 h-4 w-4" />
+                Limpar Histórico
+            </Button>
+        )}
       </div>
 
       {(isLoading || isUserLoading) && (
@@ -152,6 +176,24 @@ export default function AtividadesPage() {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
+      
+      <AlertDialog open={showClearAllConfirm} onOpenChange={setShowClearAllConfirm}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Limpar todo o histórico?</AlertDialogTitle>
+            <AlertDialogDescription>
+              Esta ação não pode ser desfeita. Isso irá apagar permanentemente TODAS as atividades do seu histórico.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancelar</AlertDialogCancel>
+            <AlertDialogAction onClick={handleClearAll} className="bg-destructive hover:bg-destructive/90">
+              Apagar Tudo
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
     </main>
   );
 }
