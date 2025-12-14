@@ -215,7 +215,15 @@ export default function VeiculoAbandonadoForm({ categorySlug }: { categorySlug: 
                 </Select>
             </Field>
             <Field label="OCORRÊNCIA">
-                <Input className="text-xl uppercase" value={generalInfo.ocorrencia} disabled />
+                <Select value={generalInfo.ocorrencia} onValueChange={(value) => handleGeneralInfoChange('ocorrencia', value)}>
+                    <SelectTrigger className="text-xl normal-case placeholder:text-base">
+                        <SelectValue placeholder="Selecione a ocorrência" />
+                    </SelectTrigger>
+                    <SelectContent>
+                        <SelectItem value="to01">TO01</SelectItem>
+                        <SelectItem value="to01-com-to06">TO01 com TO06</SelectItem>
+                    </SelectContent>
+                </Select>
             </Field>
             <Field label="TIPO DE PANE">
                  <Select value={generalInfo.tipoPane} onValueChange={(value) => handleGeneralInfoChange('tipoPane', value)}>
