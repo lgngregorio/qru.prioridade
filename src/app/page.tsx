@@ -127,11 +127,11 @@ export default function Home() {
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
             <Input
               type="search"
-              placeholder="Buscar categorias, códigos ou perguntar (ex: 'to03 qual pr usar?')"
+              placeholder="Buscar por ocorrência, código ou PR..."
               className="w-full pl-9 h-12 text-lg rounded-md shadow-sm bg-card border"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              aria-label="Buscar categorias e códigos"
+              aria-label="Buscar por ocorrência, código ou PR"
             />
           </div>
         </div>
