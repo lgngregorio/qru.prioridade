@@ -47,6 +47,13 @@ const handleCategoryClick = () => {
     localStorage.removeItem('reportPreview');
 };
 
+const hexToRgba = (hex: string, alpha: number) => {
+    const r = parseInt(hex.slice(1, 3), 16);
+    const g = parseInt(hex.slice(3, 5), 16);
+    const b = parseInt(hex.slice(5, 7), 16);
+    return `rgba(${r}, ${g}, ${b}, ${alpha})`;
+};
+
 export default function EventCategoryGrid({
   categories,
 }: EventCategoryGridProps) {
@@ -68,7 +75,13 @@ export default function EventCategoryGrid({
             onClick={handleCategoryClick}
         >
           <Card 
-            className="h-full text-center shadow-lg rounded-lg border-b-4 border-foreground/20 transform transition-transform duration-150 ease-in-out active:border-b-2 active:translate-y-px group-hover:-translate-y-px bg-card/70 hover:bg-card/90 text-card-foreground"
+            className="h-full text-center shadow-lg rounded-lg border-b-4 border-foreground/20 transform transition-transform duration-150 ease-in-out active:border-b-2 active:translate-y-px group-hover:-translate-y-px text-card-foreground"
+            style={{ 
+              backgroundColor: hexToRgba(category.color, 0.1),
+              transition: 'background-color 0.2s'
+            }}
+            onMouseOver={(e) => e.currentTarget.style.backgroundColor = hexToRgba(category.color, 0.2)}
+            onMouseOut={(e) => e.currentTarget.style.backgroundColor = hexToRgba(category.color, 0.1)}
           >
             <CardHeader className="flex flex-col items-center justify-center p-2 aspect-[3/4]">
               <div
