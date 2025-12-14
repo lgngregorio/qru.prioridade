@@ -83,6 +83,9 @@ const formatWhatsappValue = (value: any, key: string): string => {
      if (value instanceof Timestamp) {
       return formatDate(value);
     }
+     if (typeof value === 'string' && value.match(/^\d{2}:\d{2}$/)) {
+        return value;
+     }
     return formatDate(new Timestamp(value.seconds, value.nanoseconds));
   }
   
@@ -268,12 +271,42 @@ function ReportCard({ report, onDelete }: { report: Report; onDelete: () => void
 export default function OcorrenciasPage() {
   const { user, isLoading: isUserLoading } = useUser();
   const firestore = useFirestore();
+  
+  const [reports, setReports] = useState<Report[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
 
-  const reportsQuery = useMemoFirebase(() => 
-    user ? query(collection(firestore, 'reports'), where('uid', '==', user.uid), orderBy('updatedAt', 'desc'), orderBy('createdAt', 'desc')) : null
-  , [firestore, user]);
+  useEffect(() => {
+    if (!user || !firestore) {
+      if (!isUserLoading) {
+        setIsLoading(false);
+      }
+      return;
+    }
 
-  const { data: reports, isLoading: areReportsLoading } = useCollection<Report>(reportsQuery);
+    setIsLoading(true);
+
+    const reportsRef = collection(firestore, 'reports');
+    const q = query(reportsRef, where('uid', '==', user.uid));
+
+    const unsubscribe = onSnapshot(q, (snapshot) => {
+      const fetchedReports = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Report));
+      
+      fetchedReports.sort((a, b) => {
+        const dateA = a.updatedAt || a.createdAt;
+        const dateB = b.updatedAt || b.createdAt;
+        return dateB.toMillis() - dateA.toMillis();
+      });
+
+      setReports(fetchedReports);
+      setIsLoading(false);
+    }, (error) => {
+      console.error("Error fetching reports: ", error);
+      setIsLoading(false);
+    });
+
+    return () => unsubscribe();
+  }, [user, firestore, isUserLoading]);
+
   
   const handleDeleteReport = async (reportId: string) => {
     if (!firestore) return;
@@ -281,6 +314,7 @@ export default function OcorrenciasPage() {
     await deleteDoc(reportRef);
   };
 
+  const areReportsLoading = isLoading || isUserLoading;
 
   return (
     <main className="flex flex-col p-4 md:p-6">
@@ -302,9 +336,9 @@ export default function OcorrenciasPage() {
         </p>
       </div>
 
-      {(isUserLoading || areReportsLoading) && <LoadingSkeleton />}
+      {areReportsLoading && <LoadingSkeleton />}
 
-      {!isUserLoading && !areReportsLoading && (!reports || reports.length === 0) && (
+      {!areReportsLoading && (!reports || reports.length === 0) && (
         <div className="text-center py-10 border-2 border-dashed rounded-lg">
           <p className="text-muted-foreground text-lg">Nenhum relatório encontrado.</p>
           <p className="text-muted-foreground">
@@ -313,7 +347,7 @@ export default function OcorrenciasPage() {
         </div>
       )}
 
-      {!isUserLoading && reports && reports.length > 0 && (
+      {!areReportsLoading && reports && reports.length > 0 && (
         <div className="space-y-6">
           {reports.map((report) => (
             <ReportCard key={report.id} report={report} onDelete={() => handleDeleteReport(report.id)} />
