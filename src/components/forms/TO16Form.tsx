@@ -753,11 +753,11 @@ export default function TO16Form({ categorySlug }: { categorySlug: string }) {
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                         <div className="flex flex-col space-y-4">
                             {[
-                                { id: 'liberacao_local', label: 'Liberação no Local c/ Orientações' },
-                                { id: 'vitima_em_obito', label: 'Vítima em Óbito' },
-                                { id: 'obito_durante_atendimento', label: 'Óbito Durante Atendimento' },
-                                { id: 'recusa_atendimento', label: 'Recusa Atendimento' },
-                                { id: 'recusa_remocao', label: 'Recusa Remoção à Unidade Hospitalar' },
+                                { id: 'liberacao_local', label: 'PRECISA de Liberação no Local c/ Orientações' },
+                                { id: 'vitima_em_obito', label: 'PRECISA de Vítima em Óbito' },
+                                { id: 'obito_durante_atendimento', label: 'PRECISA de Óbito Durante Atendimento' },
+                                { id: 'recusa_atendimento', label: 'PRECISA de Recusa Atendimento' },
+                                { id: 'recusa_remocao', label: 'PRECISA de Recusa Remoção à Unidade Hospitalar' },
                             ].map(cond => (
                                 <div key={cond.id} className="flex items-center space-x-2">
                                     <Checkbox id={`cond-${cond.id}-${victim.id}`} checked={victim.conduta?.acoes?.includes(cond.id)} onCheckedChange={c => handleVictimCheckboxChange(victim.id, 'conduta', 'acoes', cond.id, !!c)} />
