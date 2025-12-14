@@ -107,7 +107,7 @@ export default {
         },
         'pulse-depth': {
           '0%, 100%': { transform: 'scale(1) rotate(0deg)' },
-          '50%': { transform: 'scale(1.2) rotate(3deg)' },
+          '50%': { transform: 'scale(1.1) rotate(1deg)' },
         }
       },
       animation: {
