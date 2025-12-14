@@ -58,7 +58,7 @@ export default function Home() {
     
     // 3. Special search for relationships
     let relationshipResults: { title: string; items: AcaoProvidenciaCode[] }[] = [];
-    const relationshipMatch = lowerCaseQuery.match(/(to\d{1,2}|ac\d{1,2}).*(pr)/);
+    const relationshipMatch = lowerCaseQuery.match(/(to\d{1,2}).*(pr)/);
 
     if (relationshipMatch) {
       const ocorrenciaCode = relationshipMatch[1].toUpperCase();
@@ -100,7 +100,7 @@ export default function Home() {
           <div className="flex items-center gap-4 justify-center relative">
             <h1 className="text-4xl font-bold text-foreground font-headline tracking-wider flex items-center justify-center gap-4">
               QRU
-              <div className="flex h-10 items-center">
+              <div className="flex h-10 items-center gap-px">
                 <div className="w-[2px] h-full bg-foreground"></div>
                 <div
                   className="w-[2px] h-full animate-move-dashes"
