@@ -65,8 +65,10 @@ export default function NotasPage() {
     };
 
     useEffect(() => {
-        if (!isUserLoading) {
+        if (!isUserLoading && user) {
             loadNotes();
+        } else if (!isUserLoading && !user) {
+            setIsLoading(false);
         }
     }, [user, isUserLoading]);
     
@@ -128,16 +130,16 @@ export default function NotasPage() {
                 </Button>
             </div>
 
-            {(isUserLoading || isLoading) && <LoadingSkeleton />}
+            {(isLoading || isUserLoading) && <LoadingSkeleton />}
             
-            {!isUserLoading && !isLoading && (!notes || notes.length === 0) && (
+            {!isLoading && !isUserLoading && notes.length === 0 && (
                 <div className="text-center py-10 border-2 border-dashed rounded-lg mt-8">
                     <p className="text-muted-foreground text-lg">Nenhuma nota encontrada.</p>
                     <p className="text-muted-foreground">Clique em "Adicionar Nova Nota" para começar.</p>
                 </div>
             )}
 
-            {!isUserLoading && !isLoading && notes && notes.length > 0 && (
+            {!isLoading && !isUserLoading && notes.length > 0 && (
                 <div className="space-y-4">
                     {notes.map((note) => (
                         <NoteCard 
@@ -158,3 +160,4 @@ export default function NotasPage() {
         </main>
     );
 }
+

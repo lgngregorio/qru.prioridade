@@ -279,28 +279,34 @@ export default function OcorrenciasPage() {
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    if (isUserLoading) return;
-    if (!user) {
-        setIsLoading(false);
-        return;
-    }
-    
-    const historyKey = getHistoryKey(user.email);
-    if (historyKey) {
-        const savedReports = localStorage.getItem(historyKey);
-        if (savedReports) {
-            const parsedReports: Report[] = JSON.parse(savedReports);
-            // Sort reports by updatedAt (or createdAt as a fallback) in descending order
-            parsedReports.sort((a, b) => {
-                const dateA = new Date(a.updatedAt || a.createdAt).getTime();
-                const dateB = new Date(b.updatedAt || b.createdAt).getTime();
-                return dateB - dateA;
-            });
-            setReports(parsedReports);
+    if (!isUserLoading && user) {
+        const historyKey = getHistoryKey(user.email);
+        if (historyKey) {
+            try {
+                const savedReports = localStorage.getItem(historyKey);
+                if (savedReports) {
+                    const parsedReports: Report[] = JSON.parse(savedReports);
+                    parsedReports.sort((a, b) => {
+                        const dateA = new Date(a.updatedAt || a.createdAt).getTime();
+                        const dateB = new Date(b.updatedAt || b.createdAt).getTime();
+                        return dateB - dateA;
+                    });
+                    setReports(parsedReports);
+                }
+            } catch (error) {
+                 console.error("Failed to load reports from localStorage", error);
+                 toast({
+                    variant: "destructive",
+                    title: "Erro ao carregar relatórios",
+                    description: "Não foi possível ler seus relatórios salvos."
+                });
+            }
         }
+        setIsLoading(false);
+    } else if (!isUserLoading && !user) {
+        setIsLoading(false);
     }
-    setIsLoading(false);
-  }, [user, isUserLoading]);
+  }, [user, isUserLoading, toast]);
 
   const handleDeleteReport = (reportId: string) => {
     if (!user) return;
@@ -358,3 +364,4 @@ export default function OcorrenciasPage() {
     </main>
   );
 }
+
