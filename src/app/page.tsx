@@ -100,7 +100,7 @@ export default function Home() {
           <div className="flex items-center gap-4 justify-center relative">
             <h1 className="text-4xl font-bold text-foreground font-headline tracking-wider flex items-center justify-center gap-4">
               QRU
-              <div className="flex h-10 items-center gap-2">
+              <div className="flex h-10 items-center">
                 <div className="w-[2px] h-full bg-foreground"></div>
                 <div
                   className="w-[2px] h-full animate-move-dashes"
@@ -127,7 +127,7 @@ export default function Home() {
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
             <Input
               type="search"
-              placeholder="Buscar por ocorrência, código ou PR..."
+              placeholder="Buscar por ocorrência ou código..."
               className="w-full pl-9 h-12 text-lg rounded-md shadow-sm bg-card border"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
