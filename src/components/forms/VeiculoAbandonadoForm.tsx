@@ -220,8 +220,8 @@ export default function VeiculoAbandonadoForm({ categorySlug }: { categorySlug: 
                         <SelectValue placeholder="Selecione a ocorrência" />
                     </SelectTrigger>
                     <SelectContent>
-                        <SelectItem value="to01">TO01</SelectItem>
-                        <SelectItem value="to01-com-to06">TO01 com TO06</SelectItem>
+                        <SelectItem value="to-01">TO-01</SelectItem>
+                        <SelectItem value="to-01-com-to-06">TO-01 com TO-06</SelectItem>
                     </SelectContent>
                 </Select>
             </Field>
