@@ -13,6 +13,13 @@ const formatDate = (dateSource: string | Date | Timestamp) => {
     if (!dateSource) return 'Carregando...';
     try {
         const date = (dateSource instanceof Timestamp) ? dateSource.toDate() : new Date(dateSource);
+        if (isNaN(date.getTime())) { // Check if date is invalid
+          // If it's just a time string like "13:50", it will be invalid. Return as is.
+          if (typeof dateSource === 'string' && dateSource.match(/^\d{2}:\d{2}$/)) {
+            return dateSource;
+          }
+          return 'Data inválida';
+        }
         return date.toLocaleString('pt-BR', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' });
     } catch {
         return 'Data inválida';
@@ -24,11 +31,17 @@ const renderValue = (key: string, value: any): React.ReactNode => {
     if (value === null || value === undefined || value === 'NILL' || value === '') return 'N/A';
     if (typeof value === 'boolean') return value ? 'Sim' : 'Não';
     
-    const dateKeys = ['data', 'dn', 'createdAt', 'qtrInicio', 'qtrTermino'];
+    const dateKeys = ['data', 'dn', 'createdAt'];
     if (dateKeys.includes(key) && (typeof value === 'string' || value instanceof Date || value instanceof Timestamp)) {
        return formatDate(value);
     }
     
+    // Handle time-only fields separately
+    const timeKeys = ['qtrInicio', 'qtrTermino'];
+    if (timeKeys.includes(key) && typeof value === 'string') {
+        return value;
+    }
+
     if (value instanceof Date) return formatDate(value);
     if (value instanceof Timestamp) return formatDate(value);
 
