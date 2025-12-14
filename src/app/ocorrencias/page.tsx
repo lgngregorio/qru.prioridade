@@ -30,7 +30,7 @@ import { useUser } from '@/app/layout';
 import { useRouter } from 'next/navigation';
 import { useToast } from '@/hooks/use-toast';
 import { useFirestore, useCollection, useMemoFirebase } from '@/firebase';
-import { collection, query, where, orderBy, Timestamp, doc, deleteDoc } from 'firebase/firestore';
+import { collection, query, where, Timestamp, doc, deleteDoc } from 'firebase/firestore';
 
 interface Report {
   id: string;
@@ -292,12 +292,21 @@ export default function OcorrenciasPage() {
     if (!user || !firestore) return null;
     return query(
       collection(firestore, 'reports'),
-      where('uid', '==', user.uid),
-      orderBy('updatedAt', 'desc')
+      where('uid', '==', user.uid)
     );
   }, [user, firestore]);
 
-  const { data: reports, isLoading: areReportsLoading, error } = useCollection<Report>(reportsQuery);
+  const { data: reportsData, isLoading: areReportsLoading, error } = useCollection<Report>(reportsQuery);
+  
+  const sortedReports = useMemo(() => {
+    if (!reportsData) return [];
+    return [...reportsData].sort((a, b) => {
+      const dateA = a.updatedAt || a.createdAt;
+      const dateB = b.updatedAt || b.createdAt;
+      if (!dateA || !dateB) return 0;
+      return dateB.toMillis() - dateA.toMillis();
+    });
+  }, [reportsData]);
 
   const handleDeleteReport = async (reportId: string) => {
     if (!firestore) return;
@@ -351,7 +360,7 @@ export default function OcorrenciasPage() {
       )}
 
 
-      {!isLoading && !error && (!reports || reports.length === 0) && (
+      {!isLoading && !error && (!sortedReports || sortedReports.length === 0) && (
         <div className="text-center py-10 border-2 border-dashed rounded-lg">
           <p className="text-muted-foreground text-lg">Nenhum relatório encontrado.</p>
           <p className="text-muted-foreground">
@@ -360,9 +369,9 @@ export default function OcorrenciasPage() {
         </div>
       )}
 
-      {!isLoading && !error && reports && reports.length > 0 && (
+      {!isLoading && !error && sortedReports && sortedReports.length > 0 && (
         <div className="space-y-6">
-          {reports.map((report) => (
+          {sortedReports.map((report) => (
             <ReportCard key={report.id} report={report} onDelete={() => handleDeleteReport(report.id)} />
           ))}
         </div>
