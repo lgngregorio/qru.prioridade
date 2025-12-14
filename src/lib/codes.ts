@@ -228,7 +228,7 @@ const mapRelacionamentos: { [key: string]: { acoes: string[], panes?: string[] }
     'TO24': { acoes: ['PR44', 'PR51'], panes: [] },
     'TO25': { acoes: ['PR13', 'PR21', 'PR22', 'PR23', 'PR37', 'PR51'], panes: [] },
     'TO30': { acoes: ['PR09', 'PR17', 'PR51'], panes: [] },
-    'TO33': { acoes: ['PR13', 'PR51', 'PR63'], panes: [] },
+    'TO33': { acoes: ['PR01', 'PR13', 'PR51', 'PR63'], panes: [] },
     'TO34': { acoes: ['PR13', 'PR14', 'PR51', 'PR62'], panes: [] },
     'TO35': { acoes: ['PR13', 'PR22', 'PR23', 'PR37', 'PR51'], panes: [] },
     'TO36': { acoes: ['PR07', 'PR13', 'PR51'], panes: [] },
