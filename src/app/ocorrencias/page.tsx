@@ -73,6 +73,13 @@ const formatDate = (dateString: string | undefined) => {
   }
 };
 
+const formatKey = (key: string) => {
+  return key
+    .replace(/([A-Z])/g, ' $1')
+    .replace(/_/g, ' ')
+    .replace(/\b\w/g, (char) => char.toUpperCase());
+};
+
 const formatWhatsappValue = (value: any, key: string): string => {
   if (value === null || value === undefined || value === 'NILL' || value === '') return '';
   if (typeof value === 'boolean') return value ? 'SIM' : 'NÃO';
@@ -99,14 +106,21 @@ const formatWhatsappValue = (value: any, key: string): string => {
   }
   
   if (Array.isArray(value)) return value.join(', ').replace(/[-_]/g, ' ').toUpperCase();
-  return String(value).replace(/[-_]/g, ' ').toUpperCase();
-};
+  
+  if (typeof value === 'object') {
+    return Object.entries(value)
+      .map(([subKey, subValue]) => {
+        const formattedSubValue = formatWhatsappValue(subValue, subKey);
+        if (formattedSubValue) {
+          return `${formatKey(subKey)}: ${formattedSubValue}`;
+        }
+        return '';
+      })
+      .filter(Boolean)
+      .join('\n');
+  }
 
-const formatKey = (key: string) => {
-  return key
-    .replace(/([A-Z])/g, ' $1')
-    .replace(/_/g, ' ')
-    .replace(/\b\w/g, (char) => char.toUpperCase());
+  return String(value).replace(/[-_]/g, ' ').toUpperCase();
 };
 
 const generateWhatsappMessage = (data: any, category: string): string => {
@@ -119,6 +133,11 @@ const generateWhatsappMessage = (data: any, category: string): string => {
     tracadoPista: 'TRAÇADO DA PISTA',
     sinalizacaoInfo: 'SINALIZAÇÃO',
     otherInfo: 'OUTRAS INFORMAÇÕES',
+    previa: 'ACIDENTE PRÉVIA',
+    confirmacao: 'CONFIRMAÇÃO DA PRÉVIA',
+    condicao: 'CONDIÇÃO',
+    pista: 'PISTA',
+    sinalizacao: 'SINALIZAÇÃO (GERAL)',
   };
 
   for (const sectionKey in data) {
@@ -131,7 +150,7 @@ const generateWhatsappMessage = (data: any, category: string): string => {
 
       if (sectionData && Object.keys(sectionData).length > 0) {
         
-        const sectionEntries = Object.entries(sectionData).filter(([_, value]) => value !== 'NILL' && value !== '');
+        const sectionEntries = Object.entries(sectionData).filter(([_, value]) => value !== 'NILL' && value !== '' && (!Array.isArray(value) || value.length > 0));
         if (sectionEntries.length === 0) continue;
 
         message += `\n*${sectionTitle}*\n`;
@@ -150,9 +169,6 @@ const generateWhatsappMessage = (data: any, category: string): string => {
           });
         } else if (typeof sectionData === 'object' && !Array.isArray(sectionData)) {
           for (const [key, value] of Object.entries(sectionData)) {
-            if (key === 'qthExato' && sectionData.destinacaoDoObjeto === 'pr06') {
-              continue;
-            }
             const formattedValue = formatWhatsappValue(value, key);
             if (formattedValue) {
               const formattedKey = `*${formatKey(key).toUpperCase()}*`;
@@ -165,6 +181,7 @@ const generateWhatsappMessage = (data: any, category: string): string => {
   }
   return message;
 };
+
 
 const hexToRgba = (hex: string, alpha: number) => {
     const r = parseInt(hex.slice(1, 3), 16);
@@ -343,9 +360,9 @@ export default function OcorrenciasPage() {
         </p>
       </div>
 
-      {isLoading && <LoadingSkeleton />}
+      {(isLoading || isUserLoading) && <LoadingSkeleton />}
 
-      {!isLoading && reports.length === 0 && (
+      {!isLoading && !isUserLoading && reports.length === 0 && (
         <div className="text-center py-10 border-2 border-dashed rounded-lg">
           <p className="text-muted-foreground text-lg">Nenhum relatório encontrado.</p>
           <p className="text-muted-foreground">
@@ -354,7 +371,7 @@ export default function OcorrenciasPage() {
         </div>
       )}
 
-      {!isLoading && reports.length > 0 && (
+      {!isLoading && !isUserLoading && reports.length > 0 && (
         <div className="space-y-6">
           {reports.map((report) => (
             <ReportCard key={report.id} report={report} onDelete={() => handleDeleteReport(report.id)} />
@@ -364,4 +381,3 @@ export default function OcorrenciasPage() {
     </main>
   );
 }
-

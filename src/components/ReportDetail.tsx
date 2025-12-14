@@ -12,7 +12,6 @@ interface Report {
 const formatDate = (dateSource: string | Date | Timestamp) => {
     if (!dateSource || dateSource === 'NILL') return 'N/A';
     
-    // Handle time-only strings like "13:50"
     if (typeof dateSource === 'string' && dateSource.match(/^\d{2}:\d{2}$/)) {
         return dateSource;
     }
@@ -76,12 +75,31 @@ const formatKey = (key: string) => {
         .replace(/\b\w/g, char => char.toUpperCase());
 };
 
+const sectionTitles: { [key: string]: string } = {
+  generalInfo: "Informações Gerais",
+  vehicles: "Veículos",
+  caracteristicasEntorno: "Características do Entorno",
+  tracadoPista: "Traçado da Pista",
+  sinalizacaoInfo: "Sinalização",
+  otherInfo: "Outras Informações",
+  previa: "Acidente Prévia",
+  confirmacao: "Confirmação da Prévia",
+  condicao: "Condição",
+  pista: "Pista",
+  sinalizacao: "Sinalização (Geral)",
+};
+
+
 export default function ReportDetail({ formData }: { formData: any }) {
     if (!formData) return <p>Sem detalhes para exibir.</p>;
 
     const renderSection = (title: string, data: any) => {
         if (!data || Object.keys(data).length === 0) return null;
-        const filteredData = Object.entries(data).filter(([_, value]) => value !== 'NILL' && value !== '' && (!Array.isArray(value) || value.length > 0));
+        
+        const filteredData = Object.entries(data).filter(([_, value]) => 
+            value !== null && value !== undefined && value !== 'NILL' && value !== '' && (!Array.isArray(value) || value.length > 0)
+        );
+
         if (filteredData.length === 0) return null;
 
         return (
@@ -107,13 +125,14 @@ export default function ReportDetail({ formData }: { formData: any }) {
         if (!vehicles || vehicles.length === 0) return null;
         return (
             <div>
+                 <h4 className="text-lg font-semibold mb-2 text-primary">Veículos</h4>
                  {vehicles.map((vehicle, index) => {
                     const filteredVehicleData = Object.entries(vehicle).filter(([key, value]) => key !== 'id' && value !== 'NILL' && value !== '' && (!Array.isArray(value) || value.length > 0));
                     if(filteredVehicleData.length === 0) return null;
 
                     return (
                         <div key={index} className="mb-6 mt-4 border-t pt-4">
-                            <h4 className="text-xl font-semibold mb-2 text-primary">Veículo {index + 1}</h4>
+                            <h5 className="text-xl font-semibold mb-2 text-primary/80">Veículo {index + 1}</h5>
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-2 text-lg">
                                 {filteredVehicleData.map(([key, value]) => {
                                     const renderedVal = renderValue(key, value);
@@ -133,14 +152,36 @@ export default function ReportDetail({ formData }: { formData: any }) {
         )
     };
 
+    const defaultSections = [
+        'generalInfo',
+        'caracteristicasEntorno',
+        'tracadoPista',
+        'sinalizacaoInfo',
+        'otherInfo'
+    ];
+    
+    const isTracadoDePista = Object.keys(formData).some(key => ['previa', 'confirmacao', 'condicao', 'pista', 'sinalizacao'].includes(key));
+
+
     return (
         <div className="space-y-4">
-            {renderSection("Informações Gerais", formData.generalInfo)}
-            {renderVehicleSection(formData.vehicles)}
-            {renderSection("Características do Entorno", formData.caracteristicasEntorno)}
-            {renderSection("Traçado da Pista", formData.tracadoPista)}
-            {renderSection("Sinalização", formData.sinalizacaoInfo)}
-            {renderSection("Outras Informações", formData.otherInfo)}
+            {isTracadoDePista ? (
+                Object.keys(sectionTitles).map(key => {
+                    if (formData[key]) {
+                        return renderSection(sectionTitles[key], formData[key]);
+                    }
+                    return null;
+                })
+            ) : (
+                <>
+                    {renderSection("Informações Gerais", formData.generalInfo)}
+                    {renderVehicleSection(formData.vehicles)}
+                    {renderSection("Características do Entorno", formData.caracteristicasEntorno)}
+                    {renderSection("Traçado da Pista", formData.tracadoPista)}
+                    {renderSection("Sinalização", formData.sinalizacaoInfo)}
+                    {renderSection("Outras Informações", formData.otherInfo)}
+                </>
+            )}
         </div>
     );
 };

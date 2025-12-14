@@ -32,19 +32,25 @@ const SectionTitle = ({ children }: { children: React.ReactNode }) => (
 
 
 export default function TracadoDePistaForm({ categorySlug }: { categorySlug: string }) {
-  const [formData, setFormData] = useState<any>({});
+  const [formData, setFormData] = useState<any>({
+    previa: {},
+    confirmacao: {},
+    condicao: {},
+    pista: {},
+    sinalizacao: {},
+  });
   const router = useRouter();
   const { toast } = useToast();
   
   useEffect(() => {
     const savedData = localStorage.getItem('reportPreview');
     if (savedData) {
-      const { formData: loadedFormData } = JSON.parse(savedData);
-      if (loadedFormData) {
-        setFormData(loadedFormData);
+      const parsedData = JSON.parse(savedData);
+      if (parsedData.category === categorySlug && parsedData.formData) {
+        setFormData(parsedData.formData);
       }
     }
-  }, []);
+  }, [categorySlug]);
 
 
   const handleValueChange = (section: string, key: string, value: any) => {
@@ -104,6 +110,7 @@ export default function TracadoDePistaForm({ categorySlug }: { categorySlug: str
   );
 
   const prepareReportData = () => {
+    // A função fillEmptyFields pode ser usada aqui se necessário
     return {
       category: categorySlug,
       formData: formData,
