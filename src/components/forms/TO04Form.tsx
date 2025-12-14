@@ -94,7 +94,9 @@ export default function TO04Form({ categorySlug }: { categorySlug: string }) {
             const { formData } = parsedData;
             if (formData) {
                 setGeneralInfo(formData.generalInfo || generalInfo);
-                setVehicles(formData.vehicles && formData.vehicles.length > 0 ? formData.vehicles : vehicles);
+                if (formData.vehicles && formData.vehicles.length > 0) {
+                    setVehicles(formData.vehicles);
+                }
                 setOtherInfo(formData.otherInfo || otherInfo);
                 setShowVtrApoio(!!formData.otherInfo?.vtrApoio && formData.otherInfo.vtrApoio !== 'NILL');
             }

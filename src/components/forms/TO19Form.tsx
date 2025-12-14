@@ -2,7 +2,7 @@
 'use client';
 
 import { useRouter } from 'next/navigation';
-import { Save, PlusCircle, Trash2 } from 'lucide-react';
+import { Save, Share, PlusCircle, Trash2, Loader2 } from 'lucide-react';
 import { useState, useEffect } from 'react';
 import React from 'react';
 
@@ -14,6 +14,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useToast } from '@/hooks/use-toast';
 import { Checkbox } from '@/components/ui/checkbox';
+
 
 function Field({ label, children, className }: { label?: string, children: React.ReactNode, className?: string }) {
   return (
@@ -65,6 +66,7 @@ export default function TO19Form({ categorySlug }: { categorySlug: string }) {
   const { toast } = useToast();
   const [showVtrApoio, setShowVtrApoio] = useState(false);
   const [showDanoPatrimonio, setShowDanoPatrimonio] = useState(false);
+  const [existingReport, setExistingReport] = useState<any>(null);
 
   const [generalInfo, setGeneralInfo] = useState<GeneralInfo>({
     rodovia: '',
@@ -94,10 +96,14 @@ export default function TO19Form({ categorySlug }: { categorySlug: string }) {
   useEffect(() => {
     const savedData = localStorage.getItem('reportPreview');
     if (savedData) {
-      const { formData } = JSON.parse(savedData);
+      const parsedData = JSON.parse(savedData);
+      setExistingReport(parsedData);
+      const { formData } = parsedData;
       if (formData) {
         setGeneralInfo(formData.generalInfo || generalInfo);
-        setVehicles(formData.vehicles || vehicles);
+        if (formData.vehicles && formData.vehicles.length > 0) {
+            setVehicles(formData.vehicles);
+        }
         setOtherInfo(formData.otherInfo || otherInfo);
         setShowVtrApoio(!!formData.otherInfo?.vtrApoio && formData.otherInfo.vtrApoio !== 'NILL');
         setShowDanoPatrimonio(!!formData.otherInfo?.danoPatrimonio && formData.otherInfo.danoPatrimonio !== 'NILL');
@@ -171,21 +177,23 @@ export default function TO19Form({ categorySlug }: { categorySlug: string }) {
       vehicles,
       otherInfo,
     };
+
+    const filledData = {
+      ...existingReport,
+      category: categorySlug,
+      formData: fillEmptyFields(reportData)
+    };
     
     if (!showVtrApoio) {
-      reportData.otherInfo.vtrApoio = 'NILL';
+      filledData.formData.otherInfo.vtrApoio = 'NILL';
     }
     
     if (!showDanoPatrimonio) {
-      reportData.otherInfo.danoPatrimonio = 'NILL';
+      filledData.formData.otherInfo.danoPatrimonio = 'NILL';
     }
 
-    const filledReportData = {
-        category: categorySlug,
-        formData: fillEmptyFields(reportData),
-    };
     
-    return filledReportData;
+    return filledData;
   };
   
   const handleGenerateReport = () => {

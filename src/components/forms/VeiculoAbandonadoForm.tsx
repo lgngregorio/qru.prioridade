@@ -111,7 +111,9 @@ export default function VeiculoAbandonadoForm({ categorySlug }: { categorySlug: 
 
         if (formData) {
             setGeneralInfo(formData.generalInfo || generalInfo);
-            setVehicles(formData.vehicles && formData.vehicles.length > 0 ? formData.vehicles : vehicles);
+            if (formData.vehicles && formData.vehicles.length > 0) {
+                setVehicles(formData.vehicles);
+            }
             setOtherInfo(formData.otherInfo || otherInfo);
             setShowVtrApoio(!!formData.otherInfo?.vtrApoio && formData.otherInfo.vtrApoio !== 'NILL');
         }
@@ -196,17 +198,17 @@ export default function VeiculoAbandonadoForm({ categorySlug }: { categorySlug: 
       otherInfo: otherInfo,
     };
 
-    if (!showVtrApoio) {
-      reportData.otherInfo.vtrApoio = 'NILL';
-    }
-    
-    const filledReportData = {
+    const filledData = {
       ...existingReport,
       category: categorySlug,
-      formData: fillEmptyFields(reportData),
+      formData: fillEmptyFields(reportData)
     };
+
+    if (!showVtrApoio) {
+      filledData.formData.otherInfo.vtrApoio = 'NILL';
+    }
     
-    return filledReportData;
+    return filledData;
   };
   
   const handleGenerateReport = () => {

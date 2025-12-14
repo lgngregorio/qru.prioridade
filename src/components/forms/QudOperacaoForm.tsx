@@ -103,7 +103,9 @@ export default function QudOperacaoForm({ categorySlug }: { categorySlug: string
 
       if (formData) {
         setGeneralInfo(formData.generalInfo || generalInfo);
-        setVehicles(formData.vehicles || vehicles);
+        if (formData.vehicles && formData.vehicles.length > 0) {
+            setVehicles(formData.vehicles);
+        }
         setOtherInfo(formData.otherInfo || otherInfo);
         setShowVtrApoio(!!formData.otherInfo?.vtrApoio && formData.otherInfo.vtrApoio !== 'NILL');
         setShowDanoPatrimonio(!!formData.otherInfo?.danoPatrimonio && formData.otherInfo.danoPatrimonio !== 'NILL');

@@ -3,7 +3,7 @@
 
 import { useRouter } from 'next/navigation';
 import { Save, Share, PlusCircle, Trash2, Loader2 } from 'lucide-react';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { collection, addDoc, serverTimestamp } from 'firebase/firestore';
 import React from 'react';
 
@@ -77,6 +77,7 @@ export default function TO33Form({ categorySlug }: { categorySlug: string }) {
   const router = useRouter();
   const { toast } = useToast();
   const [showVtrApoio, setShowVtrApoio] = useState(false);
+  const [existingReport, setExistingReport] = useState<any>(null);
 
   const [generalInfo, setGeneralInfo] = useState<GeneralInfo>({
     rodovia: '',
@@ -101,6 +102,23 @@ export default function TO33Form({ categorySlug }: { categorySlug: string }) {
     observacoes: '',
     numeroOcorrencia: '',
   });
+
+  useEffect(() => {
+    const savedData = localStorage.getItem('reportPreview');
+    if (savedData) {
+      const parsedData = JSON.parse(savedData);
+      setExistingReport(parsedData);
+      const { formData } = parsedData;
+      if (formData) {
+        setGeneralInfo(formData.generalInfo || generalInfo);
+        if (formData.vehicles && formData.vehicles.length > 0) {
+            setVehicles(formData.vehicles);
+        }
+        setOtherInfo(formData.otherInfo || otherInfo);
+        setShowVtrApoio(!!formData.otherInfo?.vtrApoio && formData.otherInfo.vtrApoio !== 'NILL');
+      }
+    }
+  }, []);
 
   const handleGeneralInfoChange = (field: keyof Omit<GeneralInfo, 'tipoPane'>, value: string) => {
     setGeneralInfo(prev => ({ ...prev, [field]: value }));
@@ -173,20 +191,22 @@ export default function TO33Form({ categorySlug }: { categorySlug: string }) {
   };
 
   const prepareReportData = () => {
+    const reportData = {
+        generalInfo,
+        vehicles,
+        otherInfo
+    }
     const filledData = {
-      generalInfo: fillEmptyFields(generalInfo),
-      vehicles: fillEmptyFields(vehicles),
-      otherInfo: fillEmptyFields(otherInfo),
+      ...existingReport,
+      category: categorySlug,
+      formData: fillEmptyFields(reportData),
     };
     
     if (!showVtrApoio) {
-      filledData.otherInfo.vtrApoio = 'NILL';
+      filledData.formData.otherInfo.vtrApoio = 'NILL';
     }
 
-    return {
-      category: categorySlug,
-      formData: filledData,
-    };
+    return filledData;
   };
   
   const handleGenerateReport = () => {
