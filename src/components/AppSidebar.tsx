@@ -44,9 +44,9 @@ export default function AppSidebar() {
   
   return (
     <>
-      <SidebarHeader className="p-4 flex justify-between items-center">
+      <SidebarHeader className="p-4 pt-6 flex justify-between items-center">
         <div className="flex items-center justify-center space-x-2">
-           <h1 className="text-2xl font-bold text-sidebar-foreground flex items-center justify-center gap-px">
+           <h1 className="text-3xl font-bold text-sidebar-foreground flex items-center justify-center gap-px">
             QRU
             <div className="flex h-6 items-center gap-px">
               <div className="w-[1.5px] h-full bg-sidebar-foreground"></div>
@@ -67,7 +67,7 @@ export default function AppSidebar() {
       <SidebarContent className="flex-1 pt-8">
         <SidebarMenu className="gap-y-10">
           <SidebarMenuItem>
-            <SidebarMenuButton asChild isActive={pathname === '/'} className="text-lg [&_svg]:size-6" onClick={handleLinkClick}>
+            <SidebarMenuButton asChild isActive={pathname === '/'} className="text-xl [&_svg]:size-7" onClick={handleLinkClick}>
               <Link href="/">
                 <Home />
                 Início
@@ -75,7 +75,7 @@ export default function AppSidebar() {
             </SidebarMenuButton>
           </SidebarMenuItem>
            <SidebarMenuItem>
-            <SidebarMenuButton asChild isActive={pathname === '/notas'} className="text-lg [&_svg]:size-6" onClick={handleLinkClick}>
+            <SidebarMenuButton asChild isActive={pathname === '/notas'} className="text-xl [&_svg]:size-7" onClick={handleLinkClick}>
               <Link href="/notas">
                 <Notebook />
                 Bloco de Notas
@@ -83,7 +83,7 @@ export default function AppSidebar() {
             </SidebarMenuButton>
           </SidebarMenuItem>
            <SidebarMenuItem>
-            <SidebarMenuButton asChild isActive={pathname.startsWith('/ocorrencias')} className="text-lg [&_svg]:size-6" onClick={handleLinkClick}>
+            <SidebarMenuButton asChild isActive={pathname.startsWith('/ocorrencias')} className="text-xl [&_svg]:size-7" onClick={handleLinkClick}>
               <Link href="/ocorrencias">
                 <ListOrdered />
                 Ocorrências
@@ -91,7 +91,7 @@ export default function AppSidebar() {
             </SidebarMenuButton>
           </SidebarMenuItem>
           <SidebarMenuItem>
-            <SidebarMenuButton asChild isActive={pathname === '/codigos'} className="text-lg [&_svg]:size-6" onClick={handleLinkClick}>
+            <SidebarMenuButton asChild isActive={pathname === '/codigos'} className="text-xl [&_svg]:size-7" onClick={handleLinkClick}>
               <Link href="/codigos">
                 <FileCode />
                 Códigos
@@ -99,7 +99,7 @@ export default function AppSidebar() {
             </SidebarMenuButton>
           </SidebarMenuItem>
            <SidebarMenuItem>
-            <SidebarMenuButton asChild isActive={pathname === '/configuracoes'} className="text-lg [&_svg]:size-6" onClick={handleLinkClick}>
+            <SidebarMenuButton asChild isActive={pathname === '/configuracoes'} className="text-xl [&_svg]:size-7" onClick={handleLinkClick}>
               <Link href="/configuracoes">
                 <Settings />
                 Configurações
@@ -111,7 +111,7 @@ export default function AppSidebar() {
       <SidebarFooter>
         <SidebarMenu className="gap-y-4">
            <SidebarMenuItem>
-             <SidebarMenuButton asChild isActive={pathname === '/politicas-sgi'} className="text-lg [&_svg]:size-6" onClick={handleLinkClick}>
+             <SidebarMenuButton asChild isActive={pathname === '/politicas-sgi'} className="text-xl [&_svg]:size-7" onClick={handleLinkClick}>
                <Link href="/politicas-sgi">
                  <ShieldCheck />
                  Políticas do SGI
@@ -119,7 +119,7 @@ export default function AppSidebar() {
              </SidebarMenuButton>
            </SidebarMenuItem>
            <SidebarMenuItem>
-             <SidebarMenuButton onClick={handleLogout} className="text-lg [&_svg]:size-6">
+             <SidebarMenuButton onClick={handleLogout} className="text-xl [&_svg]:size-7">
                <LogOut />
                Sair
              </SidebarMenuButton>
