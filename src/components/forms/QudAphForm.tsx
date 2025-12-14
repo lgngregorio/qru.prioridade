@@ -605,7 +605,7 @@ export default function QudAphForm({ categorySlug }: { categorySlug: string }) {
                             <SubSectionTitle>C - Circulação e Hemorragias</SubSectionTitle>
                             <div className="grid grid-cols-1 gap-8">
                                 <Field label="Pulso">
-                                    {renderRadioGroup(victim.id, 'avaliacao_primaria', 'pulso', [{id: 'presente', label: 'Presente'}, {id: 'cheio', label: 'Cheio'}, {id: 'filiforme', label: 'Filiforme'}], 'vertical')}
+                                    {renderCheckboxes(victim.id, 'avaliacao_primaria', 'pulso', [{id: 'presente', label: 'Presente'}, {id: 'cheio', label: 'Cheio'}, {id: 'filiforme', label: 'Filiforme'}])}
                                 </Field>
                                 <Field label="Pele">
                                     {renderRadioGroup(victim.id, 'avaliacao_primaria', 'pele', [{id: 'normal', label: 'Normal'}, {id: 'fria', label: 'Fria'}, {id: 'sudorese', label: 'Sudorese'}], 'vertical')}
