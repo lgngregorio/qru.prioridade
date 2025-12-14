@@ -23,24 +23,25 @@ import {
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import { useUser } from '@/app/layout';
+import { useAuth } from '@/firebase';
+import { signOut } from 'firebase/auth';
 
 export default function AppSidebar() {
   const pathname = usePathname();
   const { setOpenMobile } = useSidebar();
   const router = useRouter();
-  const { logout } = useUser();
-
+  const { user } = useUser();
+  const auth = useAuth();
 
   const handleLinkClick = () => {
     setOpenMobile(false);
   };
 
-  const handleLogout = () => {
-    logout();
+  const handleLogout = async () => {
+    await signOut(auth);
     router.push('/login');
   };
   
-
   return (
     <>
       <SidebarHeader className="p-4 flex justify-between items-center">

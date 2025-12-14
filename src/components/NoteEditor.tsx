@@ -11,6 +11,8 @@ import { useToast } from '@/hooks/use-toast';
 import { Loader2 } from 'lucide-react';
 import type { Note } from '@/lib/types';
 import { useUser } from '@/app/layout';
+import { useFirestore } from '@/firebase';
+import { collection, addDoc, updateDoc, doc, serverTimestamp } from 'firebase/firestore';
 
 interface NoteEditorProps {
   isOpen: boolean;
@@ -20,6 +22,7 @@ interface NoteEditorProps {
 
 export function NoteEditor({ isOpen, onClose, note }: NoteEditorProps) {
   const { user } = useUser();
+  const firestore = useFirestore();
   const { toast } = useToast();
   const [title, setTitle] = useState('');
   const [content, setContent] = useState('');
@@ -35,8 +38,8 @@ export function NoteEditor({ isOpen, onClose, note }: NoteEditorProps) {
     }
   }, [note, isOpen]);
 
-  const handleSave = () => {
-    if (!user) {
+  const handleSave = async () => {
+    if (!user || !firestore) {
         toast({
             variant: 'destructive',
             title: 'Usuário não autenticado',
@@ -57,33 +60,32 @@ export function NoteEditor({ isOpen, onClose, note }: NoteEditorProps) {
     setIsSaving(true);
     
     try {
-      const allNotes = JSON.parse(localStorage.getItem('qru-priority-notes') || '[]');
       if (note) {
         // Edit existing note
-        const noteIndex = allNotes.findIndex((n: Note) => n.id === note.id);
-        if (noteIndex > -1) {
-            allNotes[noteIndex] = { ...allNotes[noteIndex], title, content, updatedAt: new Date().toISOString() };
-        }
+        const noteRef = doc(firestore, 'notes', note.id);
+        await updateDoc(noteRef, {
+            title,
+            content,
+            updatedAt: serverTimestamp(),
+        });
+
         toast({
           title: 'Nota atualizada!',
           description: 'Suas alterações foram salvas.',
         });
       } else {
         // Create new note
-        const newNote: Note = {
-          id: new Date().toISOString() + Math.random(),
-          userEmail: user.email,
+        await addDoc(collection(firestore, 'notes'), {
+          uid: user.uid,
           title,
           content,
-          createdAt: new Date().toISOString(),
-        };
-        allNotes.push(newNote);
+          createdAt: serverTimestamp(),
+        });
         toast({
           title: 'Nota criada!',
           description: 'Sua nova nota foi salva.',
         });
       }
-      localStorage.setItem('qru-priority-notes', JSON.stringify(allNotes));
       onClose();
     } catch (error) {
       console.error("Error saving note: ", error);

@@ -1,9 +1,11 @@
 
+import { Timestamp } from 'firebase/firestore';
+
 export interface Note {
   id: string;
-  userEmail: string;
+  uid: string;
   title: string;
   content: string;
-  createdAt: string; // ISO String
-  updatedAt?: string; // ISO String
+  createdAt: Timestamp;
+  updatedAt?: Timestamp;
 }

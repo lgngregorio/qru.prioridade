@@ -1,7 +1,7 @@
 
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import Link from 'next/link';
 import { ArrowLeft, Edit, Share2, Trash2, Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -29,13 +29,15 @@ import { eventCategories } from '@/lib/events';
 import { useUser } from '@/app/layout';
 import { useRouter } from 'next/navigation';
 import { useToast } from '@/hooks/use-toast';
+import { useFirestore, useCollection, useMemoFirebase } from '@/firebase';
+import { collection, query, where, orderBy, Timestamp, doc, deleteDoc } from 'firebase/firestore';
 
 interface Report {
   id: string;
   category: string;
-  createdAt: string; // ISO string
+  createdAt: Timestamp;
   formData: any;
-  userEmail: string;
+  uid: string;
 }
 
 const LoadingSkeleton = () => (
@@ -50,14 +52,14 @@ const getCategoryInfo = (slug: string) => {
     const category = eventCategories.find((c) => c.slug === slug);
     return {
         title: category ? category.title : slug,
-        color: category ? category.color : '#808080' // Cor padrão cinza
+        color: category ? category.color : '#808080'
     };
 };
 
-const formatDate = (isoDate: string) => {
-  if (!isoDate) return 'Data indisponível';
+const formatDate = (timestamp: Timestamp) => {
+  if (!timestamp) return 'Data indisponível';
   try {
-    const date = new Date(isoDate);
+    const date = timestamp.toDate();
     return date.toLocaleString('pt-BR', {
       day: '2-digit',
       month: '2-digit',
@@ -77,9 +79,12 @@ const formatWhatsappValue = (value: any, key: string): string => {
   const dateKeys = ['data', 'dn', 'createdAt', 'qtrInicio', 'qtrTermino'];
 
   if (dateKeys.includes(key)) {
-    return formatDate(value);
+     if (value instanceof Timestamp) {
+      return formatDate(value);
+    }
+    return formatDate(new Timestamp(value.seconds, value.nanoseconds));
   }
-
+  
   if (Array.isArray(value)) return value.join(', ').replace(/[-_]/g, ' ').toUpperCase();
   return String(value).replace(/[-_]/g, ' ').toUpperCase();
 };
@@ -161,7 +166,8 @@ function ReportCard({ report, onDelete }: { report: Report; onDelete: () => void
 
   const handleEdit = (e: React.MouseEvent) => {
     e.stopPropagation();
-    localStorage.setItem('reportPreview', JSON.stringify(report));
+    const reportToEdit = { ...report, createdAt: report.createdAt.toDate().toISOString() };
+    localStorage.setItem('reportPreview', JSON.stringify(reportToEdit));
     router.push(`/${report.category}`);
   };
 
@@ -177,18 +183,14 @@ function ReportCard({ report, onDelete }: { report: Report; onDelete: () => void
     setShowDeleteConfirm(true);
   };
   
-  const handleDeleteConfirm = () => {
+  const handleDeleteConfirm = async () => {
     setIsDeleting(true);
     try {
-      const allReports = JSON.parse(localStorage.getItem('qru-priority-reports') || '[]');
-      const updatedReports = allReports.filter((r: Report) => r.id !== report.id);
-      localStorage.setItem('qru-priority-reports', JSON.stringify(updatedReports));
-      
+      await onDelete();
       toast({
         title: 'Relatório apagado!',
         description: 'Seu relatório foi removido com sucesso.',
       });
-      onDelete(); 
     } catch (error) {
       console.error("Error deleting report: ", error);
       toast({
@@ -262,28 +264,20 @@ function ReportCard({ report, onDelete }: { report: Report; onDelete: () => void
 
 export default function OcorrenciasPage() {
   const { user, isLoading: isUserLoading } = useUser();
-  const [reports, setReports] = useState<Report[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
+  const firestore = useFirestore();
 
-  const loadReports = () => {
-    if (!isUserLoading && user) {
-      try {
-        const allReports = JSON.parse(localStorage.getItem('qru-priority-reports') || '[]');
-        const userReports = allReports.filter((report: Report) => report.userEmail === user.email);
-        setReports(userReports.sort((a: Report, b: Report) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()));
-      } catch (error) {
-        console.error("Failed to load reports from localStorage", error);
-      } finally {
-        setIsLoading(false);
-      }
-    } else if (!isUserLoading && !user) {
-        setIsLoading(false);
-    }
-  }
+  const reportsQuery = useMemoFirebase(() => 
+    user ? query(collection(firestore, 'reports'), where('uid', '==', user.uid), orderBy('createdAt', 'desc')) : null
+  , [firestore, user]);
 
-  useEffect(() => {
-    loadReports();
-  }, [user, isUserLoading]);
+  const { data: reports, isLoading: areReportsLoading } = useCollection<Report>(reportsQuery);
+  
+  const handleDeleteReport = async (reportId: string) => {
+    if (!firestore) return;
+    const reportRef = doc(firestore, 'reports', reportId);
+    await deleteDoc(reportRef);
+  };
+
 
   return (
     <main className="flex flex-col p-4 md:p-6">
@@ -305,9 +299,9 @@ export default function OcorrenciasPage() {
         </p>
       </div>
 
-      {(isLoading || isUserLoading) && <LoadingSkeleton />}
+      {(isUserLoading || areReportsLoading) && <LoadingSkeleton />}
 
-      {!isLoading && !isUserLoading && reports.length === 0 && (
+      {!isUserLoading && !areReportsLoading && (!reports || reports.length === 0) && (
         <div className="text-center py-10 border-2 border-dashed rounded-lg">
           <p className="text-muted-foreground text-lg">Nenhum relatório encontrado.</p>
           <p className="text-muted-foreground">
@@ -316,10 +310,10 @@ export default function OcorrenciasPage() {
         </div>
       )}
 
-      {!isLoading && reports.length > 0 && (
+      {!isUserLoading && reports && reports.length > 0 && (
         <div className="space-y-6">
           {reports.map((report) => (
-            <ReportCard key={report.id} report={report} onDelete={loadReports} />
+            <ReportCard key={report.id} report={report} onDelete={() => handleDeleteReport(report.id)} />
           ))}
         </div>
       )}

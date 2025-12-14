@@ -10,7 +10,6 @@ import {
   CardContent,
   CardHeader,
   CardTitle,
-  CardDescription,
 } from '@/components/ui/card';
 import { useTheme } from 'next-themes';
 import { useState, useEffect } from 'react';
@@ -19,12 +18,15 @@ import { useRouter } from 'next/navigation';
 import { useUser } from '@/app/layout';
 import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
+import { updateProfile, updateEmail } from 'firebase/auth';
+import { useAuth } from '@/firebase';
 
 export default function ConfiguracoesPage() {
   const { theme, setTheme, systemTheme } = useTheme();
   const { toast } = useToast();
   const router = useRouter();
-  const { user, login } = useUser();
+  const { user, isLoading: isUserLoading } = useUser();
+  const auth = useAuth();
 
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
@@ -36,13 +38,22 @@ export default function ConfiguracoesPage() {
     const currentTheme = theme === 'system' ? systemTheme : theme;
     setSelectedTheme(currentTheme || 'light');
     if (user) {
-        setName(user.name);
-        setEmail(user.email);
+        setName(user.displayName || '');
+        setEmail(user.email || '');
     }
     setIsLoaded(true);
   }, [theme, systemTheme, user]);
   
-  const handleSave = () => {
+  const handleSave = async () => {
+    if (!user) {
+        toast({
+            variant: "destructive",
+            title: "Erro",
+            description: "Usuário não autenticado.",
+        });
+        return;
+    }
+    
     setIsSaving(true);
     
     // Theme saving
@@ -50,40 +61,32 @@ export default function ConfiguracoesPage() {
 
     // User data saving
     try {
-        const users = JSON.parse(localStorage.getItem('qru-priority-users') || '[]');
-        const currentUserEmail = user?.email;
-        let userToUpdate = users.find((u: any) => u.email === currentUserEmail);
-
-        if (userToUpdate) {
-            userToUpdate.name = name;
-            userToUpdate.email = email;
-            
-            const updatedUsers = users.map((u: any) => u.email === currentUserEmail ? userToUpdate : u);
-            localStorage.setItem('qru-priority-users', JSON.stringify(updatedUsers));
-            
-            // Update the currently logged-in user state
-            login({ name: name, email: email });
+        if (name !== user.displayName) {
+            await updateProfile(user, { displayName: name });
+        }
+        if (email !== user.email) {
+            await updateEmail(user, email);
         }
         
         toast({
             title: "Sucesso!",
             description: "Suas configurações foram salvas.",
         });
+        router.push('/');
 
-    } catch (error) {
+    } catch (error: any) {
         console.error("Failed to save user data", error);
         toast({
             variant: "destructive",
             title: "Erro ao salvar perfil",
-            description: "Não foi possível salvar os dados do perfil.",
+            description: error.message || "Não foi possível salvar os dados do perfil.",
         });
     }
 
     setIsSaving(false);
-    router.push('/');
   };
 
-  if (!isLoaded || !user) {
+  if (!isLoaded || isUserLoading) {
       return (
          <main className="flex flex-col items-center p-4 md:p-6">
             <div className="w-full max-w-2xl animate-pulse">

@@ -4,12 +4,13 @@
 import { useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
+import { signInWithEmailAndPassword } from 'firebase/auth';
+import { useAuth } from '@/firebase';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { useToast } from '@/hooks/use-toast';
 import { Loader2 } from 'lucide-react';
-import { useUser } from '@/app/layout';
 
 export default function LoginPage() {
   const [email, setEmail] = useState('');
@@ -17,28 +18,25 @@ export default function LoginPage() {
   const [isLoading, setIsLoading] = useState(false);
   const router = useRouter();
   const { toast } = useToast();
-  const { login } = useUser();
+  const auth = useAuth();
 
-  const handleLogin = (e: React.FormEvent) => {
+  const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
 
     try {
-      const users = JSON.parse(localStorage.getItem('qru-priority-users') || '[]');
-      const user = users.find((u: any) => u.email === email && u.password === password);
-
-      if (user) {
-        login({ name: user.name, email: user.email });
-        router.push('/');
-      } else {
-        throw new Error('Credenciais inválidas. Por favor, tente novamente.');
-      }
+      await signInWithEmailAndPassword(auth, email, password);
+      router.push('/');
     } catch (error: any) {
       console.error(error);
+      let description = 'Ocorreu um erro durante o login.';
+      if (error.code === 'auth/user-not-found' || error.code === 'auth/wrong-password' || error.code === 'auth/invalid-credential') {
+        description = 'Credenciais inválidas. Por favor, tente novamente.';
+      }
       toast({
         variant: 'destructive',
         title: 'Erro de Login',
-        description: error.message || 'Ocorreu um erro durante o login.',
+        description: description,
       });
     } finally {
       setIsLoading(false);
@@ -49,7 +47,7 @@ export default function LoginPage() {
     <main className="flex items-center justify-center min-h-screen bg-background p-4">
       <div className="w-full max-w-md">
         <header className="text-center w-full mb-8">
-            <h1 className="text-4xl font-bold text-foreground font-headline tracking-wider flex items-center justify-center gap-4">
+            <h1 className="text-4xl font-bold text-foreground font-headline tracking-wider flex items-center justify-center gap-px">
               QRU
               <div className="flex h-10 items-center gap-px">
                 <div className="w-[2px] h-full bg-foreground"></div>

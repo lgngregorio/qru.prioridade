@@ -3,6 +3,7 @@
 
 import { usePathname, useRouter } from 'next/navigation';
 import React, { ReactNode, useEffect, useState, createContext, useContext } from 'react';
+import { onAuthStateChanged, User } from 'firebase/auth';
 
 import './globals.css';
 import { cn } from '@/lib/utils';
@@ -15,18 +16,12 @@ import {
 import AppSidebar from '@/components/AppSidebar';
 import { ThemeProvider } from '@/components/theme-provider';
 import { Loader2 } from 'lucide-react';
+import { FirebaseProvider, useAuth } from '@/firebase';
 
-// --- User Context for localStorage Auth ---
-interface User {
-  name: string;
-  email: string;
-}
-
+// --- User Context for Firebase Auth ---
 interface UserContextType {
   user: User | null;
   isLoading: boolean;
-  login: (user: User) => void;
-  logout: () => void;
 }
 
 const UserContext = createContext<UserContextType | undefined>(undefined);
@@ -34,32 +29,19 @@ const UserContext = createContext<UserContextType | undefined>(undefined);
 export function UserProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const auth = useAuth();
 
   useEffect(() => {
-    try {
-      const storedUser = localStorage.getItem('qru-priority-user');
-      if (storedUser) {
-        setUser(JSON.parse(storedUser));
-      }
-    } catch (error) {
-      console.error("Failed to parse user from localStorage", error);
-    } finally {
+    const unsubscribe = onAuthStateChanged(auth, (user) => {
+      setUser(user);
       setIsLoading(false);
-    }
-  }, []);
+    });
 
-  const login = (userData: User) => {
-    localStorage.setItem('qru-priority-user', JSON.stringify(userData));
-    setUser(userData);
-  };
-
-  const logout = () => {
-    localStorage.removeItem('qru-priority-user');
-    setUser(null);
-  };
+    return () => unsubscribe();
+  }, [auth]);
 
   return (
-    <UserContext.Provider value={{ user, isLoading, login, logout }}>
+    <UserContext.Provider value={{ user, isLoading }}>
       {children}
     </UserContext.Provider>
   );
@@ -73,7 +55,6 @@ export function useUser() {
   return context;
 }
 // --- End User Context ---
-
 
 const publicRoutes = ['/login', '/signup', '/forgot-password'];
 
@@ -98,7 +79,7 @@ function AuthGuard({ children }: { children: ReactNode }) {
     }
   }, [user, isLoading, router, pathname]);
 
-  if (isLoading) {
+  if (isLoading || (!user && !publicRoutes.includes(pathname))) {
     return (
       <div className="flex justify-center items-center h-screen bg-background">
         <Loader2 className="h-12 w-12 animate-spin text-primary" />
@@ -108,7 +89,6 @@ function AuthGuard({ children }: { children: ReactNode }) {
 
   return <>{children}</>;
 }
-
 
 export default function RootLayout({
   children,
@@ -144,22 +124,24 @@ export default function RootLayout({
           defaultTheme="light"
           enableSystem
         >
-          <UserProvider>
-            {isAuthPage ? (
-                children
-              ) : (
-                <AuthGuard>
-                  <SidebarProvider>
-                    <Sidebar>
-                      <AppSidebar />
-                    </Sidebar>
-                    <SidebarInset>{children}</SidebarInset>
-                  </SidebarProvider>
-                </AuthGuard>
-              )
-            }
-            <Toaster />
-          </UserProvider>
+          <FirebaseProvider>
+            <UserProvider>
+              {isAuthPage ? (
+                  children
+                ) : (
+                  <AuthGuard>
+                    <SidebarProvider>
+                      <Sidebar>
+                        <AppSidebar />
+                      </Sidebar>
+                      <SidebarInset>{children}</SidebarInset>
+                    </SidebarProvider>
+                  </AuthGuard>
+                )
+              }
+              <Toaster />
+            </UserProvider>
+          </FirebaseProvider>
         </ThemeProvider>
       </body>
     </html>

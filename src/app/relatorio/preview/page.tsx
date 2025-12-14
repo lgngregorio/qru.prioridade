@@ -4,7 +4,7 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useToast } from '@/hooks/use-toast';
-import { Loader2, ArrowLeft, Save, Edit, Share2 } from 'lucide-react';
+import { Loader2, Save, Edit, Share2 } from 'lucide-react';
 import {
   Card,
   CardContent,
@@ -17,12 +17,14 @@ import { Button } from '@/components/ui/button';
 import { eventCategories } from '@/lib/events';
 import ReportDetail from '@/components/ReportDetail';
 import { useUser } from '@/app/layout';
+import { useFirestore } from '@/firebase';
+import { collection, addDoc, serverTimestamp, doc, updateDoc, Timestamp } from 'firebase/firestore';
 
 interface ReportData {
   id?: string;
   category: string;
   formData: any;
-  userEmail?: string;
+  uid?: string;
   createdAt?: any;
 }
 
@@ -30,6 +32,7 @@ export default function PreviewPage() {
   const router = useRouter();
   const { toast } = useToast();
   const { user, isLoading: isUserLoading } = useUser();
+  const firestore = useFirestore();
 
   const [report, setReport] = useState<ReportData | null>(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -40,62 +43,47 @@ export default function PreviewPage() {
       const parsedData = JSON.parse(savedData);
       setReport(parsedData);
     } else {
-      router.push('/');
+      // Allow access but show loading until check is complete
     }
     setIsLoading(false);
-  }, [router]);
+  }, []);
 
-  const handleSaveAndGoToHistory = () => {
-    if (!report || !user) {
+  const handleSaveAndGoToHistory = async () => {
+    if (!report || !user || !firestore) {
       toast({
         variant: 'destructive',
         title: 'Erro',
-        description: 'Relatório ou usuário não encontrado. Não é possível salvar.',
+        description: 'Relatório, usuário ou conexão com banco de dados não encontrado.',
       });
       return;
     }
 
     try {
-      const allReports = JSON.parse(localStorage.getItem('qru-priority-reports') || '[]');
-      
       if (report.id) {
         // Editing an existing report
-        const reportIndex = allReports.findIndex((r: any) => r.id === report.id);
-        if (reportIndex > -1) {
-          allReports[reportIndex] = {
-            ...allReports[reportIndex],
-            ...report,
+        const reportRef = doc(firestore, 'reports', report.id);
+        await updateDoc(reportRef, {
             formData: report.formData,
-          };
-          toast({
-            title: 'Sucesso!',
-            description: 'Seu relatório foi atualizado.',
-          });
-        } else {
-          // Fallback in case the report to be edited is not found, create a new one.
-          const newReport = { ...report, userEmail: user.email, createdAt: new Date().toISOString() };
-          allReports.push(newReport);
-           toast({
-            title: 'Sucesso!',
-            description: 'Seu relatório foi salvo como um novo registro.',
-          });
-        }
+            category: report.category,
+        });
+        toast({
+          title: 'Sucesso!',
+          description: 'Seu relatório foi atualizado.',
+        });
       } else {
         // Creating a new report
-        const newReport = {
-          ...report,
-          id: new Date().toISOString() + Math.random(), // Unique ID for new report
-          userEmail: user.email,
-          createdAt: new Date().toISOString(),
-        };
-        allReports.push(newReport);
+        await addDoc(collection(firestore, 'reports'), {
+            uid: user.uid,
+            category: report.category,
+            formData: report.formData,
+            createdAt: serverTimestamp(),
+        });
         toast({
             title: 'Sucesso!',
             description: 'Seu relatório foi salvo.',
         });
       }
 
-      localStorage.setItem('qru-priority-reports', JSON.stringify(allReports));
       localStorage.removeItem('reportPreview');
       router.push('/ocorrencias'); 
     } catch (error) {
@@ -122,10 +110,15 @@ export default function PreviewPage() {
     const formatDate = (dateSource: any): string => {
         if (!dateSource) return 'N/A';
         
-        // Check if it's an ISO string or a Date object
-        const date = new Date(dateSource);
+        let date;
+        if (dateSource instanceof Timestamp) {
+            date = dateSource.toDate();
+        } else {
+            date = new Date(dateSource);
+        }
+
         if (isNaN(date.getTime())) {
-            return String(dateSource); // Not a valid date, return as is
+            return String(dateSource); 
         }
         
         return date.toLocaleString('pt-BR', {
@@ -145,6 +138,13 @@ export default function PreviewPage() {
 
       if (dateKeys.includes(key)) {
         return formatDate(value);
+      }
+      
+      if (value instanceof Timestamp) {
+        return formatDate(value.toDate());
+      }
+      if (value.seconds && typeof value.seconds === 'number') {
+        return formatDate(new Timestamp(value.seconds, value.nanoseconds).toDate());
       }
 
       if (Array.isArray(value)) return value.join(', ').replace(/[-_]/g, ' ').toUpperCase();

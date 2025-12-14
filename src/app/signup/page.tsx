@@ -4,12 +4,13 @@
 import { useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
+import { createUserWithEmailAndPassword, updateProfile } from 'firebase/auth';
+import { useAuth } from '@/firebase';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { useToast } from '@/hooks/use-toast';
 import { Loader2 } from 'lucide-react';
-import { useUser } from '@/app/layout';
 
 export default function SignupPage() {
   const [name, setName] = useState('');
@@ -19,9 +20,9 @@ export default function SignupPage() {
   const [isLoading, setIsLoading] = useState(false);
   const router = useRouter();
   const { toast } = useToast();
-  const { login } = useUser();
+  const auth = useAuth();
 
-  const handleSignup = (e: React.FormEvent) => {
+  const handleSignup = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
 
@@ -36,19 +37,14 @@ export default function SignupPage() {
     }
 
     try {
-      const users = JSON.parse(localStorage.getItem('qru-priority-users') || '[]');
-      const userExists = users.some((u: any) => u.email === email);
-
-      if (userExists) {
-        throw new Error('Este e-mail já está em uso.');
+      const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+      
+      if(userCredential.user) {
+        await updateProfile(userCredential.user, {
+            displayName: name
+        });
       }
 
-      const newUser = { name, email, password };
-      users.push(newUser);
-      localStorage.setItem('qru-priority-users', JSON.stringify(users));
-
-      login({ name, email });
-      
       toast({
         title: 'Conta criada com sucesso!',
         description: 'Você será redirecionado para a página principal.',
@@ -58,10 +54,16 @@ export default function SignupPage() {
 
     } catch (error: any) {
       console.error(error);
+      let description = 'Por favor, tente novamente.';
+      if (error.code === 'auth/email-already-in-use') {
+        description = 'Este e-mail já está em uso.';
+      } else if (error.code === 'auth/weak-password') {
+        description = 'A senha deve ter no mínimo 6 caracteres.';
+      }
        toast({
         variant: 'destructive',
         title: 'Erro ao criar conta',
-        description: error.message || 'Por favor, tente novamente.',
+        description: description,
       });
     } finally {
       setIsLoading(false);
@@ -72,7 +74,7 @@ export default function SignupPage() {
     <main className="flex items-center justify-center min-h-screen bg-background p-4">
       <div className="w-full max-w-md">
         <header className="text-center w-full mb-8">
-          <h1 className="text-4xl font-bold text-foreground font-headline tracking-wider flex items-center justify-center gap-4">
+          <h1 className="text-4xl font-bold text-foreground font-headline tracking-wider flex items-center justify-center gap-px">
             QRU
             <div className="flex h-10 items-center gap-px">
               <div className="w-[2px] h-full bg-foreground"></div>

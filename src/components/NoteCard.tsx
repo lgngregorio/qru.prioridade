@@ -8,6 +8,7 @@ import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, 
 import { Trash2, Edit, Share2, Loader2 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import type { Note } from '@/lib/types';
+import { Timestamp } from 'firebase/firestore';
 
 interface NoteCardProps {
   note: Note;
@@ -15,10 +16,10 @@ interface NoteCardProps {
   onDelete: () => void;
 }
 
-const formatDate = (isoDate: string) => {
-    if (!isoDate) return 'Carregando...';
+const formatDate = (timestamp: Timestamp) => {
+    if (!timestamp) return 'Carregando...';
     try {
-        const date = new Date(isoDate);
+        const date = timestamp.toDate();
         return date.toLocaleString('pt-BR', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' });
     } catch {
         return 'Data inválida';
@@ -32,18 +33,14 @@ export function NoteCard({ note, onEdit, onDelete }: NoteCardProps) {
   const [isExpanded, setIsExpanded] = useState(false);
 
 
-  const handleDelete = () => {
+  const handleDelete = async () => {
     setIsDeleting(true);
     try {
-      const allNotes = JSON.parse(localStorage.getItem('qru-priority-notes') || '[]');
-      const updatedNotes = allNotes.filter((n: Note) => n.id !== note.id);
-      localStorage.setItem('qru-priority-notes', JSON.stringify(updatedNotes));
-      
+      await onDelete();
       toast({
         title: 'Nota apagada!',
         description: 'Sua nota foi removida com sucesso.',
       });
-      onDelete(); 
     } catch (error) {
       console.error("Error deleting note: ", error);
       toast({
