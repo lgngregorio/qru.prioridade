@@ -191,3 +191,48 @@ export const allCodes = [
     ...outrasMensagensCodes,
     ...alfabetoFonetico
 ];
+
+export type RelacionamentoOcorrencia = {
+    ocorrencia: OcorrenciaCode;
+    acoes: AcaoProvidenciaCode[];
+    panes?: TiposPaneCode[];
+};
+
+export const relacionamentosOcorrencias: RelacionamentoOcorrencia[] = [
+    {
+        ocorrencia: ocorrenciaCodes.find(o => o.code === 'AC02')!,
+        acoes: [
+            acaoProvidenciaCodes.find(a => a.code === 'PR01')!,
+            acaoProvidenciaCodes.find(a => a.code === 'PR11')!,
+            acaoProvidenciaCodes.find(a => a.code === 'PR13')!,
+            acaoProvidenciaCodes.find(a => a.code === 'PR31')!,
+            acaoProvidenciaCodes.find(a => a.code === 'PR58')!,
+        ]
+    },
+    {
+        ocorrencia: ocorrenciaCodes.find(o => o.code === 'ACO3')!,
+        acoes: [
+            acaoProvidenciaCodes.find(a => a.code === 'PR01')!,
+            acaoProvidenciaCodes.find(a => a.code === 'PR13')!,
+            acaoProvidenciaCodes.find(a => a.code === 'PR27')!,
+        ]
+    },
+    {
+        ocorrencia: ocorrenciaCodes.find(o => o.code === 'TO06')!,
+        acoes: [
+            acaoProvidenciaCodes.find(a => a.code === 'PR25')!,
+            acaoProvidenciaCodes.find(a => a.code === 'PR27')!,
+        ],
+        panes: tiposPaneCodes,
+    },
+    {
+        ocorrencia: ocorrenciaCodes.find(o => o.code === 'TO03')!,
+        acoes: [
+            acaoProvidenciaCodes.find(a => a.code === 'PRO3')!,
+            acaoProvidenciaCodes.find(a => a.code === 'PRO4')!,
+            acaoProvidenciaCodes.find(a => a.code === 'PR05')!,
+            acaoProvidenciaCodes.find(a => a.code === 'PR56')!,
+        ]
+    },
+];
+

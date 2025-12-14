@@ -25,6 +25,7 @@ import {
   tiposPaneCodes,
   outrasMensagensCodes,
   alfabetoFonetico,
+  relacionamentosOcorrencias,
 } from '@/lib/codes';
 
 
@@ -146,6 +147,43 @@ const AlfabetoFoneticoTable = () => (
     </Table>
 );
 
+const RelacionamentoOcorrencias = () => (
+    <Accordion type="multiple" className="w-full space-y-4">
+      {relacionamentosOcorrencias.map((rel, index) => (
+        <AccordionItem value={`rel-${index}`} key={index} className="border-none">
+          <AccordionTrigger className="bg-card p-4 rounded-md text-lg hover:no-underline font-semibold">
+            {rel.ocorrencia.code} - {rel.ocorrencia.message}
+          </AccordionTrigger>
+          <AccordionContent className="p-4 bg-background rounded-md mt-2 space-y-4">
+            <div>
+              <h4 className="text-md font-semibold text-muted-foreground mb-2">AÇÕES/PROVIDÊNCIAS RELACIONADAS:</h4>
+              <Accordion type="multiple" className="space-y-2">
+                {rel.acoes.map(acao => (
+                   <div key={acao.code} className="bg-card p-3 rounded-md">
+                        <p><span className="font-bold">{acao.code}:</span> {acao.message}</p>
+                   </div>
+                ))}
+              </Accordion>
+            </div>
+            {rel.panes && rel.panes.length > 0 && (
+              <div>
+                <h4 className="text-md font-semibold text-muted-foreground mb-2">TIPOS DE PANE RELACIONADOS:</h4>
+                 <Accordion type="multiple" className="space-y-2">
+                    {rel.panes.map(pane => (
+                      <div key={pane.code} className="bg-card p-3 rounded-md">
+                          <p><span className="font-bold">{pane.code}:</span> {pane.message}</p>
+                      </div>
+                    ))}
+                 </Accordion>
+              </div>
+            )}
+          </AccordionContent>
+        </AccordionItem>
+      ))}
+    </Accordion>
+);
+
+
 const codeSections = [
     {
         title: 'Códigos de Mensagem',
@@ -170,6 +208,10 @@ const codeSections = [
     {
         title: 'Código Q (Alfabeto Fonético)',
         content: <AlfabetoFoneticoTable />
+    },
+    {
+        title: 'Relacionamentos',
+        content: <RelacionamentoOcorrencias />
     }
 ]
 
@@ -212,3 +254,4 @@ export default function CodigosPage() {
     </main>
   );
 }
+
