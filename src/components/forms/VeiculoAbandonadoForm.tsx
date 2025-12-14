@@ -105,17 +105,20 @@ export default function VeiculoAbandonadoForm({ categorySlug }: { categorySlug: 
     const savedData = localStorage.getItem('reportPreview');
     if (savedData) {
       const parsedData = JSON.parse(savedData);
-      setExistingReport(parsedData);
-      const { formData } = parsedData;
+      // Only pre-fill if the category matches
+      if (parsedData.category === categorySlug) {
+        setExistingReport(parsedData);
+        const { formData } = parsedData;
 
-      if (formData) {
-        setGeneralInfo(formData.generalInfo || generalInfo);
-        setVehicles(formData.vehicles || vehicles);
-        setOtherInfo(formData.otherInfo || otherInfo);
-        setShowVtrApoio(!!formData.otherInfo?.vtrApoio && formData.otherInfo.vtrApoio !== 'NILL');
+        if (formData) {
+            setGeneralInfo(formData.generalInfo || generalInfo);
+            setVehicles(formData.vehicles && formData.vehicles.length > 0 ? formData.vehicles : vehicles);
+            setOtherInfo(formData.otherInfo || otherInfo);
+            setShowVtrApoio(!!formData.otherInfo?.vtrApoio && formData.otherInfo.vtrApoio !== 'NILL');
+        }
       }
     }
-  }, []);
+  }, [categorySlug]);
 
   const handleGeneralInfoChange = (field: keyof Omit<GeneralInfo, 'tipoPane'>, value: string) => {
     setGeneralInfo(prev => ({ ...prev, [field]: value }));
