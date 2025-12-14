@@ -1,6 +1,7 @@
+
 'use client';
 
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import { Input } from '@/components/ui/input';
 import { Search, Notebook, FileCode, Link as LinkIcon, AlertCircle } from 'lucide-react';
 import { eventCategories } from '@/lib/events';
@@ -17,6 +18,9 @@ import {
   type AlfabetoFonetico,
 } from '@/lib/codes';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { useUser } from '@/app/layout';
+import { logActivity } from '@/lib/activity-logger';
+import { useDebounce } from 'use-debounce';
 
 type SearchableCode =
   | MessageCode
@@ -28,6 +32,18 @@ type SearchableCode =
 
 export default function Home() {
   const [searchQuery, setSearchQuery] = useState('');
+  const { user } = useUser();
+  const [debouncedSearchQuery] = useDebounce(searchQuery, 500);
+
+  useEffect(() => {
+    if (debouncedSearchQuery && user?.email) {
+      logActivity(user.email, {
+        type: 'search',
+        description: `Buscou por: "${debouncedSearchQuery}"`,
+        url: `/?q=${encodeURIComponent(debouncedSearchQuery)}`,
+      });
+    }
+  }, [debouncedSearchQuery, user?.email]);
 
   const searchResults = useMemo(() => {
     if (!searchQuery) {

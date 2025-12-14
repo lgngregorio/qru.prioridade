@@ -11,6 +11,7 @@ import { useToast } from '@/hooks/use-toast';
 import { Loader2 } from 'lucide-react';
 import type { Note } from '@/lib/types';
 import { useUser } from '@/app/layout';
+import { logActivity } from '@/lib/activity-logger';
 
 interface NoteEditorProps {
   isOpen: boolean;
@@ -96,6 +97,12 @@ export function NoteEditor({ isOpen, onClose, note }: NoteEditorProps) {
         }
 
         localStorage.setItem(notesKey, JSON.stringify(newNotes));
+        
+        logActivity(user.email, {
+            type: 'note',
+            description: `${isEditing ? 'Editou' : 'Criou'} nota: ${title}`,
+            url: `/notas`
+        });
 
         toast({
           title: isEditing ? 'Nota atualizada!' : 'Nota criada!',

@@ -17,6 +17,7 @@ import AppSidebar from '@/components/AppSidebar';
 import { ThemeProvider } from '@/components/theme-provider';
 import { Loader2 } from 'lucide-react';
 import { FirebaseProvider, useAuth } from '@/firebase';
+import { logActivity } from '@/lib/activity-logger';
 
 // --- User Context for Firebase Auth ---
 interface UserContextType {
@@ -30,6 +31,7 @@ export function UserProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const auth = useAuth();
+  const pathname = usePathname();
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (user) => {
@@ -39,6 +41,19 @@ export function UserProvider({ children }: { children: ReactNode }) {
 
     return () => unsubscribe();
   }, [auth]);
+
+  useEffect(() => {
+    if (user && !isLoading && pathname) {
+      // Avoid logging auth pages
+      if (!['/login', '/signup', '/forgot-password'].includes(pathname)) {
+        logActivity(user.email, {
+          type: 'navigation',
+          description: `Navegou para: ${pathname}`,
+          url: pathname,
+        });
+      }
+    }
+  }, [pathname, user, isLoading]);
 
   return (
     <UserContext.Provider value={{ user, isLoading }}>

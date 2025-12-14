@@ -18,7 +18,8 @@ import {
   LogOut,
   User,
   ListOrdered,
-  Notebook
+  Notebook,
+  History,
 } from 'lucide-react';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
@@ -87,6 +88,14 @@ export default function AppSidebar() {
               <Link href="/ocorrencias">
                 <ListOrdered />
                 Ocorrências
+              </Link>
+            </SidebarMenuButton>
+          </SidebarMenuItem>
+          <SidebarMenuItem>
+            <SidebarMenuButton asChild isActive={pathname.startsWith('/atividades')} className="text-xl [&_svg]:size-7" onClick={handleLinkClick}>
+              <Link href="/atividades">
+                <History />
+                Atividades
               </Link>
             </SidebarMenuButton>
           </SidebarMenuItem>

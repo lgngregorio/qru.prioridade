@@ -17,6 +17,7 @@ import { Button } from '@/components/ui/button';
 import { eventCategories } from '@/lib/events';
 import ReportDetail from '@/components/ReportDetail';
 import { useUser } from '@/app/layout';
+import { logActivity } from '@/lib/activity-logger';
 
 interface ReportData {
   id?: string;
@@ -94,6 +95,12 @@ export default function PreviewPage() {
         }
 
         localStorage.setItem(historyKey, JSON.stringify(newReports));
+        
+        logActivity(user.email, {
+            type: 'report',
+            description: `${isEditing ? 'Editou' : 'Criou'} relatório: ${getCategoryTitle(report.category)}`,
+            url: `/ocorrencias`
+        });
 
         toast({
           title: 'Sucesso!',
