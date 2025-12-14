@@ -38,7 +38,7 @@ type GeneralInfo = {
 
 type SinalizacaoInfo = {
   acao: string;
-  tipoDePlaca: string;
+  tipo: string;
   quantidade: string;
 };
 
@@ -67,7 +67,7 @@ export default function TO38Form({ categorySlug }: { categorySlug: string }) {
 
   const [sinalizacaoInfo, setSinalizacaoInfo] = useState<SinalizacaoInfo>({
     acao: '',
-    tipoDePlaca: '',
+    tipo: '',
     quantidade: '',
   });
   
@@ -226,8 +226,8 @@ export default function TO38Form({ categorySlug }: { categorySlug: string }) {
                     </SelectContent>
                 </Select>
             </Field>
-            <Field label="TIPO DE PLACA">
-                <Select value={sinalizacaoInfo.tipoDePlaca} onValueChange={(value) => handleSinalizacaoInfoChange('tipoDePlaca', value)}>
+            <Field label="TIPO">
+                <Select value={sinalizacaoInfo.tipo} onValueChange={(value) => handleSinalizacaoInfoChange('tipo', value)}>
                     <SelectTrigger className="text-xl normal-case placeholder:text-base">
                         <SelectValue placeholder="Selecione o tipo de placa" />
                     </SelectTrigger>
