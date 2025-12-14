@@ -91,7 +91,10 @@ const formatWhatsappValue = (value: any, key: string): string => {
      if (value instanceof Timestamp) {
       return formatDate(value);
     }
-    return formatDate(new Timestamp(value.seconds, value.nanoseconds));
+    if (value.seconds) {
+        return formatDate(new Timestamp(value.seconds, value.nanoseconds));
+    }
+    return String(value);
   }
   
   if (Array.isArray(value)) return value.join(', ').replace(/[-_]/g, ' ').toUpperCase();
@@ -292,7 +295,7 @@ export default function OcorrenciasPage() {
     if (!user || !firestore) return null;
     return query(
       collection(firestore, 'reports'),
-      where('uid', '==', user.uid),
+      where('uid', '==', user.uid)
     );
   }, [user, firestore]);
 
@@ -313,10 +316,7 @@ export default function OcorrenciasPage() {
     try {
       const reportRef = doc(firestore, 'reports', reportId);
       await deleteDoc(reportRef);
-      toast({
-        title: 'Relatório apagado!',
-        description: 'Seu relatório foi removido com sucesso.',
-      });
+      // The useCollection hook will automatically update the UI
     } catch(error) {
        console.error("Error deleting report: ", error);
        toast({

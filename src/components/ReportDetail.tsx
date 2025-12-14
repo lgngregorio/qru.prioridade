@@ -11,18 +11,20 @@ interface Report {
 
 const formatDate = (dateSource: string | Date | Timestamp) => {
     if (!dateSource || dateSource === 'NILL') return 'N/A';
+    
+    // Handle time-only strings like "13:50"
+    if (typeof dateSource === 'string' && dateSource.match(/^\d{2}:\d{2}$/)) {
+        return dateSource;
+    }
+  
     try {
         const date = (dateSource instanceof Timestamp) ? dateSource.toDate() : new Date(dateSource);
-        if (isNaN(date.getTime())) { // Check if date is invalid
-          // If it's just a time string like "13:50", it will be invalid. Return as is.
-          if (typeof dateSource === 'string' && dateSource.match(/^\d{2}:\d{2}$/)) {
-            return dateSource;
-          }
+        if (isNaN(date.getTime())) { 
           return 'Data inválida';
         }
         return date.toLocaleString('pt-BR', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' });
     } catch {
-        return 'Data inválida';
+        return String(dateSource); // Fallback for any other unexpected format
     }
 };
 
@@ -31,19 +33,16 @@ const renderValue = (key: string, value: any): React.ReactNode => {
     if (value === null || value === undefined || value === 'NILL' || value === '') return null;
     if (typeof value === 'boolean') return value ? 'Sim' : 'Não';
     
-    // Handle time-only fields separately
-    const timeKeys = ['qtrInicio', 'qtrTermino'];
-    if (timeKeys.includes(key) && typeof value === 'string') {
-        return value;
-    }
-
-    const dateKeys = ['data', 'dn', 'createdAt', 'updatedAt'];
+    const dateKeys = ['data', 'dn', 'createdAt', 'updatedAt', 'qtrInicio', 'qtrTermino'];
     if (dateKeys.includes(key) && (typeof value === 'string' || value instanceof Date || value instanceof Timestamp)) {
        return formatDate(value);
     }
     
     if (value instanceof Date) return formatDate(value);
     if (value instanceof Timestamp) return formatDate(value);
+     if (value.seconds && typeof value.seconds === 'number') {
+        return formatDate(new Timestamp(value.seconds, value.nanoseconds).toDate());
+    }
 
     if (Array.isArray(value)) return value.join(', ').replace(/[-_]/g, ' ').toUpperCase();
 

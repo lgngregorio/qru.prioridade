@@ -61,12 +61,13 @@ export default function PreviewPage() {
 
     try {
       
+      const now = serverTimestamp();
       if (report.id) {
         const reportRef = doc(firestore, 'reports', report.id);
         await updateDoc(reportRef, {
             formData: report.formData,
             category: report.category,
-            updatedAt: serverTimestamp(),
+            updatedAt: now,
         });
         toast({
           title: 'Sucesso!',
@@ -76,8 +77,8 @@ export default function PreviewPage() {
         await addDoc(collection(firestore, 'reports'), {
           ...report,
           uid: user.uid,
-          createdAt: serverTimestamp(),
-          updatedAt: serverTimestamp(),
+          createdAt: now,
+          updatedAt: now,
         });
         toast({
             title: 'Sucesso!',
@@ -137,7 +138,7 @@ export default function PreviewPage() {
       if (value === null || value === undefined || value === 'NILL' || value === '') return '';
       if (typeof value === 'boolean') return value ? 'SIM' : 'NÃO';
 
-      const dateKeys = ['data', 'dn', 'createdAt'];
+      const dateKeys = ['data', 'dn', 'createdAt', 'updatedAt'];
       const timeKeys = ['qtrInicio', 'qtrTermino'];
 
 
