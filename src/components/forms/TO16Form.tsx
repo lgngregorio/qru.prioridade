@@ -597,10 +597,10 @@ export default function TO16Form({ categorySlug }: { categorySlug: string }) {
                                 </div>
                             </Field>
                             <Field label="B - Ventilação">
-                                {renderRadioGroup(victim.id, 'avaliacao_primaria', 'ventilacao_status', [
+                                {renderCheckboxes(victim.id, 'avaliacao_primaria', 'ventilacao_status', [
                                     {id: 'presente', label: 'Presente'}, {id: 'ausente', label: 'Ausente'}, {id: 'simetrica', label: 'Simétrica'}, {id: 'assimetrica', label: 'Assimétrica'},
                                     {id: 'apneia', label: 'Apneia'}, {id: 'eupneia', label: 'Eupneia'}, {id: 'taquipneia', label: 'Taquipneia'}, {id: 'gasping', label: 'Gasping'}
-                                ], 'vertical')}
+                                ])}
                             </Field>
                             <SubSectionTitle>C - Circulação e Hemorragias</SubSectionTitle>
                             <div className="grid grid-cols-1 gap-8">
