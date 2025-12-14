@@ -101,6 +101,16 @@ export default function AtividadesPage() {
             Voltar para o início
           </Link>
         </Button>
+        {activities.length > 0 && (
+            <Button
+                variant="destructive"
+                size="sm"
+                onClick={() => setShowClearAllConfirm(true)}
+            >
+                <Trash2 className="mr-2 h-4 w-4" />
+                Limpar Histórico
+            </Button>
+        )}
       </div>
 
       <div className="w-full text-center mb-8">
@@ -112,19 +122,7 @@ export default function AtividadesPage() {
         </p>
       </div>
       
-       {activities.length > 0 && (
-          <div className="mb-8">
-            <Button
-                variant="destructive"
-                onClick={() => setShowClearAllConfirm(true)}
-                size="lg"
-                className="w-full text-lg"
-            >
-                <Trash2 className="mr-2 h-4 w-4" />
-                Limpar Histórico
-            </Button>
-          </div>
-        )}
+       
 
       {(isLoading || isUserLoading) && (
         <div className="flex justify-center items-center py-10">
