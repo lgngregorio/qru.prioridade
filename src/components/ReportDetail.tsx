@@ -31,7 +31,7 @@ const renderValue = (key: string, value: any): React.ReactNode => {
     if (value === null || value === undefined || value === 'NILL' || value === '') return 'N/A';
     if (typeof value === 'boolean') return value ? 'Sim' : 'Não';
     
-    const dateKeys = ['data', 'dn', 'createdAt'];
+    const dateKeys = ['data', 'dn', 'createdAt', 'updatedAt'];
     if (dateKeys.includes(key) && (typeof value === 'string' || value instanceof Date || value instanceof Timestamp)) {
        return formatDate(value);
     }

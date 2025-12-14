@@ -26,6 +26,7 @@ interface ReportData {
   formData: any;
   uid?: string;
   createdAt?: any;
+  updatedAt?: any;
 }
 
 export default function PreviewPage() {
@@ -65,6 +66,7 @@ export default function PreviewPage() {
         await updateDoc(reportRef, {
             formData: report.formData,
             category: report.category,
+            updatedAt: serverTimestamp(),
         });
         toast({
           title: 'Sucesso!',
@@ -77,6 +79,7 @@ export default function PreviewPage() {
             category: report.category,
             formData: report.formData,
             createdAt: serverTimestamp(),
+            updatedAt: serverTimestamp(),
         });
         toast({
             title: 'Sucesso!',
@@ -113,6 +116,8 @@ export default function PreviewPage() {
         let date;
         if (dateSource instanceof Timestamp) {
             date = dateSource.toDate();
+        } else if (typeof dateSource === 'string' && dateSource.match(/^\d{2}:\d{2}$/)) {
+            return dateSource;
         } else {
             date = new Date(dateSource);
         }
@@ -134,7 +139,7 @@ export default function PreviewPage() {
       if (value === null || value === undefined || value === 'NILL' || value === '') return '';
       if (typeof value === 'boolean') return value ? 'SIM' : 'NÃO';
 
-      const dateKeys = ['data', 'dn', 'createdAt', 'qtrInicio', 'qtrTermino'];
+      const dateKeys = ['data', 'dn', 'createdAt', 'qtrInicio', 'qtrTermino', 'updatedAt'];
 
       if (dateKeys.includes(key)) {
         return formatDate(value);

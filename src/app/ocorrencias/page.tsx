@@ -36,6 +36,7 @@ interface Report {
   id: string;
   category: string;
   createdAt: Timestamp;
+  updatedAt?: Timestamp;
   formData: any;
   uid: string;
 }
@@ -56,7 +57,7 @@ const getCategoryInfo = (slug: string) => {
     };
 };
 
-const formatDate = (timestamp: Timestamp) => {
+const formatDate = (timestamp: Timestamp | undefined) => {
   if (!timestamp) return 'Data indisponível';
   try {
     const date = timestamp.toDate();
@@ -76,7 +77,7 @@ const formatWhatsappValue = (value: any, key: string): string => {
   if (value === null || value === undefined || value === 'NILL' || value === '') return '';
   if (typeof value === 'boolean') return value ? 'SIM' : 'NÃO';
 
-  const dateKeys = ['data', 'dn', 'createdAt', 'qtrInicio', 'qtrTermino'];
+  const dateKeys = ['data', 'dn', 'createdAt', 'qtrInicio', 'qtrTermino', 'updatedAt'];
 
   if (dateKeys.includes(key)) {
      if (value instanceof Timestamp) {
@@ -166,7 +167,7 @@ function ReportCard({ report, onDelete }: { report: Report; onDelete: () => void
 
   const handleEdit = (e: React.MouseEvent) => {
     e.stopPropagation();
-    const reportToEdit = { ...report, createdAt: report.createdAt.toDate().toISOString() };
+    const reportToEdit = { ...report, createdAt: report.createdAt.toDate().toISOString(), updatedAt: report.updatedAt?.toDate().toISOString() };
     localStorage.setItem('reportPreview', JSON.stringify(reportToEdit));
     router.push(`/${report.category}`);
   };
@@ -204,6 +205,8 @@ function ReportCard({ report, onDelete }: { report: Report; onDelete: () => void
     }
   };
 
+  const displayDate = report.updatedAt || report.createdAt;
+
   return (
     <>
       <Card 
@@ -218,7 +221,7 @@ function ReportCard({ report, onDelete }: { report: Report; onDelete: () => void
         </Button>
         <CardHeader className="cursor-pointer" onClick={() => setIsExpanded(!isExpanded)}>
           <CardTitle className="truncate pr-10">{title}</CardTitle>
-          <CardDescription className="text-base font-bold text-muted-foreground">{formatDate(report.createdAt)}</CardDescription>
+          <CardDescription className="text-base font-bold text-muted-foreground">{formatDate(displayDate)}</CardDescription>
         </CardHeader>
         
         {isExpanded && (
@@ -267,7 +270,7 @@ export default function OcorrenciasPage() {
   const firestore = useFirestore();
 
   const reportsQuery = useMemoFirebase(() => 
-    user ? query(collection(firestore, 'reports'), where('uid', '==', user.uid), orderBy('createdAt', 'desc')) : null
+    user ? query(collection(firestore, 'reports'), where('uid', '==', user.uid), orderBy('updatedAt', 'desc'), orderBy('createdAt', 'desc')) : null
   , [firestore, user]);
 
   const { data: reports, isLoading: areReportsLoading } = useCollection<Report>(reportsQuery);
