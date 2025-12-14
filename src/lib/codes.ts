@@ -27,12 +27,12 @@ export const messageCodes: MessageCode[] = [
 export type AcaoProvidenciaCode = { code: string; message: string };
 export const acaoProvidenciaCodes: AcaoProvidenciaCode[] = [
     { code: 'PR01', message: 'Atendimento inicial' },
-    { code: 'PRO2', message: 'Auxílio no combate a incêndio' },
-    { code: 'PRO3', message: 'Animal apreendido' },
-    { code: 'PRO4', message: 'Retirada de animal morto da pista' },
+    { code: 'PR02', message: 'Auxílio no combate a incêndio' },
+    { code: 'PR03', message: 'Animal apreendido' },
+    { code: 'PR04', message: 'Retirada de animal morto da pista' },
     { code: 'PR05', message: 'Afugentamento de animal' },
     { code: 'PR06', message: 'Retirada de material da pista' },
-    { code: 'PRO7', message: 'Escolta' },
+    { code: 'PR07', message: 'Escolta' },
     { code: 'PR08', message: 'Verificação da sinalização de obras' },
     { code: 'PR09', message: 'Outros' },
     { code: 'PR10', message: 'Embargo de obra' },
@@ -92,9 +92,9 @@ export const acaoProvidenciaCodes: AcaoProvidenciaCode[] = [
 
 export type OcorrenciaCode = { code: string; message: string; group: string };
 export const ocorrenciaCodes: OcorrenciaCode[] = [
-    { code: 'ACO1', message: 'Acidente Com Vítima Fatal', group: 'Acidentes' },
+    { code: 'AC01', message: 'Acidente Com Vítima Fatal', group: 'Acidentes' },
     { code: 'AC02', message: 'Acidente Com Vitima', group: 'Acidentes' },
-    { code: 'ACO3', message: 'Acidente Sem Vitima', group: 'Acidentes' },
+    { code: 'AC03', message: 'Acidente Sem Vitima', group: 'Acidentes' },
     { code: 'TO01', message: 'Veículo Abandonado', group: 'Incidentes' },
     { code: 'TO02', message: 'Incêndio Na Faixa De Domínio / Lindeiro', group: 'Incidentes' },
     { code: 'TO03', message: 'Animal Na Rodovia', group: 'Incidentes' },
@@ -198,16 +198,53 @@ export type RelacionamentoOcorrencia = {
     panes?: TiposPaneCode[];
 };
 
-export const relacionamentosOcorrencias: RelacionamentoOcorrencia[] = ocorrenciaCodes.map(ocorrencia => {
-    let rel: RelacionamentoOcorrencia = {
-        ocorrencia,
-        acoes: acaoProvidenciaCodes, 
-        panes: [],
-    };
-    
-    if(ocorrencia.group === 'Incidentes' || ocorrencia.group === 'Acidentes' || ocorrencia.group === 'Avarias, Panes') {
-         rel.panes = tiposPaneCodes;
-    }
+const getAcoes = (codes: string[]) => acaoProvidenciaCodes.filter(ac => codes.includes(ac.code));
+const getPanes = (codes: string[]) => tiposPaneCodes.filter(tp => codes.includes(tp.code));
 
-    return rel;
+const mapRelacionamentos: { [key: string]: { acoes: string[], panes?: string[] } } = {
+    'AC01': { acoes: ['PR01', 'PR11', 'PR13', 'PR21', 'PR22', 'PR23', 'PR27', 'PR31', 'PR32', 'PR37', 'PR44', 'PR51'], panes: [] },
+    'AC02': { acoes: ['PR01', 'PR11', 'PR13', 'PR21', 'PR22', 'PR23', 'PR27', 'PR31', 'PR32', 'PR37', 'PR44', 'PR51', 'PR58'], panes: [] },
+    'AC03': { acoes: ['PR01', 'PR13', 'PR17', 'PR18', 'PR21', 'PR22', 'PR23', 'PR27', 'PR32', 'PR37', 'PR44', 'PR51'], panes: [] },
+    'TO01': { acoes: ['PR13', 'PR27', 'PR44'], panes: [] },
+    'TO02': { acoes: ['PR02', 'PR13', 'PR37'], panes: [] },
+    'TO03': { acoes: ['PR03', 'PR04', 'PR05', 'PR13', 'PR33', 'PR56'], panes: [] },
+    'TO04': { acoes: ['PR27'], panes: [] },
+    'TO05': { acoes: ['PR02', 'PR13', 'PR22', 'PR27', 'PR37'], panes: getPanes(['TP01', 'TP02']).map(p => p.code) },
+    'TO06': { acoes: ['PR13', 'PR17', 'PR24', 'PR25', 'PR27', 'PR45', 'PR54', 'PR55'], panes: tiposPaneCodes.map(p => p.code) },
+    'TO07': { acoes: ['PR06', 'PR13'], panes: [] },
+    'TO09': { acoes: ['PR08', 'PR13', 'PR37', 'PR48'], panes: [] },
+    'TO11': { acoes: ['PR13', 'PR29', 'PR51'], panes: [] },
+    'TO12': { acoes: ['PR11', 'PR17', 'PR50', 'PR57', 'PR58', 'PR59', 'PR61'], panes: [] },
+    'TO13': { acoes: ['PR12', 'PR13', 'PR37'], panes: [] },
+    'TO14': { acoes: ['PR07', 'PR13', 'PR19', 'PR44'], panes: [] },
+    'TO15': { acoes: ['PR09', 'PR13', 'PR35', 'PR36'], panes: [] },
+    'TO16': { acoes: ['PR11', 'PR20', 'PR38'], panes: [] },
+    'TO17': { acoes: ['PR15', 'PR16', 'PR30'], panes: [] },
+    'TO18': { acoes: ['PR13', 'PR22', 'PR37'], panes: [] },
+    'TO19': { acoes: ['PR01', 'PR09', 'PR13', 'PR17'], panes: [] },
+    'TO20': { acoes: ['PR07', 'PR13'], panes: [] },
+    'TO21': { acoes: ['PR39', 'PR40', 'PR41'], panes: [] },
+    'TO23': { acoes: ['PR17', 'PR46', 'PR47'], panes: [] },
+    'TO24': { acoes: ['PR44'], panes: [] },
+    'TO25': { acoes: ['PR13', 'PR21', 'PR22', 'PR23', 'PR37'], panes: [] },
+    'TO30': { acoes: ['PR09', 'PR17'], panes: [] },
+    'TO33': { acoes: ['PR13', 'PR63'], panes: [] },
+    'TO34': { acoes: ['PR13', 'PR14', 'PR62'], panes: [] },
+    'TO35': { acoes: ['PR13', 'PR22', 'PR23', 'PR37'], panes: [] },
+    'TO36': { acoes: ['PR07', 'PR13'], panes: [] },
+    'TO37': { acoes: ['PR13', 'PR29'], panes: [] },
+    'TO38': { acoes: ['PR13', 'PR34'], panes: [] },
+    'TO39': { acoes: ['PR13', 'PR27', 'PR32', 'PR37'], panes: [] },
+    'TO40': { acoes: ['PR13', 'PR19', 'PR37', 'PR44'], panes: [] },
+    'TO50': { acoes: ['PR09', 'PR17', 'PR28', 'PR38', 'PR60'], panes: [] },
+};
+
+
+export const relacionamentosOcorrencias: RelacionamentoOcorrencia[] = ocorrenciaCodes.map(ocorrencia => {
+    const rel = mapRelacionamentos[ocorrencia.code];
+    return {
+        ocorrencia,
+        acoes: rel ? getAcoes(rel.acoes) : [],
+        panes: rel?.panes ? getPanes(rel.panes) : [],
+    };
 });
