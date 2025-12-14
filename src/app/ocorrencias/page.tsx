@@ -1,7 +1,7 @@
 
 'use client';
 
-import { useState, useMemo, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import Link from 'next/link';
 import { ArrowLeft, Edit, Share2, Trash2, Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -296,11 +296,15 @@ export default function OcorrenciasPage() {
   
   const fetchReports = useCallback(async () => {
     if (!user || !firestore) {
-        setIsLoading(false);
+        if (!isUserLoading) {
+            setIsLoading(false);
+        }
         return;
     };
+
     setIsLoading(true);
     setError(null);
+
     try {
         const reportsRef = collection(firestore, 'reports');
         const q = query(reportsRef, where('uid', '==', user.uid), orderBy('updatedAt', 'desc'));
@@ -318,7 +322,7 @@ export default function OcorrenciasPage() {
     } finally {
         setIsLoading(false);
     }
-  }, [user, firestore, toast]);
+  }, [user, firestore, toast, isUserLoading]);
 
   useEffect(() => {
     fetchReports();
@@ -361,7 +365,7 @@ export default function OcorrenciasPage() {
         </p>
       </div>
 
-      {isLoading && <LoadingSkeleton />}
+      {(isLoading || isUserLoading) && <LoadingSkeleton />}
       
       {error && !isLoading && (
         <div className="text-center py-10 border-2 border-dashed border-destructive rounded-lg">
@@ -371,7 +375,7 @@ export default function OcorrenciasPage() {
       )}
 
 
-      {!isLoading && !error && (!reports || reports.length === 0) && (
+      {!isLoading && !isUserLoading && !error && (!reports || reports.length === 0) && (
         <div className="text-center py-10 border-2 border-dashed rounded-lg">
           <p className="text-muted-foreground text-lg">Nenhum relatório encontrado.</p>
           <p className="text-muted-foreground">
@@ -380,7 +384,7 @@ export default function OcorrenciasPage() {
         </div>
       )}
 
-      {!isLoading && !error && reports && reports.length > 0 && (
+      {!isLoading && !isUserLoading && !error && reports && reports.length > 0 && (
         <div className="space-y-6">
           {reports.map((report) => (
             <ReportCard key={report.id} report={report} onDelete={() => handleDeleteReport(report.id)} />

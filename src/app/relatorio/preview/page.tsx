@@ -37,6 +37,7 @@ export default function PreviewPage() {
 
   const [report, setReport] = useState<ReportData | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [isSaving, setIsSaving] = useState(false);
 
   useEffect(() => {
     const savedData = localStorage.getItem('reportPreview');
@@ -58,6 +59,8 @@ export default function PreviewPage() {
       });
       return;
     }
+    
+    setIsSaving(true);
 
     try {
       
@@ -95,6 +98,8 @@ export default function PreviewPage() {
         title: 'Erro ao Salvar',
         description: 'Não foi possível salvar o seu relatório. Tente novamente.',
       });
+    } finally {
+        setIsSaving(false);
     }
   };
 
@@ -263,6 +268,7 @@ export default function PreviewPage() {
                         variant="outline"
                         onClick={handleEdit}
                         className="w-full"
+                        disabled={isSaving}
                     >
                         <Edit className="mr-2 h-4 w-4" />
                         Editar
@@ -270,15 +276,17 @@ export default function PreviewPage() {
                     <Button
                         onClick={handleSaveAndGoToHistory}
                         className="w-full bg-blue-500 hover:bg-blue-600 text-white"
+                        disabled={isSaving}
                     >
-                        <Save className="mr-2 h-4 w-4" />
-                        Salvar Relatório
+                        {isSaving ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Save className="mr-2 h-4 w-4" />}
+                        {isSaving ? 'Salvando...' : 'Salvar Relatório'}
                     </Button>
                 </div>
                 <Button
                     variant="secondary"
                     className="bg-green-500 hover:bg-green-600 text-white w-full"
                     onClick={handleShare}
+                    disabled={isSaving}
                 >
                     <Share2 className="mr-2 h-4 w-4" />
                     Compartilhar no WhatsApp
