@@ -75,11 +75,11 @@ export default function AppSidebar() {
               </Link>
             </SidebarMenuButton>
           </SidebarMenuItem>
-           <SidebarMenuItem>
-            <SidebarMenuButton asChild isActive={pathname === '/notas'} className="text-xl [&_svg]:size-7" onClick={handleLinkClick}>
-              <Link href="/notas">
-                <Notebook />
-                Bloco de Notas
+          <SidebarMenuItem>
+            <SidebarMenuButton asChild isActive={pathname === '/codigos'} className="text-xl [&_svg]:size-7" onClick={handleLinkClick}>
+              <Link href="/codigos">
+                <FileCode />
+                Códigos
               </Link>
             </SidebarMenuButton>
           </SidebarMenuItem>
@@ -91,19 +91,19 @@ export default function AppSidebar() {
               </Link>
             </SidebarMenuButton>
           </SidebarMenuItem>
+           <SidebarMenuItem>
+            <SidebarMenuButton asChild isActive={pathname === '/notas'} className="text-xl [&_svg]:size-7" onClick={handleLinkClick}>
+              <Link href="/notas">
+                <Notebook />
+                Bloco de Notas
+              </Link>
+            </SidebarMenuButton>
+          </SidebarMenuItem>
           <SidebarMenuItem>
             <SidebarMenuButton asChild isActive={pathname.startsWith('/atividades')} className="text-xl [&_svg]:size-7" onClick={handleLinkClick}>
               <Link href="/atividades">
                 <History />
                 Atividades
-              </Link>
-            </SidebarMenuButton>
-          </SidebarMenuItem>
-          <SidebarMenuItem>
-            <SidebarMenuButton asChild isActive={pathname === '/codigos'} className="text-xl [&_svg]:size-7" onClick={handleLinkClick}>
-              <Link href="/codigos">
-                <FileCode />
-                Códigos
               </Link>
             </SidebarMenuButton>
           </SidebarMenuItem>
