@@ -46,9 +46,12 @@ const LoadingSkeleton = () => (
   </div>
 );
 
-const getCategoryTitle = (slug: string) => {
-  const category = eventCategories.find((c) => c.slug === slug);
-  return category ? category.title : slug;
+const getCategoryInfo = (slug: string) => {
+    const category = eventCategories.find((c) => c.slug === slug);
+    return {
+        title: category ? category.title : slug,
+        color: category ? category.color : '#808080' // Cor padrão cinza
+    };
 };
 
 const formatDate = (isoDate: string) => {
@@ -89,7 +92,8 @@ const formatKey = (key: string) => {
 };
 
 const generateWhatsappMessage = (data: any, category: string): string => {
-  let message = `*${getCategoryTitle(category).toUpperCase()}*\n`;
+  const { title } = getCategoryInfo(category);
+  let message = `*${title.toUpperCase()}*\n`;
   const sectionTitles: { [key: string]: string } = {
     generalInfo: 'INFORMAÇÕES GERAIS',
     vehicles: 'VEÍCULOS',
@@ -140,12 +144,20 @@ const generateWhatsappMessage = (data: any, category: string): string => {
   return message;
 };
 
+const hexToRgba = (hex: string, alpha: number) => {
+    const r = parseInt(hex.slice(1, 3), 16);
+    const g = parseInt(hex.slice(3, 5), 16);
+    const b = parseInt(hex.slice(5, 7), 16);
+    return `rgba(${r}, ${g}, ${b}, ${alpha})`;
+};
+
 function ReportCard({ report, onDelete }: { report: Report; onDelete: () => void }) {
   const router = useRouter();
   const { toast } = useToast();
   const [isExpanded, setIsExpanded] = useState(false);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
+  const { title, color } = getCategoryInfo(report.category);
 
   const handleEdit = (e: React.MouseEvent) => {
     e.stopPropagation();
@@ -192,13 +204,18 @@ function ReportCard({ report, onDelete }: { report: Report; onDelete: () => void
 
   return (
     <>
-      <Card className="relative">
+      <Card 
+        className="relative"
+        style={{ 
+          backgroundColor: hexToRgba(color, 0.1),
+        }}
+      >
         <Button variant="destructive" size="icon" onClick={handleDeleteClick} className="absolute top-2 right-2 h-8 w-8">
             <Trash2 className="h-4 w-4" />
             <span className="sr-only">Apagar</span>
         </Button>
         <CardHeader className="cursor-pointer" onClick={() => setIsExpanded(!isExpanded)}>
-          <CardTitle className="truncate pr-10">{getCategoryTitle(report.category)}</CardTitle>
+          <CardTitle className="truncate pr-10">{title}</CardTitle>
           <CardDescription className="text-base font-bold text-muted-foreground">{formatDate(report.createdAt)}</CardDescription>
         </CardHeader>
         
