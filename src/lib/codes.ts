@@ -210,7 +210,7 @@ const mapRelacionamentos: { [key: string]: { acoes: string[], panes?: string[] }
     'TO03': { acoes: ['PR03', 'PR04', 'PR05', 'PR13', 'PR33', 'PR56', 'PR51'], panes: [] },
     'TO04': { acoes: ['PR27', 'PR51'], panes: [] },
     'TO05': { acoes: ['PR02', 'PR13', 'PR22', 'PR27', 'PR37', 'PR51'], panes: getPanes(['TP01', 'TP02']).map(p => p.code) },
-    'TO06': { acoes: ['PR13', 'PR17', 'PR24', 'PR25', 'PR27', 'PR45', 'PR54', 'PR55', 'PR51'], panes: tiposPaneCodes.map(p => p.code) },
+    'TO06': { acoes: ['PR01', 'PR13', 'PR17', 'PR24', 'PR25', 'PR27', 'PR45', 'PR54', 'PR55', 'PR51'], panes: tiposPaneCodes.map(p => p.code) },
     'TO07': { acoes: ['PR06', 'PR13', 'PR51'], panes: [] },
     'TO09': { acoes: ['PR08', 'PR13', 'PR37', 'PR48', 'PR51'], panes: [] },
     'TO11': { acoes: ['PR13', 'PR29', 'PR51'], panes: [] },
