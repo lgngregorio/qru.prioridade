@@ -105,12 +105,17 @@ export default {
             '25%': { transform: 'rotate(15deg)' },
             '75%': { transform: 'rotate(-15deg)' },
         },
+        'pulse-depth': {
+          '0%, 100%': { transform: 'scale(1) rotate(0deg)' },
+          '50%': { transform: 'scale(1.2) rotate(3deg)' },
+        }
       },
       animation: {
         'accordion-down': 'accordion-down 0.2s ease-out',
         'accordion-up': 'accordion-up 0.2s ease-out',
         'move-dashes': 'move-dashes 1.5s linear infinite',
         'swing': 'swing 1.5s ease-in-out infinite',
+        'pulse-depth': 'pulse-depth 2s ease-in-out infinite',
       },
     },
   },
