@@ -48,7 +48,7 @@ export default function ForgotPasswordPage() {
         <header className="text-center w-full mb-8">
           <h1 className="text-4xl font-bold text-foreground font-headline tracking-wider flex items-center justify-center gap-4">
             QRU
-            <div className="flex h-10 items-center gap-0">
+            <div className="flex h-10 items-center gap-px">
               <div className="w-[2px] h-full bg-foreground"></div>
               <div
                 className="w-[2px] h-full animate-move-dashes"
