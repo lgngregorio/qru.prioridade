@@ -79,6 +79,14 @@ export default function AtividadesPage() {
   }
   
   const handleCardClick = (activity: Activity) => {
+    // Check for search activities related to codes
+    const searchKeywords = ['codigo', 'código', 'pr', 'to', 'relacionamento'];
+    if (activity.type === 'search' && searchKeywords.some(keyword => activity.description.toLowerCase().includes(keyword))) {
+        router.push('/codigos');
+        return;
+    }
+    
+    // Default behavior
     if (activity.url) {
       router.push(activity.url);
     }
@@ -93,16 +101,6 @@ export default function AtividadesPage() {
             Voltar para o início
           </Link>
         </Button>
-        {activities.length > 0 && (
-            <Button
-                variant="destructive"
-                onClick={() => setShowClearAllConfirm(true)}
-                size="sm"
-            >
-                <Trash2 className="mr-2 h-4 w-4" />
-                Limpar Histórico
-            </Button>
-        )}
       </div>
 
       <div className="w-full text-center mb-8">
@@ -113,6 +111,20 @@ export default function AtividadesPage() {
           Veja e gerencie suas ações recentes no aplicativo.
         </p>
       </div>
+      
+       {activities.length > 0 && (
+          <div className="mb-8">
+            <Button
+                variant="destructive"
+                onClick={() => setShowClearAllConfirm(true)}
+                size="lg"
+                className="w-full text-lg"
+            >
+                <Trash2 className="mr-2 h-4 w-4" />
+                Limpar Histórico
+            </Button>
+          </div>
+        )}
 
       {(isLoading || isUserLoading) && (
         <div className="flex justify-center items-center py-10">
