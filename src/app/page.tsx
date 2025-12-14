@@ -3,7 +3,7 @@
 
 import { useState, useMemo } from 'react';
 import { Input } from '@/components/ui/input';
-import { Search, Notebook, FileCode } from 'lucide-react';
+import { Search, Notebook, FileCode, Link as LinkIcon } from 'lucide-react';
 import { eventCategories } from '@/lib/events';
 import EventCategoryGrid from '@/components/EventCategoryGrid';
 import { SidebarTrigger } from '@/components/ui/sidebar';
@@ -14,7 +14,6 @@ import {
   type AcaoProvidenciaCode,
   type OcorrenciaCode,
   type TiposPaneCode,
-  type OutrasMensagensCode,
   type AlfabetoFonetico,
 } from '@/lib/codes';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -35,6 +34,7 @@ export default function Home() {
       return {
         categories: eventCategories,
         codes: [],
+        showRelationships: false,
       };
     }
 
@@ -52,9 +52,12 @@ export default function Home() {
       return values.includes(lowerCaseQuery);
     });
 
+    const showRelationships = 'relacionamentos'.includes(lowerCaseQuery);
+
     return {
       categories: filteredCategories,
       codes: filteredCodes,
+      showRelationships,
     };
   }, [searchQuery]);
 
@@ -144,8 +147,27 @@ export default function Home() {
                 </div>
               </div>
             )}
+            
+            {searchResults.showRelationships && (
+              <div>
+                <h2 className="text-2xl font-bold mb-4">Seções</h2>
+                 <Link href="/codigos">
+                    <Card className="hover:bg-accent cursor-pointer">
+                    <CardContent className="p-4 flex items-center gap-4">
+                        <LinkIcon className="h-5 w-5 text-muted-foreground" />
+                        <div className="flex-1">
+                        <p className="font-bold">Relacionamentos</p>
+                        <p className="text-muted-foreground">
+                            Ver relação entre ocorrências, ações e panes.
+                        </p>
+                        </div>
+                    </CardContent>
+                    </Card>
+                </Link>
+              </div>
+            )}
 
-            {searchResults.categories.length === 0 && searchResults.codes.length === 0 && (
+            {searchResults.categories.length === 0 && searchResults.codes.length === 0 && !searchResults.showRelationships && (
                 <p className="text-center text-muted-foreground py-10">
                     Nenhum resultado encontrado para &quot;{searchQuery}&quot;.
                 </p>
