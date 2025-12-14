@@ -221,8 +221,8 @@ export default function TO38Form({ categorySlug }: { categorySlug: string }) {
                         <SelectValue placeholder="Selecione a ação" />
                     </SelectTrigger>
                     <SelectContent>
-                        <SelectItem value="retirar_placa">RETIRAR PLACA</SelectItem>
-                        <SelectItem value="recolher_placa">RECOLHER PLACA</SelectItem>
+                        <SelectItem value="retirar_placa">PRECISA RETIRAR PLACA</SelectItem>
+                        <SelectItem value="recolher_placa">PRECISA RECOLHER PLACA</SelectItem>
                     </SelectContent>
                 </Select>
             </Field>
