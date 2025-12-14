@@ -75,7 +75,7 @@ export default function EventCategoryGrid({
                 className="w-10 h-10 rounded-full mb-1 flex items-center justify-center"
                 style={{ backgroundColor: category.color }}
               >
-                <category.icon className="h-6 w-6 text-white transition-transform duration-200 ease-in-out group-hover:scale-110 group-hover:rotate-6" />
+                <category.icon className="h-6 w-6 text-white animate-pulse" />
               </div>
               <CardTitle className="text-sm font-bold leading-tight text-card-foreground">
                 {formatCategoryName(category.name)}
