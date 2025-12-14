@@ -1,7 +1,7 @@
 
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import Link from 'next/link';
 import { ArrowLeft, Edit, Share2, Trash2, Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -288,9 +288,14 @@ export default function OcorrenciasPage() {
   const firestore = useFirestore();
   const { toast } = useToast();
   
-  const reportsQuery = useMemoFirebase(() => 
-    user ? query(collection(firestore, 'reports'), where('uid', '==', user.uid), orderBy('updatedAt', 'desc')) : null
-  , [firestore, user]);
+  const reportsQuery = useMemoFirebase(() => {
+    if (!user || !firestore) return null;
+    return query(
+      collection(firestore, 'reports'),
+      where('uid', '==', user.uid),
+      orderBy('updatedAt', 'desc')
+    );
+  }, [user, firestore]);
 
   const { data: reports, isLoading: areReportsLoading, error } = useCollection<Report>(reportsQuery);
 
@@ -365,4 +370,3 @@ export default function OcorrenciasPage() {
     </main>
   );
 }
-
