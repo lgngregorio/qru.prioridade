@@ -100,11 +100,17 @@ export default {
             '0%': { backgroundPosition: '0 0' },
             '100%': { backgroundPosition: '0 100%' },
         },
+        'swing': {
+            '0%, 100%': { transform: 'rotate(0deg)' },
+            '25%': { transform: 'rotate(15deg)' },
+            '75%': { transform: 'rotate(-15deg)' },
+        },
       },
       animation: {
         'accordion-down': 'accordion-down 0.2s ease-out',
         'accordion-up': 'accordion-up 0.2s ease-out',
         'move-dashes': 'move-dashes 1.5s linear infinite',
+        'swing': 'swing 1.5s ease-in-out infinite',
       },
     },
   },
