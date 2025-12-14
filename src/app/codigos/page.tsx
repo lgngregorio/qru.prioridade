@@ -157,24 +157,24 @@ const RelacionamentoOcorrencias = () => (
           <AccordionContent className="p-4 bg-background rounded-md mt-2 space-y-4">
             <div>
               <h4 className="text-md font-semibold text-muted-foreground mb-2">AÇÕES/PROVIDÊNCIAS RELACIONADAS:</h4>
-              <Accordion type="multiple" className="space-y-2">
+              <div className="space-y-2">
                 {rel.acoes.map(acao => (
                    <div key={acao.code} className="bg-card p-3 rounded-md">
                         <p><span className="font-bold">{acao.code}:</span> {acao.message}</p>
                    </div>
                 ))}
-              </Accordion>
+              </div>
             </div>
             {rel.panes && rel.panes.length > 0 && (
-              <div>
+              <div className="mt-4">
                 <h4 className="text-md font-semibold text-muted-foreground mb-2">TIPOS DE PANE RELACIONADOS:</h4>
-                 <Accordion type="multiple" className="space-y-2">
+                 <div className="space-y-2">
                     {rel.panes.map(pane => (
                       <div key={pane.code} className="bg-card p-3 rounded-md">
                           <p><span className="font-bold">{pane.code}:</span> {pane.message}</p>
                       </div>
                     ))}
-                 </Accordion>
+                 </div>
               </div>
             )}
           </AccordionContent>
@@ -254,4 +254,3 @@ export default function CodigosPage() {
     </main>
   );
 }
-
