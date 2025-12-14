@@ -3,13 +3,14 @@
 
 import { useState, useMemo } from 'react';
 import { Input } from '@/components/ui/input';
-import { Search, Notebook, FileCode, Link as LinkIcon } from 'lucide-react';
+import { Search, Notebook, FileCode, Link as LinkIcon, AlertCircle } from 'lucide-react';
 import { eventCategories } from '@/lib/events';
 import EventCategoryGrid from '@/components/EventCategoryGrid';
 import { SidebarTrigger } from '@/components/ui/sidebar';
 import Link from 'next/link';
 import {
   allCodes,
+  relacionamentosOcorrencias,
   type MessageCode,
   type AcaoProvidenciaCode,
   type OcorrenciaCode,
@@ -34,12 +35,14 @@ export default function Home() {
       return {
         categories: eventCategories,
         codes: [],
+        relationshipResults: [],
         showRelationships: false,
       };
     }
 
     const lowerCaseQuery = searchQuery.toLowerCase();
 
+    // 1. Filter Categories
     const filteredCategories = eventCategories.filter(
       (category) =>
         category.name.toLowerCase().includes(lowerCaseQuery) ||
@@ -47,16 +50,37 @@ export default function Home() {
         category.slug.toLowerCase().includes(lowerCaseQuery)
     );
 
+    // 2. Filter Codes
     const filteredCodes = allCodes.filter((item) => {
       const values = Object.values(item).join(' ').toLowerCase();
       return values.includes(lowerCaseQuery);
     });
+    
+    // 3. Special search for relationships
+    let relationshipResults: { title: string; items: AcaoProvidenciaCode[] }[] = [];
+    const relationshipMatch = lowerCaseQuery.match(/(to\d{1,2}|ac\d{1,2}).*(pr)/);
 
-    const showRelationships = 'relacionamentos'.includes(lowerCaseQuery);
+    if (relationshipMatch) {
+      const ocorrenciaCode = relationshipMatch[1].toUpperCase();
+      const relacionamento = relacionamentosOcorrencias.find(
+        (r) => r.ocorrencia.code === ocorrenciaCode
+      );
+      if (relacionamento) {
+        relationshipResults.push({
+          title: `Ações/Providências para ${relacionamento.ocorrencia.code}: ${relacionamento.ocorrencia.message}`,
+          items: relacionamento.acoes,
+        });
+      }
+    }
+
+
+    // 4. Special case for "relacionamentos" link
+    const showRelationships = 'relacionamentos'.includes(lowerCaseQuery) && relationshipResults.length === 0;
 
     return {
       categories: filteredCategories,
       codes: filteredCodes,
+      relationshipResults,
       showRelationships,
     };
   }, [searchQuery]);
@@ -103,7 +127,7 @@ export default function Home() {
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
             <Input
               type="search"
-              placeholder="Buscar categorias e códigos..."
+              placeholder="Buscar categorias, códigos ou perguntar (ex: 'to03 qual pr usar?')"
               className="w-full pl-9 h-12 text-lg rounded-md shadow-sm bg-card border"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
@@ -114,6 +138,31 @@ export default function Home() {
 
         {isSearching ? (
           <div className="space-y-8">
+             {searchResults.relationshipResults.length > 0 && (
+              <div>
+                {searchResults.relationshipResults.map((result, idx) => (
+                    <div key={idx}>
+                         <h2 className="text-2xl font-bold mb-4">{result.title}</h2>
+                         <div className="space-y-2">
+                            {result.items.map((item, index) => (
+                                <Link href="/codigos" key={index}>
+                                <Card className="hover:bg-accent cursor-pointer">
+                                    <CardContent className="p-4 flex items-center gap-4">
+                                    <FileCode className="h-5 w-5 text-muted-foreground" />
+                                    <div className="flex-1">
+                                        <p className="font-bold">{item.code}</p>
+                                        <p className="text-muted-foreground">{item.message}</p>
+                                    </div>
+                                    </CardContent>
+                                </Card>
+                                </Link>
+                            ))}
+                         </div>
+                    </div>
+                ))}
+              </div>
+            )}
+            
             {searchResults.categories.length > 0 && (
               <div>
                 <h2 className="text-2xl font-bold mb-4">Categorias</h2>
@@ -167,7 +216,7 @@ export default function Home() {
               </div>
             )}
 
-            {searchResults.categories.length === 0 && searchResults.codes.length === 0 && !searchResults.showRelationships && (
+            {searchResults.categories.length === 0 && searchResults.codes.length === 0 && !searchResults.showRelationships && searchResults.relationshipResults.length === 0 && (
                 <p className="text-center text-muted-foreground py-10">
                     Nenhum resultado encontrado para &quot;{searchQuery}&quot;.
                 </p>
