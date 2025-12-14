@@ -240,7 +240,7 @@ export default function CodigosPage() {
         <Accordion type="single" collapsible className="w-full">
             {codeSections.map((section, index) => (
               <AccordionItem value={`item-${index}`} key={index}>
-                <AccordionTrigger className="text-xl hover:no-underline">
+                <AccordionTrigger className="text-xl hover:no-underline font-bold">
                   {section.title}
                 </AccordionTrigger>
                 <AccordionContent className="text-base p-4 bg-card rounded-md">
