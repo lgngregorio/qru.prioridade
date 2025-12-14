@@ -1,7 +1,7 @@
 
 'use client';
 
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useMemo } from 'react';
 import Link from 'next/link';
 import { ArrowLeft, Edit, Share2, Trash2, Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -30,7 +30,7 @@ import { useUser } from '@/app/layout';
 import { useRouter } from 'next/navigation';
 import { useToast } from '@/hooks/use-toast';
 import { useFirestore, useCollection, useMemoFirebase } from '@/firebase';
-import { collection, query, where, Timestamp, doc, deleteDoc } from 'firebase/firestore';
+import { collection, query, where, Timestamp, doc, deleteDoc, orderBy } from 'firebase/firestore';
 
 interface Report {
   id: string;
@@ -295,22 +295,13 @@ export default function OcorrenciasPage() {
     if (!user || !firestore) return null;
     return query(
       collection(firestore, 'reports'),
-      where('uid', '==', user.uid)
+      where('uid', '==', user.uid),
+      orderBy('updatedAt', 'desc')
     );
   }, [user, firestore]);
 
-  const { data: reportsData, isLoading: areReportsLoading, error } = useCollection<Report>(reportsQuery);
+  const { data: reports, isLoading: areReportsLoading, error } = useCollection<Report>(reportsQuery);
   
-  const sortedReports = useMemo(() => {
-    if (!reportsData) return [];
-    return [...reportsData].sort((a, b) => {
-        const dateA = a.updatedAt || a.createdAt;
-        const dateB = b.updatedAt || b.createdAt;
-        if (!dateA || !dateB) return 0;
-        return dateB.toMillis() - dateA.toMillis();
-    });
-  }, [reportsData]);
-
   const handleDeleteReport = async (reportId: string) => {
     if (!firestore) return;
     try {
@@ -359,7 +350,7 @@ export default function OcorrenciasPage() {
       )}
 
 
-      {!isLoading && !error && (!sortedReports || sortedReports.length === 0) && (
+      {!isLoading && !error && (!reports || reports.length === 0) && (
         <div className="text-center py-10 border-2 border-dashed rounded-lg">
           <p className="text-muted-foreground text-lg">Nenhum relatório encontrado.</p>
           <p className="text-muted-foreground">
@@ -368,9 +359,9 @@ export default function OcorrenciasPage() {
         </div>
       )}
 
-      {!isLoading && !error && sortedReports && sortedReports.length > 0 && (
+      {!isLoading && !error && reports && reports.length > 0 && (
         <div className="space-y-6">
-          {sortedReports.map((report) => (
+          {reports.map((report) => (
             <ReportCard key={report.id} report={report} onDelete={() => handleDeleteReport(report.id)} />
           ))}
         </div>
