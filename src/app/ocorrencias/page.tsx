@@ -1,7 +1,7 @@
 
 'use client';
 
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect, useCallback } from 'react';
 import Link from 'next/link';
 import { ArrowLeft, Edit, Share2, Trash2, Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -29,8 +29,8 @@ import { eventCategories } from '@/lib/events';
 import { useUser } from '@/app/layout';
 import { useRouter } from 'next/navigation';
 import { useToast } from '@/hooks/use-toast';
-import { useFirestore, useCollection, useMemoFirebase } from '@/firebase';
-import { collection, query, where, Timestamp, doc, deleteDoc, orderBy } from 'firebase/firestore';
+import { useFirestore } from '@/firebase';
+import { collection, query, where, Timestamp, doc, deleteDoc, getDocs, orderBy } from 'firebase/firestore';
 
 interface Report {
   id: string;
@@ -290,24 +290,46 @@ export default function OcorrenciasPage() {
   const { user, isLoading: isUserLoading } = useUser();
   const firestore = useFirestore();
   const { toast } = useToast();
+  const [reports, setReports] = useState<Report[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<Error | null>(null);
   
-  const reportsQuery = useMemoFirebase(() => {
-    if (!user || !firestore) return null;
-    return query(
-      collection(firestore, 'reports'),
-      where('uid', '==', user.uid),
-      orderBy('updatedAt', 'desc')
-    );
-  }, [user, firestore]);
+  const fetchReports = useCallback(async () => {
+    if (!user || !firestore) {
+        setIsLoading(false);
+        return;
+    };
+    setIsLoading(true);
+    setError(null);
+    try {
+        const reportsRef = collection(firestore, 'reports');
+        const q = query(reportsRef, where('uid', '==', user.uid), orderBy('updatedAt', 'desc'));
+        const querySnapshot = await getDocs(q);
+        const fetchedReports = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Report));
+        setReports(fetchedReports);
+    } catch (e: any) {
+        console.error("Error fetching reports: ", e);
+        setError(e);
+        toast({
+            variant: 'destructive',
+            title: 'Erro ao carregar relatórios',
+            description: e.message || 'Não foi possível buscar os relatórios.',
+        });
+    } finally {
+        setIsLoading(false);
+    }
+  }, [user, firestore, toast]);
 
-  const { data: reports, isLoading: areReportsLoading, error } = useCollection<Report>(reportsQuery);
-  
+  useEffect(() => {
+    fetchReports();
+  }, [fetchReports]);
+
   const handleDeleteReport = async (reportId: string) => {
     if (!firestore) return;
     try {
       const reportRef = doc(firestore, 'reports', reportId);
       await deleteDoc(reportRef);
-      // The useCollection hook will automatically update the UI
+      setReports(prevReports => prevReports.filter(report => report.id !== reportId));
     } catch(error) {
        console.error("Error deleting report: ", error);
        toast({
@@ -318,7 +340,6 @@ export default function OcorrenciasPage() {
     }
   };
 
-  const isLoading = isUserLoading || areReportsLoading;
 
   return (
     <main className="flex flex-col p-4 md:p-6">
@@ -342,7 +363,7 @@ export default function OcorrenciasPage() {
 
       {isLoading && <LoadingSkeleton />}
       
-      {error && (
+      {error && !isLoading && (
         <div className="text-center py-10 border-2 border-dashed border-destructive rounded-lg">
           <p className="text-destructive text-lg">Erro ao carregar relatórios.</p>
           <p className="text-muted-foreground">Tente novamente mais tarde.</p>
@@ -369,4 +390,3 @@ export default function OcorrenciasPage() {
     </main>
   );
 }
-
