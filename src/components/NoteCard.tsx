@@ -8,18 +8,17 @@ import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, 
 import { Trash2, Edit, Share2, Loader2 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import type { Note } from '@/lib/types';
-import { Timestamp } from 'firebase/firestore';
 
 interface NoteCardProps {
   note: Note;
   onEdit: () => void;
-  onDelete: () => Promise<void>;
+  onDelete: () => void; // A função de apagar agora é mais simples
 }
 
-const formatDate = (timestamp: Timestamp | Date) => {
-    if (!timestamp) return 'Carregando...';
+const formatDate = (dateString: string | undefined) => {
+    if (!dateString) return 'Data indisponível';
     try {
-        const date = (timestamp instanceof Timestamp) ? timestamp.toDate() : timestamp;
+        const date = new Date(dateString);
         return date.toLocaleString('pt-BR', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' });
     } catch {
         return 'Data inválida';
@@ -32,26 +31,11 @@ export function NoteCard({ note, onEdit, onDelete }: NoteCardProps) {
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [isExpanded, setIsExpanded] = useState(false);
 
-
-  const handleDelete = async () => {
+  const handleDeleteConfirm = () => {
     setIsDeleting(true);
-    try {
-      await onDelete();
-      toast({
-        title: 'Nota apagada!',
-        description: 'Sua nota foi removida com sucesso.',
-      });
-    } catch (error) {
-      console.error("Error deleting note: ", error);
-      toast({
-        variant: 'destructive',
-        title: 'Erro ao apagar',
-        description: 'Não foi possível apagar a nota. Tente novamente.',
-      });
-    } finally {
-      setIsDeleting(false);
-      setShowDeleteConfirm(false);
-    }
+    onDelete();
+    setIsDeleting(false);
+    setShowDeleteConfirm(false);
   };
   
   const handleShare = (e: React.MouseEvent) => {
@@ -70,6 +54,8 @@ export function NoteCard({ note, onEdit, onDelete }: NoteCardProps) {
       e.stopPropagation();
       setShowDeleteConfirm(true);
   }
+  
+  const displayDate = note.updatedAt || note.createdAt;
 
   return (
     <>
@@ -80,7 +66,9 @@ export function NoteCard({ note, onEdit, onDelete }: NoteCardProps) {
         </Button>
         <CardHeader className="cursor-pointer" onClick={() => setIsExpanded(!isExpanded)}>
           <CardTitle className="truncate pr-10">{note.title}</CardTitle>
-          <CardDescription className="text-base font-bold text-muted-foreground">{formatDate(note.createdAt)}</CardDescription>
+          <CardDescription className="text-base font-bold text-muted-foreground">
+            {formatDate(displayDate)} {note.updatedAt && note.createdAt !== note.updatedAt ? '(Editado)' : ''}
+          </CardDescription>
         </CardHeader>
         
         {isExpanded && (
@@ -112,7 +100,7 @@ export function NoteCard({ note, onEdit, onDelete }: NoteCardProps) {
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogCancel>Cancelar</AlertDialogCancel>
-            <AlertDialogAction onClick={handleDelete} disabled={isDeleting} className="bg-destructive hover:bg-destructive/90">
+            <AlertDialogAction onClick={handleDeleteConfirm} disabled={isDeleting} className="bg-destructive hover:bg-destructive/90">
               {isDeleting ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
               {isDeleting ? 'Apagando...' : 'Apagar'}
             </AlertDialogAction>
