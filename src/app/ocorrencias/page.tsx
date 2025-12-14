@@ -1,7 +1,7 @@
 
 'use client';
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useMemo } from 'react';
 import Link from 'next/link';
 import { ArrowLeft, Edit, Share2, Trash2, Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -29,8 +29,8 @@ import { eventCategories } from '@/lib/events';
 import { useUser } from '@/app/layout';
 import { useRouter } from 'next/navigation';
 import { useToast } from '@/hooks/use-toast';
-import { useFirestore } from '@/firebase';
-import { collection, query, where, Timestamp, doc, deleteDoc, getDocs, orderBy } from 'firebase/firestore';
+import { useFirestore, useCollection, useMemoFirebase } from '@/firebase';
+import { collection, query, where, Timestamp, doc, deleteDoc, orderBy } from 'firebase/firestore';
 
 interface Report {
   id: string;
@@ -290,50 +290,25 @@ export default function OcorrenciasPage() {
   const { user, isLoading: isUserLoading } = useUser();
   const firestore = useFirestore();
   const { toast } = useToast();
-  const [reports, setReports] = useState<Report[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState<Error | null>(null);
+
+  const reportsQuery = useMemoFirebase(() => 
+    user 
+      ? query(collection(firestore, 'reports'), where('uid', '==', user.uid), orderBy('updatedAt', 'desc'))
+      : null
+  , [firestore, user]);
+
+  const { data: reports, isLoading: areReportsLoading, error } = useCollection<Report>(reportsQuery);
   
-  const fetchReports = useCallback(async () => {
-    if (!user || !firestore) {
-        if (!isUserLoading) {
-            setIsLoading(false);
-        }
-        return;
-    };
-
-    setIsLoading(true);
-    setError(null);
-
-    try {
-        const reportsRef = collection(firestore, 'reports');
-        const q = query(reportsRef, where('uid', '==', user.uid), orderBy('updatedAt', 'desc'));
-        const querySnapshot = await getDocs(q);
-        const fetchedReports = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Report));
-        setReports(fetchedReports);
-    } catch (e: any) {
-        console.error("Error fetching reports: ", e);
-        setError(e);
-        toast({
-            variant: 'destructive',
-            title: 'Erro ao carregar relatórios',
-            description: e.message || 'Não foi possível buscar os relatórios.',
-        });
-    } finally {
-        setIsLoading(false);
-    }
-  }, [user, firestore, toast, isUserLoading]);
-
-  useEffect(() => {
-    fetchReports();
-  }, [fetchReports]);
-
   const handleDeleteReport = async (reportId: string) => {
     if (!firestore) return;
     try {
       const reportRef = doc(firestore, 'reports', reportId);
       await deleteDoc(reportRef);
-      setReports(prevReports => prevReports.filter(report => report.id !== reportId));
+      // No need to manually update state, useCollection handles it
+      toast({
+        title: 'Relatório apagado!',
+        description: 'Seu relatório foi removido com sucesso.',
+      });
     } catch(error) {
        console.error("Error deleting report: ", error);
        toast({
@@ -344,6 +319,7 @@ export default function OcorrenciasPage() {
     }
   };
 
+  const isLoading = isUserLoading || areReportsLoading;
 
   return (
     <main className="flex flex-col p-4 md:p-6">
@@ -365,7 +341,7 @@ export default function OcorrenciasPage() {
         </p>
       </div>
 
-      {(isLoading || isUserLoading) && <LoadingSkeleton />}
+      {isLoading && <LoadingSkeleton />}
       
       {error && !isLoading && (
         <div className="text-center py-10 border-2 border-dashed border-destructive rounded-lg">
@@ -375,7 +351,7 @@ export default function OcorrenciasPage() {
       )}
 
 
-      {!isLoading && !isUserLoading && !error && (!reports || reports.length === 0) && (
+      {!isLoading && !error && (!reports || reports.length === 0) && (
         <div className="text-center py-10 border-2 border-dashed rounded-lg">
           <p className="text-muted-foreground text-lg">Nenhum relatório encontrado.</p>
           <p className="text-muted-foreground">
@@ -384,7 +360,7 @@ export default function OcorrenciasPage() {
         </div>
       )}
 
-      {!isLoading && !isUserLoading && !error && reports && reports.length > 0 && (
+      {!isLoading && !error && reports && reports.length > 0 && (
         <div className="space-y-6">
           {reports.map((report) => (
             <ReportCard key={report.id} report={report} onDelete={() => handleDeleteReport(report.id)} />
