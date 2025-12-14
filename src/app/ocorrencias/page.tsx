@@ -295,20 +295,12 @@ export default function OcorrenciasPage() {
     if (!user || !firestore) return null;
     return query(
       collection(firestore, 'reports'),
-      where('uid', '==', user.uid)
+      where('uid', '==', user.uid),
+      orderBy('updatedAt', 'desc')
     );
   }, [user, firestore]);
 
-  const { data, isLoading: areReportsLoading, error } = useCollection<Report>(reportsQuery);
-
-  const reports = useMemo(() => {
-    if (!data) return [];
-    return [...data].sort((a, b) => {
-        const dateA = a.updatedAt || a.createdAt;
-        const dateB = b.updatedAt || b.createdAt;
-        return dateB.toDate().getTime() - dateA.toDate().getTime();
-    });
-  }, [data]);
+  const { data: reports, isLoading: areReportsLoading, error } = useCollection<Report>(reportsQuery);
   
   const handleDeleteReport = async (reportId: string) => {
     if (!firestore) return;
@@ -377,3 +369,4 @@ export default function OcorrenciasPage() {
     </main>
   );
 }
+
