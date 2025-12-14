@@ -65,10 +65,12 @@ export default function NotasPage() {
     };
 
     useEffect(() => {
-        if (!isUserLoading && user) {
-            loadNotes();
-        } else if (!isUserLoading && !user) {
-            setIsLoading(false);
+        if (!isUserLoading) {
+            if (user) {
+                loadNotes();
+            } else {
+                setIsLoading(false);
+            }
         }
     }, [user, isUserLoading]);
     
@@ -160,4 +162,3 @@ export default function NotasPage() {
         </main>
     );
 }
-
