@@ -30,7 +30,7 @@ import { useUser } from '@/app/layout';
 import { useRouter } from 'next/navigation';
 import { useToast } from '@/hooks/use-toast';
 import { useFirestore, useCollection, useMemoFirebase } from '@/firebase';
-import { collection, query, where, orderBy, Timestamp, doc, deleteDoc } from 'firebase/firestore';
+import { collection, query, where, orderBy, Timestamp, doc, deleteDoc, onSnapshot } from 'firebase/firestore';
 
 interface Report {
   id: string;
