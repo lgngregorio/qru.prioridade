@@ -38,7 +38,7 @@ type GeneralInfo = {
 
 type SinalizacaoInfo = {
   acao: string;
-  nomeDaPlaca: string;
+  tipoDePlaca: string;
   quantidade: string;
 };
 
@@ -67,7 +67,7 @@ export default function TO38Form({ categorySlug }: { categorySlug: string }) {
 
   const [sinalizacaoInfo, setSinalizacaoInfo] = useState<SinalizacaoInfo>({
     acao: '',
-    nomeDaPlaca: '',
+    tipoDePlaca: '',
     quantidade: '',
   });
   
@@ -226,8 +226,20 @@ export default function TO38Form({ categorySlug }: { categorySlug: string }) {
                     </SelectContent>
                 </Select>
             </Field>
-            <Field label="NOME DA PLACA">
-                <Input className="text-xl placeholder:capitalize placeholder:text-sm" placeholder="Ex: R-19" value={sinalizacaoInfo.nomeDaPlaca} onChange={(e) => handleSinalizacaoInfoChange('nomeDaPlaca', e.target.value)}/>
+            <Field label="TIPO DE PLACA">
+                <Select value={sinalizacaoInfo.tipoDePlaca} onValueChange={(value) => handleSinalizacaoInfoChange('tipoDePlaca', value)}>
+                    <SelectTrigger className="text-xl normal-case placeholder:text-base">
+                        <SelectValue placeholder="Selecione o tipo de placa" />
+                    </SelectTrigger>
+                    <SelectContent>
+                        <SelectItem value="placa">PLACA</SelectItem>
+                        <SelectItem value="banner">BANNER</SelectItem>
+                        <SelectItem value="outdoor">OUTDOOR</SelectItem>
+                        <SelectItem value="cartaz">CARTAZ</SelectItem>
+                        <SelectItem value="faixa">FAIXA</SelectItem>
+                        <SelectItem value="letreiro">LETREIRO</SelectItem>
+                    </SelectContent>
+                </Select>
             </Field>
             <Field label="QUANTIDADE">
                 <Input className="text-xl placeholder:capitalize placeholder:text-sm" placeholder="Ex: 1" value={sinalizacaoInfo.quantidade} onChange={(e) => handleSinalizacaoInfoChange('quantidade', e.target.value)}/>
