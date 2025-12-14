@@ -60,8 +60,14 @@ export default function PreviewPage() {
     }
 
     try {
+      const reportData = {
+        ...report.formData,
+        category: report.category,
+        uid: user.uid,
+        updatedAt: serverTimestamp(),
+      };
+
       if (report.id) {
-        // Editing an existing report
         const reportRef = doc(firestore, 'reports', report.id);
         await updateDoc(reportRef, {
             formData: report.formData,
@@ -73,13 +79,9 @@ export default function PreviewPage() {
           description: 'Seu relatório foi atualizado.',
         });
       } else {
-        // Creating a new report
         await addDoc(collection(firestore, 'reports'), {
-            uid: user.uid,
-            category: report.category,
-            formData: report.formData,
-            createdAt: serverTimestamp(),
-            updatedAt: serverTimestamp(),
+          ...reportData,
+          createdAt: serverTimestamp(),
         });
         toast({
             title: 'Sucesso!',
@@ -139,8 +141,14 @@ export default function PreviewPage() {
       if (value === null || value === undefined || value === 'NILL' || value === '') return '';
       if (typeof value === 'boolean') return value ? 'SIM' : 'NÃO';
 
-      const dateKeys = ['data', 'dn', 'createdAt', 'qtrInicio', 'qtrTermino', 'updatedAt'];
+      const dateKeys = ['data', 'dn', 'createdAt'];
+      const timeKeys = ['qtrInicio', 'qtrTermino'];
 
+
+      if (timeKeys.includes(key) && typeof value === 'string') {
+        return value;
+      }
+      
       if (dateKeys.includes(key)) {
         return formatDate(value);
       }

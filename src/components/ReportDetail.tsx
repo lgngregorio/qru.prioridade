@@ -31,17 +31,17 @@ const renderValue = (key: string, value: any): React.ReactNode => {
     if (value === null || value === undefined || value === 'NILL' || value === '') return 'N/A';
     if (typeof value === 'boolean') return value ? 'Sim' : 'Não';
     
-    const dateKeys = ['data', 'dn', 'createdAt', 'updatedAt'];
-    if (dateKeys.includes(key) && (typeof value === 'string' || value instanceof Date || value instanceof Timestamp)) {
-       return formatDate(value);
-    }
-    
     // Handle time-only fields separately
     const timeKeys = ['qtrInicio', 'qtrTermino'];
     if (timeKeys.includes(key) && typeof value === 'string') {
         return value;
     }
 
+    const dateKeys = ['data', 'dn', 'createdAt', 'updatedAt'];
+    if (dateKeys.includes(key) && (typeof value === 'string' || value instanceof Date || value instanceof Timestamp)) {
+       return formatDate(value);
+    }
+    
     if (value instanceof Date) return formatDate(value);
     if (value instanceof Timestamp) return formatDate(value);
 

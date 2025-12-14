@@ -1,7 +1,7 @@
 
 'use client';
 
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import Link from 'next/link';
 import { ArrowLeft, Edit, Share2, Trash2, Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -29,8 +29,8 @@ import { eventCategories } from '@/lib/events';
 import { useUser } from '@/app/layout';
 import { useRouter } from 'next/navigation';
 import { useToast } from '@/hooks/use-toast';
-import { useFirestore, useCollection, useMemoFirebase } from '@/firebase';
-import { collection, query, where, orderBy, Timestamp, doc, deleteDoc, onSnapshot } from 'firebase/firestore';
+import { useFirestore } from '@/firebase';
+import { collection, query, where, orderBy, Timestamp, doc, deleteDoc, getDocs } from 'firebase/firestore';
 
 interface Report {
   id: string;
@@ -170,8 +170,13 @@ function ReportCard({ report, onDelete }: { report: Report; onDelete: () => void
 
   const handleEdit = (e: React.MouseEvent) => {
     e.stopPropagation();
-    const reportToEdit = { ...report, createdAt: report.createdAt.toDate().toISOString(), updatedAt: report.updatedAt?.toDate().toISOString() };
-    localStorage.setItem('reportPreview', JSON.stringify(reportToEdit));
+    // Convert Timestamps to ISO strings for JSON serialization
+    const serializableReport = {
+      ...report,
+      createdAt: report.createdAt.toDate().toISOString(),
+      updatedAt: report.updatedAt ? report.updatedAt.toDate().toISOString() : undefined,
+    };
+    localStorage.setItem('reportPreview', JSON.stringify(serializableReport));
     router.push(`/${report.category}`);
   };
 
@@ -224,7 +229,9 @@ function ReportCard({ report, onDelete }: { report: Report; onDelete: () => void
         </Button>
         <CardHeader className="cursor-pointer" onClick={() => setIsExpanded(!isExpanded)}>
           <CardTitle className="truncate pr-10">{title}</CardTitle>
-          <CardDescription className="text-base font-bold text-muted-foreground">{formatDate(displayDate)}</CardDescription>
+          <CardDescription className="text-base font-bold text-muted-foreground">
+            {formatDate(displayDate)} {report.updatedAt ? '(Editado)' : ''}
+          </CardDescription>
         </CardHeader>
         
         {isExpanded && (
@@ -275,43 +282,54 @@ export default function OcorrenciasPage() {
   const [reports, setReports] = useState<Report[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
-  useEffect(() => {
+  const fetchReports = useCallback(async () => {
     if (!user || !firestore) {
-      if (!isUserLoading) {
-        setIsLoading(false);
-      }
+      if (!isUserLoading) setIsLoading(false);
       return;
     }
 
     setIsLoading(true);
-
-    const reportsRef = collection(firestore, 'reports');
-    const q = query(reportsRef, where('uid', '==', user.uid));
-
-    const unsubscribe = onSnapshot(q, (snapshot) => {
-      const fetchedReports = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Report));
+    try {
+      const reportsRef = collection(firestore, 'reports');
+      // Query by user and order by the last update time.
+      const q = query(reportsRef, where('uid', '==', user.uid), orderBy('updatedAt', 'desc'));
       
-      fetchedReports.sort((a, b) => {
-        const dateA = a.updatedAt || a.createdAt;
-        const dateB = b.updatedAt || b.createdAt;
-        return dateB.toMillis() - dateA.toMillis();
-      });
-
+      const querySnapshot = await getDocs(q);
+      const fetchedReports = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Report));
+      
       setReports(fetchedReports);
-      setIsLoading(false);
-    }, (error) => {
-      console.error("Error fetching reports: ", error);
-      setIsLoading(false);
-    });
 
-    return () => unsubscribe();
+    } catch (error) {
+      console.error("Error fetching reports: ", error);
+      toast({
+        variant: 'destructive',
+        title: 'Erro ao buscar relatórios',
+        description: 'Não foi possível carregar o histórico. Tente novamente mais tarde.',
+      });
+    } finally {
+      setIsLoading(false);
+    }
   }, [user, firestore, isUserLoading]);
 
+  useEffect(() => {
+    fetchReports();
+  }, [fetchReports]);
   
   const handleDeleteReport = async (reportId: string) => {
     if (!firestore) return;
-    const reportRef = doc(firestore, 'reports', reportId);
-    await deleteDoc(reportRef);
+    try {
+      const reportRef = doc(firestore, 'reports', reportId);
+      await deleteDoc(reportRef);
+      // Refetch reports after deletion to update the UI
+      fetchReports();
+    } catch(error) {
+       console.error("Error deleting report: ", error);
+       toast({
+        variant: 'destructive',
+        title: 'Erro ao apagar',
+        description: 'Não foi possível apagar o relatório. Tente novamente.',
+      });
+    }
   };
 
   const areReportsLoading = isLoading || isUserLoading;
