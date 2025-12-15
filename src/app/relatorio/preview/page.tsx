@@ -62,11 +62,8 @@ const sectionTitles: { [key: string]: string } = {
 };
 
 const formatKey = (key: string) => {
-  if (sectionTitles[key]) return `*${sectionTitles[key]}*`;
-  return `*${key
-    .replace(/([A-Z])/g, ' $1')
-    .replace(/_/g, ' ')
-    .replace(/\b\w/g, (char) => char.toUpperCase())}*`;
+  const formattedKey = key.replace(/([A-Z])/g, ' $1').replace(/_/g, ' ').trim();
+  return `*${formattedKey.toUpperCase()}*`;
 };
 
 const formatValue = (value: any): string => {
@@ -95,60 +92,58 @@ const formatValue = (value: any): string => {
 };
 
 const generateWhatsappMessage = (report: ReportData): string => {
-    const { formData, category } = report;
-    const { title } = getCategoryInfo(category);
+  const { formData, category } = report;
+  const categoryInfo = getCategoryInfo(category);
+  let message = `*${categoryInfo.title.toUpperCase()}*\n\n`;
 
-    let message = `*${title.toUpperCase()}*\n\n`;
+  const processSection = (data: any, sectionTitle: string) => {
+    let sectionText = `*${sectionTitle.toUpperCase()}*\n`;
+    let contentAdded = false;
 
-    const processSection = (data: any, sectionTitle: string) => {
-        let sectionText = `*${sectionTitle.toUpperCase()}*\n`;
-        let contentAdded = false;
-
-        if (Array.isArray(data)) {
-            data.forEach((item, index) => {
-                const itemTitle = `${sectionTitle.replace(/S$/, '')} ${index + 1}`;
-                const subSection = processSection(item, itemTitle);
-                // Only add subsection if it has content other than its own title
-                if (subSection.trim() !== `*${itemTitle.toUpperCase()}*`) {
-                    sectionText += subSection;
-                    contentAdded = true;
-                }
-            });
-             return contentAdded ? sectionText : ``;
-        }
-
-        for (const [key, value] of Object.entries(data)) {
-            if (value === null || value === undefined || value === 'NILL' || value === '' || key === 'id') continue;
-            
-            if (typeof value === 'object' && !Array.isArray(value) && !(value instanceof Date) && !(value.seconds && typeof value.seconds === 'number')) {
-                 const subSectionText = processSection(value, formatKey(key));
-                 if (subSectionText.trim() !== `*${formatKey(key).toUpperCase()}*`) {
-                     sectionText += subSectionText;
-                     contentAdded = true;
-                 }
-            } else {
-                const formattedValue = formatValue(value);
-                if (formattedValue !== 'N/A' && formattedValue.trim() !== '') {
-                    sectionText += `${formatKey(key)}: ${formattedValue}\n`;
-                    contentAdded = true;
-                }
+    if (Array.isArray(data)) {
+        data.forEach((item, index) => {
+            const itemTitle = `${sectionTitle.replace(/S$/, '')} ${index + 1}`;
+            const subSection = processSection(item, itemTitle);
+            if (subSection.trim() !== `*${itemTitle.toUpperCase()}*`) {
+                sectionText += subSection;
+                contentAdded = true;
             }
-        }
-        return contentAdded ? sectionText + '\n' : ``;
-    };
-  
-    for (const [sectionKey, sectionData] of Object.entries(formData)) {
-        if (sectionData === null || sectionData === undefined) continue;
-
-        const sectionTitle = sectionTitles[sectionKey] || formatKey(sectionKey);
-
-        const sectionResult = processSection(sectionData, sectionTitle);
-        if (sectionResult.trim() && sectionResult.trim() !== `*${sectionTitle.toUpperCase()}*`) {
-            message += sectionResult;
-        }
+        });
+        return contentAdded ? sectionText : '';
     }
 
-    return message.trim();
+    for (const [key, value] of Object.entries(data)) {
+        if (value === null || value === undefined || value === 'NILL' || value === '' || key === 'id') continue;
+        
+        if (typeof value === 'object' && !Array.isArray(value) && !(value instanceof Date) && !(value.seconds && typeof value.seconds === 'number')) {
+             const subSectionText = processSection(value, sectionTitles[key] || key);
+             if (subSectionText) {
+                 sectionText += subSectionText;
+                 contentAdded = true;
+             }
+        } else {
+            const formattedValue = formatValue(value);
+            if (formattedValue !== 'N/A' && formattedValue.trim() !== '') {
+                sectionText += `${formatKey(key)}: ${formattedValue}\n`;
+                contentAdded = true;
+            }
+        }
+    }
+    return contentAdded ? sectionText + '\n' : '';
+  };
+
+  for (const [sectionKey, sectionData] of Object.entries(formData)) {
+      if (sectionData === null || sectionData === undefined) continue;
+
+      const sectionTitle = sectionTitles[sectionKey] || sectionKey;
+      const sectionResult = processSection(sectionData, sectionTitle);
+      
+      if (sectionResult) {
+          message += sectionResult;
+      }
+  }
+
+  return message.trim();
 };
 
 
@@ -253,8 +248,8 @@ export default function PreviewPage() {
     
   const handleShare = () => {
     if (!report) return;
-    const phoneNumber = '+5567981630190';
     const message = generateWhatsappMessage(report);
+    const phoneNumber = '+5567981630190';
     const whatsappUrl = `https://wa.me/${phoneNumber}?text=${encodeURIComponent(message)}`;
     window.open(whatsappUrl, '_blank');
   };
