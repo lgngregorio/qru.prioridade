@@ -254,7 +254,12 @@ export default function PreviewPage() {
   const handleShare = () => {
     if (!report) return;
     const rodovia = report.formData?.generalInfo?.rodovia;
-    let phoneNumber = '+5567981630190'; // Default number for ms-112 and br-158
+    let phoneNumber = '';
+    
+    if (rodovia === 'ms-112' || rodovia === 'br-158') {
+      phoneNumber = '+5567981630190';
+    }
+
     const message = generateWhatsappMessage(report.formData, report.category);
     const whatsappUrl = `https://wa.me/${phoneNumber}?text=${encodeURIComponent(message)}`;
     window.open(whatsappUrl, '_blank');
