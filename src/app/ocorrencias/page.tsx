@@ -131,50 +131,62 @@ const generateWhatsappMessage = (report: Report): string => {
 
   let message = `*${title.toUpperCase()}*\n\n`;
 
-  const processSection = (sectionData: any, sectionTitle: string) => {
-    if (!sectionData || Object.keys(sectionData).length === 0) return '';
-    let sectionText = `*${sectionTitle.toUpperCase()}*\n`;
-    let contentAdded = false;
-
-    for (const [key, value] of Object.entries(sectionData)) {
-      if (key === 'id' || value === null || value === undefined || value === '' || value === 'NILL' || (Array.isArray(value) && value.length === 0)) {
-        continue;
+  const processSection = (data: any, sectionTitle: string) => {
+      let sectionText = `*${sectionTitle.toUpperCase()}*\n`;
+      let contentAdded = false;
+      for (const [key, value] of Object.entries(data)) {
+          if (key === 'id' || value === null || value === undefined || value === 'NILL' || value === '') continue;
+          
+          if (Array.isArray(value)) {
+              if (value.length === 0) continue;
+              sectionText += `*${formatKey(key)}:*\n`;
+              value.forEach((item, index) => {
+                  if (typeof item === 'object' && item !== null) {
+                      sectionText += `  *${formatKey(title.slice(0, -1))} ${index + 1}:*\n`;
+                      for (const [itemKey, itemValue] of Object.entries(item)) {
+                          if (itemKey !== 'id') {
+                              const formattedItemValue = formatValue(itemValue);
+                              if (formattedItemValue !== 'N/A') {
+                                sectionText += `    *${formatKey(itemKey)}:* ${formattedItemValue}\n`;
+                              }
+                          }
+                      }
+                  } else {
+                      const formattedItemValue = formatValue(item);
+                      if (formattedItemValue !== 'N/A') {
+                        sectionText += `  - ${formattedItemValue}\n`;
+                      }
+                  }
+              });
+              contentAdded = true;
+          } else {
+              const formattedValue = formatValue(value);
+              if (formattedValue !== 'N/A' && formattedValue.trim() !== '') {
+                  sectionText += `*${formatKey(key)}:* ${formattedValue}\n`;
+                  contentAdded = true;
+              }
+          }
       }
-      
-      const formattedKey = formatKey(key);
-      const formattedValue = formatValue(value);
-
-      if (formattedValue && formattedValue !== 'N/A') {
-        sectionText += `*${formattedKey}:* ${formattedValue}\n`;
-        contentAdded = true;
-      }
-    }
-    return contentAdded ? sectionText + '\n' : '';
+      return contentAdded ? sectionText + '\n' : '';
   };
   
-  const processListOfObjects = (list: any[], title: string) => {
-    if (!list || list.length === 0) return '';
-    let listText = `*${title.toUpperCase()}*\n\n`;
-    let contentAdded = false;
-    
-    list.forEach((item, index) => {
-        const itemTitle = `${title.slice(0, -1)} ${index + 1}`;
-        const itemText = processSection(item, itemTitle);
-        if (itemText) {
-            listText += itemText;
-            contentAdded = true;
+  for (const [sectionKey, sectionData] of Object.entries(formData)) {
+    if (sectionData === null || sectionData === undefined) continue;
+
+    const sectionTitle = sectionTitles[sectionKey] || formatKey(sectionKey);
+
+    if (Array.isArray(sectionData) && sectionData.length > 0) {
+      message += `*${sectionTitle.toUpperCase()}*\n`;
+      sectionData.forEach((item, index) => {
+        message += processSection(item, `${sectionTitle.slice(0,-1)} ${index + 1}`);
+      });
+    } else if (typeof sectionData === 'object' && Object.keys(sectionData).length > 0) {
+      message += processSection(sectionData, sectionTitle);
+    } else if (typeof sectionData !== 'object') {
+        const formattedValue = formatValue(sectionData);
+        if (formattedValue !== 'N/A') {
+            message += `*${sectionTitle}:* ${formattedValue}\n\n`;
         }
-    });
-
-    return contentAdded ? listText : '';
-  };
-
-  for(const [sectionKey, sectionData] of Object.entries(formData)) {
-    const sectionTitle = formatKey(sectionKey);
-    if (Array.isArray(sectionData)) {
-        message += processListOfObjects(sectionData, sectionTitle);
-    } else if (typeof sectionData === 'object' && sectionData !== null) {
-        message += processSection(sectionData, sectionTitle);
     }
   }
 
@@ -209,15 +221,7 @@ function ReportCard({ report, onDelete }: { report: Report; onDelete: () => void
 
   const handleShare = (e: React.MouseEvent) => {
     e.stopPropagation();
-    const rodovia = report.formData?.generalInfo?.rodovia;
-    let phoneNumber = '';
-    
-    if (rodovia === 'ms-112' || rodovia === 'br-158') {
-      phoneNumber = '+5567981630190';
-    } else if (rodovia === 'ms-306') {
-      phoneNumber = ''; // User will choose
-    }
-    
+    const phoneNumber = '+5567981630190';
     const message = generateWhatsappMessage(report);
     const whatsappUrl = `https://wa.me/${phoneNumber}?text=${encodeURIComponent(message)}`;
     window.open(whatsappUrl, '_blank');
