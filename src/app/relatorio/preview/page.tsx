@@ -18,6 +18,8 @@ import { eventCategories } from '@/lib/events';
 import ReportDetail from '@/components/ReportDetail';
 import { useUser } from '@/app/layout';
 import { logActivity } from '@/lib/activity-logger';
+import { Timestamp } from 'firebase/firestore';
+
 
 interface ReportData {
   id?: string;
@@ -148,50 +150,45 @@ export default function PreviewPage() {
     };
     
     const formatWhatsappValue = (value: any, key: string): string => {
-      if (value === null || value === undefined || value === 'NILL' || value === '') return '';
-      if (typeof value === 'boolean') return value ? 'SIM' : 'NÃO';
-
-      const dateKeys = ['data', 'dn', 'createdAt', 'updatedAt'];
-      const timeKeys = ['qtrInicio', 'qtrTermino'];
-
-
-      if (timeKeys.includes(key) && typeof value === 'string') {
-        if (value.match(/^\d{2}:\d{2}$/)) {
-            return value;
-        }
+      if (value === null || value === undefined || value === 'NILL' || value === '' || (Array.isArray(value) && value.length === 0)) {
+        return '';
       }
-      
-      if (dateKeys.includes(key)) {
-        try {
-            const date = new Date(value);
+    
+      if (typeof value === 'boolean') return value ? 'SIM' : 'NÃO';
+    
+      const dateKeys = ['data', 'dn', 'createdAt', 'updatedAt'];
+      const timeKeys = ['qtrInicio', 'qtrTermino', 'acionamento', 'chegada_local', 'saida_local', 'chegada_hospital', 'saida_hospital', 'chegada_bso'];
+    
+      if (timeKeys.includes(key) && typeof value === 'string' && value.match(/^\d{2}:\d{2}$/)) {
+        return value;
+      }
+    
+      if (dateKeys.includes(key) || value instanceof Date || value instanceof Timestamp || (value && value.seconds && typeof value.seconds === 'number')) {
+          try {
+            const date = (value instanceof Timestamp) ? value.toDate() : new Date(value);
             if(!isNaN(date.getTime())) {
-                return date.toLocaleString('pt-BR', {
-                    day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit'
-                });
+                return date.toLocaleString('pt-BR', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' });
             }
-        } catch { /* ignore and proceed */ }
+          } catch { /* ignore and proceed */ }
       }
       
       if (Array.isArray(value)) {
-        if (value.length === 0) return '';
-        return value.join(', ').replace(/[-_]/g, ' ').toUpperCase();
+        return value.map(item => formatWhatsappValue(item, key)).filter(Boolean).join(', ').replace(/[-_]/g, ' ').toUpperCase();
       }
       
       if (typeof value === 'object') {
-        const subValues = Object.entries(value)
-            .map(([subKey, subValue]) => {
-                if (subKey === 'id') return '';
-                const formattedSubValue = formatWhatsappValue(subValue, subKey);
-                if (formattedSubValue) {
-                    return `${formatKey(subKey)}: ${formattedSubValue}`;
-                }
-                return '';
-            })
-            .filter(Boolean)
-            .join('\n');
-        return subValues ? `\n${subValues}` : '';
+        return Object.entries(value)
+          .map(([subKey, subValue]) => {
+            const formattedSubValue = formatWhatsappValue(subValue, subKey);
+            if (formattedSubValue) {
+              return `\n  *${formatKey(subKey).toUpperCase()}*: ${formattedSubValue}`;
+            }
+            return '';
+          })
+          .filter(Boolean)
+          .join('');
       }
-
+    
       return String(value).replace(/[-_]/g, ' ').toUpperCase();
     };
 
@@ -199,7 +196,7 @@ export default function PreviewPage() {
         const { formData, category } = reportData;
         const { title } = getCategoryInfo(category);
         let message = `*${title.toUpperCase()}*\n`;
-
+    
         const sectionTitles: { [key: string]: string } = {
           generalInfo: 'INFORMAÇÕES GERAIS',
           vehicles: 'VEÍCULOS',
@@ -212,51 +209,65 @@ export default function PreviewPage() {
           condicao: 'CONDIÇÃO',
           pista: 'PISTA',
           sinalizacao: 'SINALIZAÇÃO (GERAL)',
+          dadosOperacionais: "DADOS OPERACIONAIS",
+          victims: "VÍTIMAS",
+          consumoMateriais: "CONSUMO DE MATERIAIS",
+          relatorio: "RELATÓRIO/OBSERVAÇÕES"
         };
-        
+    
+        const processSection = (data: any, sectionTitle: string) => {
+            let sectionContent = '';
+            let hasContent = false;
+    
+            if (Array.isArray(data)) {
+                data.forEach((item, index) => {
+                    const itemContent = processSection(item, `${sectionTitle} ${index + 1}`);
+                    if (itemContent) {
+                        sectionContent += `\n${itemContent}`;
+                        hasContent = true;
+                    }
+                });
+                return sectionContent;
+            }
+    
+            if (typeof data === 'object' && data !== null) {
+                let details = '';
+                let hasDetails = false;
+                for (const [key, value] of Object.entries(data)) {
+                    if (key === 'id') continue;
+                    const formattedValue = formatWhatsappValue(value, key);
+                    if (formattedValue) {
+                        details += `\n*${formatKey(key).toUpperCase()}*: ${formattedValue}`;
+                        hasDetails = true;
+                    }
+                }
+                if (hasDetails) {
+                    sectionContent += `\n*${sectionTitle.toUpperCase()}*${details}`;
+                    hasContent = true;
+                }
+            } else {
+                 const formattedValue = formatWhatsappValue(data, '');
+                 if(formattedValue) {
+                    sectionContent += `\n*${sectionTitle.toUpperCase()}*: ${formattedValue}`;
+                    hasContent = true;
+                 }
+            }
+    
+            return hasContent ? sectionContent : '';
+        };
+    
         for (const sectionKey in formData) {
             if (Object.prototype.hasOwnProperty.call(formData, sectionKey)) {
                 const sectionData = formData[sectionKey];
-                const sectionTitle = sectionTitles[sectionKey];
-
-                if (sectionTitle) {
-                    let sectionContent = '';
-                    let hasContent = false;
-                    
-                    if (sectionKey === 'vehicles' && Array.isArray(sectionData)) {
-                        sectionData.forEach((vehicle, index) => {
-                            let vehicleDetails = '';
-                            let hasVehicleContent = false;
-                            for (const [key, value] of Object.entries(vehicle)) {
-                                if (key === 'id') continue;
-                                const formattedValue = formatWhatsappValue(value, key);
-                                if (formattedValue) {
-                                    vehicleDetails += `*${formatKey(key).toUpperCase()}*: ${formattedValue}\n`;
-                                    hasVehicleContent = true;
-                                }
-                            }
-                            if (hasVehicleContent) {
-                                sectionContent += `\n*VEÍCULO ${index + 1}*\n${vehicleDetails}`;
-                                hasContent = true;
-                            }
-                        });
-                    } else if (typeof sectionData === 'object' && !Array.isArray(sectionData)) {
-                        for (const [key, value] of Object.entries(sectionData)) {
-                            const formattedValue = formatWhatsappValue(value, key);
-                            if (formattedValue) {
-                                sectionContent += `*${formatKey(key).toUpperCase()}*: ${formattedValue}\n`;
-                                hasContent = true;
-                            }
-                        }
-                    }
-
-                    if (hasContent) {
-                        message += `\n*${sectionTitle}*\n${sectionContent}`;
-                    }
+                const sectionTitle = sectionTitles[sectionKey] || formatKey(sectionKey);
+                
+                const content = processSection(sectionData, sectionTitle);
+                if(content) {
+                    message += content;
                 }
             }
         }
-
+    
         return message;
     };
 
