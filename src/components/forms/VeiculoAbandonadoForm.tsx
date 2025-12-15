@@ -119,6 +119,7 @@ export default function VeiculoAbandonadoForm({ categorySlug }: { categorySlug: 
         }
       }
     }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [categorySlug]);
 
   const handleGeneralInfoChange = (field: keyof Omit<GeneralInfo, 'tipoPane'>, value: string) => {
@@ -453,3 +454,5 @@ export default function VeiculoAbandonadoForm({ categorySlug }: { categorySlug: 
     </div>
   );
 }
+
+    

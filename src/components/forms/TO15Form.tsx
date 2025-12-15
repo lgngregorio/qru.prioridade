@@ -2,19 +2,16 @@
 'use client';
 
 import { useRouter } from 'next/navigation';
-import { Save, Share, PlusCircle, Trash2, Loader2 } from 'lucide-react';
-import { useState } from 'react';
-import { collection, addDoc, serverTimestamp } from 'firebase/firestore';
+import { Save, PlusCircle, Trash2 } from 'lucide-react';
+import { useState, useEffect } from 'react';
 import React from 'react';
 
 import { cn } from '@/lib/utils';
-import { eventCategories } from '@/lib/events';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { useFirestore } from '@/firebase';
 import { useToast } from '@/hooks/use-toast';
 import { Checkbox } from '@/components/ui/checkbox';
 
@@ -75,6 +72,8 @@ const paneTypes = [
 export default function TO15Form({ categorySlug }: { categorySlug: string }) {
   const router = useRouter();
   const { toast } = useToast();
+  const [existingReport, setExistingReport] = useState<any>(null);
+
 
   const [generalInfo, setGeneralInfo] = useState<GeneralInfo>({
     rodovia: '',
@@ -98,6 +97,26 @@ export default function TO15Form({ categorySlug }: { categorySlug: string }) {
     observacoes: '',
     numeroOcorrencia: '',
   });
+  
+  useEffect(() => {
+    const savedData = localStorage.getItem('reportPreview');
+    if (savedData) {
+      const parsedData = JSON.parse(savedData);
+      if (parsedData.category === categorySlug) {
+        setExistingReport(parsedData);
+        const { formData } = parsedData;
+        if (formData) {
+          setGeneralInfo(formData.generalInfo || generalInfo);
+          if (formData.vehicles && formData.vehicles.length > 0) {
+            setVehicles(formData.vehicles);
+          }
+          setOtherInfo(formData.otherInfo || otherInfo);
+        }
+      }
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [categorySlug]);
+
 
   const handleGeneralInfoChange = (field: keyof Omit<GeneralInfo, 'tipoPane'>, value: string) => {
     setGeneralInfo(prev => ({ ...prev, [field]: value }));
@@ -171,6 +190,7 @@ export default function TO15Form({ categorySlug }: { categorySlug: string }) {
 
   const prepareReportData = () => {
     const filledData = {
+      ...existingReport,
       generalInfo: fillEmptyFields(generalInfo),
       vehicles: fillEmptyFields(vehicles),
       otherInfo: fillEmptyFields(otherInfo),
@@ -391,3 +411,5 @@ export default function TO15Form({ categorySlug }: { categorySlug: string }) {
     </div>
   );
 }
+
+    

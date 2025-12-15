@@ -2,19 +2,16 @@
 'use client';
 
 import { useRouter } from 'next/navigation';
-import { Save, Share, PlusCircle, Trash2, Loader2 } from 'lucide-react';
+import { Save, PlusCircle, Trash2 } from 'lucide-react';
 import { useState, useEffect } from 'react';
-import { collection, addDoc, serverTimestamp } from 'firebase/firestore';
 import React from 'react';
 
 import { cn } from '@/lib/utils';
-import { eventCategories } from '@/lib/events';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { useFirestore } from '@/firebase';
 import { useToast } from '@/hooks/use-toast';
 import { Checkbox } from '@/components/ui/checkbox';
 
@@ -107,18 +104,21 @@ export default function TO33Form({ categorySlug }: { categorySlug: string }) {
     const savedData = localStorage.getItem('reportPreview');
     if (savedData) {
       const parsedData = JSON.parse(savedData);
-      setExistingReport(parsedData);
-      const { formData } = parsedData;
-      if (formData) {
-        setGeneralInfo(formData.generalInfo || generalInfo);
-        if (formData.vehicles && formData.vehicles.length > 0) {
-            setVehicles(formData.vehicles);
+      if (parsedData.category === categorySlug) {
+        setExistingReport(parsedData);
+        const { formData } = parsedData;
+        if (formData) {
+          setGeneralInfo(formData.generalInfo || generalInfo);
+          if (formData.vehicles && formData.vehicles.length > 0) {
+              setVehicles(formData.vehicles);
+          }
+          setOtherInfo(formData.otherInfo || otherInfo);
+          setShowVtrApoio(!!formData.otherInfo?.vtrApoio && formData.otherInfo.vtrApoio !== 'NILL');
         }
-        setOtherInfo(formData.otherInfo || otherInfo);
-        setShowVtrApoio(!!formData.otherInfo?.vtrApoio && formData.otherInfo.vtrApoio !== 'NILL');
       }
     }
-  }, []);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [categorySlug]);
 
   const handleGeneralInfoChange = (field: keyof Omit<GeneralInfo, 'tipoPane'>, value: string) => {
     setGeneralInfo(prev => ({ ...prev, [field]: value }));
@@ -434,3 +434,5 @@ export default function TO33Form({ categorySlug }: { categorySlug: string }) {
     </div>
   );
 }
+
+    
