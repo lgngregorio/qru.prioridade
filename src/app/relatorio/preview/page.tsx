@@ -43,6 +43,106 @@ const getCategoryInfo = (slug: string) => {
     };
 };
 
+const sectionTitles: { [key: string]: string } = {
+  generalInfo: 'INFORMAÇÕES GERAIS',
+  vehicles: 'VEÍCULOS',
+  caracteristicasEntorno: 'CARACTERÍSTICAS DO ENTORNO',
+  tracadoPista: 'TRAÇADO DA PISTA',
+  sinalizacaoInfo: 'SINALIZAÇÃO',
+  otherInfo: 'OUTRAS INFORMAÇÕES',
+  previa: 'ACIDENTE PRÉVIA',
+  confirmacao: 'CONFIRMAÇÃO DA PRÉVIA',
+  condicao: 'CONDIÇÃO',
+  pista: 'PISTA',
+  sinalizacao: 'SINALIZAÇÃO (GERAL)',
+  dadosOperacionais: "DADOS OPERACIONAIS",
+  victims: "VÍTIMAS",
+  consumoMateriais: "CONSUMO DE MATERIAIS",
+  relatorio: "RELATÓRIO/OBSERVAÇÕES"
+};
+
+const formatKey = (key: string) => {
+  if (sectionTitles[key]) return sectionTitles[key];
+  return key
+    .replace(/([A-Z])/g, ' $1')
+    .replace(/_/g, ' ')
+    .replace(/\b\w/g, (char) => char.toUpperCase());
+};
+
+const formatValue = (value: any): string => {
+  if (value === null || value === undefined || value === 'NILL' || value === '') {
+    return '';
+  }
+  if (typeof value === 'boolean') {
+    return value ? 'SIM' : 'NÃO';
+  }
+  if (Array.isArray(value)) {
+    return value.map(formatValue).filter(Boolean).join(', ').toUpperCase();
+  }
+   if (value instanceof Date || (value && value.seconds && typeof value.seconds === 'number')) {
+      try {
+        const date = (value instanceof Timestamp) ? value.toDate() : new Date(value);
+        if(!isNaN(date.getTime())) {
+            return date.toLocaleString('pt-BR', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' });
+        }
+      } catch { /* ignore */ }
+  }
+  if (typeof value === 'object') {
+     return generateWhatsappMessage({ formData: value } as ReportData).trim();
+  }
+
+  return String(value).toUpperCase();
+};
+
+const generateWhatsappMessage = (report: ReportData): string => {
+    const { formData, category } = report;
+    const { title } = getCategoryInfo(category);
+    
+    let message = `*${title.toUpperCase()}*\n\n`;
+
+    const processSection = (data: any, sectionTitle: string): string => {
+        let content = '';
+        if (Array.isArray(data)) {
+            content += `*${sectionTitle.toUpperCase()}*\n`;
+            data.forEach((item, index) => {
+                content += `*${sectionTitle.toUpperCase().replace(/S$/, '')} ${index + 1}*\n`;
+                content += processSection(item, '');
+            });
+            return content;
+        }
+
+        if (typeof data === 'object' && data !== null) {
+            for (const [key, value] of Object.entries(data)) {
+                 if (key === 'id') continue;
+                const formattedValue = formatValue(value);
+                if (formattedValue) {
+                    content += `*${formatKey(key)}:* ${formattedValue}\n`;
+                }
+            }
+        } else {
+             const formattedValue = formatValue(data);
+             if (formattedValue) {
+                content += `*${sectionTitle.toUpperCase()}:* ${formattedValue}\n`;
+             }
+        }
+        return content;
+    }
+    
+    for (const sectionKey in formData) {
+        if (Object.prototype.hasOwnProperty.call(formData, sectionKey)) {
+            const sectionData = formData[sectionKey];
+            const title = sectionTitles[sectionKey] || formatKey(sectionKey);
+            const sectionContent = processSection(sectionData, title);
+            if (sectionContent) {
+                message += `${sectionContent}\n`;
+            }
+        }
+    }
+
+    return message;
+};
+
+
 export default function PreviewPage() {
   const router = useRouter();
   const { toast } = useToast();
@@ -142,135 +242,6 @@ export default function PreviewPage() {
     return category ? category.title : slug;
   };
     
-    const formatKey = (key: string) => {
-        return key
-            .replace(/([A-Z])/g, ' $1')
-            .replace(/_/g, ' ')
-            .replace(/\b\w/g, char => char.toUpperCase());
-    };
-    
-    const formatWhatsappValue = (value: any, key: string): string => {
-      if (value === null || value === undefined || value === 'NILL' || value === '' || (Array.isArray(value) && value.length === 0)) {
-        return '';
-      }
-    
-      if (typeof value === 'boolean') return value ? 'SIM' : 'NÃO';
-    
-      const dateKeys = ['data', 'dn', 'createdAt', 'updatedAt'];
-      const timeKeys = ['qtrInicio', 'qtrTermino', 'acionamento', 'chegada_local', 'saida_local', 'chegada_hospital', 'saida_hospital', 'chegada_bso'];
-    
-      if (timeKeys.includes(key) && typeof value === 'string' && value.match(/^\d{2}:\d{2}$/)) {
-        return value;
-      }
-    
-      if (dateKeys.includes(key) || value instanceof Date || value instanceof Timestamp || (value && value.seconds && typeof value.seconds === 'number')) {
-          try {
-            const date = (value instanceof Timestamp) ? value.toDate() : new Date(value);
-            if(!isNaN(date.getTime())) {
-                return date.toLocaleString('pt-BR', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' });
-            }
-          } catch { /* ignore and proceed */ }
-      }
-      
-      if (Array.isArray(value)) {
-        return value.map(item => formatWhatsappValue(item, key)).filter(Boolean).join(', ').replace(/[-_]/g, ' ').toUpperCase();
-      }
-      
-      if (typeof value === 'object') {
-        return Object.entries(value)
-          .map(([subKey, subValue]) => {
-            const formattedSubValue = formatWhatsappValue(subValue, subKey);
-            if (formattedSubValue) {
-              return `\n  *${formatKey(subKey).toUpperCase()}*: ${formattedSubValue}`;
-            }
-            return '';
-          })
-          .filter(Boolean)
-          .join('');
-      }
-    
-      return String(value).replace(/[-_]/g, ' ').toUpperCase();
-    };
-
-    const generateWhatsappMessage = (reportData: ReportData): string => {
-        const { formData, category } = reportData;
-        const { title } = getCategoryInfo(category);
-        let message = `*${title.toUpperCase()}*\n`;
-    
-        const sectionTitles: { [key: string]: string } = {
-          generalInfo: 'INFORMAÇÕES GERAIS',
-          vehicles: 'VEÍCULOS',
-          caracteristicasEntorno: 'CARACTERÍSTICAS DO ENTORNO',
-          tracadoPista: 'TRAÇADO DA PISTA',
-          sinalizacaoInfo: 'SINALIZAÇÃO',
-          otherInfo: 'OUTRAS INFORMAÇÕES',
-          previa: 'ACIDENTE PRÉVIA',
-          confirmacao: 'CONFIRMAÇÃO DA PRÉVIA',
-          condicao: 'CONDIÇÃO',
-          pista: 'PISTA',
-          sinalizacao: 'SINALIZAÇÃO (GERAL)',
-          dadosOperacionais: "DADOS OPERACIONAIS",
-          victims: "VÍTIMAS",
-          consumoMateriais: "CONSUMO DE MATERIAIS",
-          relatorio: "RELATÓRIO/OBSERVAÇÕES"
-        };
-    
-        const processSection = (data: any, sectionTitle: string) => {
-            let sectionContent = '';
-            let hasContent = false;
-    
-            if (Array.isArray(data)) {
-                data.forEach((item, index) => {
-                    const itemContent = processSection(item, `${sectionTitle} ${index + 1}`);
-                    if (itemContent) {
-                        sectionContent += `\n${itemContent}`;
-                        hasContent = true;
-                    }
-                });
-                return sectionContent;
-            }
-    
-            if (typeof data === 'object' && data !== null) {
-                let details = '';
-                let hasDetails = false;
-                for (const [key, value] of Object.entries(data)) {
-                    if (key === 'id') continue;
-                    const formattedValue = formatWhatsappValue(value, key);
-                    if (formattedValue) {
-                        details += `\n*${formatKey(key).toUpperCase()}*: ${formattedValue}`;
-                        hasDetails = true;
-                    }
-                }
-                if (hasDetails) {
-                    sectionContent += `\n*${sectionTitle.toUpperCase()}*${details}`;
-                    hasContent = true;
-                }
-            } else {
-                 const formattedValue = formatWhatsappValue(data, '');
-                 if(formattedValue) {
-                    sectionContent += `\n*${sectionTitle.toUpperCase()}*: ${formattedValue}`;
-                    hasContent = true;
-                 }
-            }
-    
-            return hasContent ? sectionContent : '';
-        };
-    
-        for (const sectionKey in formData) {
-            if (Object.prototype.hasOwnProperty.call(formData, sectionKey)) {
-                const sectionData = formData[sectionKey];
-                const sectionTitle = sectionTitles[sectionKey] || formatKey(sectionKey);
-                
-                const content = processSection(sectionData, sectionTitle);
-                if(content) {
-                    message += content;
-                }
-            }
-        }
-    
-        return message;
-    };
-
   const handleShare = () => {
     if (!report) return;
     const rodovia = report.formData?.generalInfo?.rodovia;
