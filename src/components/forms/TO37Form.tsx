@@ -223,9 +223,9 @@ export default function TO37Form({ categorySlug }: { categorySlug: string }) {
                         <SelectValue placeholder="Selecione a ação" />
                     </SelectTrigger>
                     <SelectContent>
-                        <SelectItem value="implantar_placa">PRECISA IMPLANTAR PLACA</SelectItem>
-                        <SelectItem value="retirar_placa">PRECISA RETIRAR PLACA</SelectItem>
-                        <SelectItem value="desamassado">DESAMASSADO</SelectItem>
+                        <SelectItem value="FAZER IMPLANTAÇÃO DA PLACA">FAZER IMPLANTAÇÃO DA PLACA</SelectItem>
+                        <SelectItem value="FEITO A RETIRADA DA PLACA">FEITO A RETIRADA DA PLACA</SelectItem>
+                        <SelectItem value="FEITO O DESAMASSO DA PLACA">FEITO O DESAMASSO DA PLACA</SelectItem>
                     </SelectContent>
                 </Select>
             </Field>
