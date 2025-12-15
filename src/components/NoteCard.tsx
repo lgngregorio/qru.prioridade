@@ -40,9 +40,8 @@ export function NoteCard({ note, onEdit, onDelete }: NoteCardProps) {
   
   const handleShare = (e: React.MouseEvent) => {
     e.stopPropagation();
-    const phoneNumber = '+5567981630190';
     const message = `*${note.title}*\n\n${note.content}`;
-    const whatsappUrl = `https://wa.me/${phoneNumber}?text=${encodeURIComponent(message)}`;
+    const whatsappUrl = `https://wa.me/?text=${encodeURIComponent(message)}`;
     window.open(whatsappUrl, '_blank');
   };
   
