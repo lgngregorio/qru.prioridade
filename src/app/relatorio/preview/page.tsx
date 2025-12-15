@@ -62,11 +62,11 @@ const sectionTitles: { [key: string]: string } = {
 };
 
 const formatKey = (key: string) => {
-  if (sectionTitles[key]) return sectionTitles[key];
-  return key
+  if (sectionTitles[key]) return `*${sectionTitles[key]}*`;
+  return `*${key
     .replace(/([A-Z])/g, ' $1')
     .replace(/_/g, ' ')
-    .replace(/\b\w/g, (char) => char.toUpperCase());
+    .replace(/\b\w/g, (char) => char.toUpperCase())}*`;
 };
 
 const formatValue = (value: any): string => {
@@ -91,7 +91,7 @@ const formatValue = (value: any): string => {
      return '';
   }
 
-  return String(value).toUpperCase();
+  return String(value).replace(/[-_]/g, ' ').toUpperCase();
 };
 
 const generateWhatsappMessage = (report: ReportData): string => {
@@ -114,7 +114,7 @@ const generateWhatsappMessage = (report: ReportData): string => {
                     contentAdded = true;
                 }
             });
-             return contentAdded ? sectionText : `*${sectionTitle.toUpperCase()}*\n`;
+             return contentAdded ? sectionText : ``;
         }
 
         for (const [key, value] of Object.entries(data)) {
@@ -129,12 +129,12 @@ const generateWhatsappMessage = (report: ReportData): string => {
             } else {
                 const formattedValue = formatValue(value);
                 if (formattedValue !== 'N/A' && formattedValue.trim() !== '') {
-                    sectionText += `*${formatKey(key).toUpperCase()}:* ${formattedValue}\n`;
+                    sectionText += `${formatKey(key)}: ${formattedValue}\n`;
                     contentAdded = true;
                 }
             }
         }
-        return contentAdded ? sectionText + '\n' : `*${sectionTitle.toUpperCase()}*\n`;
+        return contentAdded ? sectionText + '\n' : ``;
     };
   
     for (const [sectionKey, sectionData] of Object.entries(formData)) {
@@ -143,7 +143,7 @@ const generateWhatsappMessage = (report: ReportData): string => {
         const sectionTitle = sectionTitles[sectionKey] || formatKey(sectionKey);
 
         const sectionResult = processSection(sectionData, sectionTitle);
-        if (sectionResult.trim() !== `*${sectionTitle.toUpperCase()}*`) {
+        if (sectionResult.trim() && sectionResult.trim() !== `*${sectionTitle.toUpperCase()}*`) {
             message += sectionResult;
         }
     }
