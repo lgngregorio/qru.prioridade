@@ -82,17 +82,20 @@ export default function TO38Form({ categorySlug }: { categorySlug: string }) {
     const savedData = localStorage.getItem('reportPreview');
     if (savedData) {
       const parsedData = JSON.parse(savedData);
-      setExistingReport(parsedData);
-      const { formData } = parsedData;
+      if(parsedData.category === categorySlug) {
+        setExistingReport(parsedData);
+        const { formData } = parsedData;
 
-      if (formData) {
-        setGeneralInfo(formData.generalInfo || generalInfo);
-        setSinalizacaoInfo(formData.sinalizacaoInfo || sinalizacaoInfo);
-        setOtherInfo(formData.otherInfo || otherInfo);
-        setShowVtrApoio(!!formData.otherInfo?.vtrApoio && formData.otherInfo.vtrApoio !== 'NILL');
+        if (formData) {
+          setGeneralInfo(formData.generalInfo || generalInfo);
+          setSinalizacaoInfo(formData.sinalizacaoInfo || sinalizacaoInfo);
+          setOtherInfo(formData.otherInfo || otherInfo);
+          setShowVtrApoio(!!formData.otherInfo?.vtrApoio && formData.otherInfo.vtrApoio !== 'NILL');
+        }
       }
     }
-  }, []);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [categorySlug]);
 
   const handleGeneralInfoChange = (field: keyof GeneralInfo, value: string) => {
     setGeneralInfo(prev => ({ ...prev, [field]: value }));
@@ -221,8 +224,8 @@ export default function TO38Form({ categorySlug }: { categorySlug: string }) {
                         <SelectValue placeholder="Selecione a ação" />
                     </SelectTrigger>
                     <SelectContent>
-                        <SelectItem value="retirar_placa">PRECISA RETIRAR PLACA</SelectItem>
-                        <SelectItem value="recolher_placa">PRECISA RECOLHER PLACA</SelectItem>
+                        <SelectItem value="remocao">FEITO A REMOÇÃO DA PLACA</SelectItem>
+                        <SelectItem value="recolhimento">FEITO O RECOLHIMENTO DA PLACA</SelectItem>
                     </SelectContent>
                 </Select>
             </Field>
