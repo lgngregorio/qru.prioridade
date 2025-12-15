@@ -210,8 +210,9 @@ function ReportCard({ report, onDelete }: { report: Report; onDelete: () => void
 
   const handleShare = (e: React.MouseEvent) => {
     e.stopPropagation();
+    const phoneNumber = '+5500000000000';
     const message = generateWhatsappMessage(report.formData, report.category);
-    const whatsappUrl = `https://wa.me/?text=${encodeURIComponent(message)}`;
+    const whatsappUrl = `https://wa.me/${phoneNumber}?text=${encodeURIComponent(message)}`;
     window.open(whatsappUrl, '_blank');
   };
 
