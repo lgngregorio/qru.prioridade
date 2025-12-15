@@ -95,71 +95,60 @@ const formatValue = (value: any): string => {
 };
 
 const generateWhatsappMessage = (report: ReportData): string => {
-  const { formData, category } = report;
-  const { title } = getCategoryInfo(category);
+    const { formData, category } = report;
+    const { title } = getCategoryInfo(category);
 
-  let message = `*${title.toUpperCase()}*\n\n`;
+    let message = `*${title.toUpperCase()}*\n\n`;
 
-  const processSection = (data: any, sectionTitle: string) => {
-      let sectionText = `*${sectionTitle.toUpperCase()}*\n`;
-      let contentAdded = false;
-      for (const [key, value] of Object.entries(data)) {
-          if (key === 'id' || value === null || value === undefined || value === 'NILL' || value === '') continue;
-          
-          if (Array.isArray(value)) {
-              if (value.length === 0) continue;
-              sectionText += `*${formatKey(key)}:*\n`;
-              value.forEach((item, index) => {
-                  if (typeof item === 'object' && item !== null) {
-                      sectionText += `  *${formatKey(title.slice(0, -1))} ${index + 1}:*\n`;
-                      for (const [itemKey, itemValue] of Object.entries(item)) {
-                          if (itemKey !== 'id') {
-                              const formattedItemValue = formatValue(itemValue);
-                              if (formattedItemValue !== 'N/A') {
-                                sectionText += `    *${formatKey(itemKey)}:* ${formattedItemValue}\n`;
-                              }
-                          }
-                      }
-                  } else {
-                      const formattedItemValue = formatValue(item);
-                      if (formattedItemValue !== 'N/A') {
-                        sectionText += `  - ${formattedItemValue}\n`;
-                      }
-                  }
-              });
-              contentAdded = true;
-          } else {
-              const formattedValue = formatValue(value);
-              if (formattedValue !== 'N/A' && formattedValue.trim() !== '') {
-                  sectionText += `*${formatKey(key)}:* ${formattedValue}\n`;
-                  contentAdded = true;
-              }
-          }
-      }
-      return contentAdded ? sectionText + '\n' : '';
-  };
+    const processSection = (data: any, sectionTitle: string) => {
+        let sectionText = `*${sectionTitle.toUpperCase()}*\n`;
+        let contentAdded = false;
+
+        if (Array.isArray(data)) {
+            data.forEach((item, index) => {
+                const itemTitle = `${sectionTitle.replace(/S$/, '')} ${index + 1}`;
+                const subSection = processSection(item, itemTitle);
+                // Only add subsection if it has content other than its own title
+                if (subSection.trim() !== `*${itemTitle.toUpperCase()}*`) {
+                    sectionText += subSection;
+                    contentAdded = true;
+                }
+            });
+             return contentAdded ? sectionText : `*${sectionTitle.toUpperCase()}*\n`;
+        }
+
+        for (const [key, value] of Object.entries(data)) {
+            if (value === null || value === undefined || value === 'NILL' || value === '' || key === 'id') continue;
+            
+            if (typeof value === 'object' && !Array.isArray(value) && !(value instanceof Date) && !(value.seconds && typeof value.seconds === 'number')) {
+                 const subSectionText = processSection(value, formatKey(key));
+                 if (subSectionText.trim() !== `*${formatKey(key).toUpperCase()}*`) {
+                     sectionText += subSectionText;
+                     contentAdded = true;
+                 }
+            } else {
+                const formattedValue = formatValue(value);
+                if (formattedValue !== 'N/A' && formattedValue.trim() !== '') {
+                    sectionText += `*${formatKey(key).toUpperCase()}:* ${formattedValue}\n`;
+                    contentAdded = true;
+                }
+            }
+        }
+        return contentAdded ? sectionText + '\n' : `*${sectionTitle.toUpperCase()}*\n`;
+    };
   
-  for (const [sectionKey, sectionData] of Object.entries(formData)) {
-    if (sectionData === null || sectionData === undefined) continue;
+    for (const [sectionKey, sectionData] of Object.entries(formData)) {
+        if (sectionData === null || sectionData === undefined) continue;
 
-    const sectionTitle = sectionTitles[sectionKey] || formatKey(sectionKey);
+        const sectionTitle = sectionTitles[sectionKey] || formatKey(sectionKey);
 
-    if (Array.isArray(sectionData) && sectionData.length > 0) {
-      message += `*${sectionTitle.toUpperCase()}*\n`;
-      sectionData.forEach((item, index) => {
-        message += processSection(item, `${sectionTitle.slice(0,-1)} ${index + 1}`);
-      });
-    } else if (typeof sectionData === 'object' && Object.keys(sectionData).length > 0) {
-      message += processSection(sectionData, sectionTitle);
-    } else if (typeof sectionData !== 'object') {
-        const formattedValue = formatValue(sectionData);
-        if (formattedValue !== 'N/A') {
-            message += `*${sectionTitle}:* ${formattedValue}\n\n`;
+        const sectionResult = processSection(sectionData, sectionTitle);
+        if (sectionResult.trim() !== `*${sectionTitle.toUpperCase()}*`) {
+            message += sectionResult;
         }
     }
-  }
 
-  return message.trim();
+    return message.trim();
 };
 
 
