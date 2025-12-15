@@ -102,13 +102,13 @@ const formatKey = (key: string) => {
 
 const formatValue = (value: any): string => {
   if (value === null || value === undefined || value === 'NILL' || value === '') {
-    return '';
+    return 'N/A';
   }
   if (typeof value === 'boolean') {
     return value ? 'SIM' : 'NÃO';
   }
   if (Array.isArray(value)) {
-    return value.map(formatValue).filter(Boolean).join(', ').toUpperCase();
+    return value.map(formatValue).join(', ').toUpperCase();
   }
    if (value instanceof Date || (value && value.seconds && typeof value.seconds === 'number')) {
       try {
@@ -119,59 +119,75 @@ const formatValue = (value: any): string => {
       } catch { /* ignore */ }
   }
   if (typeof value === 'object') {
-     return generateWhatsappMessage({ formData: value } as Report).trim();
+     // This case should be handled by the recursive generateWhatsappMessage
+     return '';
   }
 
   return String(value).toUpperCase();
 };
 
-
 const generateWhatsappMessage = (report: Report): string => {
-    const { formData, category } = report;
-    const { title } = getCategoryInfo(category);
-    
-    let message = `*${title.toUpperCase()}*\n\n`;
+  const { formData, category } = report;
+  const { title } = getCategoryInfo(category);
 
-    const processSection = (data: any, sectionTitle: string): string => {
-        let content = '';
-        if (Array.isArray(data)) {
-            content += `*${sectionTitle.toUpperCase()}*\n`;
-            data.forEach((item, index) => {
-                content += `*${sectionTitle.toUpperCase().replace(/S$/, '')} ${index + 1}*\n`;
-                content += processSection(item, '');
-            });
-            return content;
-        }
+  let message = `*${title.toUpperCase()}*\n\n`;
 
-        if (typeof data === 'object' && data !== null) {
-            for (const [key, value] of Object.entries(data)) {
-                 if (key === 'id') continue;
-                const formattedValue = formatValue(value);
-                if (formattedValue) {
-                    content += `*${formatKey(key)}:* ${formattedValue}\n`;
-                }
-            }
+  const processData = (data: any, sectionTitle?: string): string => {
+    let content = '';
+
+    if (sectionTitle) {
+      content += `*${sectionTitle.toUpperCase()}*\n`;
+    }
+
+    if (Array.isArray(data)) {
+      data.forEach((item, index) => {
+        const subSectionTitle = sectionTitle ? `${sectionTitle.replace(/S$/, '')} ${index + 1}` : `Item ${index + 1}`;
+        content += `\n*${subSectionTitle}*\n`;
+        content += processData(item);
+      });
+      return content;
+    }
+
+    if (typeof data === 'object' && data !== null) {
+      for (const [key, value] of Object.entries(data)) {
+        if (key === 'id') continue;
+
+        const formattedKey = formatKey(key);
+        if (typeof value === 'object' && value !== null && !Array.isArray(value)) {
+          // It's a nested object (e.g., sinais_vitais)
+          const nestedContent = processData(value);
+          if (nestedContent) {
+            content += `*${formattedKey}*\n${nestedContent}\n`;
+          }
+        } else if (Array.isArray(value)) {
+          // It's an array (e.g., vehicles, victims)
+          const arrayContent = processData(value, formattedKey);
+          if (arrayContent) {
+            content += `${arrayContent}\n`;
+          }
         } else {
-             const formattedValue = formatValue(data);
-             if (formattedValue) {
-                content += `*${sectionTitle.toUpperCase()}:* ${formattedValue}\n`;
-             }
+          // It's a simple key-value pair
+          const formattedValue = formatValue(value);
+          if (formattedValue && formattedValue !== 'N/A') {
+            content += `*${formattedKey}:* ${formattedValue}\n`;
+          }
         }
-        return content;
+      }
+      return content;
     }
     
-    for (const sectionKey in formData) {
-        if (Object.prototype.hasOwnProperty.call(formData, sectionKey)) {
-            const sectionData = formData[sectionKey];
-            const title = sectionTitles[sectionKey] || formatKey(sectionKey);
-            const sectionContent = processSection(sectionData, title);
-            if (sectionContent) {
-                message += `${sectionContent}\n`;
-            }
-        }
+    // Fallback for any other type of data (shouldn't happen often with structured forms)
+    const formattedValue = formatValue(data);
+    if(formattedValue && formattedValue !== 'N/A') {
+       content += `${formattedValue}\n`;
     }
 
-    return message;
+    return content;
+  };
+
+  message += processData(formData);
+
+  return message.trim();
 };
 
 
