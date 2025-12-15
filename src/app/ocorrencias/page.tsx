@@ -130,72 +130,78 @@ const formatWhatsappValue = (value: any, key: string): string => {
 };
 
 const generateWhatsappMessage = (data: any, category: string): string => {
-  const { title } = getCategoryInfo(category);
-  let message = `*${title.toUpperCase()}*\n`;
-  const sectionTitles: { [key: string]: string } = {
-    generalInfo: 'INFORMAÇÕES GERAIS',
-    vehicles: 'VEÍCULOS',
-    caracteristicasEntorno: 'CARACTERÍSTICAS DO ENTORNO',
-    tracadoPista: 'TRAÇADO DA PISTA',
-    sinalizacaoInfo: 'SINALIZAÇÃO',
-    otherInfo: 'OUTRAS INFORMAÇÕES',
-    previa: 'ACIDENTE PRÉVIA',
-    confirmacao: 'CONFIRMAÇÃO DA PRÉVIA',
-    condicao: 'CONDIÇÃO',
-    pista: 'PISTA',
-    sinalizacao: 'SINALIZAÇÃO (GERAL)',
-  };
-
-  const processSection = (sectionKey: string, sectionData: any) => {
-    if (!sectionData || Object.keys(sectionData).length === 0) return '';
-    const sectionTitle = sectionTitles[sectionKey];
-    if (!sectionTitle) return '';
-
-    let sectionContent = '';
-    let hasContent = false;
-
-    if (sectionKey === 'vehicles' && Array.isArray(sectionData)) {
-        sectionData.forEach((vehicle, index) => {
-            let vehicleContent = '';
-            let hasVehicleContent = false;
-            for (const [key, value] of Object.entries(vehicle)) {
-                if (key === 'id') continue;
+    const { title } = getCategoryInfo(category);
+    let message = `*${title.toUpperCase()}*\n`;
+  
+    const sectionTitles: { [key: string]: string } = {
+      generalInfo: 'INFORMAÇÕES GERAIS',
+      vehicles: 'VEÍCULOS',
+      caracteristicasEntorno: 'CARACTERÍSTICAS DO ENTORNO',
+      tracadoPista: 'TRAÇADO DA PISTA',
+      sinalizacaoInfo: 'SINALIZAÇÃO',
+      otherInfo: 'OUTRAS INFORMAÇÕES',
+      previa: 'ACIDENTE PRÉVIA',
+      confirmacao: 'CONFIRMAÇÃO DA PRÉVIA',
+      condicao: 'CONDIÇÃO',
+      pista: 'PISTA',
+      sinalizacao: 'SINALIZAÇÃO (GERAL)',
+    };
+  
+    const processSection = (sectionKey: string, sectionData: any) => {
+        if (!sectionData || (typeof sectionData === 'object' && Object.keys(sectionData).length === 0)) {
+            return '';
+        }
+    
+        const sectionTitle = sectionTitles[sectionKey];
+        if (!sectionTitle) return '';
+    
+        let sectionContent = '';
+        let hasContent = false;
+    
+        if (sectionKey === 'vehicles' && Array.isArray(sectionData)) {
+            sectionData.forEach((vehicle, index) => {
+                let vehicleContent = '';
+                let hasVehicleContent = false;
+                for (const [key, value] of Object.entries(vehicle)) {
+                    if (key === 'id') continue;
+                    const formattedValue = formatWhatsappValue(value, key);
+                    if (formattedValue) {
+                        const formattedKey = `*${formatKey(key).toUpperCase()}*`;
+                        vehicleContent += `${formattedKey}: ${formattedValue}\n`;
+                        hasVehicleContent = true;
+                    }
+                }
+                if (hasVehicleContent) {
+                    sectionContent += `\n*VEÍCULO ${index + 1}*\n${vehicleContent}`;
+                    hasContent = true;
+                }
+            });
+    
+        } else if (typeof sectionData === 'object' && !Array.isArray(sectionData)) {
+            for (const [key, value] of Object.entries(sectionData)) {
                 const formattedValue = formatWhatsappValue(value, key);
                 if (formattedValue) {
                     const formattedKey = `*${formatKey(key).toUpperCase()}*`;
-                    vehicleContent += `${formattedKey}: ${formattedValue}\n`;
-                    hasVehicleContent = true;
+                    sectionContent += `${formattedKey}: ${formattedValue}\n`;
+                    hasContent = true;
                 }
             }
-            if (hasVehicleContent) {
-                sectionContent += `\n*VEÍCULO ${index + 1}*\n${vehicleContent}`;
-                hasContent = true;
-            }
-        });
-
-    } else if (typeof sectionData === 'object' && !Array.isArray(sectionData)) {
-        for (const [key, value] of Object.entries(sectionData)) {
-            const formattedValue = formatWhatsappValue(value, key);
-            if (formattedValue) {
-                const formattedKey = `*${formatKey(key).toUpperCase()}*`;
-                sectionContent += `${formattedKey}: ${formattedValue}\n`;
-                hasContent = true;
-            }
         }
-    }
-    
-    if (hasContent) {
-        return `\n*${sectionTitle}*\n${sectionContent}`;
-    }
-    return '';
-  };
-
-  for (const sectionKey in sectionTitles) {
-      if (Object.prototype.hasOwnProperty.call(data, sectionKey)) {
+        
+        if (hasContent) {
+            return `\n*${sectionTitle}*\n${sectionContent}`;
+        }
+        return '';
+    };
+  
+    const orderedSections = Object.keys(sectionTitles);
+    orderedSections.forEach(sectionKey => {
+      if (data && Object.prototype.hasOwnProperty.call(data, sectionKey)) {
         message += processSection(sectionKey, data[sectionKey]);
       }
-  }
-  return message;
+    });
+  
+    return message;
 };
 
 
@@ -231,6 +237,8 @@ function ReportCard({ report, onDelete }: { report: Report; onDelete: () => void
     
     if (rodovia === 'ms-112' || rodovia === 'br-158') {
       phoneNumber = '+5567981630190';
+    } else if (rodovia === 'ms-306') {
+      // No fixed number, user will choose
     }
     
     const message = generateWhatsappMessage(report.formData, report.category);

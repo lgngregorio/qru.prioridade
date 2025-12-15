@@ -33,6 +33,14 @@ function getHistoryKey(userEmail: string | null): string | null {
   return `ocorrencias-historico-${userEmail}`;
 }
 
+const getCategoryInfo = (slug: string) => {
+    const category = eventCategories.find((c) => c.slug === slug);
+    return {
+        title: category ? category.title : slug,
+        color: category ? category.color : '#808080'
+    };
+};
+
 export default function PreviewPage() {
   const router = useRouter();
   const { toast } = useToast();
@@ -132,29 +140,6 @@ export default function PreviewPage() {
     return category ? category.title : slug;
   };
     
-    const formatDate = (dateSource: any): string => {
-        if (!dateSource || dateSource === 'NILL') return '';
-        
-        let date;
-        if (typeof dateSource === 'string' && dateSource.match(/^\d{2}:\d{2}$/)) {
-            return dateSource;
-        } else {
-            date = new Date(dateSource);
-        }
-
-        if (isNaN(date.getTime())) {
-            return String(dateSource); 
-        }
-        
-        return date.toLocaleString('pt-BR', {
-            day: '2-digit',
-            month: '2-digit',
-            year: 'numeric',
-            hour: '2-digit',
-            minute: '2-digit',
-        });
-    };
-    
     const formatKey = (key: string) => {
         return key
             .replace(/([A-Z])/g, ' $1')
@@ -212,6 +197,7 @@ export default function PreviewPage() {
     const generateWhatsappMessage = (data: any, category: string): string => {
         const { title } = getCategoryInfo(category);
         let message = `*${title.toUpperCase()}*\n`;
+      
         const sectionTitles: { [key: string]: string } = {
           generalInfo: 'INFORMAÇÕES GERAIS',
           vehicles: 'VEÍCULOS',
@@ -227,13 +213,16 @@ export default function PreviewPage() {
         };
       
         const processSection = (sectionKey: string, sectionData: any) => {
-            if (!sectionData || Object.keys(sectionData).length === 0) return '';
+            if (!sectionData || (typeof sectionData === 'object' && Object.keys(sectionData).length === 0)) {
+                return '';
+            }
+        
             const sectionTitle = sectionTitles[sectionKey];
             if (!sectionTitle) return '';
-
+        
             let sectionContent = '';
             let hasContent = false;
-
+        
             if (sectionKey === 'vehicles' && Array.isArray(sectionData)) {
                 sectionData.forEach((vehicle, index) => {
                     let vehicleContent = '';
@@ -252,7 +241,7 @@ export default function PreviewPage() {
                         hasContent = true;
                     }
                 });
-
+        
             } else if (typeof sectionData === 'object' && !Array.isArray(sectionData)) {
                 for (const [key, value] of Object.entries(sectionData)) {
                     const formattedValue = formatWhatsappValue(value, key);
@@ -269,12 +258,14 @@ export default function PreviewPage() {
             }
             return '';
         };
-
-        for (const sectionKey in sectionTitles) {
-            if (Object.prototype.hasOwnProperty.call(data, sectionKey)) {
-                message += processSection(sectionKey, data[sectionKey]);
-            }
-        }
+      
+        const orderedSections = Object.keys(sectionTitles);
+        orderedSections.forEach(sectionKey => {
+          if (data && Object.prototype.hasOwnProperty.call(data, sectionKey)) {
+            message += processSection(sectionKey, data[sectionKey]);
+          }
+        });
+      
         return message;
       };
 
@@ -285,6 +276,8 @@ export default function PreviewPage() {
     
     if (rodovia === 'ms-112' || rodovia === 'br-158') {
       phoneNumber = '+5567981630190';
+    } else if (rodovia === 'ms-306') {
+      // No fixed number, user will choose
     }
 
     const message = generateWhatsappMessage(report.formData, report.category);
