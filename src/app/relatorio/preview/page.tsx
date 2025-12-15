@@ -88,7 +88,6 @@ const formatValue = (value: any): string => {
       } catch { /* ignore */ }
   }
   if (typeof value === 'object') {
-     // This case should be handled by the recursive generateWhatsappMessage
      return '';
   }
 
@@ -101,61 +100,41 @@ const generateWhatsappMessage = (report: ReportData): string => {
 
   let message = `*${title.toUpperCase()}*\n\n`;
 
-  const processData = (data: any, sectionTitle?: string): string => {
+  const processData = (data: any): string => {
     let content = '';
 
-    if (sectionTitle) {
-      content += `*${sectionTitle.toUpperCase()}*\n`;
-    }
-
-    if (Array.isArray(data)) {
-      data.forEach((item, index) => {
-        const subSectionTitle = sectionTitle ? `${sectionTitle.replace(/S$/, '')} ${index + 1}` : `Item ${index + 1}`;
-        content += `\n*${subSectionTitle}*\n`;
-        content += processData(item);
-      });
-      return content;
-    }
-
-    if (typeof data === 'object' && data !== null) {
-      for (const [key, value] of Object.entries(data)) {
-        if (key === 'id') continue;
-
-        const formattedKey = formatKey(key);
-        if (typeof value === 'object' && value !== null && !Array.isArray(value)) {
-          // It's a nested object (e.g., sinais_vitais)
-          const nestedContent = processData(value);
-          if (nestedContent) {
-            content += `*${formattedKey}*\n${nestedContent}\n`;
-          }
-        } else if (Array.isArray(value)) {
-          // It's an array (e.g., vehicles, victims)
-          const arrayContent = processData(value, formattedKey);
-          if (arrayContent) {
-            content += `${arrayContent}\n`;
-          }
-        } else {
-          // It's a simple key-value pair
-          const formattedValue = formatValue(value);
-          if (formattedValue && formattedValue !== 'N/A') {
-            content += `*${formattedKey}:* ${formattedValue}\n`;
-          }
-        }
-      }
-      return content;
+    if (typeof data !== 'object' || data === null) {
+      return formatValue(data);
     }
     
-    // Fallback for any other type of data (shouldn't happen often with structured forms)
-    const formattedValue = formatValue(data);
-    if(formattedValue && formattedValue !== 'N/A') {
-       content += `${formattedValue}\n`;
+    if (Array.isArray(data)) {
+        return data.map((item, index) => {
+            const itemTitle = `\n*${formatKey(Object.keys(item).find(k => k.includes('marca') || k.includes('nome')) || 'Item')} ${index + 1}*\n`;
+            return itemTitle + processData(item);
+        }).join('');
     }
 
+    for (const [key, value] of Object.entries(data)) {
+      if (key === 'id' || value === null || value === undefined || value === 'NILL' || (Array.isArray(value) && value.length === 0)) continue;
+
+      const formattedKey = formatKey(key);
+      
+      if (typeof value === 'object') {
+        const nestedContent = processData(value);
+        if(nestedContent) {
+           message += `*${formattedKey.toUpperCase()}*\n${nestedContent}\n`;
+        }
+      } else {
+        const formattedValue = formatValue(value);
+        if (formattedValue && formattedValue !== 'N/A') {
+          message += `*${formattedKey}:* ${formattedValue}\n`;
+        }
+      }
+    }
     return content;
   };
-
-  message += processData(formData);
-
+  
+  processData(formData);
   return message.trim();
 };
 
@@ -267,7 +246,7 @@ export default function PreviewPage() {
     if (rodovia === 'ms-112' || rodovia === 'br-158') {
       phoneNumber = '+5567981630190';
     } else if (rodovia === 'ms-306') {
-      // No fixed number, user will choose
+      phoneNumber = ''; // User will choose
     }
 
     const message = generateWhatsappMessage(report);
