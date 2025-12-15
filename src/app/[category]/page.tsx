@@ -5,7 +5,7 @@ import { useParams } from 'next/navigation';
 import Link from 'next/link';
 import { ArrowLeft } from 'lucide-react';
 import dynamic from 'next/dynamic';
-import { ComponentType, useMemo } from 'react';
+import { ComponentType, useMemo, useState, useEffect } from 'react';
 
 import { eventCategories } from '@/lib/events';
 import { Button } from '@/components/ui/button';
@@ -80,6 +80,19 @@ function ReportFormComponent({ categorySlug }: { categorySlug: string }) {
 export default function ReportPage() {
   const params = useParams<{ category: string }>();
   const category = eventCategories.find((c) => c.slug === params.category);
+  const [isEditing, setIsEditing] = useState(false);
+
+  useEffect(() => {
+    // Check if we are in "edit" mode by looking for the report preview in localStorage.
+    const savedData = localStorage.getItem('reportPreview');
+    if (savedData) {
+        const parsedData = JSON.parse(savedData);
+        // Ensure the preview data is for the current category form
+        if (parsedData.category === params.category) {
+            setIsEditing(true);
+        }
+    }
+  }, [params.category]);
 
   if (!category) {
     return null;
@@ -92,8 +105,8 @@ export default function ReportPage() {
     </>
   );
 
-  const backLink = '/';
-  const backText = 'Voltar para o início';
+  const backLink = isEditing ? '/ocorrencias' : '/';
+  const backText = isEditing ? 'Voltar para Ocorrências' : 'Voltar para o início';
 
   return (
     <main className="flex flex-col items-center">
