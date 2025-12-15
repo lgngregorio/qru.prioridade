@@ -131,41 +131,53 @@ const generateWhatsappMessage = (report: Report): string => {
 
   let message = `*${title.toUpperCase()}*\n\n`;
 
-  const processData = (data: any): string => {
-    let content = '';
+  const processSection = (sectionData: any, sectionTitle: string) => {
+    if (!sectionData || Object.keys(sectionData).length === 0) return '';
+    let sectionText = `*${sectionTitle.toUpperCase()}*\n`;
+    let contentAdded = false;
 
-    if (typeof data !== 'object' || data === null) {
-      return formatValue(data);
-    }
-    
-    if (Array.isArray(data)) {
-        return data.map((item, index) => {
-            const itemTitle = `\n*${formatKey(Object.keys(item).find(k => k.includes('marca') || k.includes('nome')) || 'Item')} ${index + 1}*\n`;
-            return itemTitle + processData(item);
-        }).join('');
-    }
-
-    for (const [key, value] of Object.entries(data)) {
-      if (key === 'id' || value === null || value === undefined || value === 'NILL' || (Array.isArray(value) && value.length === 0)) continue;
-
-      const formattedKey = formatKey(key);
+    for (const [key, value] of Object.entries(sectionData)) {
+      if (key === 'id' || value === null || value === undefined || value === '' || value === 'NILL' || (Array.isArray(value) && value.length === 0)) {
+        continue;
+      }
       
-      if (typeof value === 'object') {
-        const nestedContent = processData(value);
-        if(nestedContent) {
-           message += `*${formattedKey.toUpperCase()}*\n${nestedContent}\n`;
-        }
-      } else {
-        const formattedValue = formatValue(value);
-        if (formattedValue && formattedValue !== 'N/A') {
-          message += `*${formattedKey}:* ${formattedValue}\n`;
-        }
+      const formattedKey = formatKey(key);
+      const formattedValue = formatValue(value);
+
+      if (formattedValue && formattedValue !== 'N/A') {
+        sectionText += `*${formattedKey}:* ${formattedValue}\n`;
+        contentAdded = true;
       }
     }
-    return content;
+    return contentAdded ? sectionText + '\n' : '';
   };
   
-  processData(formData);
+  const processListOfObjects = (list: any[], title: string) => {
+    if (!list || list.length === 0) return '';
+    let listText = `*${title.toUpperCase()}*\n\n`;
+    let contentAdded = false;
+    
+    list.forEach((item, index) => {
+        const itemTitle = `${title.slice(0, -1)} ${index + 1}`;
+        const itemText = processSection(item, itemTitle);
+        if (itemText) {
+            listText += itemText;
+            contentAdded = true;
+        }
+    });
+
+    return contentAdded ? listText : '';
+  };
+
+  for(const [sectionKey, sectionData] of Object.entries(formData)) {
+    const sectionTitle = formatKey(sectionKey);
+    if (Array.isArray(sectionData)) {
+        message += processListOfObjects(sectionData, sectionTitle);
+    } else if (typeof sectionData === 'object' && sectionData !== null) {
+        message += processSection(sectionData, sectionTitle);
+    }
+  }
+
   return message.trim();
 };
 
