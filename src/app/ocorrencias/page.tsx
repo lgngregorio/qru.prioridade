@@ -212,9 +212,6 @@ function ReportCard({ report, onDelete }: { report: Report; onDelete: () => void
     e.stopPropagation();
     const rodovia = report.formData?.generalInfo?.rodovia;
     let phoneNumber = '+5567981630190'; // Default number
-    if (rodovia === 'ms-306') {
-        phoneNumber = '+5567996738582';
-    }
     const message = generateWhatsappMessage(report.formData, report.category);
     const whatsappUrl = `https://wa.me/${phoneNumber}?text=${encodeURIComponent(message)}`;
     window.open(whatsappUrl, '_blank');
