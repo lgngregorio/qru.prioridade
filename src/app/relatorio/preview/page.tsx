@@ -180,6 +180,7 @@ export default function PreviewPage() {
       if (typeof value === 'object') {
         const subValues = Object.entries(value)
             .map(([subKey, subValue]) => {
+                if (subKey === 'id') return '';
                 const formattedSubValue = formatWhatsappValue(subValue, subKey);
                 if (formattedSubValue) {
                     return `${formatKey(subKey)}: ${formattedSubValue}`;
@@ -194,10 +195,11 @@ export default function PreviewPage() {
       return String(value).replace(/[-_]/g, ' ').toUpperCase();
     };
 
-    const generateWhatsappMessage = (data: any, category: string): string => {
+    const generateWhatsappMessage = (reportData: ReportData): string => {
+        const { formData, category } = reportData;
         const { title } = getCategoryInfo(category);
         let message = `*${title.toUpperCase()}*\n`;
-      
+
         const sectionTitles: { [key: string]: string } = {
           generalInfo: 'INFORMAÇÕES GERAIS',
           vehicles: 'VEÍCULOS',
@@ -211,63 +213,52 @@ export default function PreviewPage() {
           pista: 'PISTA',
           sinalizacao: 'SINALIZAÇÃO (GERAL)',
         };
-      
-        const processSection = (sectionKey: string, sectionData: any) => {
-            if (!sectionData || (typeof sectionData === 'object' && Object.keys(sectionData).length === 0)) {
-                return '';
-            }
         
-            const sectionTitle = sectionTitles[sectionKey];
-            if (!sectionTitle) return '';
-        
-            let sectionContent = '';
-            let hasContent = false;
-        
-            if (sectionKey === 'vehicles' && Array.isArray(sectionData)) {
-                sectionData.forEach((vehicle, index) => {
-                    let vehicleContent = '';
-                    let hasVehicleContent = false;
-                    for (const [key, value] of Object.entries(vehicle)) {
-                        if (key === 'id') continue;
-                        const formattedValue = formatWhatsappValue(value, key);
-                        if (formattedValue) {
-                            const formattedKey = `*${formatKey(key).toUpperCase()}*`;
-                            vehicleContent += `${formattedKey}: ${formattedValue}\n`;
-                            hasVehicleContent = true;
+        for (const sectionKey in formData) {
+            if (Object.prototype.hasOwnProperty.call(formData, sectionKey)) {
+                const sectionData = formData[sectionKey];
+                const sectionTitle = sectionTitles[sectionKey];
+
+                if (sectionTitle) {
+                    let sectionContent = '';
+                    let hasContent = false;
+                    
+                    if (sectionKey === 'vehicles' && Array.isArray(sectionData)) {
+                        sectionData.forEach((vehicle, index) => {
+                            let vehicleDetails = '';
+                            let hasVehicleContent = false;
+                            for (const [key, value] of Object.entries(vehicle)) {
+                                if (key === 'id') continue;
+                                const formattedValue = formatWhatsappValue(value, key);
+                                if (formattedValue) {
+                                    vehicleDetails += `*${formatKey(key).toUpperCase()}*: ${formattedValue}\n`;
+                                    hasVehicleContent = true;
+                                }
+                            }
+                            if (hasVehicleContent) {
+                                sectionContent += `\n*VEÍCULO ${index + 1}*\n${vehicleDetails}`;
+                                hasContent = true;
+                            }
+                        });
+                    } else if (typeof sectionData === 'object' && !Array.isArray(sectionData)) {
+                        for (const [key, value] of Object.entries(sectionData)) {
+                            const formattedValue = formatWhatsappValue(value, key);
+                            if (formattedValue) {
+                                sectionContent += `*${formatKey(key).toUpperCase()}*: ${formattedValue}\n`;
+                                hasContent = true;
+                            }
                         }
                     }
-                    if (hasVehicleContent) {
-                        sectionContent += `\n*VEÍCULO ${index + 1}*\n${vehicleContent}`;
-                        hasContent = true;
-                    }
-                });
-        
-            } else if (typeof sectionData === 'object' && !Array.isArray(sectionData)) {
-                for (const [key, value] of Object.entries(sectionData)) {
-                    const formattedValue = formatWhatsappValue(value, key);
-                    if (formattedValue) {
-                        const formattedKey = `*${formatKey(key).toUpperCase()}*`;
-                        sectionContent += `${formattedKey}: ${formattedValue}\n`;
-                        hasContent = true;
+
+                    if (hasContent) {
+                        message += `\n*${sectionTitle}*\n${sectionContent}`;
                     }
                 }
             }
-            
-            if (hasContent) {
-                return `\n*${sectionTitle}*\n${sectionContent}`;
-            }
-            return '';
-        };
-      
-        const orderedSections = Object.keys(sectionTitles);
-        orderedSections.forEach(sectionKey => {
-          if (data && Object.prototype.hasOwnProperty.call(data, sectionKey)) {
-            message += processSection(sectionKey, data[sectionKey]);
-          }
-        });
-      
+        }
+
         return message;
-      };
+    };
 
   const handleShare = () => {
     if (!report) return;
@@ -280,7 +271,7 @@ export default function PreviewPage() {
       // No fixed number, user will choose
     }
 
-    const message = generateWhatsappMessage(report.formData, report.category);
+    const message = generateWhatsappMessage(report);
     const whatsappUrl = `https://wa.me/${phoneNumber}?text=${encodeURIComponent(message)}`;
     window.open(whatsappUrl, '_blank');
   };
