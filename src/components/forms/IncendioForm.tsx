@@ -75,15 +75,17 @@ export default function IncendioForm({ categorySlug }: { categorySlug: string })
     const savedData = localStorage.getItem('reportPreview');
     if (savedData) {
       const parsedData = JSON.parse(savedData);
-      setExistingReport(parsedData); 
-      const { formData } = parsedData;
-      if (formData) {
-        setGeneralInfo(formData.generalInfo || generalInfo);
-        setOtherInfo(formData.otherInfo || otherInfo);
-        setShowVtrApoio(!!formData.otherInfo?.vtrApoio && formData.otherInfo.vtrApoio !== 'NILL');
+      if (parsedData.category === categorySlug) {
+        setExistingReport(parsedData); 
+        const { formData } = parsedData;
+        if (formData) {
+          setGeneralInfo(formData.generalInfo || generalInfo);
+          setOtherInfo(formData.otherInfo || otherInfo);
+          setShowVtrApoio(!!formData.otherInfo?.vtrApoio && formData.otherInfo.vtrApoio !== 'NILL');
+        }
       }
     }
-  }, []);
+  }, [categorySlug]);
 
   const handleGeneralInfoChange = (field: keyof GeneralInfo, value: string) => {
     setGeneralInfo(prev => ({ ...prev, [field]: value }));

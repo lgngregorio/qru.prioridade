@@ -98,20 +98,22 @@ export default function QudOperacaoForm({ categorySlug }: { categorySlug: string
     const savedData = localStorage.getItem('reportPreview');
     if (savedData) {
       const parsedData = JSON.parse(savedData);
-      setExistingReport(parsedData);
-      const { formData } = parsedData;
+      if (parsedData.category === categorySlug) {
+        setExistingReport(parsedData);
+        const { formData } = parsedData;
 
-      if (formData) {
-        setGeneralInfo(formData.generalInfo || generalInfo);
-        if (formData.vehicles && formData.vehicles.length > 0) {
-            setVehicles(formData.vehicles);
+        if (formData) {
+          setGeneralInfo(formData.generalInfo || generalInfo);
+          if (formData.vehicles && formData.vehicles.length > 0) {
+              setVehicles(formData.vehicles);
+          }
+          setOtherInfo(formData.otherInfo || otherInfo);
+          setShowVtrApoio(!!formData.otherInfo?.vtrApoio && formData.otherInfo.vtrApoio !== 'NILL');
+          setShowDanoPatrimonio(!!formData.otherInfo?.danoPatrimonio && formData.otherInfo.danoPatrimonio !== 'NILL');
         }
-        setOtherInfo(formData.otherInfo || otherInfo);
-        setShowVtrApoio(!!formData.otherInfo?.vtrApoio && formData.otherInfo.vtrApoio !== 'NILL');
-        setShowDanoPatrimonio(!!formData.otherInfo?.danoPatrimonio && formData.otherInfo.danoPatrimonio !== 'NILL');
       }
     }
-  }, []);
+  }, [categorySlug]);
 
   const handleGeneralInfoChange = (field: keyof GeneralInfo, value: string) => {
     setGeneralInfo(prev => ({ ...prev, [field]: value }));
