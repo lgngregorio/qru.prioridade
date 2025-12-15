@@ -226,6 +226,7 @@ export default function TO37Form({ categorySlug }: { categorySlug: string }) {
                         <SelectItem value="FAZER IMPLANTAÇÃO DA PLACA">FAZER IMPLANTAÇÃO DA PLACA</SelectItem>
                         <SelectItem value="FEITO A RETIRADA DA PLACA">FEITO A RETIRADA DA PLACA</SelectItem>
                         <SelectItem value="FEITO O DESAMASSO DA PLACA">FEITO O DESAMASSO DA PLACA</SelectItem>
+                        <SelectItem value="FEITO O RECOLHIMENTO DA PLACA">FEITO O RECOLHIMENTO DA PLACA</SelectItem>
                     </SelectContent>
                 </Select>
             </Field>
