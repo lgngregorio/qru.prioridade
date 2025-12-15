@@ -82,17 +82,19 @@ export default function TO37Form({ categorySlug }: { categorySlug: string }) {
     const savedData = localStorage.getItem('reportPreview');
     if (savedData) {
       const parsedData = JSON.parse(savedData);
-      setExistingReport(parsedData);
-      const { formData } = parsedData;
+      if(parsedData.category === categorySlug) {
+        setExistingReport(parsedData);
+        const { formData } = parsedData;
 
-      if (formData) {
-        setGeneralInfo(formData.generalInfo || generalInfo);
-        setSinalizacaoInfo(formData.sinalizacaoInfo || sinalizacaoInfo);
-        setOtherInfo(formData.otherInfo || otherInfo);
-        setShowVtrApoio(!!formData.otherInfo?.vtrApoio && formData.otherInfo.vtrApoio !== 'NILL');
+        if (formData) {
+          setGeneralInfo(formData.generalInfo || generalInfo);
+          setSinalizacaoInfo(formData.sinalizacaoInfo || sinalizacaoInfo);
+          setOtherInfo(formData.otherInfo || otherInfo);
+          setShowVtrApoio(!!formData.otherInfo?.vtrApoio && formData.otherInfo.vtrApoio !== 'NILL');
+        }
       }
     }
-  }, []);
+  }, [categorySlug]);
 
   const handleGeneralInfoChange = (field: keyof GeneralInfo, value: string) => {
     setGeneralInfo(prev => ({ ...prev, [field]: value }));
@@ -223,6 +225,7 @@ export default function TO37Form({ categorySlug }: { categorySlug: string }) {
                     <SelectContent>
                         <SelectItem value="implantar_placa">PRECISA IMPLANTAR PLACA</SelectItem>
                         <SelectItem value="retirar_placa">PRECISA RETIRAR PLACA</SelectItem>
+                        <SelectItem value="desamassado">DESAMASSADO</SelectItem>
                     </SelectContent>
                 </Select>
             </Field>
