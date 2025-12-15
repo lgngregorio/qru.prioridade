@@ -104,18 +104,30 @@ export default function VeiculoAbandonadoForm({ categorySlug }: { categorySlug: 
     const savedData = localStorage.getItem('reportPreview');
     if (savedData) {
       const parsedData = JSON.parse(savedData);
-      // Only pre-fill if the category matches
       if (parsedData.category === categorySlug) {
         setExistingReport(parsedData);
         const { formData } = parsedData;
-
         if (formData) {
-            setGeneralInfo(formData.generalInfo || generalInfo);
-            if (formData.vehicles && formData.vehicles.length > 0) {
-                setVehicles(formData.vehicles);
-            }
-            setOtherInfo(formData.otherInfo || otherInfo);
-            setShowVtrApoio(!!formData.otherInfo?.vtrApoio && formData.otherInfo.vtrApoio !== 'NILL');
+          setGeneralInfo(formData.generalInfo || {
+            rodovia: '',
+            ocorrencia: 'TO-01',
+            tipoPane: [],
+            qth: '',
+            sentido: '',
+            localArea: '',
+          });
+          setVehicles(formData.vehicles && formData.vehicles.length > 0 ? formData.vehicles : [{
+            id: 1, marca: '', modelo: '', ano: '', cor: '', placa: '', cidade: '',
+            vindoDe: '', indoPara: '', eixos: '', tipo: '', pneu: '', carga: '',
+            condutor: '', telefone: '', ocupantes: ''
+          }]);
+          setOtherInfo(formData.otherInfo || {
+            auxilios: '',
+            vtrApoio: '',
+            observacoes: '',
+            numeroOcorrencia: '',
+          });
+          setShowVtrApoio(!!formData.otherInfo?.vtrApoio && formData.otherInfo.vtrApoio !== 'NILL');
         }
       }
     }

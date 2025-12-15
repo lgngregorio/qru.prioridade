@@ -108,11 +108,25 @@ export default function TO33Form({ categorySlug }: { categorySlug: string }) {
         setExistingReport(parsedData);
         const { formData } = parsedData;
         if (formData) {
-          setGeneralInfo(formData.generalInfo || generalInfo);
-          if (formData.vehicles && formData.vehicles.length > 0) {
-              setVehicles(formData.vehicles);
-          }
-          setOtherInfo(formData.otherInfo || otherInfo);
+          setGeneralInfo(formData.generalInfo || {
+            rodovia: '',
+            ocorrencia: categorySlug.toUpperCase(),
+            tipoPane: [],
+            qth: '',
+            sentido: '',
+            localArea: '',
+          });
+          setVehicles(formData.vehicles && formData.vehicles.length > 0 ? formData.vehicles : [{
+            id: 1, marca: '', modelo: '', ano: '', cor: '', placa: '', cidade: '',
+            vindoDe: '', indoPara: '', eixos: '', tipo: '', pneu: '', carga: '',
+            condutor: '', telefone: '', ocupantes: ''
+          }]);
+          setOtherInfo(formData.otherInfo || {
+            auxilios: '',
+            vtrApoio: '',
+            observacoes: '',
+            numeroOcorrencia: '',
+          });
           setShowVtrApoio(!!formData.otherInfo?.vtrApoio && formData.otherInfo.vtrApoio !== 'NILL');
         }
       }
@@ -192,10 +206,11 @@ export default function TO33Form({ categorySlug }: { categorySlug: string }) {
 
   const prepareReportData = () => {
     const reportData = {
-        generalInfo,
-        vehicles,
-        otherInfo
-    }
+      generalInfo,
+      vehicles,
+      otherInfo,
+    };
+
     const filledData = {
       ...existingReport,
       category: categorySlug,
@@ -211,7 +226,7 @@ export default function TO33Form({ categorySlug }: { categorySlug: string }) {
   
   const handleGenerateReport = () => {
     const reportData = prepareReportData();
-    if(reportData) {
+    if (reportData) {
       localStorage.setItem('reportPreview', JSON.stringify(reportData));
       router.push('/relatorio/preview');
     }

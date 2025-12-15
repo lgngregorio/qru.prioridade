@@ -88,19 +88,31 @@ export default function TO04Form({ categorySlug }: { categorySlug: string }) {
   useEffect(() => {
     const savedData = localStorage.getItem('reportPreview');
     if (savedData) {
-        const parsedData = JSON.parse(savedData);
-        if (parsedData.category === categorySlug) {
-            setExistingReport(parsedData);
-            const { formData } = parsedData;
-            if (formData) {
-                setGeneralInfo(formData.generalInfo || generalInfo);
-                if (formData.vehicles && formData.vehicles.length > 0) {
-                    setVehicles(formData.vehicles);
-                }
-                setOtherInfo(formData.otherInfo || otherInfo);
-                setShowVtrApoio(!!formData.otherInfo?.vtrApoio && formData.otherInfo.vtrApoio !== 'NILL');
-            }
+      const parsedData = JSON.parse(savedData);
+      if (parsedData.category === categorySlug) {
+        setExistingReport(parsedData);
+        const { formData } = parsedData;
+        if (formData) {
+          setGeneralInfo(formData.generalInfo || {
+            rodovia: '',
+            ocorrencia: categorySlug.toUpperCase(),
+            qth: '',
+            sentido: '',
+            localArea: '',
+          });
+          setVehicles(formData.vehicles && formData.vehicles.length > 0 ? formData.vehicles : [{
+            id: 1, marca: '', modelo: '', ano: '', cor: '', placa: '', cidade: '',
+            vindoDe: '', indoPara: '', eixos: '', tipo: '', pneu: '', carga: ''
+          }]);
+          setOtherInfo(formData.otherInfo || {
+            auxilios: '',
+            vtrApoio: '',
+            observacoes: '',
+            numeroOcorrencia: '',
+          });
+          setShowVtrApoio(!!formData.otherInfo?.vtrApoio && formData.otherInfo.vtrApoio !== 'NILL');
         }
+      }
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [categorySlug]);
