@@ -36,6 +36,7 @@ type GeneralInfo = {
   localArea: string;
   tipoDeDefeito: string;
   quantidade: string;
+  acostamento: string;
   qthInicio: string;
   qthTermino: string;
 };
@@ -63,6 +64,7 @@ export default function TO34Form({ categorySlug }: { categorySlug: string }) {
     localArea: '',
     tipoDeDefeito: '',
     quantidade: '',
+    acostamento: '',
     qthInicio: '',
     qthTermino: '',
   });
@@ -78,16 +80,18 @@ export default function TO34Form({ categorySlug }: { categorySlug: string }) {
     const savedData = localStorage.getItem('reportPreview');
     if (savedData) {
       const parsedData = JSON.parse(savedData);
-      setExistingReport(parsedData);
-      const { formData } = parsedData;
+      if(parsedData.category === categorySlug) {
+        setExistingReport(parsedData);
+        const { formData } = parsedData;
 
-      if (formData) {
-        setGeneralInfo(formData.generalInfo || generalInfo);
-        setOtherInfo(formData.otherInfo || otherInfo);
-        setShowVtrApoio(!!formData.otherInfo?.vtrApoio && formData.otherInfo.vtrApoio !== 'NILL');
+        if (formData) {
+          setGeneralInfo(formData.generalInfo || generalInfo);
+          setOtherInfo(formData.otherInfo || otherInfo);
+          setShowVtrApoio(!!formData.otherInfo?.vtrApoio && formData.otherInfo.vtrApoio !== 'NILL');
+        }
       }
     }
-  }, []);
+  }, [categorySlug]);
 
   const handleGeneralInfoChange = (field: keyof GeneralInfo, value: string) => {
     setGeneralInfo(prev => ({ ...prev, [field]: value }));
@@ -218,6 +222,19 @@ export default function TO34Form({ categorySlug }: { categorySlug: string }) {
             </Field>
             <Field label="QUANTIDADE">
                 <Input className="text-xl placeholder:capitalize placeholder:text-sm" placeholder="Ex: 1" value={generalInfo.quantidade} onChange={(e) => handleGeneralInfoChange('quantidade', e.target.value)}/>
+            </Field>
+            <Field label="ACOSTAMENTO">
+                <Select value={generalInfo.acostamento} onValueChange={(value) => handleGeneralInfoChange('acostamento', value)}>
+                    <SelectTrigger className="text-xl normal-case placeholder:text-base">
+                        <SelectValue placeholder="Selecione a condição do acostamento" />
+                    </SelectTrigger>
+                    <SelectContent>
+                        <SelectItem value="com_acostamento_sul_e_norte">COM ACOSTAMENTO SUL E NORTE</SelectItem>
+                        <SelectItem value="com_acostamento_sul">COM ACOSTAMENTO SUL</SelectItem>
+                        <SelectItem value="com_acostamento_norte">COM ACOSTAMENTO NORTE</SelectItem>
+                        <SelectItem value="sem_acostamento">SEM ACOSTAMENTO</SelectItem>
+                    </SelectContent>
+                </Select>
             </Field>
           </div>
         </div>
