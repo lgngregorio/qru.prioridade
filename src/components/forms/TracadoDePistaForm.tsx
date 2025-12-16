@@ -108,9 +108,41 @@ export default function TracadoDePistaForm({ categorySlug }: { categorySlug: str
       ))}
     </RadioGroup>
   );
+  
+  const validateObject = (obj: any, parentKey = ''): boolean => {
+    // Exceções de validação
+    const optionalFields = ['cinematica_outros', 'recursos_outros', 'especiais_outros', 'sinalizacao_outros', 'obstaculo_canteiro_outros', 'obstaculo_acostamento_outros', 'deficiencia_obras_outros'];
+
+    for (const key in obj) {
+        if (Object.prototype.hasOwnProperty.call(obj, key)) {
+            if (optionalFields.includes(key)) continue;
+
+            const value = obj[key];
+            const fullKey = parentKey ? `${parentKey}.${key}` : key;
+
+            if (typeof value === 'object' && value !== null && !Array.isArray(value)) {
+                if (!validateObject(value, fullKey)) return false;
+            } else if (Array.isArray(value)) {
+                if (value.length === 0) return false;
+                if (value.some(item => (typeof item === 'object' && !validateObject(item)) || (typeof item !== 'object' && item === ''))) return false;
+            } else if (value === '' || value === null || value === undefined) {
+                return false;
+            }
+        }
+    }
+    return true;
+  };
+
 
   const prepareReportData = () => {
-    // A função fillEmptyFields pode ser usada aqui se necessário
+    if (!validateObject(formData)) {
+        toast({
+            variant: "destructive",
+            title: "Campos obrigatórios",
+            description: "Por favor, preencha todos os campos antes de continuar.",
+        });
+        return null;
+    }
     return {
       category: categorySlug,
       formData: formData,
@@ -119,8 +151,10 @@ export default function TracadoDePistaForm({ categorySlug }: { categorySlug: str
 
   const handleGenerateReport = () => {
     const reportData = prepareReportData();
-    localStorage.setItem('reportPreview', JSON.stringify(reportData));
-    router.push('/relatorio/preview');
+    if(reportData) {
+        localStorage.setItem('reportPreview', JSON.stringify(reportData));
+        router.push('/relatorio/preview');
+    }
   };
 
   return (
@@ -130,16 +164,11 @@ export default function TracadoDePistaForm({ categorySlug }: { categorySlug: str
         <SectionTitle>ACIDENTE PRÉVIA</SectionTitle>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
              <Field label="Rodovia">
-                 <Select value={formData.previa?.rodovia || ''} onValueChange={(value) => handleValueChange('previa', 'rodovia', value)}>
-                    <SelectTrigger className="text-xl normal-case placeholder:text-base">
-                        <SelectValue placeholder="Selecione a rodovia" />
-                    </SelectTrigger>
-                    <SelectContent>
-                        <SelectItem value="ms-112">MS-112</SelectItem>
-                        <SelectItem value="br-158">BR-158</SelectItem>
-                        <SelectItem value="ms-306">MS-306</SelectItem>
-                    </SelectContent>
-                </Select>
+                 <RadioGroup value={formData.previa?.rodovia || ''} onValueChange={(value) => handleValueChange('previa', 'rodovia', value)} className="flex flex-col space-y-2">
+                    <div className="flex items-center space-x-2"><RadioGroupItem value="ms-112" id="previa-ms-112" /><Label htmlFor="previa-ms-112" className="text-xl font-normal">MS-112</Label></div>
+                    <div className="flex items-center space-x-2"><RadioGroupItem value="br-158" id="previa-br-158" /><Label htmlFor="previa-br-158" className="text-xl font-normal">BR-158</Label></div>
+                    <div className="flex items-center space-x-2"><RadioGroupItem value="ms-306" id="previa-ms-306" /><Label htmlFor="previa-ms-306" className="text-xl font-normal">MS-306</Label></div>
+                </RadioGroup>
             </Field>
             <Field label="QTH exato"><Input className="text-xl" value={formData.previa?.qth || ''} onChange={(e) => handleValueChange('previa', 'qth', e.target.value)} /></Field>
         </div>

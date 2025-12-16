@@ -213,6 +213,36 @@ export default function VeiculoAbandonadoForm({ categorySlug }: { categorySlug: 
     }
     return data;
   };
+  
+  const validateObject = (obj: any, parentKey = ''): boolean => {
+    for (const key in obj) {
+        if (Object.prototype.hasOwnProperty.call(obj, key)) {
+            const value = obj[key];
+            const fullKey = parentKey ? `${parentKey}.${key}` : key;
+
+            if (key === 'vtrApoio' && !showVtrApoio) continue;
+            if (key === 'id') continue;
+            if (key === 'eixosOutro' && obj['eixos'] !== 'outro') continue;
+            if (key === 'tipoPane' && Array.isArray(value) && value.length === 0) {
+                 if (!value.includes('nill')) {
+                    return false;
+                }
+            }
+
+
+            if (typeof value === 'object' && value !== null && !Array.isArray(value)) {
+                if (!validateObject(value, fullKey)) return false;
+            } else if (Array.isArray(value)) {
+                if (key !== 'tipoPane' && value.length === 0) return false;
+                if (value.some(item => (typeof item === 'object' && !validateObject(item)) || (typeof item !== 'object' && item === ''))) return false;
+            } else if (value === '' || value === null || value === undefined) {
+                return false;
+            }
+        }
+    }
+    return true;
+};
+
 
   const prepareReportData = () => {
     const processedVehicles = vehicles.map(v => {
@@ -228,6 +258,15 @@ export default function VeiculoAbandonadoForm({ categorySlug }: { categorySlug: 
       vehicles: processedVehicles,
       otherInfo: otherInfo,
     };
+    
+    if (!validateObject(reportData)) {
+      toast({
+          variant: "destructive",
+          title: "Campos obrigatórios",
+          description: "Por favor, preencha todos os campos antes de continuar.",
+      });
+      return null;
+    }
 
     const filledData = {
       ...existingReport,
