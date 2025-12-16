@@ -69,6 +69,25 @@ const renderValue = (key: string, value: any): React.ReactNode => {
 };
 
 const formatKey = (key: string) => {
+    const specialCases: { [key: string]: string } = {
+        'destinacaoAnimal': 'Destinação do Animal',
+        'qthExato': 'QTH Exato',
+        'qraResponsavel': 'QRA do Responsável',
+        'baixaFrequencia': 'Baixa Frequência',
+        'qtrInicio': 'QTR de Início',
+        'qtrTermino': 'QTR de Término',
+        'qthInicio': 'QTH de Início',
+        'qthTermino': 'QTH de Término',
+        'tipoDeObra': 'Tipo de Obra',
+        'tipoDeDefeito': 'Tipo de Defeito',
+        'nomeDaPlaca': 'Nome da Placa',
+        'tipoDeServico': 'Tipo de Serviço'
+    };
+
+    if (specialCases[key]) {
+        return specialCases[key];
+    }
+    
     return key
         .replace(/([A-Z])/g, ' $1')
         .replace(/_/g, ' ')
@@ -87,6 +106,10 @@ const sectionTitles: { [key: string]: string } = {
   condicao: "Condição",
   pista: "Pista",
   sinalizacao: "Sinalização (Geral)",
+  dadosOperacionais: "Dados Operacionais",
+  victims: "Vítimas",
+  consumoMateriais: "Consumo de Materiais",
+  relatorio: "Relatório/Observações",
 };
 
 
@@ -151,37 +174,16 @@ export default function ReportDetail({ formData }: { formData: any }) {
             </div>
         )
     };
-
-    const defaultSections = [
-        'generalInfo',
-        'caracteristicasEntorno',
-        'tracadoPista',
-        'sinalizacaoInfo',
-        'otherInfo'
-    ];
     
-    const isTracadoDePista = Object.keys(formData).some(key => ['previa', 'confirmacao', 'condicao', 'pista', 'sinalizacao'].includes(key));
-
-
     return (
         <div className="space-y-4">
-            {isTracadoDePista ? (
-                Object.keys(sectionTitles).map(key => {
-                    if (formData[key]) {
-                        return renderSection(sectionTitles[key], formData[key]);
-                    }
-                    return null;
-                })
-            ) : (
-                <>
-                    {renderSection("Informações Gerais", formData.generalInfo)}
-                    {renderVehicleSection(formData.vehicles)}
-                    {renderSection("Características do Entorno", formData.caracteristicasEntorno)}
-                    {renderSection("Traçado da Pista", formData.tracadoPista)}
-                    {renderSection("Sinalização", formData.sinalizacaoInfo)}
-                    {renderSection("Outras Informações", formData.otherInfo)}
-                </>
-            )}
+            {Object.entries(formData).map(([key, data]) => {
+                const title = sectionTitles[key as keyof typeof sectionTitles] || formatKey(key);
+                if (key === 'vehicles') {
+                    return renderVehicleSection(data as any[]);
+                }
+                return renderSection(title, data);
+            })}
         </div>
     );
 };

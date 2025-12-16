@@ -93,9 +93,9 @@ const sectionTitles: { [key: string]: string } = {
 };
 
 const formatKey = (key: string) => {
-    if (key === 'destinacaoAnimal') {
-        return '*DESTINAÇÃO ANIMAL*';
-    }
+  if (sectionTitles[key as keyof typeof sectionTitles]) {
+    return `*${sectionTitles[key as keyof typeof sectionTitles]}*`;
+  }
   const formattedKey = key.replace(/([A-Z])/g, ' $1').replace(/_/g, ' ').trim();
   return `*${formattedKey.toUpperCase()}*`;
 };
