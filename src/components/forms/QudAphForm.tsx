@@ -102,7 +102,7 @@ export default function QudAphForm({ categorySlug }: { categorySlug: string }) {
         setRelatorio(formData.relatorio || '');
       }
     }
-  }, []);
+  }, [victims]);
 
   const handleOperationalDataChange = (key: string, value: any) => {
     setDadosOperacionais((prev: any) => ({ ...prev, [key]: value }));
@@ -297,6 +297,7 @@ export default function QudAphForm({ categorySlug }: { categorySlug: string }) {
 
   const fillEmptyFields = (data: any): any => {
     if (Array.isArray(data)) {
+      if(data.length === 0) return 'NILL';
       return data.map(item => fillEmptyFields(item));
     }
     if (typeof data === 'object' && data !== null) {
@@ -888,3 +889,4 @@ export default function QudAphForm({ categorySlug }: { categorySlug: string }) {
   );
 }
 
+    
