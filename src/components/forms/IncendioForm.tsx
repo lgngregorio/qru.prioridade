@@ -133,8 +133,9 @@ export default function IncendioForm({ categorySlug }: { categorySlug: string })
   };
   
   const validateObject = (obj: any): boolean => {
-    const optionalFields = ['vtrApoio'];
-     if (!showVtrApoio) {
+    const optionalFields = ['vtrApoio', 'id'];
+
+    if (!showVtrApoio) {
         optionalFields.push('vtrApoio');
     }
     
@@ -179,6 +180,10 @@ export default function IncendioForm({ categorySlug }: { categorySlug: string })
       formData: fillEmptyFields(reportData),
     };
     
+    if (!showVtrApoio) {
+      finalReport.formData.otherInfo.vtrApoio = 'NILL';
+    }
+
     return finalReport;
   };
   

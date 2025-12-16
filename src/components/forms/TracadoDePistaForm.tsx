@@ -112,7 +112,8 @@ export default function TracadoDePistaForm({ categorySlug }: { categorySlug: str
   const validateObject = (obj: any): boolean => {
     if (obj === null || obj === undefined) return false;
 
-    const optionalFields = ['cinematica_outros', 'recursos_outros', 'especiais_outros', 'sinalizacao_outros', 'obstaculo_canteiro_outros', 'obstaculo_acostamento_outros', 'deficiencia_obras_outros'];
+    const optionalFields = ['id', 'cinematica_outros', 'recursos_outros', 'especiais_outros', 'sinalizacao_outros', 'obstaculo_canteiro_outros', 'obstaculo_acostamento_outros', 'deficiencia_obras_outros'];
+    if (!formData.previa?.cinematica?.includes('outros')) optionalFields.push('cinematica_outros');
 
     for (const key in obj) {
         if (Object.prototype.hasOwnProperty.call(obj, key)) {
@@ -195,8 +196,9 @@ export default function TracadoDePistaForm({ categorySlug }: { categorySlug: str
                 { id: 'capotamento', label: 'Capotamento' },
                 { id: 'tombamento', label: 'Tombamento' },
                 { id: 'atropelamento', label: 'Atropelamento' },
+                { id: 'outros', label: 'Outros' },
             ])}
-            <Input placeholder="Outros" value={formData.previa?.cinematica_outros || ''} onChange={(e) => handleValueChange('previa', 'cinematica_outros', e.target.value)} className="mt-2 text-xl" />
+            {formData.previa?.cinematica?.includes('outros') && <Input placeholder="Outros" value={formData.previa?.cinematica_outros || ''} onChange={(e) => handleValueChange('previa', 'cinematica_outros', e.target.value)} className="mt-2 text-xl" />}
         </Field>
         <Field label="Veículos">
             {renderCheckboxes('previa', 'veiculos', [

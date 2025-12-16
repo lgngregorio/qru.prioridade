@@ -115,6 +115,7 @@ export default function QudOperacaoForm({ categorySlug }: { categorySlug: string
         }
       }
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [categorySlug]);
 
   const handleGeneralInfoChange = (field: keyof GeneralInfo, value: string) => {
@@ -169,6 +170,7 @@ export default function QudOperacaoForm({ categorySlug }: { categorySlug: string
   
   const fillEmptyFields = (data: any): any => {
     if (Array.isArray(data)) {
+      if (data.length === 0) return 'NILL';
       return data.map(item => fillEmptyFields(item));
     }
     if (typeof data === 'object' && data !== null) {
@@ -187,20 +189,30 @@ export default function QudOperacaoForm({ categorySlug }: { categorySlug: string
   };
   
   const validateObject = (obj: any): boolean => {
+    const optionalFields = ['id'];
+    if (!showVtrApoio) {
+        optionalFields.push('vtrApoio');
+    }
+    if (!showDanoPatrimonio) {
+        optionalFields.push('danoPatrimonio');
+    }
+    vehicles.forEach((v, i) => {
+        if (v.eixos !== 'outro') {
+            optionalFields.push(`eixosOutro`); 
+        }
+    });
+
     for (const key in obj) {
         if (Object.prototype.hasOwnProperty.call(obj, key)) {
+            if (optionalFields.includes(key)) continue;
+            
             const value = obj[key];
-
-            if (key === 'vtrApoio' && !showVtrApoio) continue;
-            if (key === 'danoPatrimonio' && !showDanoPatrimonio) continue;
-            if (key === 'id') continue;
-            if (key === 'eixosOutro' && obj['eixos'] !== 'outro') continue;
-
 
             if (typeof value === 'object' && value !== null && !Array.isArray(value)) {
                 if (!validateObject(value)) return false;
             } else if (Array.isArray(value)) {
-                 if (value.some(item => (typeof item === 'object' && !validateObject(item)) || (typeof item !== 'object' && item === ''))) return false;
+                 if (value.length === 0) return false;
+                 if (value.some(item => typeof item === 'object' ? !validateObject(item) : (item === '' || item === null || item === undefined))) return false;
             } else if (value === '' || value === null || value === undefined) {
                 return false;
             }
