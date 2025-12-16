@@ -1,4 +1,3 @@
-
 'use client';
 
 import { useRouter } from 'next/navigation';
@@ -11,11 +10,9 @@ import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useToast } from '@/hooks/use-toast';
 import { Checkbox } from '@/components/ui/checkbox';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
-
 
 function Field({ label, children, className }: { label?: string, children: React.ReactNode, className?: string }) {
   return (
@@ -78,7 +75,6 @@ export default function VeiculoAbandonadoForm({ categorySlug }: { categorySlug: 
   const [showVtrApoio, setShowVtrApoio] = useState(false);
   const [existingReport, setExistingReport] = useState<any>(null);
 
-
   const [generalInfo, setGeneralInfo] = useState<GeneralInfo>({
     rodovia: '',
     ocorrencia: 'TO-01',
@@ -132,7 +128,6 @@ export default function VeiculoAbandonadoForm({ categorySlug }: { categorySlug: 
         }
       }
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [categorySlug]);
 
   const handleGeneralInfoChange = (field: keyof Omit<GeneralInfo, 'tipoPane'>, value: string) => {
@@ -253,7 +248,6 @@ export default function VeiculoAbandonadoForm({ categorySlug }: { categorySlug: 
   return (
     <div className="w-full p-4 sm:p-6 md:p-8">
       <form className="space-y-12" onSubmit={(e) => e.preventDefault()}>
-        {/* Informações Gerais */}
         <div className="space-y-8">
           <h2 className="text-xl font-semibold text-foreground border-b-2 border-foreground pb-2 uppercase">Informações Gerais</h2>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
@@ -324,7 +318,6 @@ export default function VeiculoAbandonadoForm({ categorySlug }: { categorySlug: 
                 <Trash2 className="h-4 w-4" />
               </Button>
             )}
-            {/* Dados do Veículo */}
             <div className="space-y-8">
               <h2 className="text-xl font-semibold text-foreground border-b-2 border-foreground pb-2 uppercase">Dados do Veículo {index + 1}</h2>
                <div className="grid grid-cols-1 sm:grid-cols-2 gap-8">
@@ -381,8 +374,6 @@ export default function VeiculoAbandonadoForm({ categorySlug }: { categorySlug: 
                     <Field label="TIPO DE CARGA"><Input className="text-xl placeholder:capitalize placeholder:text-sm" placeholder="Ex: Vazio, soja" value={vehicle.carga} onChange={e => handleVehicleChange(index, 'carga', e.target.value)}/></Field>
                </div>
             </div>
-
-            {/* Condutor */}
             <div className="space-y-8">
                 <h2 className="text-xl font-semibold text-foreground border-b-2 border-foreground pb-2 uppercase">Condutor</h2>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-8">
@@ -407,7 +398,6 @@ export default function VeiculoAbandonadoForm({ categorySlug }: { categorySlug: 
           Adicionar Veículo
         </Button>
 
-        {/* Outras Informações */}
         <div className="space-y-8">
           <h2 className="text-xl font-semibold text-foreground border-b-2 border-foreground pb-2 uppercase">Outras Informações</h2>
           <div className="space-y-8">
@@ -452,7 +442,3 @@ export default function VeiculoAbandonadoForm({ categorySlug }: { categorySlug: 
     </div>
   );
 }
-
-    
-
-    

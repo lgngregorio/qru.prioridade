@@ -1,4 +1,3 @@
-
 'use client';
 
 import { useRouter } from 'next/navigation';
@@ -130,21 +129,20 @@ export default function IncendioForm({ categorySlug }: { categorySlug: string })
     return data;
   };
   
-  const validateObject = (obj: any, parentKey = ''): boolean => {
+  const validateObject = (obj: any): boolean => {
     for (const key in obj) {
         if (Object.prototype.hasOwnProperty.call(obj, key)) {
             const value = obj[key];
-            const fullKey = parentKey ? `${parentKey}.${key}` : key;
 
             // Pula a validação de campos opcionais
             if (key === 'vtrApoio' && !showVtrApoio) continue;
-
+            
             if (typeof value === 'object' && value !== null && !Array.isArray(value)) {
-                if (!validateObject(value, fullKey)) return false;
+                if (!validateObject(value)) return false;
             } else if (Array.isArray(value)) {
-                if (value.some(item => (typeof item === 'object' && !validateObject(item)) || item === '')) return false;
+                 if (value.length === 0) return false;
+                 if (value.some(item => typeof item === 'object' && !validateObject(item))) return false;
             } else if (value === '' || value === null || value === undefined) {
-                console.log(`Validation failed for: ${fullKey}`);
                 return false;
             }
         }
