@@ -82,7 +82,7 @@ const sectionTitles: { [key: string]: string } = {
 
 const formatKey = (key: string) => {
     if (sectionTitles[key as keyof typeof sectionTitles]) {
-        return sectionTitles[key as keyof typeof sectionTitles].toUpperCase();
+        return `*${sectionTitles[key as keyof typeof sectionTitles]}*`;
     }
     const formattedKey = key.replace(/([A-Z])/g, ' $1').replace(/_/g, ' ').trim();
     return `*${formattedKey.charAt(0).toUpperCase() + formattedKey.slice(1).toUpperCase()}*`;
@@ -117,10 +117,6 @@ const generateWhatsappMessage = (report: ReportData): string => {
   const { formData, category, numeroOcorrencia } = report;
   const categoryInfo = getCategoryInfo(category);
   let message = `*${categoryInfo.title.toUpperCase()}*\n\n`;
-
-  if (numeroOcorrencia) {
-      message += `*NÚMERO DA OCORRÊNCIA*: ${numeroOcorrencia}\n\n`;
-  }
 
   const processSection = (data: any, sectionTitle: string) => {
     let sectionText = `*${sectionTitle.toUpperCase()}*\n`;
@@ -167,6 +163,10 @@ const generateWhatsappMessage = (report: ReportData): string => {
       if (sectionResult) {
           message += sectionResult;
       }
+  }
+
+  if (numeroOcorrencia) {
+      message += `\n*NÚMERO DA OCORRÊNCIA*: ${numeroOcorrencia}`;
   }
 
   return message.trim();
@@ -223,7 +223,7 @@ export default function PreviewPage() {
             ...report,
             uid: user.uid,
             updatedAt: now,
-            numeroOcorrencia: numeroOcorrencia || 'N/A', // Salva o número ou 'N/A'
+            numeroOcorrencia: numeroOcorrencia || undefined,
         };
 
         let newReports = [];

@@ -39,6 +39,7 @@ interface Report {
   formData: any;
   uid?: string; // Kept for potential future use
   updatedAt?: string; // ISO string
+  numeroOcorrencia?: string;
 }
 
 const LoadingSkeleton = () => (
@@ -92,7 +93,7 @@ const sectionTitles: { [key: string]: string } = {
   relatorio: "RELATÓRIO/OBSERVAÇÕES",
   observacoes: "OBSERVAÇÕES",
   ocorrencia: "OCORRÊNCIA",
-  destinacaoAnimal: 'DESTINAÇÃO DO ANIMAL',
+  destinacaoAnimal: 'DESTINAÇÃO ANIMAL',
   qthExato: 'QTH EXATO',
   qraResponsavel: 'QRA DO RESPONSÁVEL',
   baixaFrequencia: 'BAIXA FREQUÊNCIA',
@@ -143,7 +144,7 @@ const formatValue = (value: any): string => {
 };
 
 const generateWhatsappMessage = (report: Report): string => {
-  const { formData, category } = report;
+  const { formData, category, numeroOcorrencia } = report;
   const categoryInfo = getCategoryInfo(category);
   let message = `*${categoryInfo.title.toUpperCase()}*\n\n`;
 
@@ -193,6 +194,10 @@ const generateWhatsappMessage = (report: Report): string => {
           message += sectionResult;
       }
   }
+  
+  if (numeroOcorrencia) {
+      message += `\n*NÚMERO DA OCORRÊNCIA*: ${numeroOcorrencia}`;
+  }
 
   return message.trim();
 };
@@ -212,6 +217,7 @@ function getHistoryKey(userEmail: string | null): string | null {
 
 function ReportCard({ report, onDelete }: { report: Report; onDelete: () => void }) {
   const router = useRouter();
+  const { toast } = useToast();
   const [isExpanded, setIsExpanded] = useState(false);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
@@ -225,6 +231,16 @@ function ReportCard({ report, onDelete }: { report: Report; onDelete: () => void
 
   const handleShare = (e: React.MouseEvent) => {
     e.stopPropagation();
+    
+    if (!report.numeroOcorrencia) {
+        toast({
+            variant: "destructive",
+            title: "Número da Ocorrência ausente",
+            description: "Por favor, edite o relatório e adicione um número de ocorrência para poder compartilhar.",
+        });
+        return;
+    }
+
     const message = generateWhatsappMessage(report);
     const whatsappUrl = `https://wa.me/?text=${encodeURIComponent(message)}`;
     window.open(whatsappUrl, '_blank');
@@ -266,7 +282,7 @@ function ReportCard({ report, onDelete }: { report: Report; onDelete: () => void
         {isExpanded && (
           <CardContent>
              <div className="mt-4 pt-4 border-t">
-                <ReportDetail formData={report.formData} />
+                <ReportDetail formData={report.formData} numeroOcorrencia={report.numeroOcorrencia} />
              </div>
           </CardContent>
         )}
@@ -275,7 +291,7 @@ function ReportCard({ report, onDelete }: { report: Report; onDelete: () => void
               <Edit className="h-5 w-5 mr-2" />
               Editar
             </Button>
-            <Button variant="outline" size="default" onClick={handleShare} className="border-green-500 text-green-500 hover:bg-green-500 hover:text-white flex-grow">
+            <Button variant="outline" size="default" onClick={handleShare} className="border-green-500 text-green-500 hover:bg-green-500 hover:text-white flex-grow" disabled={!report.numeroOcorrencia}>
               <Share2 className="h-5 w-5 mr-2" />
               Compartilhar
             </Button>
