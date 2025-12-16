@@ -60,15 +60,25 @@ const sectionTitles: { [key: string]: string } = {
   consumoMateriais: "CONSUMO DE MATERIAIS",
   relatorio: "RELATÓRIO/OBSERVAÇÕES",
   observacoes: "OBSERVAÇÕES",
-  ocorrencia: "OCORRÊNCIA"
+  ocorrencia: "OCORRÊNCIA",
+  destinacaoAnimal: 'DESTINAÇÃO DO ANIMAL',
+  qthExato: 'QTH EXATO',
+  qraResponsavel: 'QRA DO RESPONSÁVEL',
+  baixaFrequencia: 'BAIXA FREQUÊNCIA',
+  qtrInicio: 'QTR DE INÍCIO',
+  qtrTermino: 'QTR DE TÉRMINO',
+  qthInicio: 'QTH DE INÍCIO',
+  qthTermino: 'QTH DE TÉRMINO',
+  tipoDeObra: 'TIPO DE OBRA',
+  tipoDeDefeito: 'TIPO DE DEFEITO',
+  nomeDaPlaca: 'NOME DA PLACA',
+  tipoDeServico: 'TIPO DE SERVIÇO',
+  situacao: 'SITUAÇÃO',
 };
 
 const formatKey = (key: string) => {
-  if (sectionTitles[key as keyof typeof sectionTitles]) {
-    return `*${sectionTitles[key as keyof typeof sectionTitles]}*`;
-  }
-  const formattedKey = key.replace(/([A-Z])/g, ' $1').replace(/_/g, ' ').trim();
-  return `*${formattedKey.toUpperCase()}*`;
+    const formattedKey = sectionTitles[key as keyof typeof sectionTitles] || key.replace(/([A-Z])/g, ' $1').replace(/_/g, ' ').trim();
+    return `*${formattedKey.toUpperCase()}*`;
 };
 
 const formatValue = (value: any): string => {
