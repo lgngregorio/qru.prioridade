@@ -24,6 +24,7 @@ import {
   Megaphone,
   Car,
   Anchor,
+  PawPrint,
 } from 'lucide-react';
 
 export type EventCategory = {
@@ -80,7 +81,7 @@ export const eventCategories: EventCategory[] = [
     name: 'TO 03',
     title: 'ANIMAL NA RODOVIA',
     slug: 'to-03',
-    icon: Droplets,
+    icon: PawPrint,
     description: 'Relatar TO 03.',
     color: '#FFD700',
   },
