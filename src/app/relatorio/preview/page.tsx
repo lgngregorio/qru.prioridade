@@ -107,8 +107,12 @@ const autoCorrectMap: { [key: string]: string } = {
 };
 
 const autoCorrect = (text: string): string => {
-    return text.replace(/\b\w+\b/g, word => autoCorrectMap[word.toLowerCase()] || word);
+  if (typeof text !== 'string') return text;
+  // Use uma expressão regular para encontrar palavras inteiras, ignorando maiúsculas e minúsculas
+  const regex = new RegExp(`\\b(${Object.keys(autoCorrectMap).join('|')})\\b`, 'gi');
+  return text.replace(regex, (matched) => autoCorrectMap[matched.toLowerCase()] || matched);
 };
+
 
 const formatKey = (key: string) => {
     if (sectionTitles[key as keyof typeof sectionTitles]) {
@@ -139,8 +143,10 @@ const formatValue = (value: any): string => {
   if (typeof value === 'object') {
      return '';
   }
-
-  return autoCorrect(String(value).replace(/[-_]/g, ' ')).toUpperCase();
+  
+  // Aplica a autocorreção e depois remove os hífens/sublinhados
+  const correctedValue = autoCorrect(String(value));
+  return correctedValue.replace(/[-_]/g, ' ').toUpperCase();
 };
 
 const generateWhatsappMessage = (report: ReportData): string => {

@@ -54,8 +54,12 @@ const autoCorrectMap: { [key: string]: string } = {
 };
 
 const autoCorrect = (text: string): string => {
-    return text.replace(/\b\w+\b/g, word => autoCorrectMap[word.toLowerCase()] || word);
+  if (typeof text !== 'string') return text;
+  // Use uma expressão regular para encontrar palavras inteiras, ignorando maiúsculas e minúsculas
+  const regex = new RegExp(`\\b(${Object.keys(autoCorrectMap).join('|')})\\b`, 'gi');
+  return text.replace(regex, (matched) => autoCorrectMap[matched.toLowerCase()] || matched);
 };
+
 
 const renderValue = (key: string, value: any): React.ReactNode => {
     if (value === null || value === undefined || value === 'NILL' || value === '') return null;
@@ -91,7 +95,8 @@ const renderValue = (key: string, value: any): React.ReactNode => {
     }
     
     if (typeof value === 'string') {
-        return autoCorrect(value.replace(/[-_]/g, ' ')).toUpperCase();
+        const correctedValue = autoCorrect(value);
+        return correctedValue.replace(/[-_]/g, ' ').toUpperCase();
     }
 
     return String(value);
