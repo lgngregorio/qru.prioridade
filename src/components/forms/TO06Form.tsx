@@ -46,6 +46,7 @@ type Vehicle = {
   vindoDe: string;
   indoPara: string;
   eixos: string;
+  eixosOutro: string;
   tipo: string;
   pneu: string;
   carga: string;
@@ -70,6 +71,8 @@ const paneTypes = [
     { id: 'nill', label: 'NILL' },
 ]
 
+const eixosOptions = ["02", "03", "04", "05", "06", "07", "08", "09", "10"];
+
 export default function TO06Form({ categorySlug }: { categorySlug: string }) {
   const router = useRouter();
   const { toast } = useToast();
@@ -89,7 +92,7 @@ export default function TO06Form({ categorySlug }: { categorySlug: string }) {
   const [vehicles, setVehicles] = useState<Vehicle[]>([
     {
       id: 1, marca: '', modelo: '', ano: '', cor: '', placa: '', cidade: '',
-      vindoDe: '', indoPara: '', eixos: '', tipo: '', pneu: '', carga: '',
+      vindoDe: '', indoPara: '', eixos: '', eixosOutro: '', tipo: '', pneu: '', carga: '',
       condutor: '', telefone: '', ocupantes: ''
     }
   ]);
@@ -116,9 +119,9 @@ export default function TO06Form({ categorySlug }: { categorySlug: string }) {
             sentido: '',
             localArea: '',
           });
-          setVehicles(formData.vehicles && formData.vehicles.length > 0 ? formData.vehicles : [{
+          setVehicles(formData.vehicles && formData.vehicles.length > 0 ? formData.vehicles.map((v: Vehicle) => ({...v, eixosOutro: v.eixos && !eixosOptions.includes(v.eixos) ? v.eixos : ''})) : [{
             id: 1, marca: '', modelo: '', ano: '', cor: '', placa: '', cidade: '',
-            vindoDe: '', indoPara: '', eixos: '', tipo: '', pneu: '', carga: '',
+            vindoDe: '', indoPara: '', eixos: '', eixosOutro: '', tipo: '', pneu: '', carga: '',
             condutor: '', telefone: '', ocupantes: ''
           }]);
           setOtherInfo(formData.otherInfo || {
@@ -147,7 +150,7 @@ export default function TO06Form({ categorySlug }: { categorySlug: string }) {
     });
   };
 
-  const handleVehicleChange = (index: number, field: keyof Vehicle, value: string) => {
+  const handleVehicleChange = (index: number, field: keyof Omit<Vehicle, 'eixos'>, value: string) => {
     const newVehicles = [...vehicles];
     if (field === 'telefone') {
       value = formatPhoneNumber(value);
@@ -155,6 +158,15 @@ export default function TO06Form({ categorySlug }: { categorySlug: string }) {
     (newVehicles[index] as any)[field] = value;
     setVehicles(newVehicles);
   };
+
+  const handleEixosChange = (index: number, value: string) => {
+    const newVehicles = [...vehicles];
+    newVehicles[index].eixos = value;
+    if (value !== 'outro') {
+        newVehicles[index].eixosOutro = '';
+    }
+    setVehicles(newVehicles);
+  }
 
   const handleOtherInfoChange = (field: keyof OtherInfo, value: string) => {
     setOtherInfo(prev => ({ ...prev, [field]: value }));
@@ -164,7 +176,7 @@ export default function TO06Form({ categorySlug }: { categorySlug: string }) {
     setVehicles([...vehicles, {
       id: vehicles.length > 0 ? Math.max(...vehicles.map(v => v.id)) + 1 : 1,
       marca: '', modelo: '', ano: '', cor: '', placa: '', cidade: '',
-      vindoDe: '', indoPara: '', eixos: '', tipo: '', pneu: '', carga: '',
+      vindoDe: '', indoPara: '', eixos: '', eixosOutro: '', tipo: '', pneu: '', carga: '',
       condutor: '', telefone: '', ocupantes: ''
     }]);
   };
@@ -211,6 +223,7 @@ export default function TO06Form({ categorySlug }: { categorySlug: string }) {
 
             if (key === 'vtrApoio' && !showVtrApoio) continue;
             if (key === 'id') continue;
+            if (key === 'eixosOutro' && obj['eixos'] !== 'outro') continue;
             if (key === 'tipoPane' && Array.isArray(value) && value.length === 0) return false;
 
             if (typeof value === 'object' && value !== null && !Array.isArray(value)) {
@@ -226,9 +239,17 @@ export default function TO06Form({ categorySlug }: { categorySlug: string }) {
 };
 
   const prepareReportData = () => {
+    const processedVehicles = vehicles.map(v => {
+        const { eixosOutro, ...rest } = v;
+        return {
+            ...rest,
+            eixos: v.eixos === 'outro' ? v.eixosOutro : v.eixos
+        };
+    });
+
     const reportData = {
       generalInfo,
-      vehicles,
+      vehicles: processedVehicles,
       otherInfo
     };
 
@@ -339,55 +360,46 @@ export default function TO06Form({ categorySlug }: { categorySlug: string }) {
                     <Field label="VINDO DE"><Input className="text-xl placeholder:capitalize placeholder:text-sm" placeholder="Ex: Rio de janeiro" value={vehicle.vindoDe} onChange={e => handleVehicleChange(index, 'vindoDe', e.target.value)}/></Field>
                     <Field label="INDO PARA"><Input className="text-xl placeholder:capitalize placeholder:text-sm" placeholder="Ex: Belo horizonte" value={vehicle.indoPara} onChange={e => handleVehicleChange(index, 'indoPara', e.target.value)}/></Field>
                     <Field label="QUANTIDADE DE EIXOS">
-                        <Select value={vehicle.eixos} onValueChange={value => handleVehicleChange(index, 'eixos', value)}>
-                            <SelectTrigger className="text-xl normal-case placeholder:text-base"><SelectValue placeholder="Selecione os eixos" /></SelectTrigger>
-                            <SelectContent>
-                                <SelectItem value="02">02</SelectItem>
-                                <SelectItem value="03">03</SelectItem>
-                                <SelectItem value="04">04</SelectItem>
-                                <SelectItem value="05">05</SelectItem>
-                                <SelectItem value="06">06</SelectItem>
-                                <SelectItem value="07">07</SelectItem>
-                                <SelectItem value="08">08</SelectItem>
-                                <SelectItem value="09">09</SelectItem>
-                                <SelectItem value="10">10</SelectItem>
-                                <SelectItem value="11">11</SelectItem>
-                                <SelectItem value="12">12</SelectItem>
-                                <SelectItem value="13">13</SelectItem>
-                                <SelectItem value="14">14</SelectItem>
-                                <SelectItem value="15">15</SelectItem>
-                                <SelectItem value="16">16</SelectItem>
-                                <SelectItem value="17">17</SelectItem>
-                                <SelectItem value="18">18</SelectItem>
-                                <SelectItem value="19">19</SelectItem>
-                                <SelectItem value="20">20</SelectItem>
-                            </SelectContent>
-                        </Select>
+                        <RadioGroup value={vehicle.eixos} onValueChange={(value) => handleEixosChange(index, value)} className="flex flex-wrap gap-x-4 gap-y-2">
+                            {eixosOptions.map(option => (
+                                <div key={option} className="flex items-center space-x-2">
+                                    <RadioGroupItem value={option} id={`eixos-${option}-${vehicle.id}`} />
+                                    <Label htmlFor={`eixos-${option}-${vehicle.id}`} className="text-xl font-normal">{option}</Label>
+                                </div>
+                            ))}
+                            <div className="flex items-center space-x-2">
+                                <RadioGroupItem value="outro" id={`eixos-outro-${vehicle.id}`} />
+                                <Label htmlFor={`eixos-outro-${vehicle.id}`} className="text-xl font-normal">Outro</Label>
+                                {vehicle.eixos === 'outro' && (
+                                    <Input 
+                                        type="number" 
+                                        className="text-xl w-24" 
+                                        value={vehicle.eixosOutro} 
+                                        onChange={e => handleVehicleChange(index, 'eixosOutro', e.target.value)} 
+                                        placeholder="Qtd."
+                                    />
+                                )}
+                            </div>
+                        </RadioGroup>
                     </Field>
                     <Field label="TIPO DE VEÍCULO">
-                         <Select value={vehicle.tipo} onValueChange={value => handleVehicleChange(index, 'tipo', value)}>
-                            <SelectTrigger className="text-xl normal-case placeholder:text-base"><SelectValue placeholder="Selecione o tipo" /></SelectTrigger>
-                            <SelectContent>
-                                <SelectItem value="mo">MO</SelectItem>
-                                <SelectItem value="ap">AP</SelectItem>
-                                <SelectItem value="utilitaria">UTILITÁRIA</SelectItem>
-                                <SelectItem value="ca">CA</SelectItem>
-                                <SelectItem value="on">ON</SelectItem>
-                                <SelectItem value="car">CAR</SelectItem>
-                                <SelectItem value="ca-romeu-julieta">CA/ ROMEU E JULIETA</SelectItem>
-                                <SelectItem value="carretinha-reboque">CARRETINHA/REBOQUE</SelectItem>
-                            </SelectContent>
-                        </Select>
+                         <RadioGroup value={vehicle.tipo} onValueChange={value => handleVehicleChange(index, 'tipo', value)}>
+                            <div className="flex items-center space-x-2"><RadioGroupItem value="mo" id={`v-tipo-mo-${vehicle.id}`} /><Label htmlFor={`v-tipo-mo-${vehicle.id}`} className="text-xl font-normal">MO</Label></div>
+                            <div className="flex items-center space-x-2"><RadioGroupItem value="ap" id={`v-tipo-ap-${vehicle.id}`} /><Label htmlFor={`v-tipo-ap-${vehicle.id}`} className="text-xl font-normal">AP</Label></div>
+                            <div className="flex items-center space-x-2"><RadioGroupItem value="utilitaria" id={`v-tipo-utilitaria-${vehicle.id}`} /><Label htmlFor={`v-tipo-utilitaria-${vehicle.id}`} className="text-xl font-normal">UTILITÁRIA</Label></div>
+                            <div className="flex items-center space-x-2"><RadioGroupItem value="ca" id={`v-tipo-ca-${vehicle.id}`} /><Label htmlFor={`v-tipo-ca-${vehicle.id}`} className="text-xl font-normal">CA</Label></div>
+                            <div className="flex items-center space-x-2"><RadioGroupItem value="on" id={`v-tipo-on-${vehicle.id}`} /><Label htmlFor={`v-tipo-on-${vehicle.id}`} className="text-xl font-normal">ON</Label></div>
+                            <div className="flex items-center space-x-2"><RadioGroupItem value="car" id={`v-tipo-car-${vehicle.id}`} /><Label htmlFor={`v-tipo-car-${vehicle.id}`} className="text-xl font-normal">CAR</Label></div>
+                            <div className="flex items-center space-x-2"><RadioGroupItem value="ca-romeu-julieta" id={`v-tipo-ca-romeu-julieta-${vehicle.id}`} /><Label htmlFor={`v-tipo-ca-romeu-julieta-${vehicle.id}`} className="text-xl font-normal">CA/ ROMEU E JULIETA</Label></div>
+                            <div className="flex items-center space-x-2"><RadioGroupItem value="carretinha-reboque" id={`v-tipo-carretinha-reboque-${vehicle.id}`} /><Label htmlFor={`v-tipo-carretinha-reboque-${vehicle.id}`} className="text-xl font-normal">CARRETINHA/REBOQUE</Label></div>
+                        </RadioGroup>
                     </Field>
                     <Field label="ESTADO DO PNEU">
-                        <Select value={vehicle.pneu} onValueChange={value => handleVehicleChange(index, 'pneu', value)}>
-                            <SelectTrigger className="text-xl normal-case placeholder:text-base"><SelectValue placeholder="Selecione o estado do pneu" /></SelectTrigger>
-                            <SelectContent>
-                                <SelectItem value="bom">BOM</SelectItem>
-                                <SelectItem value="regular">REGULAR</SelectItem>
-                                <SelectItem value="ruim">RUIM</SelectItem>
-                            </SelectContent>
-                        </Select>
+                        <RadioGroup value={vehicle.pneu} onValueChange={value => handleVehicleChange(index, 'pneu', value)}>
+                            <div className="flex items-center space-x-2"><RadioGroupItem value="bom" id={`v-pneu-bom-${vehicle.id}`} /><Label htmlFor={`v-pneu-bom-${vehicle.id}`} className="text-xl font-normal">BOM</Label></div>
+                            <div className="flex items-center space-x-2"><RadioGroupItem value="regular" id={`v-pneu-regular-${vehicle.id}`} /><Label htmlFor={`v-pneu-regular-${vehicle.id}`} className="text-xl font-normal">REGULAR</Label></div>
+                            <div className="flex items-center space-x-2"><RadioGroupItem value="ruim" id={`v-pneu-ruim-${vehicle.id}`} /><Label htmlFor={`v-pneu-ruim-${vehicle.id}`} className="text-xl font-normal">RUIM</Label></div>
+                        </RadioGroup>
                     </Field>
                     <Field label="TIPO DE CARGA"><Input className="text-xl placeholder:capitalize placeholder:text-sm" placeholder="Ex: Vazio, soja" value={vehicle.carga} onChange={e => handleVehicleChange(index, 'carga', e.target.value)}/></Field>
                </div>

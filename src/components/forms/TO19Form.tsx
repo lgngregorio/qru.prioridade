@@ -46,6 +46,7 @@ type Vehicle = {
   vindoDe: string;
   indoPara: string;
   eixos: string;
+  eixosOutro: string;
   tipo: string;
   pneu: string;
   carga: string;
@@ -60,6 +61,8 @@ type OtherInfo = {
   danoPatrimonio: string;
   observacoes: string;
 };
+
+const eixosOptions = ["02", "03", "04", "05", "06", "07", "08", "09", "10"];
 
 export default function TO19Form({ categorySlug }: { categorySlug: string }) {
   const router = useRouter();
@@ -80,7 +83,7 @@ export default function TO19Form({ categorySlug }: { categorySlug: string }) {
   const [vehicles, setVehicles] = useState<Vehicle[]>([
     {
       id: 1, marca: '', modelo: '', ano: '', cor: '', placa: '', cidade: '',
-      vindoDe: '', indoPara: '', eixos: '', tipo: '', pneu: '', carga: '',
+      vindoDe: '', indoPara: '', eixos: '', eixosOutro: '', tipo: '', pneu: '', carga: '',
       condutor: '', telefone: '', ocupantes: ''
     }
   ]);
@@ -101,7 +104,7 @@ export default function TO19Form({ categorySlug }: { categorySlug: string }) {
       if (formData) {
         setGeneralInfo(formData.generalInfo || generalInfo);
         if (formData.vehicles && formData.vehicles.length > 0) {
-            setVehicles(formData.vehicles);
+            setVehicles(formData.vehicles.map((v: Vehicle) => ({...v, eixosOutro: v.eixos && !eixosOptions.includes(v.eixos) ? v.eixos : ''})));
         }
         setOtherInfo(formData.otherInfo || otherInfo);
         setShowVtrApoio(!!formData.otherInfo?.vtrApoio && formData.otherInfo.vtrApoio !== 'NILL');
@@ -114,7 +117,7 @@ export default function TO19Form({ categorySlug }: { categorySlug: string }) {
     setGeneralInfo(prev => ({ ...prev, [field]: value }));
   };
 
-  const handleVehicleChange = (index: number, field: keyof Vehicle, value: string) => {
+  const handleVehicleChange = (index: number, field: keyof Omit<Vehicle, 'eixos'>, value: string) => {
     const newVehicles = [...vehicles];
     if (field === 'telefone') {
       value = formatPhoneNumber(value);
@@ -122,6 +125,15 @@ export default function TO19Form({ categorySlug }: { categorySlug: string }) {
     (newVehicles[index] as any)[field] = value;
     setVehicles(newVehicles);
   };
+  
+  const handleEixosChange = (index: number, value: string) => {
+    const newVehicles = [...vehicles];
+    newVehicles[index].eixos = value;
+    if (value !== 'outro') {
+        newVehicles[index].eixosOutro = '';
+    }
+    setVehicles(newVehicles);
+  }
 
   const handleOtherInfoChange = (field: keyof OtherInfo, value: string) => {
     setOtherInfo(prev => ({ ...prev, [field]: value }));
@@ -131,7 +143,7 @@ export default function TO19Form({ categorySlug }: { categorySlug: string }) {
     setVehicles([...vehicles, {
       id: vehicles.length > 0 ? Math.max(...vehicles.map(v => v.id)) + 1 : 1,
       marca: '', modelo: '', ano: '', cor: '', placa: '', cidade: '',
-      vindoDe: '', indoPara: '', eixos: '', tipo: '', pneu: '', carga: '',
+      vindoDe: '', indoPara: '', eixos: '', eixosOutro: '', tipo: '', pneu: '', carga: '',
       condutor: '', telefone: '', ocupantes: ''
     }]);
   };
@@ -171,9 +183,17 @@ export default function TO19Form({ categorySlug }: { categorySlug: string }) {
   };
 
   const prepareReportData = () => {
+    const processedVehicles = vehicles.map(v => {
+        const { eixosOutro, ...rest } = v;
+        return {
+            ...rest,
+            eixos: v.eixos === 'outro' ? v.eixosOutro : v.eixos
+        };
+    });
+
     const reportData = {
       generalInfo,
-      vehicles,
+      vehicles: processedVehicles,
       otherInfo,
     };
 
@@ -280,30 +300,27 @@ export default function TO19Form({ categorySlug }: { categorySlug: string }) {
                     <Field label="VINDO DE"><Input className="text-xl placeholder:capitalize placeholder:text-sm" placeholder="Ex: Rio de janeiro" value={vehicle.vindoDe} onChange={e => handleVehicleChange(index, 'vindoDe', e.target.value)}/></Field>
                     <Field label="INDO PARA"><Input className="text-xl placeholder:capitalize placeholder:text-sm" placeholder="Ex: Belo horizonte" value={vehicle.indoPara} onChange={e => handleVehicleChange(index, 'indoPara', e.target.value)}/></Field>
                     <Field label="QUANTIDADE DE EIXOS">
-                        <Select value={vehicle.eixos} onValueChange={value => handleVehicleChange(index, 'eixos', value)}>
-                            <SelectTrigger className="text-xl normal-case placeholder:text-base"><SelectValue placeholder="Selecione os eixos" /></SelectTrigger>
-                            <SelectContent>
-                                <SelectItem value="02">02</SelectItem>
-                                <SelectItem value="03">03</SelectItem>
-                                <SelectItem value="04">04</SelectItem>
-                                <SelectItem value="05">05</SelectItem>
-                                <SelectItem value="06">06</SelectItem>
-                                <SelectItem value="07">07</SelectItem>
-                                <SelectItem value="08">08</SelectItem>
-                                <SelectItem value="09">09</SelectItem>
-                                <SelectItem value="10">10</SelectItem>
-                                <SelectItem value="11">11</SelectItem>
-                                <SelectItem value="12">12</SelectItem>
-                                <SelectItem value="13">13</SelectItem>
-                                <SelectItem value="14">14</SelectItem>
-                                <SelectItem value="15">15</SelectItem>
-                                <SelectItem value="16">16</SelectItem>
-                                <SelectItem value="17">17</SelectItem>
-                                <SelectItem value="18">18</SelectItem>
-                                <SelectItem value="19">19</SelectItem>
-                                <SelectItem value="20">20</SelectItem>
-                            </SelectContent>
-                        </Select>
+                        <RadioGroup value={vehicle.eixos} onValueChange={(value) => handleEixosChange(index, value)} className="flex flex-wrap gap-x-4 gap-y-2">
+                            {eixosOptions.map(option => (
+                                <div key={option} className="flex items-center space-x-2">
+                                    <RadioGroupItem value={option} id={`eixos-${option}-${vehicle.id}`} />
+                                    <Label htmlFor={`eixos-${option}-${vehicle.id}`} className="text-xl font-normal">{option}</Label>
+                                </div>
+                            ))}
+                            <div className="flex items-center space-x-2">
+                                <RadioGroupItem value="outro" id={`eixos-outro-${vehicle.id}`} />
+                                <Label htmlFor={`eixos-outro-${vehicle.id}`} className="text-xl font-normal">Outro</Label>
+                                {vehicle.eixos === 'outro' && (
+                                    <Input 
+                                        type="number" 
+                                        className="text-xl w-24" 
+                                        value={vehicle.eixosOutro} 
+                                        onChange={e => handleVehicleChange(index, 'eixosOutro', e.target.value)} 
+                                        placeholder="Qtd."
+                                    />
+                                )}
+                            </div>
+                        </RadioGroup>
                     </Field>
                     <Field label="TIPO DE VEÍCULO">
                          <RadioGroup value={vehicle.tipo} onValueChange={value => handleVehicleChange(index, 'tipo', value)} className="flex flex-col space-y-2">
