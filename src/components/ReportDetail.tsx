@@ -68,32 +68,6 @@ const renderValue = (key: string, value: any): React.ReactNode => {
     return String(value);
 };
 
-const formatKey = (key: string) => {
-    const specialCases: { [key: string]: string } = {
-        'destinacaoAnimal': 'Destinação do Animal',
-        'qthExato': 'QTH Exato',
-        'qraResponsavel': 'QRA do Responsável',
-        'baixaFrequencia': 'Baixa Frequência',
-        'qtrInicio': 'QTR de Início',
-        'qtrTermino': 'QTR de Término',
-        'qthInicio': 'QTH de Início',
-        'qthTermino': 'QTH de Término',
-        'tipoDeObra': 'Tipo de Obra',
-        'tipoDeDefeito': 'Tipo de Defeito',
-        'nomeDaPlaca': 'Nome da Placa',
-        'tipoDeServico': 'Tipo de Serviço'
-    };
-
-    if (specialCases[key]) {
-        return specialCases[key];
-    }
-    
-    return key
-        .replace(/([A-Z])/g, ' $1')
-        .replace(/_/g, ' ')
-        .replace(/\b\w/g, char => char.toUpperCase());
-};
-
 const sectionTitles: { [key: string]: string } = {
   generalInfo: "Informações Gerais",
   vehicles: "Veículos",
@@ -110,6 +84,32 @@ const sectionTitles: { [key: string]: string } = {
   victims: "Vítimas",
   consumoMateriais: "Consumo de Materiais",
   relatorio: "Relatório/Observações",
+  observacoes: "Observações",
+  ocorrencia: "Ocorrência",
+  destinacaoAnimal: 'Destinação do Animal',
+  qthExato: 'QTH Exato',
+  qraResponsavel: 'QRA do Responsável',
+  baixaFrequencia: 'Baixa Frequência',
+  qtrInicio: 'QTR de Início',
+  qtrTermino: 'QTR de Término',
+  qthInicio: 'QTH de Início',
+  qthTermino: 'QTH de Término',
+  tipoDeObra: 'Tipo de Obra',
+  tipoDeDefeito: 'Tipo de Defeito',
+  nomeDaPlaca: 'Nome da Placa',
+  tipoDeServico: 'Tipo de Serviço'
+};
+
+
+const formatKey = (key: string) => {
+    if (sectionTitles[key]) {
+        return sectionTitles[key];
+    }
+    
+    return key
+        .replace(/([A-Z])/g, ' $1')
+        .replace(/_/g, ' ')
+        .replace(/\b\w/g, char => char.toUpperCase());
 };
 
 

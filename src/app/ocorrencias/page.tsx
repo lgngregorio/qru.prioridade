@@ -89,7 +89,9 @@ const sectionTitles: { [key: string]: string } = {
   dadosOperacionais: "DADOS OPERACIONAIS",
   victims: "VÍTIMAS",
   consumoMateriais: "CONSUMO DE MATERIAIS",
-  relatorio: "RELATÓRIO/OBSERVAÇÕES"
+  relatorio: "RELATÓRIO/OBSERVAÇÕES",
+  observacoes: "OBSERVAÇÕES",
+  ocorrencia: "OCORRÊNCIA"
 };
 
 const formatKey = (key: string) => {
