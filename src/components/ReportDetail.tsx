@@ -99,6 +99,7 @@ const sectionTitles: { [key: string]: string } = {
   nomeDaPlaca: 'NOME DA PLACA',
   tipoDeServico: 'TIPO DE SERVIÇO',
   situacao: 'SITUAÇÃO',
+  numeroOcorrencia: 'NÚMERO DA OCORRÊNCIA',
 };
 
 

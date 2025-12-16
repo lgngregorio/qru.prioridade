@@ -76,6 +76,7 @@ export default function TO33Form({ categorySlug }: { categorySlug: string }) {
   const [showVtrApoio, setShowVtrApoio] = useState(false);
   const [existingReport, setExistingReport] = useState<any>(null);
 
+
   const [generalInfo, setGeneralInfo] = useState<GeneralInfo>({
     rodovia: '',
     ocorrencia: categorySlug.toUpperCase(),
@@ -133,6 +134,7 @@ export default function TO33Form({ categorySlug }: { categorySlug: string }) {
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [categorySlug]);
+
 
   const handleGeneralInfoChange = (field: keyof Omit<GeneralInfo, 'tipoPane'>, value: string) => {
     setGeneralInfo(prev => ({ ...prev, [field]: value }));
@@ -214,7 +216,7 @@ export default function TO33Form({ categorySlug }: { categorySlug: string }) {
     const filledData = {
       ...existingReport,
       category: categorySlug,
-      formData: fillEmptyFields(reportData),
+      formData: fillEmptyFields(reportData)
     };
     
     if (!showVtrApoio) {
@@ -279,6 +281,8 @@ export default function TO33Form({ categorySlug }: { categorySlug: string }) {
                     <SelectContent>
                         <SelectItem value="norte">NORTE</SelectItem>
                         <SelectItem value="sul">SUL</SelectItem>
+                        <SelectItem value="ambos">AMBOS</SelectItem>
+                        <SelectItem value="eixo_central">EIXO CENTRAL</SelectItem>
                     </SelectContent>
                 </Select>
             </Field>
@@ -288,8 +292,10 @@ export default function TO33Form({ categorySlug }: { categorySlug: string }) {
                         <SelectValue placeholder="Selecione o local/área" />
                     </SelectTrigger>
                     <SelectContent>
+                        <SelectItem value="acostamento">ACOSTAMENTO</SelectItem>
                         <SelectItem value="area_dominio">ÁREA DE DOMÍNIO</SelectItem>
-                        <SelectItem value="area_dominio_acostamento">ÁREA DE DOMÍNIO/ACOSTAMENTO</SelectItem>
+                        <SelectItem value="terceira_faixa">TERCEIRA FAIXA</SelectItem>
+                        <SelectItem value="faixa_de_rolamento">FAIXA DE ROLAMENTO</SelectItem>
                     </SelectContent>
                 </Select>
             </Field>

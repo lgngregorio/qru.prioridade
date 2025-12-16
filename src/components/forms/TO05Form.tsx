@@ -219,7 +219,7 @@ export default function TO05Form({ categorySlug }: { categorySlug: string }) {
                 if (!validateObject(value)) return false;
             } else if (Array.isArray(value)) {
                  if (value.length > 0 && value.some(item => typeof item === 'object' && !validateObject(item))) return false;
-            } else if (value === '' || value === null || value === undefined) {
+            } else if (key !== 'numeroOcorrencia' && (value === '' || value === null || value === undefined)) {
                 return false;
             }
         }

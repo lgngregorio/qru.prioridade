@@ -163,7 +163,7 @@ export default function TO03Form({ categorySlug }: { categorySlug: string }) {
                 if (!validateObject(value)) return false;
             } else if (Array.isArray(value)) {
                  if (value.some(item => typeof item === 'object' && !validateObject(item))) return false;
-            } else if (value === '' || value === null || value === undefined) {
+            } else if (key !== 'numeroOcorrencia' && (value === '' || value === null || value === undefined)) {
                 return false;
             }
         }
@@ -292,7 +292,7 @@ export default function TO03Form({ categorySlug }: { categorySlug: string }) {
 
         {/* Caracteristicas Entorno */}
         <div className="space-y-8">
-            <h2 className="text-xl font-semibold text-foreground border-b-2 border-foreground pb-2 uppercase">CARACTERÍSTICAS ENTORNO</h2>
+            <h2 className="text-xl font-semibold text-foreground border-b-2 border-foreground pb-2 uppercase">CARACTERÍSTICAS DO ENTORNO</h2>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                 <Field label="ENTORNO NORTE">
                     <Select value={caracteristicasEntorno.entornoNorte} onValueChange={(value) => handleCaracteristicasEntornoChange('entornoNorte', value)}>
@@ -327,7 +327,7 @@ export default function TO03Form({ categorySlug }: { categorySlug: string }) {
 
         {/* Traçado de Pista */}
         <div className="space-y-8">
-            <h2 className="text-xl font-semibold text-foreground border-b-2 border-foreground pb-2 uppercase">TRAÇADO DE PISTA</h2>
+            <h2 className="text-xl font-semibold text-foreground border-b-2 border-foreground pb-2 uppercase">TRAÇADO DA PISTA</h2>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
                 <Field label="PISTA">
                     <Select value={tracadoPista.pista} onValueChange={(value) => handleTracadoPistaChange('pista', value)}>

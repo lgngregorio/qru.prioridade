@@ -61,7 +61,7 @@ const sectionTitles: { [key: string]: string } = {
   relatorio: "RELATÓRIO/OBSERVAÇÕES",
   observacoes: "OBSERVAÇÕES",
   ocorrencia: "OCORRÊNCIA",
-  destinacaoAnimal: 'DESTINAÇÃO ANIMAL',
+  destinacaoAnimal: 'DESTINAÇÃO DO ANIMAL',
   qthExato: 'QTH EXATO',
   qraResponsavel: 'QRA DO RESPONSÁVEL',
   baixaFrequencia: 'BAIXA FREQUÊNCIA',
@@ -74,6 +74,7 @@ const sectionTitles: { [key: string]: string } = {
   nomeDaPlaca: 'NOME DA PLACA',
   tipoDeServico: 'TIPO DE SERVIÇO',
   situacao: 'SITUAÇÃO',
+  numeroOcorrencia: 'NÚMERO DA OCORRÊNCIA',
 };
 
 const formatKey = (key: string) => {
@@ -81,7 +82,7 @@ const formatKey = (key: string) => {
         return `*${sectionTitles[key as keyof typeof sectionTitles]}*`;
     }
     const formattedKey = key.replace(/([A-Z])/g, ' $1').replace(/_/g, ' ').trim();
-    return `*${formattedKey.toUpperCase()}*`;
+    return `*${formattedKey.charAt(0).toUpperCase() + formattedKey.slice(1).toUpperCase()}*`;
 };
 
 const formatValue = (value: any): string => {
