@@ -56,7 +56,6 @@ type Vehicle = {
 type OtherInfo = {
   auxilios: string;
   observacoes: string;
-  numeroOcorrencia: string;
 };
 
 const paneTypes = [
@@ -95,7 +94,6 @@ export default function TO15Form({ categorySlug }: { categorySlug: string }) {
   const [otherInfo, setOtherInfo] = useState<OtherInfo>({
     auxilios: '',
     observacoes: '',
-    numeroOcorrencia: '',
   });
   
   useEffect(() => {
@@ -122,7 +120,6 @@ export default function TO15Form({ categorySlug }: { categorySlug: string }) {
           setOtherInfo(formData.otherInfo || {
             auxilios: '',
             observacoes: '',
-            numeroOcorrencia: '',
           });
         }
       }
@@ -403,9 +400,6 @@ export default function TO15Form({ categorySlug }: { categorySlug: string }) {
             </Field>
             <Field label="OBSERVAÇÕES">
               <Textarea className="text-2xl placeholder:capitalize placeholder:text-sm" placeholder="Descreva detalhes adicionais sobre a ocorrência" value={otherInfo.observacoes} onChange={(e) => handleOtherInfoChange('observacoes', e.target.value)} />
-            </Field>
-            <Field label="NÚMERO DA OCORRÊNCIA">
-              <Input className="text-2xl placeholder:capitalize placeholder:text-sm" placeholder="Número de controle interno" value={otherInfo.numeroOcorrencia} onChange={(e) => handleOtherInfoChange('numeroOcorrencia', e.target.value)} />
             </Field>
           </div>
         </div>

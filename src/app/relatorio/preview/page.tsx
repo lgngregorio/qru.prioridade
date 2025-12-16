@@ -14,6 +14,8 @@ import {
   CardFooter,
 } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
 import { eventCategories } from '@/lib/events';
 import ReportDetail from '@/components/ReportDetail';
 import { useUser } from '@/app/layout';
@@ -28,6 +30,7 @@ interface ReportData {
   uid?: string;
   createdAt?: any;
   updatedAt?: any;
+  numeroOcorrencia?: string;
 }
 
 function getHistoryKey(userEmail: string | null): string | null {
@@ -61,7 +64,7 @@ const sectionTitles: { [key: string]: string } = {
   relatorio: "RELATÓRIO/OBSERVAÇÕES",
   observacoes: "OBSERVAÇÕES",
   ocorrencia: "OCORRÊNCIA",
-  destinacaoAnimal: 'DESTINAÇÃO DO ANIMAL',
+  destinacaoAnimal: 'DESTINAÇÃO ANIMAL',
   qthExato: 'QTH EXATO',
   qraResponsavel: 'QRA DO RESPONSÁVEL',
   baixaFrequencia: 'BAIXA FREQUÊNCIA',
@@ -79,7 +82,7 @@ const sectionTitles: { [key: string]: string } = {
 
 const formatKey = (key: string) => {
     if (sectionTitles[key as keyof typeof sectionTitles]) {
-        return `*${sectionTitles[key as keyof typeof sectionTitles]}*`;
+        return sectionTitles[key as keyof typeof sectionTitles].toUpperCase();
     }
     const formattedKey = key.replace(/([A-Z])/g, ' $1').replace(/_/g, ' ').trim();
     return `*${formattedKey.charAt(0).toUpperCase() + formattedKey.slice(1).toUpperCase()}*`;
@@ -111,9 +114,13 @@ const formatValue = (value: any): string => {
 };
 
 const generateWhatsappMessage = (report: ReportData): string => {
-  const { formData, category } = report;
+  const { formData, category, numeroOcorrencia } = report;
   const categoryInfo = getCategoryInfo(category);
   let message = `*${categoryInfo.title.toUpperCase()}*\n\n`;
+
+  if (numeroOcorrencia) {
+      message += `*NÚMERO DA OCORRÊNCIA*: ${numeroOcorrencia}\n\n`;
+  }
 
   const processSection = (data: any, sectionTitle: string) => {
     let sectionText = `*${sectionTitle.toUpperCase()}*\n`;
@@ -174,12 +181,14 @@ export default function PreviewPage() {
   const [report, setReport] = useState<ReportData | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
+  const [numeroOcorrencia, setNumeroOcorrencia] = useState('');
 
   useEffect(() => {
     const savedData = localStorage.getItem('reportPreview');
     if (savedData) {
       const parsedData = JSON.parse(savedData);
       setReport(parsedData);
+      setNumeroOcorrencia(parsedData.numeroOcorrencia || '');
     }
     setIsLoading(false);
   }, []);
@@ -214,6 +223,7 @@ export default function PreviewPage() {
             ...report,
             uid: user.uid,
             updatedAt: now,
+            numeroOcorrencia: numeroOcorrencia || 'N/A', // Salva o número ou 'N/A'
         };
 
         let newReports = [];
@@ -256,6 +266,9 @@ export default function PreviewPage() {
 
   const handleEdit = () => {
       if (report) {
+          // Garante que o número da ocorrência seja salvo no preview antes de voltar para edição
+          const updatedReport = { ...report, numeroOcorrencia };
+          localStorage.setItem('reportPreview', JSON.stringify(updatedReport));
           router.push(`/${report.category}`);
       }
   };
@@ -267,7 +280,18 @@ export default function PreviewPage() {
     
   const handleShare = () => {
     if (!report) return;
-    const message = generateWhatsappMessage(report);
+
+    if (!numeroOcorrencia) {
+        toast({
+            variant: "destructive",
+            title: "Campo obrigatório",
+            description: "Por favor, preencha o Número da Ocorrência para compartilhar.",
+        });
+        return;
+    }
+
+    const reportWithNumero = { ...report, numeroOcorrencia };
+    const message = generateWhatsappMessage(reportWithNumero);
     const whatsappUrl = `https://wa.me/?text=${encodeURIComponent(message)}`;
     window.open(whatsappUrl, '_blank');
   };
@@ -299,7 +323,19 @@ export default function PreviewPage() {
                 </div>
             </CardHeader>
             <CardContent>
-              <ReportDetail formData={report.formData} />
+              <div className="space-y-4">
+                  <ReportDetail formData={report.formData} />
+                  <div className="space-y-2 pt-4">
+                      <Label htmlFor="numero-ocorrencia" className="text-lg">Número da Ocorrência</Label>
+                      <Input 
+                          id="numero-ocorrencia"
+                          value={numeroOcorrencia}
+                          onChange={(e) => setNumeroOcorrencia(e.target.value)}
+                          placeholder="Digite o número da ocorrência"
+                          className="h-12 text-lg"
+                      />
+                  </div>
+              </div>
             </CardContent>
             <CardFooter className="flex flex-col md:flex-row justify-end gap-4 pt-6">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4 w-full">
@@ -325,7 +361,7 @@ export default function PreviewPage() {
                     variant="secondary"
                     className="bg-green-500 hover:bg-green-600 text-white w-full"
                     onClick={handleShare}
-                    disabled={isSaving}
+                    disabled={isSaving || !numeroOcorrencia}
                 >
                     <Share2 className="mr-2 h-4 w-4" />
                     Compartilhar no WhatsApp
