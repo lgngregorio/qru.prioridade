@@ -149,17 +149,20 @@ export default function TO03Form({ categorySlug }: { categorySlug: string }) {
     return data;
   };
   
-  const validateObject = (obj: any, parentKey = ''): boolean => {
+  const validateObject = (obj: any): boolean => {
     for (const key in obj) {
         if (Object.prototype.hasOwnProperty.call(obj, key)) {
             const value = obj[key];
 
             // Pula a validação de campos opcionais
             if (key === 'vtrApoio' && !showVtrApoio) continue;
+            if (key === 'qthExato' && otherInfo.destinacaoAnimal !== 'pr13') continue;
+
             
             if (typeof value === 'object' && value !== null && !Array.isArray(value)) {
                 if (!validateObject(value)) return false;
             } else if (Array.isArray(value)) {
+                 if (value.length === 0) return false;
                  if (value.some(item => typeof item === 'object' && !validateObject(item))) return false;
             } else if (value === '' || value === null || value === undefined) {
                 return false;
