@@ -33,8 +33,8 @@ const SectionTitle = ({ children }: { children: React.ReactNode }) => (
 
 export default function TracadoDePistaForm({ categorySlug }: { categorySlug: string }) {
   const [formData, setFormData] = useState<any>({
-    previa: {},
-    confirmacao: {},
+    previa: {cinematica: [], veiculos:[], gravidade:[], recursos:[]},
+    confirmacao: {cinematica:[], gravidade_abordagem:[], recursos:[]},
     condicao: {},
     pista: {},
     sinalizacao: {},
@@ -109,8 +109,9 @@ export default function TracadoDePistaForm({ categorySlug }: { categorySlug: str
     </RadioGroup>
   );
   
-  const validateObject = (obj: any, parentKey = ''): boolean => {
-    // Exceções de validação
+  const validateObject = (obj: any): boolean => {
+    if (obj === null || obj === undefined) return false;
+
     const optionalFields = ['cinematica_outros', 'recursos_outros', 'especiais_outros', 'sinalizacao_outros', 'obstaculo_canteiro_outros', 'obstaculo_acostamento_outros', 'deficiencia_obras_outros'];
 
     for (const key in obj) {
@@ -118,20 +119,19 @@ export default function TracadoDePistaForm({ categorySlug }: { categorySlug: str
             if (optionalFields.includes(key)) continue;
 
             const value = obj[key];
-            const fullKey = parentKey ? `${parentKey}.${key}` : key;
 
-            if (typeof value === 'object' && value !== null && !Array.isArray(value)) {
-                if (!validateObject(value, fullKey)) return false;
+            if (typeof value === 'object' && !Array.isArray(value) && value !== null) {
+                if (!validateObject(value)) return false;
             } else if (Array.isArray(value)) {
                 if (value.length === 0) return false;
-                if (value.some(item => (typeof item === 'object' && !validateObject(item)) || (typeof item !== 'object' && item === ''))) return false;
+                if (value.some(item => (typeof item === 'object' && !validateObject(item)) || (item === '' && item !== null && item !== undefined))) return false;
             } else if (value === '' || value === null || value === undefined) {
                 return false;
             }
         }
     }
     return true;
-  };
+};
 
 
   const prepareReportData = () => {

@@ -75,16 +75,16 @@ export default function QudAphForm({ categorySlug }: { categorySlug: string }) {
     { 
       id: 1, 
       dados_cadastrais: {},
-      evento: {},
+      evento: {trauma:[], clinico:[], seguranca:[], cinematica:[]},
       veiculo: { tipo: [] },
-      avaliacao: {},
-      avaliacao_primaria: {},
+      avaliacao: { condicao_inicial: []},
+      avaliacao_primaria: {ventilacao_status:[], pulso:[]},
       avaliacao_secundaria: { sinais_vitais: {} },
       escala_glasgow: {},
-      procedimentos_realizados: {},
+      procedimentos_realizados: { lista: []},
       rol_valores: [],
       equipamentos_retidos: [],
-      conduta: {},
+      conduta: {acoes: []},
     }
   ]);
 
@@ -180,16 +180,16 @@ export default function QudAphForm({ categorySlug }: { categorySlug: string }) {
     setVictims(prev => [...prev, { 
       id: Date.now(), 
       dados_cadastrais: {},
-      evento: {},
+      evento: {trauma:[], clinico:[], seguranca:[], cinematica:[]},
       veiculo: { tipo: [] },
-      avaliacao: {},
-      avaliacao_primaria: {},
+      avaliacao: { condicao_inicial: []},
+      avaliacao_primaria: {ventilacao_status:[], pulso:[]},
       avaliacao_secundaria: { sinais_vitais: {} },
       escala_glasgow: {},
-      procedimentos_realizados: {},
+      procedimentos_realizados: { lista: []},
       rol_valores: [],
       equipamentos_retidos: [],
-      conduta: {},
+      conduta: {acoes: []},
     }]);
   };
   
@@ -314,36 +314,41 @@ export default function QudAphForm({ categorySlug }: { categorySlug: string }) {
     return data;
   };
   
-  const validateObject = (obj: any, parentKey = ''): boolean => {
-    const optionalFields = ['trauma_outros', 'clinico_outros', 'seguranca_outros', 'cinematica_outros', 'outros', 'id'];
+  const validateObject = (obj: any): boolean => {
+    if (obj === null || obj === undefined) return false;
 
-    if (parentKey === 'evento.vítima' && obj.removido_por_terceiros === false) {
-        optionalFields.push('removido_por_terceiros_obs');
+    // Campos opcionais
+    const optionalFields = ['trauma_outros', 'clinico_outros', 'seguranca_outros', 'cinematica_outros', 'outros', 'id'];
+    
+    const victim = victims[0]; // Assumindo que a lógica de validação é por vítima
+    if(victim) {
+        if (victim.conduta?.removido_por_terceiros === false || victim.conduta?.removido_por_terceiros === undefined) {
+            optionalFields.push('removido_por_terceiros_obs');
+        }
+        if (victim.conduta?.removido_unidade === false || victim.conduta?.removido_unidade === undefined) {
+            optionalFields.push('unidade_hospitalar');
+        }
     }
-    if (parentKey === 'evento.vítima' && obj.removido_unidade === false) {
-        optionalFields.push('unidade_hospitalar');
-    }
+
 
     for (const key in obj) {
-        if (Object.prototype.hasOwnProperty.call(obj, key)) {
-            const value = obj[key];
-            const fullKey = parentKey ? `${parentKey}.${key}` : key;
-            
-            if (optionalFields.includes(key)) continue;
+      if (Object.prototype.hasOwnProperty.call(obj, key)) {
+        if (optionalFields.includes(key)) continue;
 
-            if (typeof value === 'object' && value !== null) {
-                if (Array.isArray(value)) {
-                    if (value.length === 0 && !['rol_valores', 'equipamentos_retidos', 'consumoMateriais'].includes(key)) return false;
-                    for (const item of value) {
-                        if (typeof item === 'object' && !validateObject(item, fullKey)) return false;
-                    }
-                } else if (!validateObject(value, fullKey)) {
-                    return false;
-                }
-            } else if (value === '' || value === null || value === undefined) {
-                return false;
-            }
+        const value = obj[key];
+
+        if (typeof value === 'object' && !Array.isArray(value) && value !== null) {
+          if (!validateObject(value)) return false;
+        } else if (Array.isArray(value)) {
+          if (key !== 'rol_valores' && key !== 'equipamentos_retidos' && key !== 'consumoMateriais' && value.length === 0) return false;
+          for (const item of value) {
+            if (typeof item === 'object' && !validateObject(item)) return false;
+            else if (item === '' || item === null || item === undefined) return false;
+          }
+        } else if (value === '' || value === null || value === undefined) {
+          return false;
         }
+      }
     }
     return true;
   };
@@ -803,12 +808,12 @@ export default function QudAphForm({ categorySlug }: { categorySlug: string }) {
                             <div className="flex items-center space-x-2 mt-2">
                                 <Checkbox id={`cond-terceiros-${victim.id}`} checked={victim.conduta?.removido_por_terceiros} onCheckedChange={c => handleVictimChange(victim.id, 'conduta', 'removido_por_terceiros', !!c)} />
                                 <Label htmlFor={`cond-terceiros-${victim.id}`} className="font-normal text-xl">Removido por Terceiros:</Label>
-                                <Input className="text-xl" value={victim.conduta.removido_por_terceiros_obs || ''} onChange={e => handleVictimChange(victim.id, 'conduta', 'removido_por_terceiros_obs', e.target.value)}/>
+                                <Input className="text-xl" disabled={!victim.conduta?.removido_por_terceiros} value={victim.conduta.removido_por_terceiros_obs || ''} onChange={e => handleVictimChange(victim.id, 'conduta', 'removido_por_terceiros_obs', e.target.value)}/>
                             </div>
                             <div className="flex items-center space-x-2 mt-2">
                                 <Checkbox id={`cond-hospital-${victim.id}`} checked={victim.conduta?.removido_unidade} onCheckedChange={c => handleVictimChange(victim.id, 'conduta', 'removido_unidade', !!c)} />
                                 <Label htmlFor={`cond-hospital-${victim.id}`} className="font-normal text-xl">Removido à Unidade Hospitalar:</Label>
-                                <Input className="text-xl" value={victim.conduta.unidade_hospitalar || ''} onChange={e => handleVictimChange(victim.id, 'conduta', 'unidade_hospitalar', e.target.value)}/>
+                                <Input className="text-xl" disabled={!victim.conduta?.removido_unidade} value={victim.conduta.unidade_hospitalar || ''} onChange={e => handleVictimChange(victim.id, 'conduta', 'unidade_hospitalar', e.target.value)}/>
                             </div>
                         </div>
                         <div>
