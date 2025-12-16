@@ -61,7 +61,7 @@ const sectionTitles: { [key: string]: string } = {
   relatorio: "RELATÓRIO/OBSERVAÇÕES",
   observacoes: "OBSERVAÇÕES",
   ocorrencia: "OCORRÊNCIA",
-  destinacaoAnimal: 'DESTINAÇÃO DO ANIMAL',
+  destinacaoAnimal: 'DESTINAÇÃO ANIMAL',
   qthExato: 'QTH EXATO',
   qraResponsavel: 'QRA DO RESPONSÁVEL',
   baixaFrequencia: 'BAIXA FREQUÊNCIA',
@@ -77,7 +77,10 @@ const sectionTitles: { [key: string]: string } = {
 };
 
 const formatKey = (key: string) => {
-    const formattedKey = sectionTitles[key as keyof typeof sectionTitles] || key.replace(/([A-Z])/g, ' $1').replace(/_/g, ' ').trim();
+    if (sectionTitles[key as keyof typeof sectionTitles]) {
+        return `*${sectionTitles[key as keyof typeof sectionTitles]}*`;
+    }
+    const formattedKey = key.replace(/([A-Z])/g, ' $1').replace(/_/g, ' ').trim();
     return `*${formattedKey.toUpperCase()}*`;
 };
 
@@ -264,8 +267,7 @@ export default function PreviewPage() {
   const handleShare = () => {
     if (!report) return;
     const message = generateWhatsappMessage(report);
-    const phoneNumber = '+5567981630190';
-    const whatsappUrl = `https://wa.me/${phoneNumber}?text=${encodeURIComponent(message)}`;
+    const whatsappUrl = `https://wa.me/?text=${encodeURIComponent(message)}`;
     window.open(whatsappUrl, '_blank');
   };
   
