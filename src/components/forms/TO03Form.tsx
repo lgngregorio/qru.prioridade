@@ -43,6 +43,7 @@ type CaracteristicasEntorno = {
 
 type TracadoPista = {
   pista: string;
+  acostamento: string;
   tracado: string;
   perfil: string;
 };
@@ -80,6 +81,7 @@ export default function TO03Form({ categorySlug }: { categorySlug: string }) {
 
   const [tracadoPista, setTracadoPista] = useState<TracadoPista>({
     pista: '',
+    acostamento: '',
     tracado: '',
     perfil: '',
   });
@@ -326,7 +328,7 @@ export default function TO03Form({ categorySlug }: { categorySlug: string }) {
         {/* Traçado de Pista */}
         <div className="space-y-8">
             <h2 className="text-xl font-semibold text-foreground border-b-2 border-foreground pb-2 uppercase">TRAÇADO DE PISTA</h2>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
                 <Field label="PISTA">
                     <Select value={tracadoPista.pista} onValueChange={(value) => handleTracadoPistaChange('pista', value)}>
                         <SelectTrigger className="text-xl normal-case placeholder:text-base">
@@ -336,6 +338,19 @@ export default function TO03Form({ categorySlug }: { categorySlug: string }) {
                             <SelectItem value="simples">SIMPLES</SelectItem>
                             <SelectItem value="dupla">DUPLA</SelectItem>
                             <SelectItem value="multivias">MULTIVIAS</SelectItem>
+                        </SelectContent>
+                    </Select>
+                </Field>
+                 <Field label="ACOSTAMENTO">
+                    <Select value={tracadoPista.acostamento} onValueChange={(value) => handleTracadoPistaChange('acostamento', value)}>
+                        <SelectTrigger className="text-xl normal-case placeholder:text-base">
+                            <SelectValue placeholder="Selecione a condição do acostamento" />
+                        </SelectTrigger>
+                        <SelectContent>
+                            <SelectItem value="com_acostamento_sul_e_norte">COM ACOSTAMENTO SUL E NORTE</SelectItem>
+                            <SelectItem value="com_acostamento_sul">COM ACOSTAMENTO SUL</SelectItem>
+                            <SelectItem value="com_acostamento_norte">COM ACOSTAMENTO NORTE</SelectItem>
+                            <SelectItem value="sem_acostamento">SEM ACOSTAMENTO</SelectItem>
                         </SelectContent>
                     </Select>
                 </Field>
