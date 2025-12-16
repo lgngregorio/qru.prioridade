@@ -210,34 +210,6 @@ export default function VeiculoAbandonadoForm({ categorySlug }: { categorySlug: 
     }
     return data;
   };
-  
-  const validateObject = (obj: any): boolean => {
-    for (const key in obj) {
-        if (Object.prototype.hasOwnProperty.call(obj, key)) {
-            const value = obj[key];
-
-            if (key === 'vtrApoio' && !showVtrApoio) continue;
-            if (key === 'id') continue;
-            if (key === 'eixosOutro' && obj['eixos'] !== 'outro') continue;
-
-            if (typeof value === 'object' && value !== null) {
-                if (Array.isArray(value)) {
-                    if (value.length === 0 && key !== 'tipoPane') return false; 
-                    if (value.some(item => typeof item === 'object' ? !validateObject(item) : (item === '' || item === null || item === undefined))) return false;
-                } else if (!validateObject(value)) {
-                    return false;
-                }
-            } else if (value === '' || value === null || value === undefined) {
-                // Allow tipoPane to be empty if it's not required or implicitly "NILL"
-                if (key === 'tipoPane' && Array.isArray(value) && value.length === 0) {
-                    continue;
-                }
-                return false;
-            }
-        }
-    }
-    return true;
-};
 
   const prepareReportData = () => {
     const processedVehicles = vehicles.map(v => {
@@ -254,15 +226,6 @@ export default function VeiculoAbandonadoForm({ categorySlug }: { categorySlug: 
       otherInfo,
     };
     
-    if (!validateObject(reportData)) {
-        toast({
-            variant: "destructive",
-            title: "Campos obrigatórios",
-            description: "Por favor, preencha todos os campos antes de continuar.",
-        });
-        return null;
-    }
-
     const filledData = {
       ...existingReport,
       category: categorySlug,
