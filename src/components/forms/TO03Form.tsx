@@ -54,7 +54,6 @@ type OtherInfo = {
   destinacaoAnimal: string;
   qthExato: string;
   vtrApoio: string;
-  numeroOcorrencia: string;
 };
 
 export default function TO03Form({ categorySlug }: { categorySlug: string }) {
@@ -92,7 +91,6 @@ export default function TO03Form({ categorySlug }: { categorySlug: string }) {
     destinacaoAnimal: '',
     qthExato: '',
     vtrApoio: '',
-    numeroOcorrencia: '',
   });
   
   useEffect(() => {
@@ -163,7 +161,7 @@ export default function TO03Form({ categorySlug }: { categorySlug: string }) {
                 if (!validateObject(value)) return false;
             } else if (Array.isArray(value)) {
                  if (value.some(item => typeof item === 'object' && !validateObject(item))) return false;
-            } else if (key !== 'numeroOcorrencia' && (value === '' || value === null || value === undefined)) {
+            } else if (value === '' || value === null || value === undefined) {
                 return false;
             }
         }
@@ -425,9 +423,6 @@ export default function TO03Form({ categorySlug }: { categorySlug: string }) {
                   <Textarea className="text-2xl placeholder:capitalize placeholder:text-sm" placeholder="Descreva as viaturas de apoio" value={otherInfo.vtrApoio} onChange={(e) => handleOtherInfoChange('vtrApoio', e.target.value)} />
                 </Field>
             )}
-            <Field label="NÚMERO DA OCORRÊNCIA">
-              <Input className="text-xl placeholder:capitalize placeholder:text-sm" placeholder="Número de controle interno" value={otherInfo.numeroOcorrencia} onChange={(e) => handleOtherInfoChange('numeroOcorrencia', e.target.value)} />
-            </Field>
           </div>
         </div>
 

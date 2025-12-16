@@ -40,7 +40,6 @@ type OtherInfo = {
   auxilios: string;
   destinacaoDoObjeto: string;
   qthExato: string;
-  numeroOcorrencia: string;
 };
 
 export default function TO07Form({ categorySlug }: { categorySlug: string }) {
@@ -64,7 +63,6 @@ export default function TO07Form({ categorySlug }: { categorySlug: string }) {
     auxilios: '',
     destinacaoDoObjeto: '',
     qthExato: '',
-    numeroOcorrencia: '',
   });
   
   useEffect(() => {
@@ -263,9 +261,6 @@ export default function TO07Form({ categorySlug }: { categorySlug: string }) {
                   <Input className="text-xl placeholder:capitalize placeholder:text-sm" placeholder="Ex: Km 123" value={otherInfo.qthExato} onChange={(e) => handleOtherInfoChange('qthExato', e.target.value)}/>
               </Field>
             )}
-            <Field label="NÚMERO DA OCORRÊNCIA">
-              <Input className="text-xl placeholder:capitalize placeholder:text-sm" placeholder="Número de controle interno" value={otherInfo.numeroOcorrencia} onChange={(e) => handleOtherInfoChange('numeroOcorrencia', e.target.value)} />
-            </Field>
           </div>
         </div>
 

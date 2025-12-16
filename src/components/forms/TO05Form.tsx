@@ -57,7 +57,6 @@ type OtherInfo = {
   auxilios: string;
   vtrApoio: string;
   observacoes: string;
-  numeroOcorrencia: string;
 };
 
 const paneTypes = [
@@ -98,7 +97,6 @@ export default function TO05Form({ categorySlug }: { categorySlug: string }) {
     auxilios: '',
     vtrApoio: '',
     observacoes: '',
-    numeroOcorrencia: '',
   });
   
   useEffect(() => {
@@ -126,7 +124,6 @@ export default function TO05Form({ categorySlug }: { categorySlug: string }) {
             auxilios: '',
             vtrApoio: '',
             observacoes: '',
-            numeroOcorrencia: '',
           });
           setShowVtrApoio(!!formData.otherInfo?.vtrApoio && formData.otherInfo.vtrApoio !== 'NILL');
         }
@@ -219,7 +216,7 @@ export default function TO05Form({ categorySlug }: { categorySlug: string }) {
                 if (!validateObject(value)) return false;
             } else if (Array.isArray(value)) {
                  if (value.length > 0 && value.some(item => typeof item === 'object' && !validateObject(item))) return false;
-            } else if (key !== 'numeroOcorrencia' && (value === '' || value === null || value === undefined)) {
+            } else if (value === '' || value === null || value === undefined) {
                 return false;
             }
         }
@@ -475,9 +472,6 @@ export default function TO05Form({ categorySlug }: { categorySlug: string }) {
             )}
             <Field label="OBSERVAÇÕES">
               <Textarea className="text-2xl placeholder:capitalize placeholder:text-sm" placeholder="Descreva detalhes adicionais sobre a ocorrência" value={otherInfo.observacoes} onChange={(e) => handleOtherInfoChange('observacoes', e.target.value)} />
-            </Field>
-            <Field label="NÚMERO DA OCORRÊNCIA">
-              <Input className="text-2xl placeholder:capitalize placeholder:text-sm" placeholder="Número de controle interno" value={otherInfo.numeroOcorrencia} onChange={(e) => handleOtherInfoChange('numeroOcorrencia', e.target.value)} />
             </Field>
           </div>
         </div>

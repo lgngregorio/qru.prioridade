@@ -47,7 +47,6 @@ type OtherInfo = {
   observacoes: string;
   auxilios: string;
   vtrApoio: string;
-  numeroOcorrencia: string;
 };
 
 export default function TO37Form({ categorySlug }: { categorySlug: string }) {
@@ -75,7 +74,6 @@ export default function TO37Form({ categorySlug }: { categorySlug: string }) {
     observacoes: '',
     auxilios: '',
     vtrApoio: '',
-    numeroOcorrencia: '',
   });
 
   useEffect(() => {
@@ -267,9 +265,6 @@ export default function TO37Form({ categorySlug }: { categorySlug: string }) {
             )}
             <Field label="OBSERVAÇÕES">
               <Textarea className="text-xl placeholder:capitalize placeholder:text-sm" placeholder="Descreva detalhes adicionais sobre a ocorrência" value={otherInfo.observacoes} onChange={(e) => handleOtherInfoChange('observacoes', e.target.value)} />
-            </Field>
-            <Field label="NÚMERO DA OCORRÊNCIA">
-              <Input className="text-xl placeholder:capitalize placeholder:text-sm" placeholder="Número de controle interno" value={otherInfo.numeroOcorrencia} onChange={(e) => handleOtherInfoChange('numeroOcorrencia', e.target.value)} />
             </Field>
           </div>
         </div>

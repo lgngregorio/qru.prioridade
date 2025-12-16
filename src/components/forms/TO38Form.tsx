@@ -47,7 +47,6 @@ type OtherInfo = {
   observacoes: string;
   auxilios: string;
   vtrApoio: string;
-  numeroOcorrencia: string;
 };
 
 export default function TO38Form({ categorySlug }: { categorySlug: string }) {
@@ -75,7 +74,6 @@ export default function TO38Form({ categorySlug }: { categorySlug: string }) {
     observacoes: '',
     auxilios: '',
     vtrApoio: '',
-    numeroOcorrencia: '',
   });
 
   useEffect(() => {
@@ -224,8 +222,8 @@ export default function TO38Form({ categorySlug }: { categorySlug: string }) {
                         <SelectValue placeholder="Selecione a ação" />
                     </SelectTrigger>
                     <SelectContent>
-                        <SelectItem value="remocao">FEITO A REMOÇÃO DA PLACA</SelectItem>
-                        <SelectItem value="recolhimento">FEITO O RECOLHIMENTO DA PLACA</SelectItem>
+                        <SelectItem value="FEITO A REMOÇÃO DA PLACA">FEITO A REMOÇÃO DA PLACA</SelectItem>
+                        <SelectItem value="FEITO O RECOLHIMENTO DA PLACA">FEITO O RECOLHIMENTO DA PLACA</SelectItem>
                     </SelectContent>
                 </Select>
             </Field>
@@ -278,9 +276,6 @@ export default function TO38Form({ categorySlug }: { categorySlug: string }) {
             )}
             <Field label="OBSERVAÇÕES">
               <Textarea className="text-xl placeholder:capitalize placeholder:text-sm" placeholder="Descreva detalhes adicionais sobre a ocorrência" value={otherInfo.observacoes} onChange={(e) => handleOtherInfoChange('observacoes', e.target.value)} />
-            </Field>
-            <Field label="NÚMERO DA OCORRÊNCIA">
-              <Input className="text-xl placeholder:capitalize placeholder:text-sm" placeholder="Número de controle interno" value={otherInfo.numeroOcorrencia} onChange={(e) => handleOtherInfoChange('numeroOcorrencia', e.target.value)} />
             </Field>
           </div>
         </div>
