@@ -99,19 +99,21 @@ export default function TO19Form({ categorySlug }: { categorySlug: string }) {
     const savedData = localStorage.getItem('reportPreview');
     if (savedData) {
       const parsedData = JSON.parse(savedData);
-      setExistingReport(parsedData);
-      const { formData } = parsedData;
-      if (formData) {
-        setGeneralInfo(formData.generalInfo || generalInfo);
-        if (formData.vehicles && formData.vehicles.length > 0) {
-            setVehicles(formData.vehicles.map((v: Vehicle) => ({...v, eixosOutro: v.eixos && !eixosOptions.includes(v.eixos) ? v.eixos : ''})));
+      if(parsedData.category === categorySlug) {
+        setExistingReport(parsedData);
+        const { formData } = parsedData;
+        if (formData) {
+          setGeneralInfo(formData.generalInfo || generalInfo);
+          if (formData.vehicles && formData.vehicles.length > 0) {
+              setVehicles(formData.vehicles.map((v: Vehicle) => ({...v, eixosOutro: v.eixos && !eixosOptions.includes(v.eixos) ? v.eixos : ''})));
+          }
+          setOtherInfo(formData.otherInfo || otherInfo);
+          setShowVtrApoio(!!formData.otherInfo?.vtrApoio && formData.otherInfo.vtrApoio !== 'NILL');
+          setShowDanoPatrimonio(!!formData.otherInfo?.danoPatrimonio && formData.otherInfo.danoPatrimonio !== 'NILL');
         }
-        setOtherInfo(formData.otherInfo || otherInfo);
-        setShowVtrApoio(!!formData.otherInfo?.vtrApoio && formData.otherInfo.vtrApoio !== 'NILL');
-        setShowDanoPatrimonio(!!formData.otherInfo?.danoPatrimonio && formData.otherInfo.danoPatrimonio !== 'NILL');
       }
     }
-  }, []);
+  }, [categorySlug]);
 
   const handleGeneralInfoChange = (field: keyof GeneralInfo, value: string) => {
     setGeneralInfo(prev => ({ ...prev, [field]: value }));
@@ -165,6 +167,7 @@ export default function TO19Form({ categorySlug }: { categorySlug: string }) {
   
   const fillEmptyFields = (data: any): any => {
     if (Array.isArray(data)) {
+      if (data.length === 0) return 'NILL';
       return data.map(item => fillEmptyFields(item));
     }
     if (typeof data === 'object' && data !== null) {
@@ -181,6 +184,43 @@ export default function TO19Form({ categorySlug }: { categorySlug: string }) {
     }
     return data;
   };
+  
+  const validateObject = (obj: any, parentKey = ''): boolean => {
+    const optionalFields = ['vtrApoio', 'danoPatrimonio', 'id', 'eixosOutro'];
+
+    if (obj.eixos !== 'outro') {
+        optionalFields.push('eixosOutro');
+    }
+    if (!showVtrApoio) {
+        optionalFields.push('vtrApoio');
+    }
+    if (!showDanoPatrimonio) {
+        optionalFields.push('danoPatrimonio');
+    }
+
+    for (const key in obj) {
+        if (Object.prototype.hasOwnProperty.call(obj, key)) {
+            const value = obj[key];
+            const fullKey = parentKey ? `${parentKey}.${key}` : key;
+            
+            if (optionalFields.includes(key)) continue;
+
+            if (typeof value === 'object' && value !== null) {
+                if (Array.isArray(value)) {
+                    if (value.length === 0) return false;
+                    for (const item of value) {
+                        if (typeof item === 'object' && !validateObject(item, fullKey)) return false;
+                    }
+                } else if (!validateObject(value, fullKey)) {
+                    return false;
+                }
+            } else if (value === '' || value === null || value === undefined) {
+                return false;
+            }
+        }
+    }
+    return true;
+  };
 
   const prepareReportData = () => {
     const processedVehicles = vehicles.map(v => {
@@ -196,6 +236,15 @@ export default function TO19Form({ categorySlug }: { categorySlug: string }) {
       vehicles: processedVehicles,
       otherInfo,
     };
+    
+    if (!validateObject(reportData)) {
+        toast({
+            variant: "destructive",
+            title: "Campos obrigatórios",
+            description: "Por favor, preencha todos os campos antes de continuar.",
+        });
+        return null;
+    }
 
     const filledData = {
       ...existingReport,
@@ -210,7 +259,6 @@ export default function TO19Form({ categorySlug }: { categorySlug: string }) {
     if (!showDanoPatrimonio) {
       filledData.formData.otherInfo.danoPatrimonio = 'NILL';
     }
-
     
     return filledData;
   };

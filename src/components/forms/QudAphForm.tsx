@@ -315,21 +315,32 @@ export default function QudAphForm({ categorySlug }: { categorySlug: string }) {
   };
   
   const validateObject = (obj: any, parentKey = ''): boolean => {
+    const optionalFields = ['trauma_outros', 'clinico_outros', 'seguranca_outros', 'cinematica_outros', 'outros', 'id'];
+
+    if (parentKey === 'evento.vítima' && obj.removido_por_terceiros === false) {
+        optionalFields.push('removido_por_terceiros_obs');
+    }
+    if (parentKey === 'evento.vítima' && obj.removido_unidade === false) {
+        optionalFields.push('unidade_hospitalar');
+    }
+
     for (const key in obj) {
         if (Object.prototype.hasOwnProperty.call(obj, key)) {
             const value = obj[key];
             const fullKey = parentKey ? `${parentKey}.${key}` : key;
+            
+            if (optionalFields.includes(key)) continue;
 
-            if (['id', 'trauma_outros', 'clinico_outros', 'seguranca_outros', 'cinematica_outros', 'removido_por_terceiros_obs', 'unidade_hospitalar', 'outros'].includes(key)) {
-                continue;
-            }
-
-            if (typeof value === 'object' && value !== null && !Array.isArray(value)) {
-                if (!validateObject(value, fullKey)) return false;
-            } else if (Array.isArray(value)) {
-                if(value.length > 0 && value.some(item => (typeof item === 'object' && !validateObject(item)) || item === '')) return false;
+            if (typeof value === 'object' && value !== null) {
+                if (Array.isArray(value)) {
+                    if (value.length === 0 && !['rol_valores', 'equipamentos_retidos', 'consumoMateriais'].includes(key)) return false;
+                    for (const item of value) {
+                        if (typeof item === 'object' && !validateObject(item, fullKey)) return false;
+                    }
+                } else if (!validateObject(value, fullKey)) {
+                    return false;
+                }
             } else if (value === '' || value === null || value === undefined) {
-                console.log(`Validation failed for: ${fullKey}`);
                 return false;
             }
         }
@@ -367,6 +378,7 @@ export default function QudAphForm({ categorySlug }: { categorySlug: string }) {
       router.push('/relatorio/preview');
     }
   };
+
   
   return (
     <div className="w-full p-4 sm:p-6 md:p-8">
