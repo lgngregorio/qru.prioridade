@@ -148,15 +148,14 @@ export default function TO03Form({ categorySlug }: { categorySlug: string }) {
     return data;
   };
   
-  const validateObject = (obj: any): boolean => {
+  const validateObject = (obj: any, parentKey = ''): boolean => {
     for (const key in obj) {
         if (Object.prototype.hasOwnProperty.call(obj, key)) {
             const value = obj[key];
 
             // Pula a validação de campos opcionais
             if (key === 'vtrApoio' && !showVtrApoio) continue;
-            if (key === 'qthExato' && otherInfo.destinacaoAnimal !== 'pr13') continue;
-
+            
             if (typeof value === 'object' && value !== null && !Array.isArray(value)) {
                 if (!validateObject(value)) return false;
             } else if (Array.isArray(value)) {
@@ -346,9 +345,9 @@ export default function TO03Form({ categorySlug }: { categorySlug: string }) {
                         </SelectTrigger>
                         <SelectContent>
                             <SelectItem value="com_acostamento_sul_e_norte">COM ACOSTAMENTO SUL E NORTE</SelectItem>
-                            <SelectItem value="com_acostamento_sul">COM ACOSTAMENTO SUL</SelectItem>
-                            <SelectItem value="com_acostamento_norte">COM ACOSTAMENTO NORTE</SelectItem>
-                            <SelectItem value="sem_acostamento">SEM ACOSTAMENTO</SelectItem>
+                            <SelectItem value="com_acostamento_sul_e_sem_norte">COM ACOSTAMENTO SUL E SEM NORTE</SelectItem>
+                            <SelectItem value="com_acostamento_norte_e_sem_sul">COM ACOSTAMENTO NORTE E SEM SUL</SelectItem>
+                            <SelectItem value="sem_acostamento_sul_e_norte">SEM ACOSTAMENTO SUL E NORTE</SelectItem>
                         </SelectContent>
                     </Select>
                 </Field>
@@ -390,7 +389,7 @@ export default function TO03Form({ categorySlug }: { categorySlug: string }) {
             <Field label="OBSERVAÇÕES">
               <Textarea className="text-xl placeholder:capitalize placeholder:text-sm" placeholder="Descreva detalhes adicionais sobre a ocorrência" value={otherInfo.observacoes} onChange={(e) => handleOtherInfoChange('observacoes', e.target.value)} />
             </Field>
-            <Field label="DESTINAÇÃO DO ANIMAL">
+            <Field label="DESTINAÇÃO ANIMAL">
                 <Select value={otherInfo.destinacaoAnimal} onValueChange={(value) => handleOtherInfoChange('destinacaoAnimal', value)}>
                     <SelectTrigger className="text-xl normal-case placeholder:text-base">
                         <SelectValue placeholder="Selecione a destinação" />
