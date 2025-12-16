@@ -318,18 +318,18 @@ export default function QudAphForm({ categorySlug }: { categorySlug: string }) {
     if (obj === null || obj === undefined) return false;
 
     // Campos opcionais
-    const optionalFields = ['trauma_outros', 'clinico_outros', 'seguranca_outros', 'cinematica_outros', 'outros', 'id'];
+    const optionalFields: string[] = ['id'];
     
-    const victim = victims[0]; // Assumindo que a lógica de validação é por vítima
-    if(victim) {
-        if (victim.conduta?.removido_por_terceiros === false || victim.conduta?.removido_por_terceiros === undefined) {
-            optionalFields.push('removido_por_terceiros_obs');
-        }
-        if (victim.conduta?.removido_unidade === false || victim.conduta?.removido_unidade === undefined) {
-            optionalFields.push('unidade_hospitalar');
-        }
-    }
-
+    victims.forEach(victim => {
+        if (!victim.evento?.trauma?.includes('outros')) optionalFields.push('trauma_outros');
+        if (!victim.evento?.clinico?.includes('outros')) optionalFields.push('clinico_outros');
+        if (!victim.evento?.seguranca?.includes('outros')) optionalFields.push('seguranca_outros');
+        if (!victim.evento?.cinematica?.includes('outros')) optionalFields.push('cinematica_outros');
+        if (victim.avaliacao_primaria?.vias_aereas_status !== 'obstruidas') optionalFields.push('vias_aereas_obs');
+        if (!victim.procedimentos_realizados?.lista?.includes('outros')) optionalFields.push('outros');
+        if (victim.conduta?.removido_por_terceiros !== true) optionalFields.push('removido_por_terceiros_obs');
+        if (victim.conduta?.removido_unidade !== true) optionalFields.push('unidade_hospitalar');
+    });
 
     for (const key in obj) {
       if (Object.prototype.hasOwnProperty.call(obj, key)) {
@@ -531,40 +531,52 @@ export default function QudAphForm({ categorySlug }: { categorySlug: string }) {
                         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
                             <Field label="Trauma">
                                 <div className="flex flex-col space-y-4">
-                                    <div className="flex items-center space-x-2"><Checkbox id={`trauma-acidente-${victim.id}`} checked={victim.evento?.trauma?.includes('acidente')} onCheckedChange={(c) => handleVictimCheckboxChange(victim.id, 'evento', 'trauma', 'acidente', !!c)} /><Label htmlFor={`trauma-acidente-${victim.id}`} className="font-normal text-xl">Acidente Automobilístico</Label></div>
-                                    <div className="flex items-center space-x-2"><Checkbox id={`trauma-queimadura-${victim.id}`} checked={victim.evento?.trauma?.includes('queimadura')} onCheckedChange={(c) => handleVictimCheckboxChange(victim.id, 'evento', 'trauma', 'queimadura', !!c)} /><Label htmlFor={`trauma-queimadura-${victim.id}`} className="font-normal text-xl">Queimadura</Label></div>
-                                    <div className="flex items-center space-x-2"><Checkbox id={`trauma-atropelamento-${victim.id}`} checked={victim.evento?.trauma?.includes('atropelamento')} onCheckedChange={(c) => handleVictimCheckboxChange(victim.id, 'evento', 'trauma', 'atropelamento', !!c)} /><Label htmlFor={`trauma-atropelamento-${victim.id}`} className="font-normal text-xl">Atropelamento</Label></div>
-                                    <div className="flex items-center space-x-2"><Checkbox id={`trauma-queda-${victim.id}`} checked={victim.evento?.trauma?.includes('queda')} onCheckedChange={(c) => handleVictimCheckboxChange(victim.id, 'evento', 'trauma', 'queda', !!c)} /><Label htmlFor={`trauma-queda-${victim.id}`} className="font-normal text-xl">Queda de Altura</Label></div>
-                                    <Input placeholder="Outros" className="mt-2 text-xl" value={victim.evento.trauma_outros || ''} onChange={(e) => handleVictimChange(victim.id, 'evento', 'trauma_outros', e.target.value)} />
+                                    {renderCheckboxes(victim.id, 'evento', 'trauma', [
+                                        { id: 'acidente', label: 'Acidente Automobilístico' },
+                                        { id: 'queimadura', label: 'Queimadura' },
+                                        { id: 'atropelamento', label: 'Atropelamento' },
+                                        { id: 'queda', label: 'Queda de Altura' },
+                                        { id: 'outros', label: 'Outros' }
+                                    ])}
+                                    {victim.evento?.trauma?.includes('outros') && <Input placeholder="Outros" className="mt-2 text-xl" value={victim.evento.trauma_outros || ''} onChange={(e) => handleVictimChange(victim.id, 'evento', 'trauma_outros', e.target.value)} />}
                                 </div>
                             </Field>
                             <Field label="Atendimento Clínico">
                                 <div className="flex flex-col space-y-4">
-                                    <div className="flex items-center space-x-2"><Checkbox id={`clinico-mal-${victim.id}`} checked={victim.evento?.clinico?.includes('mal_subito')} onCheckedChange={(c) => handleVictimCheckboxChange(victim.id, 'evento', 'clinico', 'mal_subito', !!c)} /><Label htmlFor={`clinico-mal-${victim.id}`} className="font-normal text-xl">Mal Súbito</Label></div>
-                                    <div className="flex items-center space-x-2"><Checkbox id={`clinico-intoxicacao-${victim.id}`} checked={victim.evento?.clinico?.includes('intoxicacao')} onCheckedChange={(c) => handleVictimCheckboxChange(victim.id, 'evento', 'clinico', 'intoxicacao', !!c)} /><Label htmlFor={`clinico-intoxicacao-${victim.id}`} className="font-normal text-xl">Intoxicação Exógena</Label></div>
-                                    <div className="flex items-center space-x-2"><Checkbox id={`clinico-parto-${victim.id}`} checked={victim.evento?.clinico?.includes('parto')} onCheckedChange={(c) => handleVictimCheckboxChange(victim.id, 'evento', 'clinico', 'parto', !!c)} /><Label htmlFor={`clinico-parto-${victim.id}`} className="font-normal text-xl">Assistência ao Parto</Label></div>
-                                    <div className="flex items-center space-x-2"><Checkbox id={`clinico-convulsao-${victim.id}`} checked={victim.evento?.clinico?.includes('convulsao')} onCheckedChange={(c) => handleVictimCheckboxChange(victim.id, 'evento', 'clinico', 'convulsao', !!c)} /><Label htmlFor={`clinico-convulsao-${victim.id}`} className="font-normal text-xl">Convulsão</Label></div>
-                                    <div className="flex items-center space-x-2"><Checkbox id={`clinico-psiquiatrico-${victim.id}`} checked={victim.evento?.clinico?.includes('psiquiatrico')} onCheckedChange={(c) => handleVictimCheckboxChange(victim.id, 'evento', 'clinico', 'psiquiatrico', !!c)} /><Label htmlFor={`clinico-psiquiatrico-${victim.id}`} className="font-normal text-xl">Distúrbio Psiquiátrico</Label></div>
-                                    <Input placeholder="Outros" className="mt-2 text-xl" value={victim.evento.clinico_outros || ''} onChange={(e) => handleVictimChange(victim.id, 'evento', 'clinico_outros', e.target.value)} />
+                                    {renderCheckboxes(victim.id, 'evento', 'clinico', [
+                                        { id: 'mal_subito', label: 'Mal Súbito' },
+                                        { id: 'intoxicacao', label: 'Intoxicação Exógena' },
+                                        { id: 'parto', label: 'Assistência ao Parto' },
+                                        { id: 'convulsao', label: 'Convulsão' },
+                                        { id: 'psiquiatrico', label: 'Distúrbio Psiquiátrico' },
+                                        { id: 'outros', label: 'Outros' }
+                                    ])}
+                                    {victim.evento?.clinico?.includes('outros') && <Input placeholder="Outros" className="mt-2 text-xl" value={victim.evento.clinico_outros || ''} onChange={(e) => handleVictimChange(victim.id, 'evento', 'clinico_outros', e.target.value)} />}
                                 </div>
                             </Field>
                             <Field label="Condições de Segurança">
                                 <div className="flex flex-col space-y-4">
-                                    <div className="flex items-center space-x-2"><Checkbox id={`seg-cinto-${victim.id}`} checked={victim.evento?.seguranca?.includes('cinto')} onCheckedChange={(c) => handleVictimCheckboxChange(victim.id, 'evento', 'seguranca', 'cinto', !!c)} /><Label htmlFor={`seg-cinto-${victim.id}`} className="font-normal text-xl">Cinto de Segurança</Label></div>
-                                    <div className="flex items-center space-x-2"><Checkbox id={`seg-cadeirinha-${victim.id}`} checked={victim.evento?.seguranca?.includes('cadeirinha')} onCheckedChange={(c) => handleVictimCheckboxChange(victim.id, 'evento', 'seguranca', 'cadeirinha', !!c)} /><Label htmlFor={`seg-cadeirinha-${victim.id}`} className="font-normal text-xl">Cadeirinha</Label></div>
-                                    <div className="flex items-center space-x-2"><Checkbox id={`seg-airbag-${victim.id}`} checked={victim.evento?.seguranca?.includes('airbag')} onCheckedChange={(c) => handleVictimCheckboxChange(victim.id, 'evento', 'seguranca', 'airbag', !!c)} /><Label htmlFor={`seg-airbag-${victim.id}`} className="font-normal text-xl">Air Bag</Label></div>
-                                    <div className="flex items-center space-x-2"><Checkbox id={`seg-capacete-${victim.id}`} checked={victim.evento?.seguranca?.includes('capacete')} onCheckedChange={(c) => handleVictimCheckboxChange(victim.id, 'evento', 'seguranca', 'capacete', !!c)} /><Label htmlFor={`seg-capacete-${victim.id}`} className="font-normal text-xl">Capacete</Label></div>
-                                    <Input placeholder="Outros" className="mt-2 text-xl" value={victim.evento.seguranca_outros || ''} onChange={(e) => handleVictimChange(victim.id, 'evento', 'seguranca_outros', e.target.value)} />
+                                    {renderCheckboxes(victim.id, 'evento', 'seguranca', [
+                                        { id: 'cinto', label: 'Cinto de Segurança' },
+                                        { id: 'cadeirinha', label: 'Cadeirinha' },
+                                        { id: 'airbag', label: 'Air Bag' },
+                                        { id: 'capacete', label: 'Capacete' },
+                                        { id: 'outros', label: 'Outros' }
+                                    ])}
+                                    {victim.evento?.seguranca?.includes('outros') && <Input placeholder="Outros" className="mt-2 text-xl" value={victim.evento.seguranca_outros || ''} onChange={(e) => handleVictimChange(victim.id, 'evento', 'seguranca_outros', e.target.value)} />}
                                 </div>
                             </Field>
                             <Field label="Cinemática">
                                 <div className="flex flex-col space-y-4">
-                                    <div className="flex items-center space-x-2"><Checkbox id={`cin-colisao-${victim.id}`} checked={victim.evento?.cinematica?.includes('colisao')} onCheckedChange={(c) => handleVictimCheckboxChange(victim.id, 'evento', 'cinematica', 'colisao', !!c)} /><Label htmlFor={`cin-colisao-${victim.id}`} className="font-normal text-xl">Colisão</Label></div>
-                                    <div className="flex items-center space-x-2"><Checkbox id={`cin-capotamento-${victim.id}`} checked={victim.evento?.cinematica?.includes('capotamento')} onCheckedChange={(c) => handleVictimCheckboxChange(victim.id, 'evento', 'cinematica', 'capotamento', !!c)} /><Label htmlFor={`cin-capotamento-${victim.id}`} className="font-normal text-xl">Capotamento</Label></div>
-                                    <div className="flex items-center space-x-2"><Checkbox id={`cin-atropelamento-${victim.id}`} checked={victim.evento?.cinematica?.includes('atropelamento')} onCheckedChange={(c) => handleVictimCheckboxChange(victim.id, 'evento', 'cinematica', 'atropelamento', !!c)} /><Label htmlFor={`cin-atropelamento-${victim.id}`} className="font-normal text-xl">Atropelamento</Label></div>
-                                    <div className="flex items-center space-x-2"><Checkbox id={`cin-queda-${victim.id}`} checked={victim.evento?.cinematica?.includes('queda')} onCheckedChange={(c) => handleVictimCheckboxChange(victim.id, 'evento', 'cinematica', 'queda', !!c)} /><Label htmlFor={`cin-queda-${victim.id}`} className="font-normal text-xl">Queda</Label></div>
-                                    <div className="flex items-center space-x-2"><Checkbox id={`cin-tombamento-${victim.id}`} checked={victim.evento?.cinematica?.includes('tombamento')} onCheckedChange={(c) => handleVictimCheckboxChange(victim.id, 'evento', 'cinematica', 'tombamento', !!c)} /><Label htmlFor={`cin-tombamento-${victim.id}`} className="font-normal text-xl">Tombamento</Label></div>
-                                    <Input placeholder="Outros" className="mt-2 text-xl" value={victim.evento.cinematica_outros || ''} onChange={(e) => handleVictimChange(victim.id, 'evento', 'cinematica_outros', e.target.value)} />
+                                    {renderCheckboxes(victim.id, 'evento', 'cinematica', [
+                                        { id: 'colisao', label: 'Colisão' },
+                                        { id: 'capotamento', label: 'Capotamento' },
+                                        { id: 'atropelamento', label: 'Atropelamento' },
+                                        { id: 'queda', label: 'Queda' },
+                                        { id: 'tombamento', label: 'Tombamento' },
+                                        { id: 'outros', label: 'Outros' }
+                                    ])}
+                                    {victim.evento?.cinematica?.includes('outros') && <Input placeholder="Outros" className="mt-2 text-xl" value={victim.evento.cinematica_outros || ''} onChange={(e) => handleVictimChange(victim.id, 'evento', 'cinematica_outros', e.target.value)} />}
                                 </div>
                             </Field>
                         </div>
@@ -875,3 +887,4 @@ export default function QudAphForm({ categorySlug }: { categorySlug: string }) {
     </div>
   );
 }
+
