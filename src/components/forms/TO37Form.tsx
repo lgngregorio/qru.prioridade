@@ -17,6 +17,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { useFirestore } from '@/firebase';
 import { useToast } from '@/hooks/use-toast';
 import { Checkbox } from '@/components/ui/checkbox';
+import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 
 
 function Field({ label, children, className }: { label?: string, children: React.ReactNode, className?: string }) {
@@ -166,16 +167,11 @@ export default function TO37Form({ categorySlug }: { categorySlug: string }) {
           <h2 className="text-xl font-semibold text-foreground border-b-2 border-foreground pb-2 uppercase">Informações Gerais</h2>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
             <Field label="RODOVIA">
-                <Select value={generalInfo.rodovia} onValueChange={(value) => handleGeneralInfoChange('rodovia', value)}>
-                    <SelectTrigger className="text-xl normal-case placeholder:text-base">
-                        <SelectValue placeholder="Selecione a rodovia" />
-                    </SelectTrigger>
-                    <SelectContent>
-                        <SelectItem value="ms-112">MS-112</SelectItem>
-                        <SelectItem value="br-158">BR-158</SelectItem>
-                        <SelectItem value="ms-306">MS-306</SelectItem>
-                    </SelectContent>
-                </Select>
+                <RadioGroup value={generalInfo.rodovia} onValueChange={(value) => handleGeneralInfoChange('rodovia', value)} className="flex flex-col space-y-2">
+                    <div className="flex items-center space-x-2"><RadioGroupItem value="ms-112" id="r-ms-112" /><Label htmlFor="r-ms-112" className="text-xl font-normal">MS-112</Label></div>
+                    <div className="flex items-center space-x-2"><RadioGroupItem value="br-158" id="r-br-158" /><Label htmlFor="r-br-158" className="text-xl font-normal">BR-158</Label></div>
+                    <div className="flex items-center space-x-2"><RadioGroupItem value="ms-306" id="r-ms-306" /><Label htmlFor="r-ms-306" className="text-xl font-normal">MS-306</Label></div>
+                </RadioGroup>
             </Field>
             <Field label="OCORRÊNCIA">
                 <Input className="text-xl uppercase" value={generalInfo.ocorrencia} disabled />
@@ -184,29 +180,19 @@ export default function TO37Form({ categorySlug }: { categorySlug: string }) {
                 <Input className="text-xl placeholder:capitalize placeholder:text-sm" placeholder="Ex: Km 125 da MS-112" value={generalInfo.qth} onChange={(e) => handleGeneralInfoChange('qth', e.target.value)}/>
             </Field>
              <Field label="SENTIDO">
-                <Select value={generalInfo.sentido} onValueChange={(value) => handleGeneralInfoChange('sentido', value)}>
-                    <SelectTrigger className="text-xl normal-case placeholder:text-base">
-                        <SelectValue placeholder="Selecione o sentido" />
-                    </SelectTrigger>
-                    <SelectContent>
-                        <SelectItem value="norte">NORTE</SelectItem>
-                        <SelectItem value="sul">SUL</SelectItem>
-                        <SelectItem value="ambos">AMBOS</SelectItem>
-                    </SelectContent>
-                </Select>
+                <RadioGroup value={generalInfo.sentido} onValueChange={(value) => handleGeneralInfoChange('sentido', value)} className="flex flex-col space-y-2">
+                    <div className="flex items-center space-x-2"><RadioGroupItem value="norte" id="s-norte" /><Label htmlFor="s-norte" className="text-xl font-normal">NORTE</Label></div>
+                    <div className="flex items-center space-x-2"><RadioGroupItem value="sul" id="s-sul" /><Label htmlFor="s-sul" className="text-xl font-normal">SUL</Label></div>
+                    <div className="flex items-center space-x-2"><RadioGroupItem value="ambos" id="s-ambos" /><Label htmlFor="s-ambos" className="text-xl font-normal">AMBOS</Label></div>
+                </RadioGroup>
             </Field>
             <Field label="LOCAL/ÁREA">
-                <Select value={generalInfo.localArea} onValueChange={(value) => handleGeneralInfoChange('localArea', value)}>
-                    <SelectTrigger className="text-xl normal-case placeholder:text-base">
-                        <SelectValue placeholder="Selecione o local/área" />
-                    </SelectTrigger>
-                    <SelectContent>
-                        <SelectItem value="area_de_dominio">ÁREA DE DOMÍNIO</SelectItem>
-                        <SelectItem value="trevo">TREVO</SelectItem>
-                        <SelectItem value="rotatoria">ROTATÓRIA</SelectItem>
-                        <SelectItem value="praca_de_pedagio">PRAÇA DE PEDÁGIO</SelectItem>
-                    </SelectContent>
-                </Select>
+                <RadioGroup value={generalInfo.localArea} onValueChange={(value) => handleGeneralInfoChange('localArea', value)} className="flex flex-col space-y-2">
+                    <div className="flex items-center space-x-2"><RadioGroupItem value="area_de_dominio" id="la-area_de_dominio" /><Label htmlFor="la-area_de_dominio" className="text-xl font-normal">ÁREA DE DOMÍNIO</Label></div>
+                    <div className="flex items-center space-x-2"><RadioGroupItem value="trevo" id="la-trevo" /><Label htmlFor="la-trevo" className="text-xl font-normal">TREVO</Label></div>
+                    <div className="flex items-center space-x-2"><RadioGroupItem value="rotatoria" id="la-rotatoria" /><Label htmlFor="la-rotatoria" className="text-xl font-normal">ROTATÓRIA</Label></div>
+                    <div className="flex items-center space-x-2"><RadioGroupItem value="praca_de_pedagio" id="la-praca_de_pedagio" /><Label htmlFor="la-praca_de_pedagio" className="text-xl font-normal">PRAÇA DE PEDÁGIO</Label></div>
+                </RadioGroup>
             </Field>
           </div>
         </div>
@@ -216,17 +202,12 @@ export default function TO37Form({ categorySlug }: { categorySlug: string }) {
           <h2 className="text-xl font-semibold text-foreground border-b-2 border-foreground pb-2 uppercase">Sinalização</h2>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
             <Field label="AÇÃO">
-                <Select value={sinalizacaoInfo.acao} onValueChange={(value) => handleSinalizacaoInfoChange('acao', value)}>
-                    <SelectTrigger className="text-xl normal-case placeholder:text-base">
-                        <SelectValue placeholder="Selecione a ação" />
-                    </SelectTrigger>
-                    <SelectContent>
-                        <SelectItem value="FAZER IMPLANTAÇÃO DA PLACA">FAZER IMPLANTAÇÃO DA PLACA</SelectItem>
-                        <SelectItem value="FEITO A RETIRADA DA PLACA">FEITO A RETIRADA DA PLACA</SelectItem>
-                        <SelectItem value="FEITO O DESAMASSO DA PLACA">FEITO O DESAMASSO DA PLACA</SelectItem>
-                        <SelectItem value="FEITO O RECOLHIMENTO DA PLACA">FEITO O RECOLHIMENTO DA PLACA</SelectItem>
-                    </SelectContent>
-                </Select>
+                <RadioGroup value={sinalizacaoInfo.acao} onValueChange={(value) => handleSinalizacaoInfoChange('acao', value)} className="flex flex-col space-y-2">
+                    <div className="flex items-center space-x-2"><RadioGroupItem value="FAZER IMPLANTAÇÃO DA PLACA" id="a-implantacao" /><Label htmlFor="a-implantacao" className="text-xl font-normal">FAZER IMPLANTAÇÃO DA PLACA</Label></div>
+                    <div className="flex items-center space-x-2"><RadioGroupItem value="FEITO A RETIRADA DA PLACA" id="a-retirada" /><Label htmlFor="a-retirada" className="text-xl font-normal">FEITO A RETIRADA DA PLACA</Label></div>
+                    <div className="flex items-center space-x-2"><RadioGroupItem value="FEITO O DESAMASSO DA PLACA" id="a-desamasso" /><Label htmlFor="a-desamasso" className="text-xl font-normal">FEITO O DESAMASSO DA PLACA</Label></div>
+                    <div className="flex items-center space-x-2"><RadioGroupItem value="FEITO O RECOLHIMENTO DA PLACA" id="a-recolhimento" /><Label htmlFor="a-recolhimento" className="text-xl font-normal">FEITO O RECOLHIMENTO DA PLACA</Label></div>
+                </RadioGroup>
             </Field>
             <Field label="NOME DA PLACA">
                 <Input className="text-xl placeholder:capitalize placeholder:text-sm" placeholder="Ex: R-19" value={sinalizacaoInfo.nomeDaPlaca} onChange={(e) => handleSinalizacaoInfoChange('nomeDaPlaca', e.target.value)}/>
