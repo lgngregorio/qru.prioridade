@@ -27,6 +27,35 @@ const formatDate = (dateSource: string | Date | Timestamp) => {
     }
 };
 
+const autoCorrectMap: { [key: string]: string } = {
+    'area': 'Área',
+    'veiculo': 'Veículo',
+    'veiculos': 'Veículos',
+    'condicao': 'Condição',
+    'sinalizacao': 'Sinalização',
+    'tracado': 'Traçado',
+    'saida': 'Saída',
+    'reboque': 'Reboque',
+    'numero': 'Número',
+    'ocorrencia': 'Ocorrência',
+    'observacoes': 'Observações',
+    'informacoes': 'Informações',
+    'caracteristicas': 'Características',
+    'auxilios': 'Auxílios',
+    'vitima': 'Vítima',
+    'vitimas': 'Vítimas',
+    'operacionais': 'Operacionais',
+    'materiais': 'Materiais',
+    'destinacao': 'Destinação',
+    'responsavel': 'Responsável',
+    'frequencia': 'Frequência',
+    'inicio': 'Início',
+    'termino': 'Término',
+};
+
+const autoCorrect = (text: string): string => {
+    return text.replace(/\b\w+\b/g, word => autoCorrectMap[word.toLowerCase()] || word);
+};
 
 const renderValue = (key: string, value: any): React.ReactNode => {
     if (value === null || value === undefined || value === 'NILL' || value === '') return null;
@@ -43,7 +72,7 @@ const renderValue = (key: string, value: any): React.ReactNode => {
         return formatDate(new Timestamp(value.seconds, value.nanoseconds).toDate());
     }
 
-    if (Array.isArray(value)) return value.join(', ').replace(/[-_]/g, ' ').toUpperCase();
+    if (Array.isArray(value)) return autoCorrect(value.join(', ').replace(/[-_]/g, ' ')).toUpperCase();
 
     if (typeof value === 'object') {
         return (
@@ -62,7 +91,7 @@ const renderValue = (key: string, value: any): React.ReactNode => {
     }
     
     if (typeof value === 'string') {
-        return value.replace(/[-_]/g, ' ').toUpperCase();
+        return autoCorrect(value.replace(/[-_]/g, ' ')).toUpperCase();
     }
 
     return String(value);
@@ -108,10 +137,12 @@ const formatKey = (key: string) => {
         return sectionTitles[key];
     }
     
-    return key
+    const formattedKey = key
         .replace(/([A-Z])/g, ' $1')
         .replace(/_/g, ' ')
         .replace(/\b\w/g, char => char.toUpperCase());
+    
+    return autoCorrect(formattedKey);
 };
 
 

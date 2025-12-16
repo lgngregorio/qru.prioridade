@@ -64,7 +64,7 @@ const sectionTitles: { [key: string]: string } = {
   relatorio: "RELATÓRIO/OBSERVAÇÕES",
   observacoes: "OBSERVAÇÕES",
   ocorrencia: "OCORRÊNCIA",
-  destinacaoAnimal: 'DESTINAÇÃO ANIMAL',
+  destinacaoAnimal: 'DESTINAÇÃO DO ANIMAL',
   qthExato: 'QTH EXATO',
   qraResponsavel: 'QRA DO RESPONSÁVEL',
   baixaFrequencia: 'BAIXA FREQUÊNCIA',
@@ -80,12 +80,42 @@ const sectionTitles: { [key: string]: string } = {
   numeroOcorrencia: 'NÚMERO DA OCORRÊNCIA',
 };
 
+const autoCorrectMap: { [key: string]: string } = {
+    'area': 'Área',
+    'veiculo': 'Veículo',
+    'veiculos': 'Veículos',
+    'condicao': 'Condição',
+    'sinalizacao': 'Sinalização',
+    'tracado': 'Traçado',
+    'saida': 'Saída',
+    'reboque': 'Reboque',
+    'numero': 'Número',
+    'ocorrencia': 'Ocorrência',
+    'observacoes': 'Observações',
+    'informacoes': 'Informações',
+    'caracteristicas': 'Características',
+    'auxilios': 'Auxílios',
+    'vitima': 'Vítima',
+    'vitimas': 'Vítimas',
+    'operacionais': 'Operacionais',
+    'materiais': 'Materiais',
+    'destinacao': 'Destinação',
+    'responsavel': 'Responsável',
+    'frequencia': 'Frequência',
+    'inicio': 'Início',
+    'termino': 'Término',
+};
+
+const autoCorrect = (text: string): string => {
+    return text.replace(/\b\w+\b/g, word => autoCorrectMap[word.toLowerCase()] || word);
+};
+
 const formatKey = (key: string) => {
     if (sectionTitles[key as keyof typeof sectionTitles]) {
         return `*${sectionTitles[key as keyof typeof sectionTitles]}*`;
     }
     const formattedKey = key.replace(/([A-Z])/g, ' $1').replace(/_/g, ' ').trim();
-    return `*${formattedKey.charAt(0).toUpperCase() + formattedKey.slice(1).toUpperCase()}*`;
+    return `*${autoCorrect(formattedKey.charAt(0).toUpperCase() + formattedKey.slice(1)).toUpperCase()}*`;
 };
 
 const formatValue = (value: any): string => {
@@ -110,7 +140,7 @@ const formatValue = (value: any): string => {
      return '';
   }
 
-  return String(value).replace(/[-_]/g, ' ').toUpperCase();
+  return autoCorrect(String(value).replace(/[-_]/g, ' ')).toUpperCase();
 };
 
 const generateWhatsappMessage = (report: ReportData): string => {
@@ -138,7 +168,7 @@ const generateWhatsappMessage = (report: ReportData): string => {
         if (value === null || value === undefined || value === 'NILL' || value === '' || key === 'id') continue;
         
         if (typeof value === 'object' && !Array.isArray(value) && !(value instanceof Date) && !(value.seconds && typeof value.seconds === 'number')) {
-             const subSectionText = processSection(value, sectionTitles[key] || key);
+             const subSectionText = processSection(value, sectionTitles[key] || autoCorrect(key));
              if (subSectionText) {
                  sectionText += subSectionText;
                  contentAdded = true;
@@ -157,7 +187,7 @@ const generateWhatsappMessage = (report: ReportData): string => {
   for (const [sectionKey, sectionData] of Object.entries(formData)) {
       if (sectionData === null || sectionData === undefined) continue;
 
-      const sectionTitle = sectionTitles[sectionKey] || sectionKey;
+      const sectionTitle = sectionTitles[sectionKey] || autoCorrect(sectionKey);
       const sectionResult = processSection(sectionData, sectionTitle);
       
       if (sectionResult) {
