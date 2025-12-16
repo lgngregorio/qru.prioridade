@@ -212,28 +212,26 @@ export default function VeiculoAbandonadoForm({ categorySlug }: { categorySlug: 
   };
   
   const validateObject = (obj: any): boolean => {
-    const optionalFields = ['id'];
-    if (!showVtrApoio) {
-        optionalFields.push('vtrApoio');
-    }
-    vehicles.forEach((v, i) => {
-        if (v.eixos !== 'outro') {
-            optionalFields.push(`eixosOutro`); 
-        }
-    });
-
     for (const key in obj) {
         if (Object.prototype.hasOwnProperty.call(obj, key)) {
-            if (optionalFields.includes(key)) continue;
-            
             const value = obj[key];
 
-            if (typeof value === 'object' && value !== null && !Array.isArray(value)) {
-                if (!validateObject(value)) return false;
-            } else if (Array.isArray(value)) {
-                 if (value.length === 0 && key !== 'tipoPane') return false; // tipoPane can be empty if "NILL" is chosen implicitly
-                 if (value.some(item => typeof item === 'object' ? !validateObject(item) : (item === '' || item === null || item === undefined))) return false;
+            if (key === 'vtrApoio' && !showVtrApoio) continue;
+            if (key === 'id') continue;
+            if (key === 'eixosOutro' && obj['eixos'] !== 'outro') continue;
+
+            if (typeof value === 'object' && value !== null) {
+                if (Array.isArray(value)) {
+                    if (value.length === 0 && key !== 'tipoPane') return false; 
+                    if (value.some(item => typeof item === 'object' ? !validateObject(item) : (item === '' || item === null || item === undefined))) return false;
+                } else if (!validateObject(value)) {
+                    return false;
+                }
             } else if (value === '' || value === null || value === undefined) {
+                // Allow tipoPane to be empty if it's not required or implicitly "NILL"
+                if (key === 'tipoPane' && Array.isArray(value) && value.length === 0) {
+                    continue;
+                }
                 return false;
             }
         }
