@@ -104,18 +104,21 @@ export default function TO11Form({ categorySlug }: { categorySlug: string }) {
     const savedData = localStorage.getItem('reportPreview');
     if (savedData) {
       const parsedData = JSON.parse(savedData);
-      setExistingReport(parsedData);
-      const { formData } = parsedData;
+      if (parsedData.category === categorySlug) {
+        setExistingReport(parsedData);
+        const { formData } = parsedData;
 
-      if (formData) {
-        setGeneralInfo(formData.generalInfo || generalInfo);
-        if (formData.vehicles && formData.vehicles.length > 0) {
-            setVehicles(formData.vehicles.map((v: Vehicle) => ({...v, eixosOutro: v.eixos && !eixosOptions.includes(v.eixos) ? v.eixos : ''})));
+        if (formData) {
+          setGeneralInfo(formData.generalInfo || generalInfo);
+          if (formData.vehicles && formData.vehicles.length > 0) {
+              setVehicles(formData.vehicles.map((v: Vehicle) => ({...v, eixosOutro: v.eixos && !eixosOptions.includes(v.eixos) ? v.eixos : ''})));
+          }
+          setOtherInfo(formData.otherInfo || otherInfo);
+          setShowMetragem(!!formData.otherInfo?.metragem && formData.otherInfo.metragem !== 'NILL');
         }
-        setOtherInfo(formData.otherInfo || otherInfo);
       }
     }
-  }, []);
+  }, [categorySlug]);
 
   const handleGeneralInfoChange = (field: keyof GeneralInfo, value: string) => {
     setGeneralInfo(prev => ({ ...prev, [field]: value }));
@@ -210,6 +213,36 @@ export default function TO11Form({ categorySlug }: { categorySlug: string }) {
     }
     return data;
   };
+  
+  const validateObject = (obj: any): boolean => {
+    const optionalFields = ['id', 'eixosOutro'];
+
+    if (!showMetragem) {
+        optionalFields.push('metragem');
+    }
+    
+    if (obj.eixos !== 'outro') {
+        optionalFields.push('eixosOutro');
+    }
+
+    for (const key in obj) {
+        if (Object.prototype.hasOwnProperty.call(obj, key)) {
+            if (optionalFields.includes(key)) continue;
+            
+            const value = obj[key];
+
+            if (typeof value === 'object' && value !== null && !Array.isArray(value)) {
+                if (!validateObject(value)) return false;
+            } else if (Array.isArray(value)) {
+                 if (value.length === 0) return false;
+                 if (value.some(item => typeof item === 'object' ? !validateObject(item) : (item === '' || item === null || item === undefined))) return false;
+            } else if (value === '' || value === null || value === undefined) {
+                return false;
+            }
+        }
+    }
+    return true;
+};
 
   const prepareReportData = () => {
     const processedVehicles = vehicles.map(v => {
@@ -225,11 +258,22 @@ export default function TO11Form({ categorySlug }: { categorySlug: string }) {
         vehicles: processedVehicles,
         otherInfo
     }
+    
+    if (!validateObject(reportData)) {
+        toast({
+            variant: "destructive",
+            title: "Campos obrigatórios",
+            description: "Por favor, preencha todos os campos antes de continuar.",
+        });
+        return null;
+    }
+    
     const filledData = {
       ...existingReport,
       category: categorySlug,
       formData: fillEmptyFields(reportData)
     };
+    
      if (!showMetragem) {
       filledData.formData.otherInfo.metragem = 'NILL';
     }

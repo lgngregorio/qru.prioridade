@@ -209,6 +209,32 @@ export default function TO15Form({ categorySlug }: { categorySlug: string }) {
     }
     return data;
   };
+  
+  const validateObject = (obj: any): boolean => {
+    const optionalFields = ['id', 'eixosOutro'];
+
+    if (obj.eixos !== 'outro') {
+        optionalFields.push('eixosOutro');
+    }
+
+    for (const key in obj) {
+        if (Object.prototype.hasOwnProperty.call(obj, key)) {
+            if (optionalFields.includes(key)) continue;
+            
+            const value = obj[key];
+
+            if (typeof value === 'object' && value !== null && !Array.isArray(value)) {
+                if (!validateObject(value)) return false;
+            } else if (Array.isArray(value)) {
+                 if (value.length === 0) return false;
+                 if (value.some(item => typeof item === 'object' ? !validateObject(item) : (item === '' || item === null || item === undefined))) return false;
+            } else if (value === '' || value === null || value === undefined) {
+                return false;
+            }
+        }
+    }
+    return true;
+};
 
   const prepareReportData = () => {
     const processedVehicles = vehicles.map(v => {
@@ -219,17 +245,28 @@ export default function TO15Form({ categorySlug }: { categorySlug: string }) {
         };
     });
 
+    const reportData = {
+      generalInfo,
+      vehicles: processedVehicles,
+      otherInfo,
+    };
+    
+    if (!validateObject(reportData)) {
+        toast({
+            variant: "destructive",
+            title: "Campos obrigatórios",
+            description: "Por favor, preencha todos os campos antes de continuar.",
+        });
+        return null;
+    }
+
     const filledData = {
       ...existingReport,
-      generalInfo: fillEmptyFields(generalInfo),
-      vehicles: fillEmptyFields(processedVehicles),
-      otherInfo: fillEmptyFields(otherInfo),
+      category: categorySlug,
+      formData: fillEmptyFields(reportData)
     };
 
-    return {
-      category: categorySlug,
-      formData: filledData,
-    };
+    return filledData;
   };
   
   const handleGenerateReport = () => {
