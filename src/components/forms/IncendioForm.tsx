@@ -83,6 +83,7 @@ export default function IncendioForm({ categorySlug }: { categorySlug: string })
         }
       }
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [categorySlug]);
 
   const handleGeneralInfoChange = (field: keyof GeneralInfo, value: string) => {
@@ -113,6 +114,7 @@ export default function IncendioForm({ categorySlug }: { categorySlug: string })
   
   const fillEmptyFields = (data: any): any => {
     if (Array.isArray(data)) {
+      if (data.length === 0) return 'NILL';
       return data.map(item => fillEmptyFields(item));
     }
     if (typeof data === 'object' && data !== null) {
@@ -131,13 +133,17 @@ export default function IncendioForm({ categorySlug }: { categorySlug: string })
   };
   
   const validateObject = (obj: any): boolean => {
+    const optionalFields = ['vtrApoio'];
+     if (!showVtrApoio) {
+        optionalFields.push('vtrApoio');
+    }
+    
     for (const key in obj) {
         if (Object.prototype.hasOwnProperty.call(obj, key)) {
+            if (optionalFields.includes(key)) continue;
+            
             const value = obj[key];
 
-            // Pula a validação de campos opcionais
-            if (key === 'vtrApoio' && !showVtrApoio) continue;
-            
             if (typeof value === 'object' && value !== null && !Array.isArray(value)) {
                 if (!validateObject(value)) return false;
             } else if (Array.isArray(value)) {

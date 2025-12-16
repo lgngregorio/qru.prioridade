@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useRouter } from 'next/navigation';
@@ -128,6 +129,7 @@ export default function VeiculoAbandonadoForm({ categorySlug }: { categorySlug: 
         }
       }
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [categorySlug]);
 
   const handleGeneralInfoChange = (field: keyof Omit<GeneralInfo, 'tipoPane'>, value: string) => {
