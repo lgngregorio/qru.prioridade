@@ -31,44 +31,36 @@ const LoadingSkeleton = () => (
   </div>
 );
 
-const formComponentMap: Record<string, () => Promise<{ default: ComponentType<{ categorySlug: string }> }>> = {
-  'qud-aph': () => import('@/components/forms/QudAphForm'),
-  'qud-operacao': () => import('@/components/forms/QudOperacaoForm'),
-  'tracado-de-pista': () => import('@/components/forms/TracadoDePistaForm'),
-  'to-01': () => import('@/components/forms/VeiculoAbandonadoForm'),
-  'to-02': () => import('@/components/forms/IncendioForm'),
-  'to-03': () => import('@/components/forms/TO03Form'),
-  'to-04': () => import('@/components/forms/TO04Form'),
-  'to-05': () => import('@/components/forms/TO05Form'),
-  'to-06': () => import('@/components/forms/TO06Form'),
-  'to-07': () => import('@/components/forms/TO07Form'),
-  'to-09': () => import('@/components/forms/TO09Form'),
-  'to-11': () => import('@/components/forms/TO11Form'),
-  'to-12': () => import('@/components/forms/TO12Form'),
-  'to-15': () => import('@/components/forms/TO15Form'),
-  'to-16': () => import('@/components/forms/TO16Form'),
-  'to-17': () => import('@/components/forms/TO17Form'),
-  'to-19': () => import('@/components/forms/TO19Form'),
-  'to-33': () => import('@/components/forms/TO33Form'),
-  'to-34': () => import('@/components/forms/TO34Form'),
-  'to-35': () => import('@/components/forms/TO35Form'),
-  'to-37': () => import('@/components/forms/TO37Form'),
-  'to-38': () => import('@/components/forms/TO38Form'),
-  'to-39': () => import('@/components/forms/TO39Form'),
-  'to-50': () => import('@/components/forms/TO50Form'),
+const formComponentMap: Record<string, ComponentType<{ categorySlug: string }>> = {
+  'qud-aph': dynamic(() => import('@/components/forms/QudAphForm'), { loading: () => <LoadingSkeleton />, ssr: false }),
+  'qud-operacao': dynamic(() => import('@/components/forms/QudOperacaoForm'), { loading: () => <LoadingSkeleton />, ssr: false }),
+  'tracado-de-pista': dynamic(() => import('@/components/forms/TracadoDePistaForm'), { loading: () => <LoadingSkeleton />, ssr: false }),
+  'to-01': dynamic(() => import('@/components/forms/VeiculoAbandonadoForm'), { loading: () => <LoadingSkeleton />, ssr: false }),
+  'to-02': dynamic(() => import('@/components/forms/IncendioForm'), { loading: () => <LoadingSkeleton />, ssr: false }),
+  'to-03': dynamic(() => import('@/components/forms/TO03Form'), { loading: () => <LoadingSkeleton />, ssr: false }),
+  'to-04': dynamic(() => import('@/components/forms/TO04Form'), { loading: () => <LoadingSkeleton />, ssr: false }),
+  'to-05': dynamic(() => import('@/components/forms/TO05Form'), { loading: () => <LoadingSkeleton />, ssr: false }),
+  'to-06': dynamic(() => import('@/components/forms/TO06Form'), { loading: () => <LoadingSkeleton />, ssr: false }),
+  'to-07': dynamic(() => import('@/components/forms/TO07Form'), { loading: () => <LoadingSkeleton />, ssr: false }),
+  'to-09': dynamic(() => import('@/components/forms/TO09Form'), { loading: () => <LoadingSkeleton />, ssr: false }),
+  'to-11': dynamic(() => import('@/components/forms/TO11Form'), { loading: () => <LoadingSkeleton />, ssr: false }),
+  'to-12': dynamic(() => import('@/components/forms/TO12Form'), { loading: () => <LoadingSkeleton />, ssr: false }),
+  'to-15': dynamic(() => import('@/components/forms/TO15Form'), { loading: () => <LoadingSkeleton />, ssr: false }),
+  'to-16': dynamic(() => import('@/components/forms/TO16Form'), { loading: () => <LoadingSkeleton />, ssr: false }),
+  'to-17': dynamic(() => import('@/components/forms/TO17Form'), { loading: () => <LoadingSkeleton />, ssr: false }),
+  'to-19': dynamic(() => import('@/components/forms/TO19Form'), { loading: () => <LoadingSkeleton />, ssr: false }),
+  'to-33': dynamic(() => import('@/components/forms/TO33Form'), { loading: () => <LoadingSkeleton />, ssr: false }),
+  'to-34': dynamic(() => import('@/components/forms/TO34Form'), { loading: () => <LoadingSkeleton />, ssr: false }),
+  'to-35': dynamic(() => import('@/components/forms/TO35Form'), { loading: () => <LoadingSkeleton />, ssr: false }),
+  'to-37': dynamic(() => import('@/components/forms/TO37Form'), { loading: () => <LoadingSkeleton />, ssr: false }),
+  'to-38': dynamic(() => import('@/components/forms/TO38Form'), { loading: () => <LoadingSkeleton />, ssr: false }),
+  'to-39': dynamic(() => import('@/components/forms/TO39Form'), { loading: () => <LoadingSkeleton />, ssr: false }),
+  'to-50': dynamic(() => import('@/components/forms/TO50Form'), { loading: () => <LoadingSkeleton />, ssr: false }),
 };
 
+
 function ReportFormComponent({ categorySlug }: { categorySlug: string }) {
-  const FormComponent = useMemo(() => {
-    const componentLoader = formComponentMap[categorySlug];
-    if (componentLoader) {
-      return dynamic(componentLoader, {
-        loading: () => <LoadingSkeleton />,
-        ssr: false,
-      });
-    }
-    return null;
-  }, [categorySlug]);
+  const FormComponent = formComponentMap[categorySlug];
 
   if (FormComponent) {
     return <FormComponent categorySlug={categorySlug} />;
