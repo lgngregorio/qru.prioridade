@@ -214,6 +214,28 @@ export default function TO39Form({ categorySlug }: { categorySlug: string }) {
     }
     return data;
   };
+  
+  const validateObject = (obj: any): boolean => {
+    for (const key in obj) {
+        if (Object.prototype.hasOwnProperty.call(obj, key)) {
+            const value = obj[key];
+
+            if (key === 'vtrApoio' && !showVtrApoio) continue;
+            if (key === 'id') continue;
+            if (key === 'eixosOutro' && obj['eixos'] !== 'outro') continue;
+            if (key === 'tipoPane' && Array.isArray(value) && value.length === 0) return false;
+
+            if (typeof value === 'object' && value !== null && !Array.isArray(value)) {
+                if (!validateObject(value)) return false;
+            } else if (Array.isArray(value)) {
+                 if (value.length > 0 && value.some(item => (typeof item === 'object' && !validateObject(item)) || (typeof item !== 'object' && item === ''))) return false;
+            } else if (value === '' || value === null || value === undefined) {
+                return false;
+            }
+        }
+    }
+    return true;
+};
 
   const prepareReportData = () => {
     const processedVehicles = vehicles.map(v => {
@@ -229,6 +251,15 @@ export default function TO39Form({ categorySlug }: { categorySlug: string }) {
       vehicles: processedVehicles,
       otherInfo,
     };
+    
+    if (!validateObject(reportData)) {
+        toast({
+            variant: "destructive",
+            title: "Campos obrigatórios",
+            description: "Por favor, preencha todos os campos antes de continuar.",
+        });
+        return null;
+    }
 
     const filledData = {
       ...existingReport,
@@ -354,7 +385,7 @@ export default function TO39Form({ categorySlug }: { categorySlug: string }) {
                         </RadioGroup>
                     </Field>
                     <Field label="TIPO DE VEÍCULO">
-                         <RadioGroup value={vehicle.tipo} onValueChange={value => handleVehicleChange(index, 'tipo', value)} className="flex flex-col space-y-2">
+                        <RadioGroup value={vehicle.tipo} onValueChange={value => handleVehicleChange(index, 'tipo', value)} className="flex flex-col space-y-2">
                             <div className="flex items-center space-x-2"><RadioGroupItem value="mo" id={`v-tipo-mo-${vehicle.id}`} /><Label htmlFor={`v-tipo-mo-${vehicle.id}`} className="text-xl font-normal">MO</Label></div>
                             <div className="flex items-center space-x-2"><RadioGroupItem value="ap" id={`v-tipo-ap-${vehicle.id}`} /><Label htmlFor={`v-tipo-ap-${vehicle.id}`} className="text-xl font-normal">AP</Label></div>
                             <div className="flex items-center space-x-2"><RadioGroupItem value="utilitaria" id={`v-tipo-utilitaria-${vehicle.id}`} /><Label htmlFor={`v-tipo-utilitaria-${vehicle.id}`} className="text-xl font-normal">UTILITÁRIA</Label></div>
@@ -446,3 +477,5 @@ export default function TO39Form({ categorySlug }: { categorySlug: string }) {
     </div>
   );
 }
+
+    

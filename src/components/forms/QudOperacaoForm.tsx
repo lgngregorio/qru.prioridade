@@ -152,6 +152,10 @@ export default function QudOperacaoForm({ categorySlug }: { categorySlug: string
     setVehicles(vehicles.filter(v => v.id !== id));
   };
   
+  const handleOtherInfoChange = (field: keyof OtherInfo, value: string) => {
+    setOtherInfo(prev => ({ ...prev, [field]: value }));
+  };
+  
   const formatPhoneNumber = (value: string) => {
     if (!value) return value;
     const phoneNumber = value.replace(/[^\d]/g, '');
@@ -196,7 +200,7 @@ export default function QudOperacaoForm({ categorySlug }: { categorySlug: string
             if (typeof value === 'object' && value !== null && !Array.isArray(value)) {
                 if (!validateObject(value)) return false;
             } else if (Array.isArray(value)) {
-                 if (value.some(item => typeof item === 'object' && !validateObject(item))) return false;
+                 if (value.some(item => (typeof item === 'object' && !validateObject(item)) || (typeof item !== 'object' && item === ''))) return false;
             } else if (value === '' || value === null || value === undefined) {
                 return false;
             }
@@ -474,3 +478,5 @@ export default function QudOperacaoForm({ categorySlug }: { categorySlug: string
     </div>
   );
 }
+
+    
