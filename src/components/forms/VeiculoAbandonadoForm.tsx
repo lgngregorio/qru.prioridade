@@ -343,29 +343,23 @@ export default function VeiculoAbandonadoForm({ categorySlug }: { categorySlug: 
                         </Select>
                     </Field>
                     <Field label="TIPO DE VEÍCULO">
-                         <Select value={vehicle.tipo} onValueChange={value => handleVehicleChange(index, 'tipo', value)}>
-                            <SelectTrigger className="text-xl normal-case placeholder:text-base"><SelectValue placeholder="Selecione o tipo" /></SelectTrigger>
-                            <SelectContent>
-                                <SelectItem value="mo">MO</SelectItem>
-                                <SelectItem value="ap">AP</SelectItem>
-                                <SelectItem value="utilitaria">UTILITÁRIA</SelectItem>
-                                <SelectItem value="ca">CA</SelectItem>
-                                <SelectItem value="on">ON</SelectItem>
-                                <SelectItem value="car">CAR</SelectItem>
-                                <SelectItem value="ca-romeu-julieta">CA/ ROMEU E JULIETA</SelectItem>
-                                <SelectItem value="carretinha-reboque">CARRETINHA/REBOQUE</SelectItem>
-                            </SelectContent>
-                        </Select>
+                         <RadioGroup value={vehicle.tipo} onValueChange={value => handleVehicleChange(index, 'tipo', value)} className="flex flex-col space-y-2">
+                            <div className="flex items-center space-x-2"><RadioGroupItem value="mo" id={`v-tipo-mo-${vehicle.id}`} /><Label htmlFor={`v-tipo-mo-${vehicle.id}`} className="text-xl font-normal">MO</Label></div>
+                            <div className="flex items-center space-x-2"><RadioGroupItem value="ap" id={`v-tipo-ap-${vehicle.id}`} /><Label htmlFor={`v-tipo-ap-${vehicle.id}`} className="text-xl font-normal">AP</Label></div>
+                            <div className="flex items-center space-x-2"><RadioGroupItem value="utilitaria" id={`v-tipo-utilitaria-${vehicle.id}`} /><Label htmlFor={`v-tipo-utilitaria-${vehicle.id}`} className="text-xl font-normal">UTILITÁRIA</Label></div>
+                            <div className="flex items-center space-x-2"><RadioGroupItem value="ca" id={`v-tipo-ca-${vehicle.id}`} /><Label htmlFor={`v-tipo-ca-${vehicle.id}`} className="text-xl font-normal">CA</Label></div>
+                            <div className="flex items-center space-x-2"><RadioGroupItem value="on" id={`v-tipo-on-${vehicle.id}`} /><Label htmlFor={`v-tipo-on-${vehicle.id}`} className="text-xl font-normal">ON</Label></div>
+                            <div className="flex items-center space-x-2"><RadioGroupItem value="car" id={`v-tipo-car-${vehicle.id}`} /><Label htmlFor={`v-tipo-car-${vehicle.id}`} className="text-xl font-normal">CAR</Label></div>
+                            <div className="flex items-center space-x-2"><RadioGroupItem value="ca-romeu-julieta" id={`v-tipo-ca-romeu-julieta-${vehicle.id}`} /><Label htmlFor={`v-tipo-ca-romeu-julieta-${vehicle.id}`} className="text-xl font-normal">CA/ ROMEU E JULIETA</Label></div>
+                            <div className="flex items-center space-x-2"><RadioGroupItem value="carretinha-reboque" id={`v-tipo-carretinha-reboque-${vehicle.id}`} /><Label htmlFor={`v-tipo-carretinha-reboque-${vehicle.id}`} className="text-xl font-normal">CARRETINHA/REBOQUE</Label></div>
+                        </RadioGroup>
                     </Field>
                     <Field label="ESTADO DO PNEU">
-                        <Select value={vehicle.pneu} onValueChange={value => handleVehicleChange(index, 'pneu', value)}>
-                            <SelectTrigger className="text-xl normal-case placeholder:text-base"><SelectValue placeholder="Selecione o estado do pneu" /></SelectTrigger>
-                            <SelectContent>
-                                <SelectItem value="bom">BOM</SelectItem>
-                                <SelectItem value="regular">REGULAR</SelectItem>
-                                <SelectItem value="ruim">RUIM</SelectItem>
-                            </SelectContent>
-                        </Select>
+                        <RadioGroup value={vehicle.pneu} onValueChange={value => handleVehicleChange(index, 'pneu', value)} className="flex flex-col space-y-2">
+                            <div className="flex items-center space-x-2"><RadioGroupItem value="bom" id={`v-pneu-bom-${vehicle.id}`} /><Label htmlFor={`v-pneu-bom-${vehicle.id}`} className="text-xl font-normal">BOM</Label></div>
+                            <div className="flex items-center space-x-2"><RadioGroupItem value="regular" id={`v-pneu-regular-${vehicle.id}`} /><Label htmlFor={`v-pneu-regular-${vehicle.id}`} className="text-xl font-normal">REGULAR</Label></div>
+                            <div className="flex items-center space-x-2"><RadioGroupItem value="ruim" id={`v-pneu-ruim-${vehicle.id}`} /><Label htmlFor={`v-pneu-ruim-${vehicle.id}`} className="text-xl font-normal">RUIM</Label></div>
+                        </RadioGroup>
                     </Field>
                     <Field label="TIPO DE CARGA"><Input className="text-xl placeholder:capitalize placeholder:text-sm" placeholder="Ex: Vazio, soja" value={vehicle.carga} onChange={e => handleVehicleChange(index, 'carga', e.target.value)}/></Field>
                </div>
