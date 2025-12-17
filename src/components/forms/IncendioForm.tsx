@@ -42,12 +42,14 @@ type OtherInfo = {
   auxilios: string;
   vtrApoio: string;
   observacoes: string;
+  danoPatrimonio: string;
 };
 
 export default function IncendioForm({ categorySlug }: { categorySlug: string }) {
   const router = useRouter();
   const { toast } = useToast();
   const [showVtrApoio, setShowVtrApoio] = useState(false);
+  const [showDanoPatrimonio, setShowDanoPatrimonio] = useState(false);
   const [existingReport, setExistingReport] = useState<any>(null);
 
 
@@ -67,6 +69,7 @@ export default function IncendioForm({ categorySlug }: { categorySlug: string })
     auxilios: '',
     vtrApoio: '',
     observacoes: '',
+    danoPatrimonio: '',
   });
   
   useEffect(() => {
@@ -80,6 +83,7 @@ export default function IncendioForm({ categorySlug }: { categorySlug: string })
           setGeneralInfo(formData.generalInfo || generalInfo);
           setOtherInfo(formData.otherInfo || otherInfo);
           setShowVtrApoio(!!formData.otherInfo?.vtrApoio && formData.otherInfo.vtrApoio !== 'NILL');
+          setShowDanoPatrimonio(!!formData.otherInfo?.danoPatrimonio && formData.otherInfo.danoPatrimonio !== 'NILL');
         }
       }
     }
@@ -133,10 +137,13 @@ export default function IncendioForm({ categorySlug }: { categorySlug: string })
   };
   
   const validateObject = (obj: any): boolean => {
-    const optionalFields = ['vtrApoio', 'id'];
+    const optionalFields = ['vtrApoio', 'id', 'danoPatrimonio'];
 
     if (!showVtrApoio) {
         optionalFields.push('vtrApoio');
+    }
+    if (!showDanoPatrimonio) {
+      optionalFields.push('danoPatrimonio');
     }
     
     for (const key in obj) {
@@ -182,6 +189,9 @@ export default function IncendioForm({ categorySlug }: { categorySlug: string })
     
     if (!showVtrApoio) {
       finalReport.formData.otherInfo.vtrApoio = 'NILL';
+    }
+    if (!showDanoPatrimonio) {
+      finalReport.formData.otherInfo.danoPatrimonio = 'NILL';
     }
 
     return finalReport;
@@ -267,6 +277,24 @@ export default function IncendioForm({ categorySlug }: { categorySlug: string })
             {showVtrApoio && (
                 <Field label="VTR DE APOIO">
                   <Textarea className="text-2xl placeholder:capitalize placeholder:text-sm" placeholder="Descreva as viaturas de apoio" value={otherInfo.vtrApoio} onChange={(e) => handleOtherInfoChange('vtrApoio', e.target.value)} />
+                </Field>
+            )}
+            <div className="flex items-center space-x-2 pt-4">
+              <Checkbox
+                id="show-dano-patrimonio"
+                checked={showDanoPatrimonio}
+                onCheckedChange={(checked) => setShowDanoPatrimonio(Boolean(checked))}
+              />
+              <label
+                htmlFor="show-dano-patrimonio"
+                className="text-base font-bold uppercase leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+              >
+                Houve Dano ao Patrimônio?
+              </label>
+            </div>
+            {showDanoPatrimonio && (
+                <Field label="DANO AO PATRIMÔNIO">
+                  <Textarea className="text-2xl placeholder:capitalize placeholder:text-sm" placeholder="Descreva os danos ao patrimônio" value={otherInfo.danoPatrimonio} onChange={(e) => handleOtherInfoChange('danoPatrimonio', e.target.value)} />
                 </Field>
             )}
             <Field label="OBSERVAÇÕES">
