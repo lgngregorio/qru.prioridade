@@ -13,6 +13,7 @@ import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useToast } from '@/hooks/use-toast';
+import { Checkbox } from '@/components/ui/checkbox';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 
 
@@ -41,12 +42,14 @@ type OtherInfo = {
   auxilios: string;
   destinacaoDoObjeto: string;
   qthExato: string;
+  vtrApoio: string;
 };
 
 export default function TO07Form({ categorySlug }: { categorySlug: string }) {
   const router = useRouter();
   const { toast } = useToast();
   const [existingReport, setExistingReport] = useState<any>(null);
+  const [showVtrApoio, setShowVtrApoio] = useState(false);
 
 
   const [generalInfo, setGeneralInfo] = useState<GeneralInfo>({
@@ -64,21 +67,26 @@ export default function TO07Form({ categorySlug }: { categorySlug: string }) {
     auxilios: '',
     destinacaoDoObjeto: '',
     qthExato: '',
+    vtrApoio: '',
   });
   
   useEffect(() => {
     const savedData = localStorage.getItem('reportPreview');
     if (savedData) {
       const parsedData = JSON.parse(savedData);
-      setExistingReport(parsedData);
-      const { formData } = parsedData;
+      if (parsedData.category === categorySlug) {
+        setExistingReport(parsedData);
+        const { formData } = parsedData;
 
-      if (formData) {
-        setGeneralInfo(formData.generalInfo || generalInfo);
-        setOtherInfo(formData.otherInfo || otherInfo);
+        if (formData) {
+          setGeneralInfo(formData.generalInfo || generalInfo);
+          setOtherInfo(formData.otherInfo || otherInfo);
+          setShowVtrApoio(!!formData.otherInfo?.vtrApoio && formData.otherInfo.vtrApoio !== 'NILL');
+        }
       }
     }
-  }, []);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [categorySlug]);
 
   const handleGeneralInfoChange = (field: keyof GeneralInfo, value: string) => {
     setGeneralInfo(prev => ({ ...prev, [field]: value }));
@@ -115,12 +123,19 @@ export default function TO07Form({ categorySlug }: { categorySlug: string }) {
   };
   
   const validateObject = (obj: any): boolean => {
+    const optionalFields = ['vtrApoio'];
+
+    if (!showVtrApoio) {
+        optionalFields.push('vtrApoio');
+    }
+
     for (const key in obj) {
         if (Object.prototype.hasOwnProperty.call(obj, key)) {
             const value = obj[key];
 
             // Pula a validação de campos opcionais
             if (key === 'qthExato' && otherInfo.destinacaoDoObjeto !== 'pr13') continue;
+            if (optionalFields.includes(key)) continue;
 
             if (typeof value === 'object' && value !== null && !Array.isArray(value)) {
                 if (!validateObject(value)) return false;
@@ -161,6 +176,9 @@ export default function TO07Form({ categorySlug }: { categorySlug: string }) {
 
     if (otherInfo.destinacaoDoObjeto !== 'pr13') {
         filledData.formData.otherInfo.qthExato = 'NILL';
+    }
+    if (!showVtrApoio) {
+      filledData.formData.otherInfo.vtrApoio = 'NILL';
     }
 
     return filledData;
@@ -241,6 +259,24 @@ export default function TO07Form({ categorySlug }: { categorySlug: string }) {
               <Field label="QTH EXATO">
                   <Input className="text-xl placeholder:capitalize placeholder:text-sm" placeholder="Ex: Km 123" value={otherInfo.qthExato} onChange={(e) => handleOtherInfoChange('qthExato', e.target.value)}/>
               </Field>
+            )}
+            <div className="flex items-center space-x-2 pt-4">
+              <Checkbox
+                id="show-vtr-apoio"
+                checked={showVtrApoio}
+                onCheckedChange={(checked) => setShowVtrApoio(Boolean(checked))}
+              />
+              <label
+                htmlFor="show-vtr-apoio"
+                className="text-base font-bold uppercase leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+              >
+                Houve VTR de Apoio?
+              </label>
+            </div>
+            {showVtrApoio && (
+                <Field label="VTR DE APOIO">
+                  <Textarea className="text-2xl placeholder:capitalize placeholder:text-sm" placeholder="Descreva as viaturas de apoio" value={otherInfo.vtrApoio} onChange={(e) => handleOtherInfoChange('vtrApoio', e.target.value)} />
+                </Field>
             )}
           </div>
         </div>
