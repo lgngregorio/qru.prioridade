@@ -374,7 +374,7 @@ export default function OcorrenciasPage() {
   }, []);
 
   useEffect(() => {
-    if (user?.email) {
+    if (user?.email && !isUserLoading) {
       const key = getHistoryKey(user.email);
       try {
         const savedReports = localStorage.getItem(key);
@@ -383,9 +383,11 @@ export default function OcorrenciasPage() {
         console.error("Failed to load reports from localStorage", error);
         setReports([]);
       }
+      setIsLoading(false);
+    } else if (!isUserLoading) {
+        setIsLoading(false);
     }
-    setIsLoading(false);
-  }, [user]);
+  }, [user, isUserLoading]);
 
   const sortedReports = useMemo(() => {
     if (!reports) return [];
@@ -396,7 +398,7 @@ export default function OcorrenciasPage() {
     });
   }, [reports]);
 
-  const handleDeleteReport = async (reportId: string) => {
+  const handleDeleteReport = (reportId: string) => {
     if (!user?.email) return;
     const key = getHistoryKey(user.email);
     if (!key) return;

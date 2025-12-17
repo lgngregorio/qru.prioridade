@@ -20,8 +20,7 @@ import { eventCategories } from '@/lib/events';
 import ReportDetail from '@/components/ReportDetail';
 import { useUser } from '@/app/layout';
 import { logActivity } from '@/lib/activity-logger';
-import { Timestamp, doc, setDoc, serverTimestamp, collection } from 'firebase/firestore';
-import { useFirestore } from '@/firebase';
+import { Timestamp } from 'firebase/firestore';
 
 
 interface ReportData {
@@ -33,6 +32,12 @@ interface ReportData {
   updatedAt?: any;
   numeroOcorrencia?: string;
 }
+
+const getHistoryKey = (userEmail: string | null): string | null => {
+  if (!userEmail) return null;
+  return `ocorrencias-historico-${userEmail}`;
+};
+
 
 const getCategoryInfo = (slug: string) => {
     const category = eventCategories.find((c) => c.slug === slug);
@@ -208,7 +213,6 @@ export default function PreviewPage() {
   const router = useRouter();
   const { toast } = useToast();
   const { user, isLoading: isUserLoading } = useUser();
-  const firestore = useFirestore();
 
   const [report, setReport] = useState<ReportData | null>(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -226,7 +230,7 @@ export default function PreviewPage() {
   }, []);
 
   const handleSaveAndGoToHistory = async () => {
-    if (!report || !user) {
+    if (!report || !user?.email) {
       toast({
         variant: 'destructive',
         title: 'Erro',
@@ -236,21 +240,55 @@ export default function PreviewPage() {
     }
     
     setIsSaving(true);
+    const key = getHistoryKey(user.email);
+    if (!key) {
+        toast({ variant: 'destructive', title: 'Erro', description: 'Não foi possível identificar o usuário.' });
+        setIsSaving(false);
+        return;
+    }
 
     try {
+        const savedReportsRaw = localStorage.getItem(key);
+        const savedReports: ReportData[] = savedReportsRaw ? JSON.parse(savedReportsRaw) : [];
+        
         const isEditing = !!report.id;
-        const reportId = isEditing ? report.id! : doc(collection(firestore, 'reports')).id;
+        let finalReport: ReportData;
 
-        const reportToSave: Omit<ReportData, 'id'> = {
-            category: report.category,
-            formData: report.formData,
-            uid: user.uid,
-            numeroOcorrencia: numeroOcorrencia || undefined,
-            updatedAt: serverTimestamp(),
-            createdAt: isEditing ? report.createdAt : serverTimestamp(),
-        };
+        if (isEditing) {
+            const reportIndex = savedReports.findIndex(r => r.id === report.id);
+            if (reportIndex > -1) {
+                finalReport = { 
+                    ...savedReports[reportIndex], 
+                    ...report,
+                    numeroOcorrencia: numeroOcorrencia || undefined,
+                    updatedAt: new Date().toISOString() 
+                };
+                savedReports[reportIndex] = finalReport;
+            } else {
+                 // Fallback: if not found, add as new
+                 finalReport = { 
+                    ...report, 
+                    id: `report-${Date.now()}`,
+                    uid: user.uid,
+                    numeroOcorrencia: numeroOcorrencia || undefined,
+                    createdAt: new Date().toISOString(),
+                    updatedAt: new Date().toISOString()
+                };
+                savedReports.unshift(finalReport);
+            }
+        } else {
+            finalReport = { 
+                ...report, 
+                id: `report-${Date.now()}`,
+                uid: user.uid,
+                numeroOcorrencia: numeroOcorrencia || undefined,
+                createdAt: new Date().toISOString(),
+                updatedAt: new Date().toISOString()
+            };
+            savedReports.unshift(finalReport);
+        }
 
-        await setDoc(doc(firestore, 'reports', reportId), reportToSave, { merge: true });
+        localStorage.setItem(key, JSON.stringify(savedReports));
 
         logActivity(user.email, {
             type: 'report',
@@ -266,7 +304,7 @@ export default function PreviewPage() {
       localStorage.removeItem('reportPreview');
       router.push('/ocorrencias'); 
     } catch (error) {
-      console.error('Erro ao salvar o relatório no Firestore: ', error);
+      console.error('Erro ao salvar o relatório no localStorage: ', error);
       toast({
         variant: 'destructive',
         title: 'Erro ao Salvar',
