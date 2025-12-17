@@ -39,7 +39,9 @@ type GeneralInfo = {
 
 type CaracteristicasEntorno = {
   entornoNorte: string;
+  entornoNorteOutro: string;
   entornoSul: string;
+  entornoSulOutro: string;
 };
 
 type TracadoPista = {
@@ -76,7 +78,9 @@ export default function TO03Form({ categorySlug }: { categorySlug: string }) {
   
   const [caracteristicasEntorno, setCaracteristicasEntorno] = useState<CaracteristicasEntorno>({
     entornoNorte: '',
+    entornoNorteOutro: '',
     entornoSul: '',
+    entornoSulOutro: '',
   });
 
   const [tracadoPista, setTracadoPista] = useState<TracadoPista>({
@@ -161,9 +165,14 @@ export default function TO03Form({ categorySlug }: { categorySlug: string }) {
   };
   
   const validateObject = (obj: any): boolean => {
+    const optionalFields = ['id', 'entornoNorteOutro', 'entornoSulOutro'];
+    if (caracteristicasEntorno.entornoNorte !== 'outro') optionalFields.push('entornoNorteOutro');
+    if (caracteristicasEntorno.entornoSul !== 'outro') optionalFields.push('entornoSulOutro');
+
     for (const key in obj) {
         if (Object.prototype.hasOwnProperty.call(obj, key)) {
             const value = obj[key];
+            if (optionalFields.includes(key)) continue;
 
             // Pula a validação de campos opcionais
             if (key === 'vtrApoio' && !showVtrApoio) continue;
@@ -186,12 +195,23 @@ export default function TO03Form({ categorySlug }: { categorySlug: string }) {
   const prepareReportData = () => {
     const reportData = {
       generalInfo,
-      caracteristicasEntorno,
+      caracteristicasEntorno: {
+          ...caracteristicasEntorno,
+          entornoNorte: caracteristicasEntorno.entornoNorte === 'outro' ? caracteristicasEntorno.entornoNorteOutro : caracteristicasEntorno.entornoNorte,
+          entornoSul: caracteristicasEntorno.entornoSul === 'outro' ? caracteristicasEntorno.entornoSulOutro : caracteristicasEntorno.entornoSul,
+      },
       tracadoPista,
       otherInfo
     };
 
-    if (!validateObject(reportData)) {
+    const { entornoNorteOutro, entornoSulOutro, ...caracteristicasCleaned } = reportData.caracteristicasEntorno;
+
+    const finalReportData = {
+      ...reportData,
+      caracteristicasEntorno: caracteristicasCleaned,
+    };
+
+    if (!validateObject(finalReportData)) {
         toast({
             variant: "destructive",
             title: "Campos obrigatórios",
@@ -203,12 +223,7 @@ export default function TO03Form({ categorySlug }: { categorySlug: string }) {
     const filledData = {
       ...existingReport,
       category: categorySlug,
-      formData: {
-        generalInfo: fillEmptyFields(generalInfo),
-        caracteristicasEntorno: fillEmptyFields(caracteristicasEntorno),
-        tracadoPista: fillEmptyFields(tracadoPista),
-        otherInfo: fillEmptyFields(otherInfo),
-      }
+      formData: fillEmptyFields(finalReportData),
     };
     
     if (!showVtrApoio) {
@@ -302,7 +317,11 @@ export default function TO03Form({ categorySlug }: { categorySlug: string }) {
                         <div className="flex items-center space-x-2"><RadioGroupItem value="fragmento_nativo" id="en-fragmento_nativo" /><Label htmlFor="en-fragmento_nativo" className="text-xl font-normal">FRAGMENTO NATIVO</Label></div>
                         <div className="flex items-center space-x-2"><RadioGroupItem value="plantio_agricola" id="en-plantio_agricola" /><Label htmlFor="en-plantio_agricola" className="text-xl font-normal">PLANTIO AGRÍCOLA</Label></div>
                         <div className="flex items-center space-x-2"><RadioGroupItem value="pecuaria" id="en-pecuaria" /><Label htmlFor="en-pecuaria" className="text-xl font-normal">PECUÁRIA</Label></div>
+                        <div className="flex items-center space-x-2"><RadioGroupItem value="outro" id="en-outro" /><Label htmlFor="en-outro" className="text-xl font-normal">OUTRO</Label></div>
                     </RadioGroup>
+                    {caracteristicasEntorno.entornoNorte === 'outro' && (
+                        <Input className="text-xl mt-2" placeholder="Especifique" value={caracteristicasEntorno.entornoNorteOutro} onChange={(e) => handleCaracteristicasEntornoChange('entornoNorteOutro', e.target.value)} />
+                    )}
                 </Field>
                 <Field label="ENTORNO SUL">
                     <RadioGroup value={caracteristicasEntorno.entornoSul} onValueChange={(value) => handleCaracteristicasEntornoChange('entornoSul', value)} className="flex flex-col space-y-2">
@@ -311,7 +330,11 @@ export default function TO03Form({ categorySlug }: { categorySlug: string }) {
                         <div className="flex items-center space-x-2"><RadioGroupItem value="fragmento_nativo" id="es-fragmento_nativo" /><Label htmlFor="es-fragmento_nativo" className="text-xl font-normal">FRAGMENTO NATIVO</Label></div>
                         <div className="flex items-center space-x-2"><RadioGroupItem value="plantio_agricola" id="es-plantio_agricola" /><Label htmlFor="es-plantio_agricola" className="text-xl font-normal">PLANTIO AGRÍCOLA</Label></div>
                         <div className="flex items-center space-x-2"><RadioGroupItem value="pecuaria" id="es-pecuaria" /><Label htmlFor="es-pecuaria" className="text-xl font-normal">PECUÁRIA</Label></div>
+                        <div className="flex items-center space-x-2"><RadioGroupItem value="outro" id="es-outro" /><Label htmlFor="es-outro" className="text-xl font-normal">OUTRO</Label></div>
                     </RadioGroup>
+                    {caracteristicasEntorno.entornoSul === 'outro' && (
+                        <Input className="text-xl mt-2" placeholder="Especifique" value={caracteristicasEntorno.entornoSulOutro} onChange={(e) => handleCaracteristicasEntornoChange('entornoSulOutro', e.target.value)} />
+                    )}
                 </Field>
             </div>
         </div>
