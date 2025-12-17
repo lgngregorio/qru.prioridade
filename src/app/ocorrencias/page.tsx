@@ -1,7 +1,7 @@
 
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import Link from 'next/link';
 import { ArrowLeft, Edit, Share2, Trash2, Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -357,7 +357,7 @@ function ReportCard({ report, onDelete }: { report: Report; onDelete: () => void
 
 
 export default function OcorrenciasPage() {
-  const { user } = useUser();
+  const { user, isLoading: isUserLoading } = useUser();
   const { toast } = useToast();
   const firestore = useFirestore();
 
@@ -367,13 +367,13 @@ export default function OcorrenciasPage() {
   }, []);
 
   const reportsQuery = useMemoFirebase(() => {
-    if (!user) return null;
+    if (!firestore || !user?.uid) return null;
     return query(collection(firestore, 'reports'), where('uid', '==', user.uid));
-  }, [firestore, user]);
+  }, [firestore, user?.uid]);
 
-  const { data: reports, isLoading } = useCollection<Report>(reportsQuery);
+  const { data: reports, isLoading: areReportsLoading } = useCollection<Report>(reportsQuery);
 
-  const sortedReports = useMemoFirebase(() => {
+  const sortedReports = useMemo(() => {
     if (!reports) return [];
     return [...reports].sort((a, b) => {
         const dateA = a.updatedAt ? new Date(a.updatedAt.toDate()).getTime() : new Date(a.createdAt.toDate()).getTime();
@@ -400,6 +400,7 @@ export default function OcorrenciasPage() {
     }
   };
 
+  const isLoading = isUserLoading || areReportsLoading;
 
   return (
     <main className="flex flex-col p-4 md:p-6">
