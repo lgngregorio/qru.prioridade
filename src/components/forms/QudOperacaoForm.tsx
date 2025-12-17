@@ -53,6 +53,7 @@ type Vehicle = {
   condutor: string;
   telefone: string;
   ocupantes: string;
+  endereco: string;
 };
 
 type OtherInfo = {
@@ -95,7 +96,7 @@ export default function QudOperacaoForm({ categorySlug }: { categorySlug: string
     {
       id: 1, marca: '', modelo: '', ano: '', cor: '', placa: '', cidade: '',
       vindoDe: '', indoPara: '', eixos: '', eixosOutro: '', tipo: '', pneu: '', carga: '',
-      condutor: '', telefone: '', ocupantes: ''
+      condutor: '', telefone: '', ocupantes: '', endereco: ''
     }
   ]);
 
@@ -164,7 +165,7 @@ export default function QudOperacaoForm({ categorySlug }: { categorySlug: string
       id: vehicles.length > 0 ? Math.max(...vehicles.map(v => v.id)) + 1 : 1,
       marca: '', modelo: '', ano: '', cor: '', placa: '', cidade: '',
       vindoDe: '', indoPara: '', eixos: '', eixosOutro: '', tipo: '', pneu: '', carga: '',
-      condutor: '', telefone: '', ocupantes: ''
+      condutor: '', telefone: '', ocupantes: '', endereco: ''
     }]);
   };
 
@@ -333,7 +334,7 @@ export default function QudOperacaoForm({ categorySlug }: { categorySlug: string
                     <div className="flex items-center space-x-2"><RadioGroupItem value="faixa_de_rolamento" id="la-faixa_de_rolamento" /><Label htmlFor="la-faixa_de_rolamento" className="text-xl font-normal">FAIXA DE ROLAMENTO</Label></div>
                     <div className="flex items-center space-x-2"><RadioGroupItem value="terceira_faixa" id="la-terceira_faixa" /><Label htmlFor="la-terceira_faixa" className="text-xl font-normal">TERCEIRA FAIXA</Label></div>
                     <div className="flex items-center space-x-2"><RadioGroupItem value="acostamento" id="la-acostamento" /><Label htmlFor="la-acostamento" className="text-xl font-normal">ACOSTAMENTO</Label></div>
-                    <div className="flex items-center space-x-2"><RadioGroupItem value="area_dominio" id="la-area_dominio" /><Label htmlFor="la-area_dominio" className="text-xl font-normal">ÁREA DE DOMÍNIO</Label></div>
+                    <div className="flex items-center space-x-2"><RadioGroupItem value="area_de_dominio" id="la-area_de_dominio" /><Label htmlFor="la-area_de_dominio" className="text-xl font-normal">ÁREA DE DOMÍNIO</Label></div>
                     <div className="flex items-center space-x-2"><RadioGroupItem value="area_lindeira" id="la-area_lindeira" /><Label htmlFor="la-area_lindeira" className="text-xl font-normal">ÁREA LINDEIRA</Label></div>
                 </RadioGroup>
             </Field>
@@ -425,6 +426,7 @@ export default function QudOperacaoForm({ categorySlug }: { categorySlug: string
                           maxLength={15}
                         />
                      </Field>
+                     <Field label="ENDEREÇO"><Input className="text-xl placeholder:capitalize placeholder:text-sm" placeholder="Endereço do condutor" value={vehicle.endereco} onChange={e => handleVehicleChange(index, 'endereco', e.target.value)}/></Field>
                      <Field label="OCUPANTES"><Input className="text-xl placeholder:capitalize placeholder:text-sm" placeholder="Ex: 2 adultos, 1 criança" value={vehicle.ocupantes} onChange={e => handleVehicleChange(index, 'ocupantes', e.target.value)}/></Field>
                 </div>
             </div>
