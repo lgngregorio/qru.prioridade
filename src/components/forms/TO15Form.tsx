@@ -56,6 +56,7 @@ type Vehicle = {
 
 type OtherInfo = {
   auxilios: string;
+  vtrApoio: string;
   observacoes: string;
 };
 
@@ -74,6 +75,7 @@ const eixosOptions = ["02", "03", "04", "05", "06", "07", "08", "09", "10"];
 export default function TO15Form({ categorySlug }: { categorySlug: string }) {
   const router = useRouter();
   const { toast } = useToast();
+  const [showVtrApoio, setShowVtrApoio] = useState(false);
   const [existingReport, setExistingReport] = useState<any>(null);
 
 
@@ -96,6 +98,7 @@ export default function TO15Form({ categorySlug }: { categorySlug: string }) {
 
   const [otherInfo, setOtherInfo] = useState<OtherInfo>({
     auxilios: '',
+    vtrApoio: '',
     observacoes: '',
   });
   
@@ -122,8 +125,10 @@ export default function TO15Form({ categorySlug }: { categorySlug: string }) {
           }]);
           setOtherInfo(formData.otherInfo || {
             auxilios: '',
+            vtrApoio: '',
             observacoes: '',
           });
+          setShowVtrApoio(!!formData.otherInfo?.vtrApoio && formData.otherInfo.vtrApoio !== 'NILL');
         }
       }
     }
@@ -211,10 +216,14 @@ export default function TO15Form({ categorySlug }: { categorySlug: string }) {
   };
   
   const validateObject = (obj: any): boolean => {
-    const optionalFields = ['id', 'eixosOutro'];
-
+    const optionalFields = ['id', 'eixosOutro', 'vtrApoio'];
+    
     if (obj.eixos !== 'outro') {
         optionalFields.push('eixosOutro');
+    }
+
+    if (!showVtrApoio) {
+        optionalFields.push('vtrApoio');
     }
 
     for (const key in obj) {
@@ -265,6 +274,10 @@ export default function TO15Form({ categorySlug }: { categorySlug: string }) {
       category: categorySlug,
       formData: fillEmptyFields(reportData)
     };
+
+    if (!showVtrApoio) {
+      filledData.formData.otherInfo.vtrApoio = 'NILL';
+    }
 
     return filledData;
   };
@@ -431,6 +444,24 @@ export default function TO15Form({ categorySlug }: { categorySlug: string }) {
             <Field label="AUXÍLIOS/PR">
               <Textarea className="text-2xl placeholder:capitalize placeholder:text-sm" placeholder="Descreva os auxílios prestados" value={otherInfo.auxilios} onChange={(e) => handleOtherInfoChange('auxilios', e.target.value)} />
             </Field>
+            <div className="flex items-center space-x-2 pt-4">
+              <Checkbox
+                id="show-vtr-apoio"
+                checked={showVtrApoio}
+                onCheckedChange={(checked) => setShowVtrApoio(Boolean(checked))}
+              />
+              <label
+                htmlFor="show-vtr-apoio"
+                className="text-base font-bold uppercase leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+              >
+                Houve VTR de Apoio?
+              </label>
+            </div>
+            {showVtrApoio && (
+                <Field label="VTR DE APOIO">
+                  <Textarea className="text-2xl placeholder:capitalize placeholder:text-sm" placeholder="Descreva as viaturas de apoio" value={otherInfo.vtrApoio} onChange={(e) => handleOtherInfoChange('vtrApoio', e.target.value)} />
+                </Field>
+            )}
             <Field label="OBSERVAÇÕES">
               <Textarea className="text-2xl placeholder:capitalize placeholder:text-sm" placeholder="Descreva detalhes adicionais sobre a ocorrência" value={otherInfo.observacoes} onChange={(e) => handleOtherInfoChange('observacoes', e.target.value)} />
             </Field>
@@ -451,7 +482,3 @@ export default function TO15Form({ categorySlug }: { categorySlug: string }) {
     </div>
   );
 }
-
-    
-
-    
