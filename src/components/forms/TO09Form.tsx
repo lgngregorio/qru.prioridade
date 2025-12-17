@@ -2,19 +2,15 @@
 'use client';
 
 import { useRouter } from 'next/navigation';
-import { Save, Share, PlusCircle, Trash2, Loader2 } from 'lucide-react';
+import { Save } from 'lucide-react';
 import { useState, useEffect } from 'react';
-import { collection, addDoc, serverTimestamp } from 'firebase/firestore';
 import React from 'react';
 
 import { cn } from '@/lib/utils';
-import { eventCategories } from '@/lib/events';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { useFirestore } from '@/firebase';
 import { useToast } from '@/hooks/use-toast';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 
@@ -50,7 +46,6 @@ type OtherInfo = {
 };
 
 export default function TO09Form({ categorySlug }: { categorySlug: string }) {
-  const firestore = useFirestore();
   const router = useRouter();
   const { toast } = useToast();
   const [isSaving, setIsSaving] = useState(false);
@@ -273,15 +268,12 @@ export default function TO09Form({ categorySlug }: { categorySlug: string }) {
               size="lg"
               className="uppercase text-xl"
               onClick={handleGenerateReport}
-              disabled={isSaving}
             >
-              {isSaving ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Save className="mr-2 h-4 w-4" />}
-              {isSaving ? 'Salvando...' : 'Gerar Relatório'}
+              <Save className="mr-2 h-4 w-4" />
+              Gerar Relatório
             </Button>
         </div>
       </form>
     </div>
   );
 }
-
-    

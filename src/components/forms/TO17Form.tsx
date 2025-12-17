@@ -2,19 +2,15 @@
 'use client';
 
 import { useRouter } from 'next/navigation';
-import { Save, Share, Loader2 } from 'lucide-react';
+import { Save } from 'lucide-react';
 import { useState, useEffect } from 'react';
-import { collection, addDoc, serverTimestamp } from 'firebase/firestore';
 import React from 'react';
 
 import { cn } from '@/lib/utils';
-import { eventCategories } from '@/lib/events';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { useFirestore } from '@/firebase';
 import { useToast } from '@/hooks/use-toast';
 import { Checkbox } from '@/components/ui/checkbox';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
@@ -115,12 +111,13 @@ export default function TO17Form({ categorySlug }: { categorySlug: string }) {
     if (!showVtrApoio) {
         optionalFields.push('vtrApoio');
     }
+
     for (const key in obj) {
         if (Object.prototype.hasOwnProperty.call(obj, key)) {
             if (optionalFields.includes(key)) continue;
             
             const value = obj[key];
-            
+
             if (typeof value === 'object' && value !== null && !Array.isArray(value)) {
                 if (!validateObject(value)) return false;
             } else if (Array.isArray(value)) {
@@ -198,16 +195,13 @@ export default function TO17Form({ categorySlug }: { categorySlug: string }) {
                 <RadioGroup value={generalInfo.sentido} onValueChange={(value) => handleGeneralInfoChange('sentido', value)} className="flex flex-col space-y-2">
                     <div className="flex items-center space-x-2"><RadioGroupItem value="norte" id="s-norte" /><Label htmlFor="s-norte" className="text-xl font-normal">NORTE</Label></div>
                     <div className="flex items-center space-x-2"><RadioGroupItem value="sul" id="s-sul" /><Label htmlFor="s-sul" className="text-xl font-normal">SUL</Label></div>
-                    <div className="flex items-center space-x-2"><RadioGroupItem value="norte_e_sul" id="s-norte_e_sul" /><Label htmlFor="s-norte_e_sul" className="text-xl font-normal">NORTE E SUL</Label></div>
                 </RadioGroup>
             </Field>
             <Field label="LOCAL/ÁREA">
                 <RadioGroup value={generalInfo.localArea} onValueChange={(value) => handleGeneralInfoChange('localArea', value)} className="flex flex-col space-y-2">
                     <div className="flex items-center space-x-2"><RadioGroupItem value="faixa_de_rolamento" id="la-faixa_de_rolamento" /><Label htmlFor="la-faixa_de_rolamento" className="text-xl font-normal">FAIXA DE ROLAMENTO</Label></div>
-                    <div className="flex items-center space-x-2"><RadioGroupItem value="terceira_faixa" id="la-terceira_faixa" /><Label htmlFor="la-terceira_faixa" className="text-xl font-normal">TERCEIRA FAIXA</Label></div>
                     <div className="flex items-center space-x-2"><RadioGroupItem value="acostamento" id="la-acostamento" /><Label htmlFor="la-acostamento" className="text-xl font-normal">ACOSTAMENTO</Label></div>
-                    <div className="flex items-center space-x-2"><RadioGroupItem value="faixa_de_bordo" id="la-faixa_de_bordo" /><Label htmlFor="la-faixa_de_bordo" className="text-xl font-normal">FAIXA DE BORDO</Label></div>
-                    <div className="flex items-center space-x-2"><RadioGroupItem value="area_de_dominio" id="la-area_de_dominio" /><Label htmlFor="la-area_de_dominio" className="text-xl font-normal">ÁREA DE DOMÍNIO</Label></div>
+                    <div className="flex items-center space-x-2"><RadioGroupItem value="faixa_de_dominio" id="la-faixa_de_dominio" /><Label htmlFor="la-faixa_de_dominio" className="text-xl font-normal">FAIXA DE DOMÍNIO</Label></div>
                 </RadioGroup>
             </Field>
           </div>
@@ -220,7 +214,7 @@ export default function TO17Form({ categorySlug }: { categorySlug: string }) {
             <Field label="AUXÍLIOS/PR">
               <Textarea className="text-xl placeholder:capitalize placeholder:text-sm" placeholder="Descreva os auxílios prestados" value={otherInfo.auxilios} onChange={(e) => handleOtherInfoChange('auxilios', e.target.value)} />
             </Field>
-            <div className="flex items-center space-x-2 pt-4">
+             <div className="flex items-center space-x-2 pt-4">
               <Checkbox
                 id="show-vtr-apoio"
                 checked={showVtrApoio}

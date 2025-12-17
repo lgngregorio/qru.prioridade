@@ -2,19 +2,15 @@
 'use client';
 
 import { useRouter } from 'next/navigation';
-import { Save, Share, Loader2 } from 'lucide-react';
+import { Save } from 'lucide-react';
 import { useState, useEffect } from 'react';
-import { collection, addDoc, serverTimestamp } from 'firebase/firestore';
 import React from 'react';
 
 import { cn } from '@/lib/utils';
-import { eventCategories } from '@/lib/events';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { useFirestore } from '@/firebase';
 import { useToast } from '@/hooks/use-toast';
 import { Checkbox } from '@/components/ui/checkbox';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
@@ -304,5 +300,3 @@ export default function TO38Form({ categorySlug }: { categorySlug: string }) {
     </div>
   );
 }
-
-
