@@ -34,7 +34,7 @@ type GeneralInfo = {
   localArea: string;
   animal: string;
   quantidade: string;
-  situacao: string;
+  situacao: string[];
 };
 
 type CaracteristicasEntorno = {
@@ -71,7 +71,7 @@ export default function TO03Form({ categorySlug }: { categorySlug: string }) {
     localArea: '',
     animal: '',
     quantidade: '',
-    situacao: '',
+    situacao: [],
   });
   
   const [caracteristicasEntorno, setCaracteristicasEntorno] = useState<CaracteristicasEntorno>({
@@ -111,10 +111,20 @@ export default function TO03Form({ categorySlug }: { categorySlug: string }) {
         }
       }
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [categorySlug]);
 
-  const handleGeneralInfoChange = (field: keyof GeneralInfo, value: string) => {
+  const handleGeneralInfoChange = (field: keyof Omit<GeneralInfo, 'situacao'>, value: string) => {
     setGeneralInfo(prev => ({ ...prev, [field]: value }));
+  };
+
+  const handleSituacaoChange = (situacaoId: string, checked: boolean) => {
+    setGeneralInfo(prev => {
+        const newSituacoes = checked
+            ? [...prev.situacao, situacaoId]
+            : prev.situacao.filter(id => id !== situacaoId);
+        return { ...prev, situacao: newSituacoes };
+    });
   };
 
   const handleCaracteristicasEntornoChange = (field: keyof CaracteristicasEntorno, value: string) => {
@@ -132,6 +142,7 @@ export default function TO03Form({ categorySlug }: { categorySlug: string }) {
   
   const fillEmptyFields = (data: any): any => {
     if (Array.isArray(data)) {
+      if (data.length === 0) return 'NILL';
       return data.map(item => fillEmptyFields(item));
     }
     if (typeof data === 'object' && data !== null) {
@@ -262,11 +273,20 @@ export default function TO03Form({ categorySlug }: { categorySlug: string }) {
                 <Input className="text-xl placeholder:capitalize placeholder:text-sm" placeholder="Ex: 1" value={generalInfo.quantidade} onChange={(e) => handleGeneralInfoChange('quantidade', e.target.value)}/>
             </Field>
             <Field label="SITUAÇÃO">
-                <RadioGroup value={generalInfo.situacao} onValueChange={(value) => handleGeneralInfoChange('situacao', value)} className="flex flex-col space-y-2">
-                    <div className="flex items-center space-x-2"><RadioGroupItem value="ileso" id="sit-ileso" /><Label htmlFor="sit-ileso" className="text-xl font-normal">ILESO</Label></div>
-                    <div className="flex items-center space-x-2"><RadioGroupItem value="ferido" id="sit-ferido" /><Label htmlFor="sit-ferido" className="text-xl font-normal">FERIDO</Label></div>
-                    <div className="flex items-center space-x-2"><RadioGroupItem value="fatal" id="sit-fatal" /><Label htmlFor="sit-fatal" className="text-xl font-normal">FATAL</Label></div>
-                </RadioGroup>
+                <div className="flex flex-col space-y-2">
+                    <div className="flex items-center space-x-2">
+                        <Checkbox id="sit-ileso" checked={generalInfo.situacao.includes('ileso')} onCheckedChange={(checked) => handleSituacaoChange('ileso', !!checked)} />
+                        <Label htmlFor="sit-ileso" className="text-xl font-normal">ILESO</Label>
+                    </div>
+                    <div className="flex items-center space-x-2">
+                        <Checkbox id="sit-ferido" checked={generalInfo.situacao.includes('ferido')} onCheckedChange={(checked) => handleSituacaoChange('ferido', !!checked)} />
+                        <Label htmlFor="sit-ferido" className="text-xl font-normal">FERIDO</Label>
+                    </div>
+                    <div className="flex items-center space-x-2">
+                        <Checkbox id="sit-fatal" checked={generalInfo.situacao.includes('fatal')} onCheckedChange={(checked) => handleSituacaoChange('fatal', !!checked)} />
+                        <Label htmlFor="sit-fatal" className="text-xl font-normal">FATAL</Label>
+                    </div>
+                </div>
             </Field>
           </div>
         </div>
