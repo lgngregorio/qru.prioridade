@@ -463,7 +463,7 @@ export default function TO11Form({ categorySlug }: { categorySlug: string }) {
               />
               <label
                 htmlFor="show-metragem"
-                className="text-base font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+                className="text-base font-bold uppercase leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
               >
                 Necessário medição?
               </label>
@@ -493,4 +493,5 @@ export default function TO11Form({ categorySlug }: { categorySlug: string }) {
     </div>
   );
 }
+
 
