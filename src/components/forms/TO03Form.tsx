@@ -268,7 +268,7 @@ export default function TO03Form({ categorySlug }: { categorySlug: string }) {
                 <RadioGroup value={generalInfo.sentido} onValueChange={(value) => handleGeneralInfoChange('sentido', value)} className="flex flex-col space-y-2">
                     <div className="flex items-center space-x-2"><RadioGroupItem value="norte" id="s-norte" /><Label htmlFor="s-norte" className="text-xl font-normal">NORTE</Label></div>
                     <div className="flex items-center space-x-2"><RadioGroupItem value="sul" id="s-sul" /><Label htmlFor="s-sul" className="text-xl font-normal">SUL</Label></div>
-                    <div className="flex items-center space-x-2"><RadioGroupItem value="norte_e_sul" id="s-norte_e_sul" /><Label htmlFor="s-norte_e_sul" className="text-xl font-normal">NORTE E SUL</Label></div>
+                    <div className="flex items-center space-x-2"><RadioGroupItem value="norte_e_sul" id="s-norte_e_sul" /><Label htmlFor="s-norte_e_sul" className="text-xl font-normal">NORTE E SUL</Label></div>>
                     <div className="flex items-center space-x-2"><RadioGroupItem value="eixo_central" id="s-eixo_central" /><Label htmlFor="s-eixo_central" className="text-xl font-normal">EIXO CENTRAL</Label></div>
                 </RadioGroup>
             </Field>
@@ -352,10 +352,10 @@ export default function TO03Form({ categorySlug }: { categorySlug: string }) {
                 </Field>
                  <Field label="ACOSTAMENTO">
                     <RadioGroup value={tracadoPista.acostamento} onValueChange={(value) => handleTracadoPistaChange('acostamento', value)} className="flex flex-col space-y-2">
-                        <div className="flex items-center space-x-2"><RadioGroupItem value="com_acostamento_sul_e_norte" id="ta-com_acostamento_sul_e_norte" /><Label htmlFor="ta-com_acostamento_sul_e_norte" className="text-xl font-normal">COM ACOSTAMENTO SUL E NORTE</Label></div>
-                        <div className="flex items-center space-x-2"><RadioGroupItem value="com_acostamento_sul_e_sem_norte" id="ta-com_acostamento_sul_e_sem_norte" /><Label htmlFor="ta-com_acostamento_sul_e_sem_norte" className="text-xl font-normal">COM ACOSTAMENTO SUL E SEM NORTE</Label></div>
+                        <div className="flex items-center space-x-2"><RadioGroupItem value="com_acostamento_norte_e_sul" id="ta-com_acostamento_norte_e_sul" /><Label htmlFor="ta-com_acostamento_norte_e_sul" className="text-xl font-normal">COM ACOSTAMENTO NORTE E SUL</Label></div>
                         <div className="flex items-center space-x-2"><RadioGroupItem value="com_acostamento_norte_e_sem_sul" id="ta-com_acostamento_norte_e_sem_sul" /><Label htmlFor="ta-com_acostamento_norte_e_sem_sul" className="text-xl font-normal">COM ACOSTAMENTO NORTE E SEM SUL</Label></div>
-                        <div className="flex items-center space-x-2"><RadioGroupItem value="sem_acostamento_sul_e_norte" id="ta-sem_acostamento_sul_e_norte" /><Label htmlFor="ta-sem_acostamento_sul_e_norte" className="text-xl font-normal">SEM ACOSTAMENTO SUL E NORTE</Label></div>
+                        <div className="flex items-center space-x-2"><RadioGroupItem value="com_acostamento_sul_e_sem_norte" id="ta-com_acostamento_sul_e_sem_norte" /><Label htmlFor="ta-com_acostamento_sul_e_sem_norte" className="text-xl font-normal">COM ACOSTAMENTO SUL E SEM NORTE</Label></div>
+                        <div className="flex items-center space-x-2"><RadioGroupItem value="sem_acostamento_norte_e_sul" id="ta-sem_acostamento_norte_e_sul" /><Label htmlFor="ta-sem_acostamento_norte_e_sul" className="text-xl font-normal">SEM ACOSTAMENTO NORTE E SUL</Label></div>
                     </RadioGroup>
                 </Field>
                 <Field label="TRAÇADO">
