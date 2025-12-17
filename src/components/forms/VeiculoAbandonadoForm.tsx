@@ -295,6 +295,7 @@ export default function VeiculoAbandonadoForm({ categorySlug }: { categorySlug: 
                 <RadioGroup value={generalInfo.sentido} onValueChange={(value) => handleGeneralInfoChange('sentido', value)} className="flex flex-col space-y-2">
                     <div className="flex items-center space-x-2"><RadioGroupItem value="norte" id="s-norte" /><Label htmlFor="s-norte" className="text-xl font-normal">NORTE</Label></div>
                     <div className="flex items-center space-x-2"><RadioGroupItem value="sul" id="s-sul" /><Label htmlFor="s-sul" className="text-xl font-normal">SUL</Label></div>
+                    <div className="flex items-center space-x-2"><RadioGroupItem value="norte_e_sul" id="s-ambos" /><Label htmlFor="s-ambos" className="text-xl font-normal">NORTE E SUL</Label></div>
                 </RadioGroup>
             </Field>
             <Field label="LOCAL/ÁREA">
