@@ -93,6 +93,7 @@ export default function TO37Form({ categorySlug }: { categorySlug: string }) {
         }
       }
     }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [categorySlug]);
 
   const handleGeneralInfoChange = (field: keyof GeneralInfo, value: string) => {
@@ -227,6 +228,7 @@ export default function TO37Form({ categorySlug }: { categorySlug: string }) {
                     <div className="flex items-center space-x-2"><RadioGroupItem value="trevo" id="la-trevo" /><Label htmlFor="la-trevo" className="text-xl font-normal">TREVO</Label></div>
                     <div className="flex items-center space-x-2"><RadioGroupItem value="rotatoria" id="la-rotatoria" /><Label htmlFor="la-rotatoria" className="text-xl font-normal">ROTATÓRIA</Label></div>
                     <div className="flex items-center space-x-2"><RadioGroupItem value="praca_de_pedagio" id="la-praca_de_pedagio" /><Label htmlFor="la-praca_de_pedagio" className="text-xl font-normal">PRAÇA DE PEDÁGIO</Label></div>
+                    <div className="flex items-center space-x-2"><RadioGroupItem value="bso_sau" id="la-bso_sau" /><Label htmlFor="la-bso_sau" className="text-xl font-normal">BSO/SAU</Label></div>
                 </RadioGroup>
             </Field>
           </div>
