@@ -333,11 +333,10 @@ export default function TO05Form({ categorySlug }: { categorySlug: string }) {
             </Field>
             <Field label="LOCAL/ÁREA">
                 <RadioGroup value={generalInfo.localArea} onValueChange={(value) => handleGeneralInfoChange('localArea', value)} className="flex flex-col space-y-2">
+                    <div className="flex items-center space-x-2"><RadioGroupItem value="faixa_rolamento" id="la-faixa_rolamento" /><Label htmlFor="la-faixa_rolamento" className="text-xl font-normal">FAIXA DE ROLAMENTO</Label></div>
+                    <div className="flex items-center space-x-2"><RadioGroupItem value="terceira_faixa" id="la-terceira_faixa" /><Label htmlFor="la-terceira_faixa" className="text-xl font-normal">TERCEIRA FAIXA</Label></div>
                     <div className="flex items-center space-x-2"><RadioGroupItem value="acostamento" id="la-acostamento" /><Label htmlFor="la-acostamento" className="text-xl font-normal">ACOSTAMENTO</Label></div>
                     <div className="flex items-center space-x-2"><RadioGroupItem value="area_dominio" id="la-area_dominio" /><Label htmlFor="la-area_dominio" className="text-xl font-normal">ÁREA DE DOMÍNIO</Label></div>
-                    <div className="flex items-center space-x-2"><RadioGroupItem value="terceira_faixa" id="la-terceira_faixa" /><Label htmlFor="la-terceira_faixa" className="text-xl font-normal">TERCEIRA FAIXA</Label></div>
-                    <div className="flex items-center space-x-2"><RadioGroupItem value="faixa_rolamento" id="la-faixa_rolamento" /><Label htmlFor="la-faixa_rolamento" className="text-xl font-normal">FAIXA DE ROLAMENTO</Label></div>
-                    <div className="flex items-center space-x-2"><RadioGroupItem value="faixa_rolamento_acostamento" id="la-faixa_rolamento_acostamento" /><Label htmlFor="la-faixa_rolamento_acostamento" className="text-xl font-normal">FAIXA DE ROLAMENTO/ACOSTAMENTO</Label></div>
                 </RadioGroup>
             </Field>
           </div>
@@ -476,8 +475,8 @@ export default function TO05Form({ categorySlug }: { categorySlug: string }) {
               className="uppercase text-xl"
               onClick={handleGenerateReport}
             >
-             <Save className="mr-2 h-4 w-4" />
-             Gerar Relatório
+              <Save className="mr-2 h-4 w-4" />
+              Gerar Relatório
             </Button>
         </div>
       </form>
