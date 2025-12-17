@@ -94,7 +94,7 @@ function BottomNavBar() {
                         )}
                     >
                         <item.icon className="h-6 w-6 mb-1" />
-                        <span className="text-xs font-medium">{item.label}</span>
+                        <span className="text-sm font-medium">{item.label}</span>
                     </Link>
                 ))}
             </div>
