@@ -273,7 +273,7 @@ export default function TO03Form({ categorySlug }: { categorySlug: string }) {
                 </RadioGroup>
             </Field>
             <Field label="LOCAL/ÁREA">
-                <RadioGroup value={generalInfo.localArea} onValueChange={(value) => handleGeneralInfoChange('localArea', value)} className="flex flex-col space-y-2">
+                 <RadioGroup value={generalInfo.localArea} onValueChange={(value) => handleGeneralInfoChange('localArea', value)} className="flex flex-col space-y-2">
                     <div className="flex items-center space-x-2"><RadioGroupItem value="faixa_de_rolamento" id="la-faixa_de_rolamento" /><Label htmlFor="la-faixa_de_rolamento" className="text-xl font-normal">FAIXA DE ROLAMENTO</Label></div>
                     <div className="flex items-center space-x-2"><RadioGroupItem value="terceira_faixa" id="la-terceira_faixa" /><Label htmlFor="la-terceira_faixa" className="text-xl font-normal">TERCEIRA FAIXA</Label></div>
                     <div className="flex items-center space-x-2"><RadioGroupItem value="acostamento" id="la-acostamento" /><Label htmlFor="la-acostamento" className="text-xl font-normal">ACOSTAMENTO</Label></div>
@@ -362,8 +362,8 @@ export default function TO03Form({ categorySlug }: { categorySlug: string }) {
                     <RadioGroup value={tracadoPista.tracado} onValueChange={(value) => handleTracadoPistaChange('tracado', value)} className="flex flex-col space-y-2">
                         <div className="flex items-center space-x-2"><RadioGroupItem value="reta" id="tt-reta" /><Label htmlFor="tt-reta" className="text-xl font-normal">RETA</Label></div>
                         <div className="flex items-center space-x-2"><RadioGroupItem value="curva" id="tt-curva" /><Label htmlFor="tt-curva" className="text-xl font-normal">CURVA</Label></div>
-                        <div className="flex items-center space-x-2"><RadioGroupItem value="curva_acentuada" id="tt-curva_acentuada" /><Label htmlFor="tt-curva_acentuada" className="text-xl font-normal">CURVA ACENTUADA</Label></div>
                         <div className="flex items-center space-x-2"><RadioGroupItem value="curva_suave" id="tt-curva_suave" /><Label htmlFor="tt-curva_suave" className="text-xl font-normal">CURVA SUAVE</Label></div>
+                        <div className="flex items-center space-x-2"><RadioGroupItem value="curva_acentuada" id="tt-curva_acentuada" /><Label htmlFor="tt-curva_acentuada" className="text-xl font-normal">CURVA ACENTUADA</Label></div>
                     </RadioGroup>
                 </Field>
                 <Field label="PERFIL">
