@@ -72,7 +72,7 @@ export default function ConfiguracoesPage() {
             title: "Sucesso!",
             description: "Suas configurações foram salvas.",
         });
-        // No need to push, just stay on page.
+        router.push('/');
 
     } catch (error: any) {
         console.error("Failed to save user data", error);
