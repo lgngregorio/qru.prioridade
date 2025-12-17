@@ -2,19 +2,15 @@
 'use client';
 
 import { useRouter } from 'next/navigation';
-import { Save, Share, PlusCircle, Trash2, Loader2 } from 'lucide-react';
+import { Save, PlusCircle, Trash2 } from 'lucide-react';
 import { useState, useEffect } from 'react';
-import { collection, addDoc, serverTimestamp } from 'firebase/firestore';
 import React from 'react';
 
 import { cn } from '@/lib/utils';
-import { eventCategories } from '@/lib/events';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { useFirestore } from '@/firebase';
 import { useToast } from '@/hooks/use-toast';
 import { Checkbox } from '@/components/ui/checkbox';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
@@ -320,11 +316,12 @@ export default function TO11Form({ categorySlug }: { categorySlug: string }) {
             </Field>
             <Field label="LOCAL/ÁREA">
                 <RadioGroup value={generalInfo.localArea} onValueChange={(value) => handleGeneralInfoChange('localArea', value)} className="flex flex-col space-y-2">
+                    <div className="flex items-center space-x-2"><RadioGroupItem value="faixa_de_rolamento" id="la-faixa_de_rolamento" /><Label htmlFor="la-faixa_de_rolamento" className="text-xl font-normal">FAIXA DE ROLAMENTO</Label></div>
+                    <div className="flex items-center space-x-2"><RadioGroupItem value="terceira_faixa" id="la-terceira_faixa" /><Label htmlFor="la-terceira_faixa" className="text-xl font-normal">TERCEIRA FAIXA</Label></div>
                     <div className="flex items-center space-x-2"><RadioGroupItem value="acostamento" id="la-acostamento" /><Label htmlFor="la-acostamento" className="text-xl font-normal">ACOSTAMENTO</Label></div>
                     <div className="flex items-center space-x-2"><RadioGroupItem value="area_dominio" id="la-area_dominio" /><Label htmlFor="la-area_dominio" className="text-xl font-normal">ÁREA DE DOMÍNIO</Label></div>
-                    <div className="flex items-center space-x-2"><RadioGroupItem value="terceira_faixa" id="la-terceira_faixa" /><Label htmlFor="la-terceira_faixa" className="text-xl font-normal">TERCEIRA FAIXA</Label></div>
-                    <div className="flex items-center space-x-2"><RadioGroupItem value="faixa_de_rolamento" id="la-faixa_de_rolamento" /><Label htmlFor="la-faixa_de_rolamento" className="text-xl font-normal">FAIXA DE ROLAMENTO</Label></div>
                     <div className="flex items-center space-x-2"><RadioGroupItem value="praca_de_pedagio" id="la-praca_de_pedagio" /><Label htmlFor="la-praca_de_pedagio" className="text-xl font-normal">PRAÇA DE PEDÁGIO</Label></div>
+                    <div className="flex items-center space-x-2"><RadioGroupItem value="bso_sau" id="la-bso_sau" /><Label htmlFor="la-bso_sau" className="text-xl font-normal">BSO/SAU</Label></div>
                 </RadioGroup>
             </Field>
           </div>
@@ -496,3 +493,4 @@ export default function TO11Form({ categorySlug }: { categorySlug: string }) {
     </div>
   );
 }
+
