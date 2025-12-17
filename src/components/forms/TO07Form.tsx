@@ -40,7 +40,7 @@ type GeneralInfo = {
 type OtherInfo = {
   observacoes: string;
   auxilios: string;
-  destinacaoDoObjeto: string;
+  destinacaoDoObjeto: string[];
   qthExato: string;
   vtrApoio: string;
 };
@@ -65,7 +65,7 @@ export default function TO07Form({ categorySlug }: { categorySlug: string }) {
   const [otherInfo, setOtherInfo] = useState<OtherInfo>({
     observacoes: '',
     auxilios: '',
-    destinacaoDoObjeto: '',
+    destinacaoDoObjeto: [],
     qthExato: '',
     vtrApoio: '',
   });
@@ -92,12 +92,21 @@ export default function TO07Form({ categorySlug }: { categorySlug: string }) {
     setGeneralInfo(prev => ({ ...prev, [field]: value }));
   };
 
-  const handleOtherInfoChange = (field: keyof OtherInfo, value: string) => {
+  const handleDestinacaoChange = (destinacaoId: string, checked: boolean) => {
+    setOtherInfo(prev => {
+        const newDestinacoes = checked
+            ? [...prev.destinacaoDoObjeto, destinacaoId]
+            : prev.destinacaoDoObjeto.filter(id => id !== destinacaoId);
+        return { ...prev, destinacaoDoObjeto: newDestinacoes };
+    });
+  };
+
+  const handleOtherInfoChange = (field: keyof Omit<OtherInfo, 'destinacaoDoObjeto'>, value: string) => {
     setOtherInfo(prev => ({ ...prev, [field]: value }));
   };
 
   useEffect(() => {
-    if (otherInfo.destinacaoDoObjeto !== 'pr13') {
+    if (!otherInfo.destinacaoDoObjeto.includes('pr13')) {
       setOtherInfo(prev => ({ ...prev, qthExato: '' }));
     }
   }, [otherInfo.destinacaoDoObjeto]);
@@ -105,6 +114,7 @@ export default function TO07Form({ categorySlug }: { categorySlug: string }) {
   
   const fillEmptyFields = (data: any): any => {
     if (Array.isArray(data)) {
+        if (data.length === 0) return 'NILL';
       return data.map(item => fillEmptyFields(item));
     }
     if (typeof data === 'object' && data !== null) {
@@ -134,12 +144,13 @@ export default function TO07Form({ categorySlug }: { categorySlug: string }) {
             const value = obj[key];
 
             // Pula a validação de campos opcionais
-            if (key === 'qthExato' && otherInfo.destinacaoDoObjeto !== 'pr13') continue;
+            if (key === 'qthExato' && !otherInfo.destinacaoDoObjeto.includes('pr13')) continue;
             if (optionalFields.includes(key)) continue;
 
             if (typeof value === 'object' && value !== null && !Array.isArray(value)) {
                 if (!validateObject(value)) return false;
             } else if (Array.isArray(value)) {
+                 if (value.length === 0) return false;
                  if (value.some(item => typeof item === 'object' && !validateObject(item))) return false;
             } else if (value === '' || value === null || value === undefined) {
                 return false;
@@ -174,7 +185,7 @@ export default function TO07Form({ categorySlug }: { categorySlug: string }) {
       }
     };
 
-    if (otherInfo.destinacaoDoObjeto !== 'pr13') {
+    if (!otherInfo.destinacaoDoObjeto.includes('pr13')) {
         filledData.formData.otherInfo.qthExato = 'NILL';
     }
     if (!showVtrApoio) {
@@ -250,12 +261,18 @@ export default function TO07Form({ categorySlug }: { categorySlug: string }) {
               <Textarea className="text-xl placeholder:capitalize placeholder:text-sm" placeholder="Descreva detalhes adicionais sobre a ocorrência" value={otherInfo.observacoes} onChange={(e) => handleOtherInfoChange('observacoes', e.target.value)} />
             </Field>
             <Field label="DESTINAÇÃO DO OBJETO">
-                <RadioGroup value={otherInfo.destinacaoDoObjeto} onValueChange={(value) => handleOtherInfoChange('destinacaoDoObjeto', value)} className="flex flex-col space-y-2">
-                    <div className="flex items-center space-x-2"><RadioGroupItem value="pr06" id="do-pr06" /><Label htmlFor="do-pr06" className="text-xl font-normal">PR06</Label></div>
-                    <div className="flex items-center space-x-2"><RadioGroupItem value="pr13" id="do-pr13" /><Label htmlFor="do-pr13" className="text-xl font-normal">PR13</Label></div>
-                </RadioGroup>
+              <div className="flex flex-col space-y-2">
+                <div className="flex items-center space-x-2">
+                    <Checkbox id="do-pr06" checked={otherInfo.destinacaoDoObjeto.includes('pr06')} onCheckedChange={(checked) => handleDestinacaoChange('pr06', !!checked)} />
+                    <Label htmlFor="do-pr06" className="text-xl font-normal">PR06</Label>
+                </div>
+                <div className="flex items-center space-x-2">
+                    <Checkbox id="do-pr13" checked={otherInfo.destinacaoDoObjeto.includes('pr13')} onCheckedChange={(checked) => handleDestinacaoChange('pr13', !!checked)} />
+                    <Label htmlFor="do-pr13" className="text-xl font-normal">PR13</Label>
+                </div>
+              </div>
             </Field>
-            {otherInfo.destinacaoDoObjeto === 'pr13' && (
+            {otherInfo.destinacaoDoObjeto.includes('pr13') && (
               <Field label="QTH EXATO">
                   <Input className="text-xl placeholder:capitalize placeholder:text-sm" placeholder="Ex: Km 123" value={otherInfo.qthExato} onChange={(e) => handleOtherInfoChange('qthExato', e.target.value)}/>
               </Field>
