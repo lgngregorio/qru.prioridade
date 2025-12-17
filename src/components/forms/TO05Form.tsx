@@ -11,7 +11,6 @@ import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useToast } from '@/hooks/use-toast';
 import { Checkbox } from '@/components/ui/checkbox';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
@@ -58,6 +57,7 @@ type Vehicle = {
 type OtherInfo = {
   auxilios: string;
   vtrApoio: string;
+  danoPatrimonio: string;
   observacoes: string;
 };
 
@@ -77,6 +77,7 @@ export default function TO05Form({ categorySlug }: { categorySlug: string }) {
   const router = useRouter();
   const { toast } = useToast();
   const [showVtrApoio, setShowVtrApoio] = useState(false);
+  const [showDanoPatrimonio, setShowDanoPatrimonio] = useState(false);
   const [existingReport, setExistingReport] = useState<any>(null);
 
 
@@ -100,6 +101,7 @@ export default function TO05Form({ categorySlug }: { categorySlug: string }) {
   const [otherInfo, setOtherInfo] = useState<OtherInfo>({
     auxilios: '',
     vtrApoio: '',
+    danoPatrimonio: '',
     observacoes: '',
   });
   
@@ -127,9 +129,11 @@ export default function TO05Form({ categorySlug }: { categorySlug: string }) {
           setOtherInfo(formData.otherInfo || {
             auxilios: '',
             vtrApoio: '',
+            danoPatrimonio: '',
             observacoes: '',
           });
           setShowVtrApoio(!!formData.otherInfo?.vtrApoio && formData.otherInfo.vtrApoio !== 'NILL');
+          setShowDanoPatrimonio(!!formData.otherInfo?.danoPatrimonio && formData.otherInfo.danoPatrimonio !== 'NILL');
         }
       }
     }
@@ -222,6 +226,7 @@ export default function TO05Form({ categorySlug }: { categorySlug: string }) {
             const value = obj[key];
 
             if (key === 'vtrApoio' && !showVtrApoio) continue;
+            if (key === 'danoPatrimonio' && !showDanoPatrimonio) continue;
             if (key === 'id') continue;
             if (key === 'eixosOutro' && obj['eixos'] !== 'outro') continue;
             if (key === 'tipoPane' && Array.isArray(value) && value.length === 0) return false;
@@ -264,18 +269,25 @@ export default function TO05Form({ categorySlug }: { categorySlug: string }) {
     
     const filledData = {
       ...existingReport,
-      generalInfo: fillEmptyFields(generalInfo),
-      vehicles: fillEmptyFields(processedVehicles),
-      otherInfo: fillEmptyFields(otherInfo),
+      formData: {
+        generalInfo: fillEmptyFields(generalInfo),
+        vehicles: fillEmptyFields(processedVehicles),
+        otherInfo: fillEmptyFields(otherInfo),
+      }
     };
     
     if (!showVtrApoio) {
-      filledData.otherInfo.vtrApoio = 'NILL';
+      filledData.formData.otherInfo.vtrApoio = 'NILL';
     }
+    
+    if (!showDanoPatrimonio) {
+      filledData.formData.otherInfo.danoPatrimonio = 'NILL';
+    }
+
 
     return {
       category: categorySlug,
-      formData: filledData,
+      ...filledData
     };
   };
   
@@ -333,7 +345,7 @@ export default function TO05Form({ categorySlug }: { categorySlug: string }) {
             </Field>
             <Field label="LOCAL/ÁREA">
                 <RadioGroup value={generalInfo.localArea} onValueChange={(value) => handleGeneralInfoChange('localArea', value)} className="flex flex-col space-y-2">
-                    <div className="flex items-center space-x-2"><RadioGroupItem value="faixa_rolamento" id="la-faixa_rolamento" /><Label htmlFor="la-faixa_rolamento" className="text-xl font-normal">FAIXA DE ROLAMENTO</Label></div>
+                    <div className="flex items-center space-x-2"><RadioGroupItem value="faixa_de_rolamento" id="la-faixa_rolamento" /><Label htmlFor="la-faixa_rolamento" className="text-xl font-normal">FAIXA DE ROLAMENTO</Label></div>
                     <div className="flex items-center space-x-2"><RadioGroupItem value="terceira_faixa" id="la-terceira_faixa" /><Label htmlFor="la-terceira_faixa" className="text-xl font-normal">TERCEIRA FAIXA</Label></div>
                     <div className="flex items-center space-x-2"><RadioGroupItem value="acostamento" id="la-acostamento" /><Label htmlFor="la-acostamento" className="text-xl font-normal">ACOSTAMENTO</Label></div>
                     <div className="flex items-center space-x-2"><RadioGroupItem value="area_dominio" id="la-area_dominio" /><Label htmlFor="la-area_dominio" className="text-xl font-normal">ÁREA DE DOMÍNIO</Label></div>
@@ -461,6 +473,24 @@ export default function TO05Form({ categorySlug }: { categorySlug: string }) {
             {showVtrApoio && (
                 <Field label="VTR DE APOIO">
                   <Textarea className="text-2xl placeholder:capitalize placeholder:text-sm" placeholder="Descreva as viaturas de apoio" value={otherInfo.vtrApoio} onChange={(e) => handleOtherInfoChange('vtrApoio', e.target.value)} />
+                </Field>
+            )}
+            <div className="flex items-center space-x-2 pt-4">
+              <Checkbox
+                id="show-dano-patrimonio"
+                checked={showDanoPatrimonio}
+                onCheckedChange={(checked) => setShowDanoPatrimonio(Boolean(checked))}
+              />
+              <label
+                htmlFor="show-dano-patrimonio"
+                className="text-base font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+              >
+                Houve Dano ao Patrimônio?
+              </label>
+            </div>
+            {showDanoPatrimonio && (
+                <Field label="DANO AO PATRIMÔNIO">
+                  <Textarea className="text-2xl placeholder:capitalize placeholder:text-sm" placeholder="Descreva os danos ao patrimônio" value={otherInfo.danoPatrimonio} onChange={(e) => handleOtherInfoChange('danoPatrimonio', e.target.value)} />
                 </Field>
             )}
             <Field label="OBSERVAÇÕES">
