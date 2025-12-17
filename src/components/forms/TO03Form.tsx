@@ -54,7 +54,7 @@ type TracadoPista = {
 type OtherInfo = {
   observacoes: string;
   auxilios: string;
-  destinacaoAnimal: string;
+  destinacaoAnimal: string[];
   qthExato: string;
   vtrApoio: string;
 };
@@ -93,7 +93,7 @@ export default function TO03Form({ categorySlug }: { categorySlug: string }) {
   const [otherInfo, setOtherInfo] = useState<OtherInfo>({
     observacoes: '',
     auxilios: '',
-    destinacaoAnimal: '',
+    destinacaoAnimal: [],
     qthExato: '',
     vtrApoio: '',
   });
@@ -130,6 +130,15 @@ export default function TO03Form({ categorySlug }: { categorySlug: string }) {
         return { ...prev, situacao: newSituacoes };
     });
   };
+  
+  const handleDestinacaoAnimalChange = (destinacaoId: string, checked: boolean) => {
+    setOtherInfo(prev => {
+        const newDestinacoes = checked
+            ? [...prev.destinacaoAnimal, destinacaoId]
+            : prev.destinacaoAnimal.filter(id => id !== destinacaoId);
+        return { ...prev, destinacaoAnimal: newDestinacoes };
+    });
+  };
 
   const handleCaracteristicasEntornoChange = (field: keyof CaracteristicasEntorno, value: string) => {
     setCaracteristicasEntorno(prev => ({ ...prev, [field]: value }));
@@ -139,9 +148,16 @@ export default function TO03Form({ categorySlug }: { categorySlug: string }) {
     setTracadoPista(prev => ({ ...prev, [field]: value }));
   };
 
-  const handleOtherInfoChange = (field: keyof OtherInfo, value: string) => {
+  const handleOtherInfoChange = (field: keyof Omit<OtherInfo, 'destinacaoAnimal'>, value: string) => {
     setOtherInfo(prev => ({ ...prev, [field]: value }));
   };
+  
+  useEffect(() => {
+    if (!otherInfo.destinacaoAnimal.includes('pr13')) {
+      setOtherInfo(prev => ({ ...prev, qthExato: '' }));
+    }
+  }, [otherInfo.destinacaoAnimal]);
+
 
   
   const fillEmptyFields = (data: any): any => {
@@ -176,7 +192,7 @@ export default function TO03Form({ categorySlug }: { categorySlug: string }) {
 
             // Pula a validação de campos opcionais
             if (key === 'vtrApoio' && !showVtrApoio) continue;
-            if (key === 'qthExato' && otherInfo.destinacaoAnimal !== 'pr13') continue;
+            if (key === 'qthExato' && !otherInfo.destinacaoAnimal.includes('pr13')) continue;
 
             
             if (typeof value === 'object' && value !== null && !Array.isArray(value)) {
@@ -229,7 +245,7 @@ export default function TO03Form({ categorySlug }: { categorySlug: string }) {
     if (!showVtrApoio) {
       filledData.formData.otherInfo.vtrApoio = 'NILL';
     }
-    if (otherInfo.destinacaoAnimal !== 'pr13') {
+    if (!otherInfo.destinacaoAnimal.includes('pr13')) {
         filledData.formData.otherInfo.qthExato = 'NILL';
     }
 
@@ -387,15 +403,30 @@ export default function TO03Form({ categorySlug }: { categorySlug: string }) {
               <Textarea className="text-xl placeholder:capitalize placeholder:text-sm" placeholder="Descreva detalhes adicionais sobre a ocorrência" value={otherInfo.observacoes} onChange={(e) => handleOtherInfoChange('observacoes', e.target.value)} />
             </Field>
             <Field label="DESTINAÇÃO ANIMAL">
-                <RadioGroup value={otherInfo.destinacaoAnimal} onValueChange={(value) => handleOtherInfoChange('destinacaoAnimal', value)} className="flex flex-col space-y-2">
-                    <div className="flex items-center space-x-2"><RadioGroupItem value="pr05" id="da-pr05" /><Label htmlFor="da-pr05" className="text-xl font-normal">PR05</Label></div>
-                    <div className="flex items-center space-x-2"><RadioGroupItem value="pr13" id="da-pr13" /><Label htmlFor="da-pr13" className="text-xl font-normal">PR13</Label></div>
-                    <div className="flex items-center space-x-2"><RadioGroupItem value="pr56" id="da-pr56" /><Label htmlFor="da-pr56" className="text-xl font-normal">PR56</Label></div>
-                </RadioGroup>
+                <div className="flex flex-col space-y-2">
+                    <div className="flex items-center space-x-2">
+                        <Checkbox id="da-pr04" checked={otherInfo.destinacaoAnimal.includes('pr04')} onCheckedChange={(checked) => handleDestinacaoAnimalChange('pr04', !!checked)} />
+                        <Label htmlFor="da-pr04" className="text-xl font-normal">PR04</Label>
+                    </div>
+                    <div className="flex items-center space-x-2">
+                        <Checkbox id="da-pr05" checked={otherInfo.destinacaoAnimal.includes('pr05')} onCheckedChange={(checked) => handleDestinacaoAnimalChange('pr05', !!checked)} />
+                        <Label htmlFor="da-pr05" className="text-xl font-normal">PR05</Label>
+                    </div>
+                    <div className="flex items-center space-x-2">
+                        <Checkbox id="da-pr13" checked={otherInfo.destinacaoAnimal.includes('pr13')} onCheckedChange={(checked) => handleDestinacaoAnimalChange('pr13', !!checked)} />
+                        <Label htmlFor="da-pr13" className="text-xl font-normal">PR13</Label>
+                    </div>
+                    <div className="flex items-center space-x-2">
+                        <Checkbox id="da-pr56" checked={otherInfo.destinacaoAnimal.includes('pr56')} onCheckedChange={(checked) => handleDestinacaoAnimalChange('pr56', !!checked)} />
+                        <Label htmlFor="da-pr56" className="text-xl font-normal">PR56</Label>
+                    </div>
+                </div>
             </Field>
-            <Field label={otherInfo.destinacaoAnimal || "QTH EXATO"}>
-                <Input className="text-xl placeholder:capitalize placeholder:text-sm" placeholder="Ex: Km 123" value={otherInfo.qthExato} onChange={(e) => handleOtherInfoChange('qthExato', e.target.value)}/>
-            </Field>
+            {otherInfo.destinacaoAnimal.includes('pr13') && (
+              <Field label="QTH EXATO">
+                  <Input className="text-xl placeholder:capitalize placeholder:text-sm" placeholder="Ex: Km 123" value={otherInfo.qthExato} onChange={(e) => handleOtherInfoChange('qthExato', e.target.value)}/>
+              </Field>
+            )}
             <div className="flex items-center space-x-2 pt-4">
               <Checkbox
                 id="show-vtr-apoio"
