@@ -221,7 +221,7 @@ export default function QudOperacaoForm({ categorySlug }: { categorySlug: string
             if (typeof value === 'object' && value !== null && !Array.isArray(value)) {
                 if (!validateObject(value)) return false;
             } else if (Array.isArray(value)) {
-                 if (value.length > 0 && value.some(item => (typeof item === 'object' && !validateObject(item)) || (typeof item !== 'object' && item === ''))) return false;
+                 if (value.length > 0 && value.some(item => typeof item === 'object' && !validateObject(item))) return false;
             } else if (value === '' || value === null || value === undefined) {
                 return false;
             }
@@ -331,10 +331,10 @@ export default function QudOperacaoForm({ categorySlug }: { categorySlug: string
             </Field>
             <Field label="LOCAL/ÁREA">
                 <RadioGroup value={generalInfo.localArea} onValueChange={(value) => handleGeneralInfoChange('localArea', value)} className="flex flex-col space-y-2">
+                    <div className="flex items-center space-x-2"><RadioGroupItem value="faixa_de_rolamento" id="la-faixa_de_rolamento" /><Label htmlFor="la-faixa_de_rolamento" className="text-xl font-normal">FAIXA DE ROLAMENTO</Label></div>
+                    <div className="flex items-center space-x-2"><RadioGroupItem value="terceira_faixa" id="la-terceira_faixa" /><Label htmlFor="la-terceira_faixa" className="text-xl font-normal">TERCEIRA FAIXA</Label></div>
                     <div className="flex items-center space-x-2"><RadioGroupItem value="acostamento" id="la-acostamento" /><Label htmlFor="la-acostamento" className="text-xl font-normal">ACOSTAMENTO</Label></div>
                     <div className="flex items-center space-x-2"><RadioGroupItem value="area_dominio" id="la-area_dominio" /><Label htmlFor="la-area_dominio" className="text-xl font-normal">ÁREA DE DOMÍNIO</Label></div>
-                    <div className="flex items-center space-x-2"><RadioGroupItem value="terceira_faixa" id="la-terceira_faixa" /><Label htmlFor="la-terceira_faixa" className="text-xl font-normal">TERCEIRA FAIXA</Label></div>
-                    <div className="flex items-center space-x-2"><RadioGroupItem value="faixa_de_rolamento" id="la-faixa_de_rolamento" /><Label htmlFor="la-faixa_de_rolamento" className="text-xl font-normal">FAIXA DE ROLAMENTO</Label></div>
                     <div className="flex items-center space-x-2"><RadioGroupItem value="area_lindeira" id="la-area_lindeira" /><Label htmlFor="la-area_lindeira" className="text-xl font-normal">ÁREA LINDEIRA</Label></div>
                 </RadioGroup>
             </Field>
