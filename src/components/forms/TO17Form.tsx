@@ -41,12 +41,14 @@ type GeneralInfo = {
 type OtherInfo = {
   observacoes: string;
   auxilios: string;
+  vtrApoio: string;
 };
 
 export default function TO17Form({ categorySlug }: { categorySlug: string }) {
   const router = useRouter();
   const { toast } = useToast();
   const [existingReport, setExistingReport] = useState<any>(null);
+  const [showVtrApoio, setShowVtrApoio] = useState(false);
 
 
   const [generalInfo, setGeneralInfo] = useState<GeneralInfo>({
@@ -60,6 +62,7 @@ export default function TO17Form({ categorySlug }: { categorySlug: string }) {
   const [otherInfo, setOtherInfo] = useState<OtherInfo>({
     observacoes: '',
     auxilios: '',
+    vtrApoio: '',
   });
   
   useEffect(() => {
@@ -73,6 +76,7 @@ export default function TO17Form({ categorySlug }: { categorySlug: string }) {
         if (formData) {
           setGeneralInfo(formData.generalInfo || generalInfo);
           setOtherInfo(formData.otherInfo || otherInfo);
+          setShowVtrApoio(!!formData.otherInfo?.vtrApoio && formData.otherInfo.vtrApoio !== 'NILL');
         }
       }
     }
@@ -107,15 +111,21 @@ export default function TO17Form({ categorySlug }: { categorySlug: string }) {
   };
   
   const validateObject = (obj: any): boolean => {
+    const optionalFields = ['id', 'vtrApoio'];
+    if (!showVtrApoio) {
+        optionalFields.push('vtrApoio');
+    }
     for (const key in obj) {
         if (Object.prototype.hasOwnProperty.call(obj, key)) {
+            if (optionalFields.includes(key)) continue;
+            
             const value = obj[key];
             
             if (typeof value === 'object' && value !== null && !Array.isArray(value)) {
                 if (!validateObject(value)) return false;
             } else if (Array.isArray(value)) {
                  if (value.length === 0) return false;
-                 if (value.some(item => typeof item === 'object' && !validateObject(item))) return false;
+                 if (value.some(item => typeof item === 'object' ? !validateObject(item) : (item === '' || item === null || item === undefined))) return false;
             } else if (value === '' || value === null || value === undefined) {
                 return false;
             }
@@ -147,6 +157,10 @@ export default function TO17Form({ categorySlug }: { categorySlug: string }) {
         otherInfo: fillEmptyFields(reportData.otherInfo),
       }
     };
+    
+    if (!showVtrApoio) {
+      filledData.formData.otherInfo.vtrApoio = 'NILL';
+    }
 
     return filledData;
   };
@@ -206,6 +220,24 @@ export default function TO17Form({ categorySlug }: { categorySlug: string }) {
             <Field label="AUXÍLIOS/PR">
               <Textarea className="text-xl placeholder:capitalize placeholder:text-sm" placeholder="Descreva os auxílios prestados" value={otherInfo.auxilios} onChange={(e) => handleOtherInfoChange('auxilios', e.target.value)} />
             </Field>
+            <div className="flex items-center space-x-2 pt-4">
+              <Checkbox
+                id="show-vtr-apoio"
+                checked={showVtrApoio}
+                onCheckedChange={(checked) => setShowVtrApoio(Boolean(checked))}
+              />
+              <label
+                htmlFor="show-vtr-apoio"
+                className="text-base font-bold uppercase leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+              >
+                Houve VTR de Apoio?
+              </label>
+            </div>
+            {showVtrApoio && (
+                <Field label="VTR DE APOIO">
+                  <Textarea className="text-2xl placeholder:capitalize placeholder:text-sm" placeholder="Descreva as viaturas de apoio" value={otherInfo.vtrApoio} onChange={(e) => handleOtherInfoChange('vtrApoio', e.target.value)} />
+                </Field>
+            )}
             <Field label="OBSERVAÇÕES">
               <Textarea className="text-xl placeholder:capitalize placeholder:text-sm" placeholder="Descreva detalhes adicionais sobre a ocorrência" value={otherInfo.observacoes} onChange={(e) => handleOtherInfoChange('observacoes', e.target.value)} />
             </Field>
