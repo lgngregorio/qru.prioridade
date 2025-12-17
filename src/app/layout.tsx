@@ -83,7 +83,7 @@ function BottomNavBar() {
 
     return (
         <nav className="fixed bottom-0 left-0 right-0 bg-background border-t border-border shadow-t-lg z-50">
-            <div className="flex justify-around items-center h-20">
+            <div className="flex justify-around items-center h-24">
                 {navItems.map((item) => (
                     <Link
                         key={item.href}
@@ -136,7 +136,7 @@ function AuthGuard({ children }: { children: ReactNode }) {
 
   return (
     <>
-      <div className={cn(showNavBar && "pb-20")}>{children}</div>
+      <div className={cn(showNavBar && "pb-24")}>{children}</div>
       {showNavBar && <BottomNavBar />}
     </>
   );
