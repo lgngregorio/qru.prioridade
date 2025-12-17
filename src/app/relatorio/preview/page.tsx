@@ -100,6 +100,7 @@ const autoCorrectMap: { [key: string]: string } = {
     'frequencia': 'Frequência',
     'inicio': 'Início',
     'termino': 'Término',
+    'dominio': 'Domínio',
 };
 
 const autoCorrect = (text: string): string => {
