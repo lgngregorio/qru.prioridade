@@ -66,13 +66,16 @@ export function NoteEditor({ isOpen, onClose, note }: NoteEditorProps) {
         const isEditing = !!note;
         const noteId = isEditing ? note.id : doc(collection(firestore, 'notes')).id;
 
-        const noteToSave = {
+        const noteToSave: Partial<Note> = {
             uid: user.uid,
             title,
             content,
-            updatedAt: serverTimestamp(),
-            createdAt: isEditing ? note.createdAt : serverTimestamp(),
+            updatedAt: serverTimestamp() as any,
         };
+
+        if (!isEditing) {
+            noteToSave.createdAt = serverTimestamp() as any;
+        }
 
         await setDoc(doc(firestore, 'notes', noteId), noteToSave, { merge: true });
         

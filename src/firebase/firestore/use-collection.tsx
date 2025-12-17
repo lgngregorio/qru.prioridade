@@ -58,15 +58,12 @@ export function useCollection<T = any>(
   type StateDataType = ResultItemType[] | null;
 
   const [data, setData] = useState<StateDataType>(null);
-  const [isLoading, setIsLoading] = useState<boolean>(true); // Start with loading true
+  const [isLoading, setIsLoading] = useState<boolean>(true);
   const [error, setError] = useState<FirestoreError | Error | null>(null);
 
   useEffect(() => {
-    // If the query is null or undefined (e.g., dependencies like user are not ready),
-    // set loading to true and wait. Don't proceed to set up the listener.
     if (!memoizedTargetRefOrQuery) {
       setIsLoading(true);
-      setData(null); // Clear previous data if the query becomes invalid
       return;
     }
 
