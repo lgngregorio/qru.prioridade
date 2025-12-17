@@ -330,6 +330,7 @@ export default function TO06Form({ categorySlug }: { categorySlug: string }) {
                     <div className="flex items-center space-x-2"><RadioGroupItem value="faixa_rolamento" id="la-faixa_rolamento" /><Label htmlFor="la-faixa_rolamento" className="text-xl font-normal">FAIXA DE ROLAMENTO</Label></div>
                     <div className="flex items-center space-x-2"><RadioGroupItem value="terceira_faixa" id="la-terceira_faixa" /><Label htmlFor="la-terceira_faixa" className="text-xl font-normal">TERCEIRA FAIXA</Label></div>
                     <div className="flex items-center space-x-2"><RadioGroupItem value="faixa_rolamento_acostamento" id="la-faixa_rolamento_acostamento" /><Label htmlFor="la-faixa_rolamento_acostamento" className="text-xl font-normal">FAIXA DE ROLAMENTO/ACOSTAMENTO</Label></div>
+                    <div className="flex items-center space-x-2"><RadioGroupItem value="terceira_faixa_acostamento" id="la-terceira_faixa_acostamento" /><Label htmlFor="la-terceira_faixa_acostamento" className="text-xl font-normal">TERCEIRA FAIXA/ACOSTAMENTO</Label></div>
                 </RadioGroup>
             </Field>
           </div>
@@ -476,6 +477,8 @@ export default function TO06Form({ categorySlug }: { categorySlug: string }) {
     </div>
   );
 }
+
+    
 
     
 
