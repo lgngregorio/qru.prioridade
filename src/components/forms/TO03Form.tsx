@@ -152,14 +152,6 @@ export default function TO03Form({ categorySlug }: { categorySlug: string }) {
     setOtherInfo(prev => ({ ...prev, [field]: value }));
   };
   
-  useEffect(() => {
-    if (!otherInfo.destinacaoAnimal.includes('pr13')) {
-      setOtherInfo(prev => ({ ...prev, qthExato: '' }));
-    }
-  }, [otherInfo.destinacaoAnimal]);
-
-
-  
   const fillEmptyFields = (data: any): any => {
     if (Array.isArray(data)) {
       if (data.length === 0) return 'NILL';
@@ -181,7 +173,7 @@ export default function TO03Form({ categorySlug }: { categorySlug: string }) {
   };
   
   const validateObject = (obj: any): boolean => {
-    const optionalFields = ['id', 'entornoNorteOutro', 'entornoSulOutro'];
+    const optionalFields = ['id', 'entornoNorteOutro', 'entornoSulOutro', 'qthExato'];
     if (caracteristicasEntorno.entornoNorte !== 'outro') optionalFields.push('entornoNorteOutro');
     if (caracteristicasEntorno.entornoSul !== 'outro') optionalFields.push('entornoSulOutro');
 
@@ -190,10 +182,7 @@ export default function TO03Form({ categorySlug }: { categorySlug: string }) {
             const value = obj[key];
             if (optionalFields.includes(key)) continue;
 
-            // Pula a validação de campos opcionais
             if (key === 'vtrApoio' && !showVtrApoio) continue;
-            if (key === 'qthExato' && !otherInfo.destinacaoAnimal.includes('pr13')) continue;
-
             
             if (typeof value === 'object' && value !== null && !Array.isArray(value)) {
                 if (!validateObject(value)) return false;
@@ -222,10 +211,23 @@ export default function TO03Form({ categorySlug }: { categorySlug: string }) {
 
     const { entornoNorteOutro, entornoSulOutro, ...caracteristicasCleaned } = reportData.caracteristicasEntorno;
 
-    const finalReportData = {
+    let finalReportData: any = {
       ...reportData,
       caracteristicasEntorno: caracteristicasCleaned,
     };
+
+    if (otherInfo.destinacaoAnimal.length > 0) {
+        const qthLabel = `QTH ${otherInfo.destinacaoAnimal.join(', ')}`;
+        finalReportData.otherInfo[qthLabel] = otherInfo.qthExato;
+    }
+    
+    // Remove the original qthExato and destinacaoAnimal to avoid duplication
+    const { qthExato, ...otherInfoCleaned } = finalReportData.otherInfo;
+    finalReportData = {
+        ...finalReportData,
+        otherInfo: otherInfoCleaned
+    }
+
 
     if (!validateObject(finalReportData)) {
         toast({
@@ -244,9 +246,6 @@ export default function TO03Form({ categorySlug }: { categorySlug: string }) {
     
     if (!showVtrApoio) {
       filledData.formData.otherInfo.vtrApoio = 'NILL';
-    }
-    if (!otherInfo.destinacaoAnimal.includes('pr13')) {
-        filledData.formData.otherInfo.qthExato = 'NILL';
     }
 
     return filledData;
@@ -422,8 +421,8 @@ export default function TO03Form({ categorySlug }: { categorySlug: string }) {
                     </div>
                 </div>
             </Field>
-            {otherInfo.destinacaoAnimal.includes('pr13') && (
-              <Field label="QTH EXATO">
+            {otherInfo.destinacaoAnimal.length > 0 && (
+              <Field label={`QTH ${otherInfo.destinacaoAnimal.join(', ')}`}>
                   <Input className="text-xl placeholder:capitalize placeholder:text-sm" placeholder="Ex: Km 123" value={otherInfo.qthExato} onChange={(e) => handleOtherInfoChange('qthExato', e.target.value)}/>
               </Field>
             )}
