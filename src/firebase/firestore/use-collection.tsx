@@ -62,10 +62,11 @@ export function useCollection<T = any>(
   const [error, setError] = useState<FirestoreError | Error | null>(null);
 
   useEffect(() => {
+    // If the query is null or undefined (e.g., dependencies like user are not ready),
+    // set loading to true and wait. Don't proceed to set up the listener.
     if (!memoizedTargetRefOrQuery) {
-      // If the query is null (e.g., user is not logged in yet), don't clear data immediately.
-      // Set loading to true because we are waiting for a valid query.
       setIsLoading(true);
+      setData(null); // Clear previous data if the query becomes invalid
       return;
     }
 
