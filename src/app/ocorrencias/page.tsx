@@ -361,6 +361,11 @@ export default function OcorrenciasPage() {
   const { toast } = useToast();
   const firestore = useFirestore();
 
+  useEffect(() => {
+    // Clear the edit-mode flag when entering this page
+    localStorage.removeItem('reportPreview');
+  }, []);
+
   const reportsQuery = useMemoFirebase(() => {
     if (!user) return null;
     return query(collection(firestore, 'reports'), where('uid', '==', user.uid));
