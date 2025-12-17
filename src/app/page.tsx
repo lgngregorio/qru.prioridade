@@ -6,7 +6,6 @@ import { Input } from '@/components/ui/input';
 import { Search, Notebook, FileCode, Link as LinkIcon, AlertCircle } from 'lucide-react';
 import { eventCategories } from '@/lib/events';
 import EventCategoryGrid from '@/components/EventCategoryGrid';
-import { SidebarTrigger } from '@/components/ui/sidebar';
 import Link from 'next/link';
 import {
   allCodes,
@@ -103,14 +102,8 @@ export default function Home() {
   const isSearching = searchQuery.length > 0;
 
   return (
-    <main className="flex min-h-screen flex-col items-center p-4 pt-16 md:p-6">
-      <div className="absolute top-4 left-4 z-10 flex flex-col items-center md:hidden">
-        <span className="text-sm font-bold uppercase text-muted-foreground -mb-1.5">
-          Menu
-        </span>
-        <SidebarTrigger className="h-12 w-12" />
-      </div>
-      <div className="w-full max-w-md pt-8">
+    <main className="flex min-h-screen flex-col items-center p-4 pt-8 md:p-6">
+      <div className="w-full max-w-md">
         <header className="text-center w-full mb-6">
           <div className="flex items-center gap-4 justify-center relative">
             <h1 className="text-4xl font-bold text-foreground font-headline tracking-wider flex items-center justify-center gap-4">

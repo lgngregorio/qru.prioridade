@@ -4,16 +4,13 @@
 import { usePathname, useRouter } from 'next/navigation';
 import React, { ReactNode, useEffect, useState, createContext, useContext } from 'react';
 import { onAuthStateChanged, User } from 'firebase/auth';
+import { Home, FileCode, ListOrdered, Notebook, Settings } from 'lucide-react';
+import Link from 'next/link';
+
 
 import './globals.css';
 import { cn } from '@/lib/utils';
 import { Toaster } from '@/components/ui/toaster';
-import {
-  SidebarProvider,
-  Sidebar,
-  SidebarInset,
-} from '@/components/ui/sidebar';
-import AppSidebar from '@/components/AppSidebar';
 import { ThemeProvider } from '@/components/theme-provider';
 import { Loader2 } from 'lucide-react';
 import { FirebaseProvider, useAuth } from '@/firebase';
@@ -73,6 +70,38 @@ export function useUser() {
 
 const publicRoutes = ['/login', '/signup', '/forgot-password'];
 
+const navItems = [
+    { href: '/', icon: Home, label: 'Início' },
+    { href: '/codigos', icon: FileCode, label: 'Códigos' },
+    { href: '/ocorrencias', icon: ListOrdered, label: 'Ocorrências' },
+    { href: '/notas', icon: Notebook, label: 'Notas' },
+    { href: '/configuracoes', icon: Settings, label: 'Ajustes' },
+];
+
+function BottomNavBar() {
+    const pathname = usePathname();
+
+    return (
+        <nav className="fixed bottom-0 left-0 right-0 bg-background border-t border-border shadow-t-lg z-50">
+            <div className="flex justify-around items-center h-16">
+                {navItems.map((item) => (
+                    <Link
+                        key={item.href}
+                        href={item.href}
+                        className={cn(
+                            "flex flex-col items-center justify-center w-full h-full text-muted-foreground transition-colors",
+                            pathname === item.href ? "text-primary" : "hover:text-foreground"
+                        )}
+                    >
+                        <item.icon className="h-6 w-6 mb-1" />
+                        <span className="text-xs font-medium">{item.label}</span>
+                    </Link>
+                ))}
+            </div>
+        </nav>
+    );
+}
+
 function AuthGuard({ children }: { children: ReactNode }) {
   const { user, isLoading } = useUser();
   const router = useRouter();
@@ -102,7 +131,12 @@ function AuthGuard({ children }: { children: ReactNode }) {
     );
   }
 
-  return <>{children}</>;
+  return (
+    <>
+      <div className="pb-16">{children}</div> {/* Add padding-bottom to avoid content being hidden by nav bar */}
+      <BottomNavBar />
+    </>
+  );
 }
 
 export default function RootLayout({
@@ -145,12 +179,7 @@ export default function RootLayout({
                   children
                 ) : (
                   <AuthGuard>
-                    <SidebarProvider>
-                      <Sidebar>
-                        <AppSidebar />
-                      </Sidebar>
-                      <SidebarInset>{children}</SidebarInset>
-                    </SidebarProvider>
+                    {children}
                   </AuthGuard>
                 )
               }

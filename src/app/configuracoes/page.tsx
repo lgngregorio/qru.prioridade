@@ -2,7 +2,7 @@
 'use client';
 
 import Link from 'next/link';
-import { ArrowLeft, Save, Moon, Sun, Monitor, Loader2, User } from 'lucide-react';
+import { ArrowLeft, Save, Moon, Sun, Monitor, Loader2, User, History, ShieldCheck, LogOut } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import {
@@ -18,7 +18,7 @@ import { useRouter } from 'next/navigation';
 import { useUser } from '@/app/layout';
 import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
-import { updateProfile, updateEmail } from 'firebase/auth';
+import { updateProfile, updateEmail, signOut } from 'firebase/auth';
 import { useAuth } from '@/firebase';
 
 export default function ConfiguracoesPage() {
@@ -72,7 +72,7 @@ export default function ConfiguracoesPage() {
             title: "Sucesso!",
             description: "Suas configurações foram salvas.",
         });
-        router.push('/');
+        // No need to push, just stay on page.
 
     } catch (error: any) {
         console.error("Failed to save user data", error);
@@ -84,6 +84,11 @@ export default function ConfiguracoesPage() {
     }
 
     setIsSaving(false);
+  };
+  
+  const handleLogout = async () => {
+    await signOut(auth);
+    router.push('/login');
   };
 
   if (!isLoaded || isUserLoading) {
@@ -117,21 +122,9 @@ export default function ConfiguracoesPage() {
     <main className="flex flex-col items-center p-4 md:p-6">
       <div className="w-full max-w-2xl">
         <div className="w-full mb-6 pt-4 flex items-center">
-          <Button asChild variant="outline" className="rounded-full">
-            <Link href="/">
-              <ArrowLeft className="mr-2 h-4 w-4" />
-              Voltar para o Início
-            </Link>
-          </Button>
-        </div>
-
-        <div className="text-center mb-8">
           <h1 className="text-3xl font-bold text-foreground font-headline tracking-wide uppercase">
-            CONFIGURAÇÕES
+            AJUSTES
           </h1>
-          <p className="text-muted-foreground mt-1 text-base">
-            Gerencie suas preferências e perfil.
-          </p>
         </div>
 
         <div className="space-y-8">
@@ -214,6 +207,25 @@ export default function ConfiguracoesPage() {
             {isSaving ? <Loader2 className="mr-2 h-5 w-5 animate-spin" /> : <Save className="mr-2 h-5 w-5" />}
             {isSaving ? 'Salvando...' : 'Salvar Alterações'}
           </Button>
+        </div>
+
+        <div className="mt-12 space-y-4">
+             <Button asChild variant="outline" className="w-full justify-start text-lg h-14">
+               <Link href="/atividades">
+                 <History className="mr-3 h-5 w-5" />
+                 Histórico de Atividades
+               </Link>
+             </Button>
+              <Button asChild variant="outline" className="w-full justify-start text-lg h-14">
+               <Link href="/politicas-sgi">
+                 <ShieldCheck className="mr-3 h-5 w-5" />
+                 Políticas do SGI
+               </Link>
+             </Button>
+             <Button variant="destructive" className="w-full text-lg h-14" onClick={handleLogout}>
+               <LogOut className="mr-3 h-5 w-5" />
+               Sair
+             </Button>
         </div>
       </div>
     </main>
