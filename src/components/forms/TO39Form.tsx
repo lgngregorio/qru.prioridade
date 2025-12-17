@@ -57,6 +57,7 @@ type Vehicle = {
 type OtherInfo = {
   auxilios: string;
   vtrApoio: string;
+  danoPatrimonio: string;
   observacoes: string;
 };
 
@@ -76,6 +77,7 @@ export default function TO39Form({ categorySlug }: { categorySlug: string }) {
   const router = useRouter();
   const { toast } = useToast();
   const [showVtrApoio, setShowVtrApoio] = useState(false);
+  const [showDanoPatrimonio, setShowDanoPatrimonio] = useState(false);
   const [existingReport, setExistingReport] = useState<any>(null);
 
 
@@ -99,6 +101,7 @@ export default function TO39Form({ categorySlug }: { categorySlug: string }) {
   const [otherInfo, setOtherInfo] = useState<OtherInfo>({
     auxilios: '',
     vtrApoio: '',
+    danoPatrimonio: '',
     observacoes: '',
   });
 
@@ -126,9 +129,11 @@ export default function TO39Form({ categorySlug }: { categorySlug: string }) {
           setOtherInfo(formData.otherInfo || {
             auxilios: '',
             vtrApoio: '',
+            danoPatrimonio: '',
             observacoes: '',
           });
           setShowVtrApoio(!!formData.otherInfo?.vtrApoio && formData.otherInfo.vtrApoio !== 'NILL');
+          setShowDanoPatrimonio(!!formData.otherInfo?.danoPatrimonio && formData.otherInfo.danoPatrimonio !== 'NILL');
         }
       }
     }
@@ -221,6 +226,7 @@ export default function TO39Form({ categorySlug }: { categorySlug: string }) {
             const value = obj[key];
 
             if (key === 'vtrApoio' && !showVtrApoio) continue;
+            if (key === 'danoPatrimonio' && !showDanoPatrimonio) continue;
             if (key === 'id') continue;
             if (key === 'eixosOutro' && obj['eixos'] !== 'outro') continue;
             if (key === 'tipoPane' && Array.isArray(value) && value.length === 0) return false;
@@ -270,6 +276,11 @@ export default function TO39Form({ categorySlug }: { categorySlug: string }) {
     if (!showVtrApoio) {
       filledData.formData.otherInfo.vtrApoio = 'NILL';
     }
+    
+    if (!showDanoPatrimonio) {
+      filledData.formData.otherInfo.danoPatrimonio = 'NILL';
+    }
+
 
     return filledData;
   };
@@ -321,7 +332,7 @@ export default function TO39Form({ categorySlug }: { categorySlug: string }) {
                  <RadioGroup value={generalInfo.sentido} onValueChange={(value) => handleGeneralInfoChange('sentido', value)} className="flex flex-col space-y-2">
                     <div className="flex items-center space-x-2"><RadioGroupItem value="norte" id="s-norte" /><Label htmlFor="s-norte" className="text-xl font-normal">NORTE</Label></div>
                     <div className="flex items-center space-x-2"><RadioGroupItem value="sul" id="s-sul" /><Label htmlFor="s-sul" className="text-xl font-normal">SUL</Label></div>
-                    <div className="flex items-center space-x-2"><RadioGroupItem value="norte_e_sul" id="s-ambos" /><Label htmlFor="s-ambos" className="text-xl font-normal">NORTE E SUL</Label></div>
+                    <div className="flex items-center space-x-2"><RadioGroupItem value="norte_e_sul" id="s-norte_e_sul" /><Label htmlFor="s-norte_e_sul" className="text-xl font-normal">NORTE E SUL</Label></div>
                     <div className="flex items-center space-x-2"><RadioGroupItem value="eixo_central" id="s-eixo_central" /><Label htmlFor="s-eixo_central" className="text-xl font-normal">EIXO CENTRAL</Label></div>
                 </RadioGroup>
             </Field>
@@ -458,6 +469,26 @@ export default function TO39Form({ categorySlug }: { categorySlug: string }) {
                   <Textarea className="text-2xl placeholder:capitalize placeholder:text-sm" placeholder="Descreva as viaturas de apoio" value={otherInfo.vtrApoio} onChange={(e) => handleOtherInfoChange('vtrApoio', e.target.value)} />
                 </Field>
             )}
+
+            <div className="flex items-center space-x-2 pt-4">
+              <Checkbox
+                id="show-dano-patrimonio"
+                checked={showDanoPatrimonio}
+                onCheckedChange={(checked) => setShowDanoPatrimonio(Boolean(checked))}
+              />
+              <label
+                htmlFor="show-dano-patrimonio"
+                className="text-base font-bold uppercase leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+              >
+                HOUVE DANOS AO PATRIMÔNIO?
+              </label>
+            </div>
+            {showDanoPatrimonio && (
+                <Field label="DANO AO PATRIMÔNIO">
+                  <Textarea className="text-2xl placeholder:capitalize placeholder:text-sm" placeholder="Descreva os danos ao patrimônio" value={otherInfo.danoPatrimonio} onChange={(e) => handleOtherInfoChange('danoPatrimonio', e.target.value)} />
+                </Field>
+            )}
+
             <Field label="OBSERVAÇÕES">
               <Textarea className="text-2xl placeholder:capitalize placeholder:text-sm" placeholder="Descreva detalhes adicionais sobre a ocorrência" value={otherInfo.observacoes} onChange={(e) => handleOtherInfoChange('observacoes', e.target.value)} />
             </Field>
