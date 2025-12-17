@@ -389,8 +389,8 @@ export default function TO03Form({ categorySlug }: { categorySlug: string }) {
             <Field label="DESTINAÇÃO ANIMAL">
                 <RadioGroup value={otherInfo.destinacaoAnimal} onValueChange={(value) => handleOtherInfoChange('destinacaoAnimal', value)} className="flex flex-col space-y-2">
                     <div className="flex items-center space-x-2"><RadioGroupItem value="pr05" id="da-pr05" /><Label htmlFor="da-pr05" className="text-xl font-normal">PR05</Label></div>
-                    <div className="flex items-center space-x-2"><RadioGroupItem value="pr56" id="da-pr56" /><Label htmlFor="da-pr56" className="text-xl font-normal">PR56</Label></div>
                     <div className="flex items-center space-x-2"><RadioGroupItem value="pr13" id="da-pr13" /><Label htmlFor="da-pr13" className="text-xl font-normal">PR13</Label></div>
+                    <div className="flex items-center space-x-2"><RadioGroupItem value="pr56" id="da-pr56" /><Label htmlFor="da-pr56" className="text-xl font-normal">PR56</Label></div>
                 </RadioGroup>
             </Field>
             <Field label={otherInfo.destinacaoAnimal || "QTH EXATO"}>
