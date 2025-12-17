@@ -171,9 +171,9 @@ export default function ReportDetail({ formData }: { formData: any }) {
                          const renderedVal = renderValue(key, value);
                          if (renderedVal === null) return null;
                          return (
-                             <div key={key} className="flex flex-col">
+                             <div key={key} className="flex flex-col break-words">
                                 <span className="font-bold text-muted-foreground">{formatKey(key)}</span>
-                                <span>{renderedVal}</span>
+                                <span className="overflow-hidden">{renderedVal}</span>
                             </div>
                          )
                     })}
@@ -199,9 +199,9 @@ export default function ReportDetail({ formData }: { formData: any }) {
                                     const renderedVal = renderValue(key, value);
                                     if(renderedVal === null) return null;
                                     return (
-                                        <div key={key} className="flex flex-col">
+                                        <div key={key} className="flex flex-col break-words">
                                             <span className="font-bold text-muted-foreground">{formatKey(key)}</span>
-                                            <span>{renderedVal}</span>
+                                            <span className="overflow-hidden">{renderedVal}</span>
                                         </div>
                                     );
                                 })}
