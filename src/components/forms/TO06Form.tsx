@@ -229,7 +229,7 @@ export default function TO06Form({ categorySlug }: { categorySlug: string }) {
             if (typeof value === 'object' && value !== null && !Array.isArray(value)) {
                 if (!validateObject(value)) return false;
             } else if (Array.isArray(value)) {
-                 if (value.length > 0 && value.some(item => typeof item === 'object' && !validateObject(item))) return false;
+                 if (value.length > 0 && value.some(item => (typeof item === 'object' && !validateObject(item)) || (typeof item !== 'object' && item === ''))) return false;
             } else if (value === '' || value === null || value === undefined) {
                 return false;
             }
@@ -250,7 +250,7 @@ export default function TO06Form({ categorySlug }: { categorySlug: string }) {
     const reportData = {
       generalInfo,
       vehicles: processedVehicles,
-      otherInfo
+      otherInfo,
     };
 
     if (!validateObject(reportData)) {
@@ -277,7 +277,7 @@ export default function TO06Form({ categorySlug }: { categorySlug: string }) {
   
   const handleGenerateReport = () => {
     const reportData = prepareReportData();
-    if (reportData) {
+    if(reportData) {
       localStorage.setItem('reportPreview', JSON.stringify(reportData));
       router.push('/relatorio/preview');
     }
@@ -383,7 +383,7 @@ export default function TO06Form({ categorySlug }: { categorySlug: string }) {
                         </RadioGroup>
                     </Field>
                     <Field label="TIPO DE VEÍCULO">
-                         <RadioGroup value={vehicle.tipo} onValueChange={value => handleVehicleChange(index, 'tipo', value)}>
+                        <RadioGroup value={vehicle.tipo} onValueChange={value => handleVehicleChange(index, 'tipo', value)} className="flex flex-col space-y-2">
                             <div className="flex items-center space-x-2"><RadioGroupItem value="mo" id={`v-tipo-mo-${vehicle.id}`} /><Label htmlFor={`v-tipo-mo-${vehicle.id}`} className="text-xl font-normal">MO</Label></div>
                             <div className="flex items-center space-x-2"><RadioGroupItem value="ap" id={`v-tipo-ap-${vehicle.id}`} /><Label htmlFor={`v-tipo-ap-${vehicle.id}`} className="text-xl font-normal">AP</Label></div>
                             <div className="flex items-center space-x-2"><RadioGroupItem value="utilitaria" id={`v-tipo-utilitaria-${vehicle.id}`} /><Label htmlFor={`v-tipo-utilitaria-${vehicle.id}`} className="text-xl font-normal">UTILITÁRIA</Label></div>
@@ -395,7 +395,7 @@ export default function TO06Form({ categorySlug }: { categorySlug: string }) {
                         </RadioGroup>
                     </Field>
                     <Field label="ESTADO DO PNEU">
-                        <RadioGroup value={vehicle.pneu} onValueChange={value => handleVehicleChange(index, 'pneu', value)}>
+                        <RadioGroup value={vehicle.pneu} onValueChange={value => handleVehicleChange(index, 'pneu', value)} className="flex flex-col space-y-2">
                             <div className="flex items-center space-x-2"><RadioGroupItem value="bom" id={`v-pneu-bom-${vehicle.id}`} /><Label htmlFor={`v-pneu-bom-${vehicle.id}`} className="text-xl font-normal">BOM</Label></div>
                             <div className="flex items-center space-x-2"><RadioGroupItem value="regular" id={`v-pneu-regular-${vehicle.id}`} /><Label htmlFor={`v-pneu-regular-${vehicle.id}`} className="text-xl font-normal">REGULAR</Label></div>
                             <div className="flex items-center space-x-2"><RadioGroupItem value="ruim" id={`v-pneu-ruim-${vehicle.id}`} /><Label htmlFor={`v-pneu-ruim-${vehicle.id}`} className="text-xl font-normal">RUIM</Label></div>
@@ -467,13 +467,15 @@ export default function TO06Form({ categorySlug }: { categorySlug: string }) {
               className="uppercase text-xl"
               onClick={handleGenerateReport}
             >
-             <Save className="mr-2 h-4 w-4" />
-             Gerar Relatório
+              <Save className="mr-2 h-4 w-4" />
+              Gerar Relatório
             </Button>
         </div>
       </form>
     </div>
   );
 }
+
+    
 
     

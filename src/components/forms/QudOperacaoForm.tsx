@@ -29,7 +29,7 @@ function Field({ label, children, className }: { label?: string, children: React
 type GeneralInfo = {
   rodovia: string;
   ocorrencia: string;
-  tipoPane: string;
+  tipoPane: string[];
   qth: string;
   sentido: string;
   localArea: string;
@@ -62,6 +62,16 @@ type OtherInfo = {
   observacoes: string;
 };
 
+const paneTypes = [
+    { id: 'tp01', label: 'TP01' },
+    { id: 'tp02', label: 'TP02' },
+    { id: 'tp03', label: 'TP03' },
+    { id: 'tp04', label: 'TP04' },
+    { id: 'tp05', label: 'TP05' },
+    { id: 'tp07', label: 'TP07' },
+    { id: 'nill', label: 'NILL' },
+]
+
 const eixosOptions = ["02", "03", "04", "05", "06", "07", "08", "09", "10"];
 
 export default function QudOperacaoForm({ categorySlug }: { categorySlug: string }) {
@@ -75,7 +85,7 @@ export default function QudOperacaoForm({ categorySlug }: { categorySlug: string
   const [generalInfo, setGeneralInfo] = useState<GeneralInfo>({
     rodovia: '',
     ocorrencia: '',
-    tipoPane: '',
+    tipoPane: [],
     qth: '',
     sentido: '',
     localArea: '',
@@ -118,8 +128,17 @@ export default function QudOperacaoForm({ categorySlug }: { categorySlug: string
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [categorySlug]);
 
-  const handleGeneralInfoChange = (field: keyof GeneralInfo, value: string) => {
+  const handleGeneralInfoChange = (field: keyof Omit<GeneralInfo, 'tipoPane'>, value: string) => {
     setGeneralInfo(prev => ({ ...prev, [field]: value }));
+  };
+
+  const handlePaneTypeChange = (paneId: string, checked: boolean) => {
+    setGeneralInfo(prev => {
+        const newPaneTypes = checked
+            ? [...prev.tipoPane, paneId]
+            : prev.tipoPane.filter(id => id !== paneId);
+        return { ...prev, tipoPane: newPaneTypes };
+    });
   };
 
   const handleVehicleChange = (index: number, field: keyof Omit<Vehicle, 'eixos'>, value: string) => {
@@ -189,30 +208,20 @@ export default function QudOperacaoForm({ categorySlug }: { categorySlug: string
   };
   
   const validateObject = (obj: any): boolean => {
-    const optionalFields = ['id'];
-    if (!showVtrApoio) {
-        optionalFields.push('vtrApoio');
-    }
-    if (!showDanoPatrimonio) {
-        optionalFields.push('danoPatrimonio');
-    }
-    vehicles.forEach((v, i) => {
-        if (v.eixos !== 'outro') {
-            optionalFields.push(`eixosOutro`); 
-        }
-    });
-
     for (const key in obj) {
         if (Object.prototype.hasOwnProperty.call(obj, key)) {
-            if (optionalFields.includes(key)) continue;
-            
             const value = obj[key];
+
+            if (key === 'vtrApoio' && !showVtrApoio) continue;
+            if (key === 'danoPatrimonio' && !showDanoPatrimonio) continue;
+            if (key === 'id') continue;
+            if (key === 'eixosOutro' && obj['eixos'] !== 'outro') continue;
+            if (key === 'tipoPane' && Array.isArray(value) && value.length === 0) return false;
 
             if (typeof value === 'object' && value !== null && !Array.isArray(value)) {
                 if (!validateObject(value)) return false;
             } else if (Array.isArray(value)) {
-                 if (value.length === 0) return false;
-                 if (value.some(item => typeof item === 'object' ? !validateObject(item) : (item === '' || item === null || item === undefined))) return false;
+                 if (value.length > 0 && value.some(item => (typeof item === 'object' && !validateObject(item)) || (typeof item !== 'object' && item === ''))) return false;
             } else if (value === '' || value === null || value === undefined) {
                 return false;
             }
@@ -296,15 +305,18 @@ export default function QudOperacaoForm({ categorySlug }: { categorySlug: string
               </RadioGroup>
             </Field>
             <Field label="TIPO DE PANE">
-                 <RadioGroup value={generalInfo.tipoPane} onValueChange={(value) => handleGeneralInfoChange('tipoPane', value)} className="flex flex-col space-y-2">
-                    <div className="flex items-center space-x-2"><RadioGroupItem value="tp01" id="tp-tp01" /><Label htmlFor="tp-tp01" className="text-xl font-normal">TP01</Label></div>
-                    <div className="flex items-center space-x-2"><RadioGroupItem value="tp02" id="tp-tp02" /><Label htmlFor="tp-tp02" className="text-xl font-normal">TP02</Label></div>
-                    <div className="flex items-center space-x-2"><RadioGroupItem value="tp03" id="tp-tp03" /><Label htmlFor="tp-tp03" className="text-xl font-normal">TP03</Label></div>
-                    <div className="flex items-center space-x-2"><RadioGroupItem value="tp04" id="tp-tp04" /><Label htmlFor="tp-tp04" className="text-xl font-normal">TP04</Label></div>
-                    <div className="flex items-center space-x-2"><RadioGroupItem value="tp05" id="tp-tp05" /><Label htmlFor="tp-tp05" className="text-xl font-normal">TP05</Label></div>
-                    <div className="flex items-center space-x-2"><RadioGroupItem value="tp07" id="tp-tp07" /><Label htmlFor="tp-tp07" className="text-xl font-normal">TP07</Label></div>
-                    <div className="flex items-center space-x-2"><RadioGroupItem value="nill" id="tp-nill" /><Label htmlFor="tp-nill" className="text-xl font-normal">NILL</Label></div>
-                 </RadioGroup>
+                <div className="flex flex-col space-y-2">
+                    {paneTypes.map(pane => (
+                        <div key={pane.id} className="flex items-center space-x-2">
+                            <Checkbox 
+                                id={`pane-${pane.id}`}
+                                checked={generalInfo.tipoPane.includes(pane.id)}
+                                onCheckedChange={(checked) => handlePaneTypeChange(pane.id, !!checked)}
+                            />
+                            <Label htmlFor={`pane-${pane.id}`} className="font-normal text-xl">{pane.label}</Label>
+                        </div>
+                    ))}
+                 </div>
             </Field>
             <Field label="QTH (LOCAL)">
                 <Input className="text-xl placeholder:capitalize placeholder:text-sm" placeholder="Ex: Km 125 da MS-112" value={generalInfo.qth} onChange={(e) => handleGeneralInfoChange('qth', e.target.value)}/>
@@ -490,5 +502,7 @@ export default function QudOperacaoForm({ categorySlug }: { categorySlug: string
     </div>
   );
 }
+
+    
 
     
