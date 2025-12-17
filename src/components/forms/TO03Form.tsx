@@ -434,7 +434,7 @@ export default function TO03Form({ categorySlug }: { categorySlug: string }) {
               />
               <label
                 htmlFor="show-vtr-apoio"
-                className="text-base font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+                className="text-base font-bold uppercase leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
               >
                 Houve VTR de Apoio?
               </label>
@@ -461,3 +461,5 @@ export default function TO03Form({ categorySlug }: { categorySlug: string }) {
     </div>
   );
 }
+
+    
