@@ -8,17 +8,18 @@ import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, 
 import { Trash2, Edit, Share2, Loader2 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import type { Note } from '@/lib/types';
+import { Timestamp } from 'firebase/firestore';
 
 interface NoteCardProps {
   note: Note;
   onEdit: () => void;
-  onDelete: () => void; // A função de apagar agora é mais simples
+  onDelete: () => void;
 }
 
-const formatDate = (dateString: string | undefined) => {
-    if (!dateString) return 'Data indisponível';
+const formatDate = (dateSource: Timestamp | undefined) => {
+    if (!dateSource) return 'Data indisponível';
     try {
-        const date = new Date(dateString);
+        const date = dateSource.toDate();
         return date.toLocaleString('pt-BR', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' });
     } catch {
         return 'Data inválida';
@@ -31,9 +32,9 @@ export function NoteCard({ note, onEdit, onDelete }: NoteCardProps) {
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [isExpanded, setIsExpanded] = useState(false);
 
-  const handleDeleteConfirm = () => {
+  const handleDeleteConfirm = async () => {
     setIsDeleting(true);
-    onDelete();
+    await onDelete();
     setIsDeleting(false);
     setShowDeleteConfirm(false);
   };
@@ -67,7 +68,7 @@ export function NoteCard({ note, onEdit, onDelete }: NoteCardProps) {
         <CardHeader className="cursor-pointer" onClick={() => setIsExpanded(!isExpanded)}>
           <CardTitle className="truncate pr-10">{note.title}</CardTitle>
           <CardDescription className="text-base font-bold text-muted-foreground">
-            {formatDate(displayDate)} {note.updatedAt && note.createdAt !== note.updatedAt ? '(Editado)' : ''}
+            {formatDate(displayDate)} {note.updatedAt && note.createdAt.seconds !== note.updatedAt.seconds ? '(Editado)' : ''}
           </CardDescription>
         </CardHeader>
         

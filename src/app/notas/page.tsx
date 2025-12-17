@@ -11,6 +11,8 @@ import { NoteCard } from '@/components/NoteCard';
 import type { Note } from '@/lib/types';
 import { useUser } from '@/app/layout';
 import { useToast } from '@/hooks/use-toast';
+import { useFirestore, useCollection, useMemoFirebase } from '@/firebase';
+import { collection, query, where, doc, deleteDoc } from 'firebase/firestore';
 
 const LoadingSkeleton = () => (
     <div className="space-y-4">
@@ -20,61 +22,29 @@ const LoadingSkeleton = () => (
     </div>
 );
 
-function getNotesKey(userEmail: string | null): string | null {
-  if (!userEmail) return null;
-  return `notas-historico-${userEmail}`;
-}
-
 export default function NotasPage() {
     const [isEditorOpen, setIsEditorOpen] = useState(false);
     const [editingNote, setEditingNote] = useState<Note | null>(null);
     const { user, isLoading: isUserLoading } = useUser();
     const { toast } = useToast();
-    const [notes, setNotes] = useState<Note[]>([]);
-    const [isLoading, setIsLoading] = useState(true);
+    const firestore = useFirestore();
 
-    const loadNotes = () => {
-        if (!user) {
-            setIsLoading(false);
-            return;
-        }
-        
-        const notesKey = getNotesKey(user.email);
-        if (notesKey) {
-            try {
-                const savedNotes = localStorage.getItem(notesKey);
-                if (savedNotes) {
-                    const parsedNotes: Note[] = JSON.parse(savedNotes);
-                    parsedNotes.sort((a, b) => {
-                        const dateA = new Date(a.updatedAt || a.createdAt).getTime();
-                        const dateB = new Date(b.updatedAt || b.createdAt).getTime();
-                        return dateB - dateA;
-                    });
-                    setNotes(parsedNotes);
-                }
-            } catch (error) {
-                console.error("Failed to load or parse notes from localStorage", error);
-                toast({
-                    variant: "destructive",
-                    title: "Erro ao carregar notas",
-                    description: "Não foi possível ler suas notas salvas."
-                });
-            }
-        }
-        setIsLoading(false);
-    };
+    const notesQuery = useMemoFirebase(() => {
+        if (!user) return null;
+        return query(collection(firestore, 'notes'), where('uid', '==', user.uid));
+    }, [firestore, user]);
 
-    useEffect(() => {
-        if (!isUserLoading) {
-            if (user) {
-                loadNotes();
-            } else {
-                setIsLoading(false);
-            }
-        }
-    }, [user, isUserLoading]);
+    const { data: notes, isLoading: areNotesLoading } = useCollection<Note>(notesQuery);
+
+    const sortedNotes = useMemoFirebase(() => {
+        if (!notes) return [];
+        return [...notes].sort((a, b) => {
+            const dateA = a.updatedAt ? new Date(a.updatedAt.toDate()).getTime() : new Date(a.createdAt.toDate()).getTime();
+            const dateB = b.updatedAt ? new Date(b.updatedAt.toDate()).getTime() : new Date(b.createdAt.toDate()).getTime();
+            return dateB - dateA;
+        });
+    }, [notes]);
     
-
     const handleEdit = (note: Note) => {
         setEditingNote(note);
         setIsEditorOpen(true);
@@ -88,19 +58,22 @@ export default function NotasPage() {
     const handleCloseEditor = () => {
         setIsEditorOpen(false);
         setEditingNote(null);
-        loadNotes(); // Recarrega as notas após fechar o editor
     };
     
-    const handleDelete = (noteId: string) => {
+    const handleDelete = async (noteId: string) => {
         if (!user) return;
-        const notesKey = getNotesKey(user.email);
-        if (notesKey) {
-            const updatedNotes = notes.filter(n => n.id !== noteId);
-            localStorage.setItem(notesKey, JSON.stringify(updatedNotes));
-            setNotes(updatedNotes);
+        try {
+            await deleteDoc(doc(firestore, 'notes', noteId));
             toast({
                 title: 'Nota apagada!',
                 description: 'Sua nota foi removida com sucesso.',
+            });
+        } catch (error) {
+            console.error("Error deleting note: ", error);
+            toast({
+                variant: "destructive",
+                title: "Erro ao apagar",
+                description: "Não foi possível remover a nota."
             });
         }
     }
@@ -132,18 +105,18 @@ export default function NotasPage() {
                 </Button>
             </div>
 
-            {(isLoading || isUserLoading) && <LoadingSkeleton />}
+            {(isUserLoading || areNotesLoading) && <LoadingSkeleton />}
             
-            {!isLoading && !isUserLoading && notes.length === 0 && (
+            {!isUserLoading && !areNotesLoading && sortedNotes.length === 0 && (
                 <div className="text-center py-10 border-2 border-dashed rounded-lg mt-8">
                     <p className="text-muted-foreground text-lg">Nenhuma nota encontrada.</p>
                     <p className="text-muted-foreground">Clique em "Adicionar Nova Nota" para começar.</p>
                 </div>
             )}
 
-            {!isLoading && !isUserLoading && notes.length > 0 && (
+            {!isUserLoading && !areNotesLoading && sortedNotes.length > 0 && (
                 <div className="space-y-4">
-                    {notes.map((note) => (
+                    {sortedNotes.map((note) => (
                         <NoteCard 
                             key={note.id} 
                             note={note}

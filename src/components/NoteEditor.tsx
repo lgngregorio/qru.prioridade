@@ -12,6 +12,8 @@ import { Loader2 } from 'lucide-react';
 import type { Note } from '@/lib/types';
 import { useUser } from '@/app/layout';
 import { logActivity } from '@/lib/activity-logger';
+import { useFirestore } from '@/firebase';
+import { doc, setDoc, serverTimestamp, collection } from 'firebase/firestore';
 
 interface NoteEditorProps {
   isOpen: boolean;
@@ -19,25 +21,23 @@ interface NoteEditorProps {
   note: Note | null;
 }
 
-function getNotesKey(userEmail: string | null): string | null {
-  if (!userEmail) return null;
-  return `notas-historico-${userEmail}`;
-}
-
 export function NoteEditor({ isOpen, onClose, note }: NoteEditorProps) {
   const { user } = useUser();
   const { toast } = useToast();
+  const firestore = useFirestore();
   const [title, setTitle] = useState('');
   const [content, setContent] = useState('');
   const [isSaving, setIsSaving] = useState(false);
 
   useEffect(() => {
-    if (note) {
-      setTitle(note.title);
-      setContent(note.content);
-    } else {
-      setTitle('');
-      setContent('');
+    if (isOpen) {
+        if (note) {
+          setTitle(note.title);
+          setContent(note.content);
+        } else {
+          setTitle('');
+          setContent('');
+        }
     }
   }, [note, isOpen]);
 
@@ -62,41 +62,19 @@ export function NoteEditor({ isOpen, onClose, note }: NoteEditorProps) {
 
     setIsSaving(true);
     
-    const notesKey = getNotesKey(user.email);
-    if (!notesKey) {
-        toast({ variant: "destructive", title: "Erro", description: "Não foi possível identificar o usuário." });
-        setIsSaving(false);
-        return;
-    }
-
     try {
-        const savedNotesRaw = localStorage.getItem(notesKey);
-        const savedNotes = savedNotesRaw ? JSON.parse(savedNotesRaw) : [];
+        const isEditing = !!note;
+        const noteId = isEditing ? note.id : doc(collection(firestore, 'notes')).id;
 
-        const now = new Date().toISOString();
-        let isEditing = false;
-        
-        const noteToSave: Partial<Note> = {
+        const noteToSave = {
+            uid: user.uid,
             title,
             content,
-            uid: user.uid,
-            updatedAt: now,
+            updatedAt: serverTimestamp(),
+            createdAt: isEditing ? note.createdAt : serverTimestamp(),
         };
 
-        let newNotes = [];
-
-        if (note && note.id) { // Editing existing note
-            isEditing = true;
-            noteToSave.id = note.id;
-            noteToSave.createdAt = note.createdAt; 
-            newNotes = savedNotes.map((n: Note) => n.id === note.id ? noteToSave : n);
-        } else { // Creating new note
-            noteToSave.id = `note-${Date.now()}`;
-            noteToSave.createdAt = now;
-            newNotes = [noteToSave, ...savedNotes];
-        }
-
-        localStorage.setItem(notesKey, JSON.stringify(newNotes));
+        await setDoc(doc(firestore, 'notes', noteId), noteToSave, { merge: true });
         
         logActivity(user.email, {
             type: 'note',
@@ -111,7 +89,7 @@ export function NoteEditor({ isOpen, onClose, note }: NoteEditorProps) {
 
       onClose();
     } catch (error) {
-      console.error("Error saving note to localStorage: ", error);
+      console.error("Error saving note to firestore: ", error);
       toast({
         variant: 'destructive',
         title: 'Erro ao salvar',

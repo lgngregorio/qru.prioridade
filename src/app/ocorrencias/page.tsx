@@ -29,16 +29,17 @@ import { eventCategories } from '@/lib/events';
 import { useUser } from '@/app/layout';
 import { useRouter } from 'next/navigation';
 import { useToast } from '@/hooks/use-toast';
-import { Timestamp } from 'firebase/firestore';
+import { Timestamp, collection, query, where, doc, deleteDoc } from 'firebase/firestore';
+import { useFirestore, useCollection, useMemoFirebase } from '@/firebase';
 
 
 interface Report {
   id: string;
   category: string;
-  createdAt: string; // ISO string
+  createdAt: any; 
   formData: any;
-  uid?: string; // Kept for potential future use
-  updatedAt?: string; // ISO string
+  uid?: string; 
+  updatedAt?: any;
   numeroOcorrencia?: string;
 }
 
@@ -58,21 +59,26 @@ const getCategoryInfo = (slug: string) => {
     };
 };
 
-const formatDate = (dateString: string | undefined) => {
-  if (!dateString) return 'Data indisponível';
-  try {
-    const date = new Date(dateString);
-    if (isNaN(date.getTime())) return dateString; // Return original if invalid
-    return date.toLocaleString('pt-BR', {
-      day: '2-digit',
-      month: '2-digit',
-      year: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit',
-    });
-  } catch {
-    return dateString; // Fallback to original string
+const formatDate = (dateSource: any) => {
+  if (!dateSource) return 'Data indisponível';
+  
+  let date: Date;
+
+  if (dateSource.seconds) { // Check if it's a Firestore Timestamp
+    date = new Timestamp(dateSource.seconds, dateSource.nanoseconds).toDate();
+  } else {
+    date = new Date(dateSource);
   }
+
+  if (isNaN(date.getTime())) return String(dateSource); // Return original if invalid
+
+  return date.toLocaleString('pt-BR', {
+    day: '2-digit',
+    month: '2-digit',
+    year: 'numeric',
+    hour: '2-digit',
+    minute: '2-digit',
+  });
 };
 
 const sectionTitles: { [key: string]: string } = {
@@ -137,7 +143,6 @@ const autoCorrectMap: { [key: string]: string } = {
 
 const autoCorrect = (text: string): string => {
   if (typeof text !== 'string') return text;
-  // Use uma expressão regular para encontrar palavras inteiras, ignorando maiúsculas e minúsculas
   const regex = new RegExp(`\\b(${Object.keys(autoCorrectMap).join('|')})\\b`, 'gi');
   return text.replace(regex, (matched) => autoCorrectMap[matched.toLowerCase()] || matched);
 };
@@ -173,7 +178,6 @@ const formatValue = (value: any): string => {
      return '';
   }
   
-  // Aplica a autocorreção e depois remove os hífens/sublinhados
   const correctedValue = autoCorrect(String(value));
   return correctedValue.replace(/[-_]/g, ' ').toUpperCase();
 };
@@ -245,10 +249,6 @@ const hexToRgba = (hex: string, alpha: number) => {
     return `rgba(${r}, ${g}, ${b}, ${alpha})`;
 };
 
-function getHistoryKey(userEmail: string | null): string | null {
-  if (!userEmail) return null;
-  return `ocorrencias-historico-${userEmail}`;
-}
 
 function ReportCard({ report, onDelete }: { report: Report; onDelete: () => void }) {
   const router = useRouter();
@@ -356,51 +356,40 @@ function ReportCard({ report, onDelete }: { report: Report; onDelete: () => void
 
 
 export default function OcorrenciasPage() {
-  const { user, isLoading: isUserLoading } = useUser();
+  const { user } = useUser();
   const { toast } = useToast();
-  const [reports, setReports] = useState<Report[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
+  const firestore = useFirestore();
 
-  useEffect(() => {
-    if (!isUserLoading) {
-      if (user) {
-        const historyKey = getHistoryKey(user.email);
-        if (historyKey) {
-          try {
-            const savedReports = localStorage.getItem(historyKey);
-            if (savedReports) {
-              const parsedReports: Report[] = JSON.parse(savedReports);
-              parsedReports.sort((a, b) => {
-                const dateA = new Date(a.updatedAt || a.createdAt).getTime();
-                const dateB = new Date(b.updatedAt || b.createdAt).getTime();
-                return dateB - dateA;
-              });
-              setReports(parsedReports);
-            }
-          } catch (error) {
-            console.error("Failed to load reports from localStorage", error);
-            toast({
-              variant: "destructive",
-              title: "Erro ao carregar relatórios",
-              description: "Não foi possível ler seus relatórios salvos."
-            });
-          }
-        }
-      }
-      setIsLoading(false);
-    }
-  }, [user, isUserLoading, toast]);
+  const reportsQuery = useMemoFirebase(() => {
+    if (!user) return null;
+    return query(collection(firestore, 'reports'), where('uid', '==', user.uid));
+  }, [firestore, user]);
 
-  const handleDeleteReport = (reportId: string) => {
+  const { data: reports, isLoading } = useCollection<Report>(reportsQuery);
+
+  const sortedReports = useMemoFirebase(() => {
+    if (!reports) return [];
+    return [...reports].sort((a, b) => {
+        const dateA = a.updatedAt ? new Date(a.updatedAt.toDate()).getTime() : new Date(a.createdAt.toDate()).getTime();
+        const dateB = b.updatedAt ? new Date(b.updatedAt.toDate()).getTime() : new Date(b.createdAt.toDate()).getTime();
+        return dateB - dateA;
+    });
+  }, [reports]);
+
+  const handleDeleteReport = async (reportId: string) => {
     if (!user) return;
-    const historyKey = getHistoryKey(user.email);
-    if (historyKey) {
-        const updatedReports = reports.filter(r => r.id !== reportId);
-        localStorage.setItem(historyKey, JSON.stringify(updatedReports));
-        setReports(updatedReports);
+    try {
+        await deleteDoc(doc(firestore, 'reports', reportId));
         toast({
             title: 'Relatório apagado!',
             description: 'Seu relatório foi removido com sucesso.',
+        });
+    } catch (error) {
+        console.error("Error deleting report: ", error);
+        toast({
+            variant: "destructive",
+            title: "Erro ao apagar",
+            description: "Não foi possível remover o relatório."
         });
     }
   };
@@ -426,9 +415,9 @@ export default function OcorrenciasPage() {
         </p>
       </div>
 
-      {(isLoading || isUserLoading) && <LoadingSkeleton />}
+      {isLoading && <LoadingSkeleton />}
 
-      {!isLoading && !isUserLoading && reports.length === 0 && (
+      {!isLoading && sortedReports.length === 0 && (
         <div className="text-center py-10 border-2 border-dashed rounded-lg">
           <p className="text-muted-foreground text-lg">Nenhum relatório encontrado.</p>
           <p className="text-muted-foreground">
@@ -437,9 +426,9 @@ export default function OcorrenciasPage() {
         </div>
       )}
 
-      {!isLoading && !isUserLoading && reports.length > 0 && (
+      {!isLoading && sortedReports.length > 0 && (
         <div className="space-y-6">
-          {reports.map((report) => (
+          {sortedReports.map((report) => (
             <ReportCard key={report.id} report={report} onDelete={() => handleDeleteReport(report.id)} />
           ))}
         </div>

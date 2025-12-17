@@ -20,7 +20,8 @@ import { eventCategories } from '@/lib/events';
 import ReportDetail from '@/components/ReportDetail';
 import { useUser } from '@/app/layout';
 import { logActivity } from '@/lib/activity-logger';
-import { Timestamp } from 'firebase/firestore';
+import { Timestamp, doc, setDoc, serverTimestamp, collection } from 'firebase/firestore';
+import { useFirestore } from '@/firebase';
 
 
 interface ReportData {
@@ -31,11 +32,6 @@ interface ReportData {
   createdAt?: any;
   updatedAt?: any;
   numeroOcorrencia?: string;
-}
-
-function getHistoryKey(userEmail: string | null): string | null {
-  if (!userEmail) return null;
-  return `ocorrencias-historico-${userEmail}`;
 }
 
 const getCategoryInfo = (slug: string) => {
@@ -108,7 +104,6 @@ const autoCorrectMap: { [key: string]: string } = {
 
 const autoCorrect = (text: string): string => {
   if (typeof text !== 'string') return text;
-  // Use uma expressão regular para encontrar palavras inteiras, ignorando maiúsculas e minúsculas
   const regex = new RegExp(`\\b(${Object.keys(autoCorrectMap).join('|')})\\b`, 'gi');
   return text.replace(regex, (matched) => autoCorrectMap[matched.toLowerCase()] || matched);
 };
@@ -144,7 +139,6 @@ const formatValue = (value: any): string => {
      return '';
   }
   
-  // Aplica a autocorreção e depois remove os hífens/sublinhados
   const correctedValue = autoCorrect(String(value));
   return correctedValue.replace(/[-_]/g, ' ').toUpperCase();
 };
@@ -213,6 +207,7 @@ export default function PreviewPage() {
   const router = useRouter();
   const { toast } = useToast();
   const { user, isLoading: isUserLoading } = useUser();
+  const firestore = useFirestore();
 
   const [report, setReport] = useState<ReportData | null>(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -229,7 +224,7 @@ export default function PreviewPage() {
     setIsLoading(false);
   }, []);
 
-  const handleSaveAndGoToHistory = () => {
+  const handleSaveAndGoToHistory = async () => {
     if (!report || !user) {
       toast({
         variant: 'destructive',
@@ -240,41 +235,22 @@ export default function PreviewPage() {
     }
     
     setIsSaving(true);
-    
-    const historyKey = getHistoryKey(user.email);
-    if (!historyKey) {
-        toast({ variant: "destructive", title: "Erro", description: "Não foi possível identificar o usuário." });
-        setIsSaving(false);
-        return;
-    }
 
     try {
-        const savedReportsRaw = localStorage.getItem(historyKey);
-        const savedReports = savedReportsRaw ? JSON.parse(savedReportsRaw) : [];
+        const isEditing = !!report.id;
+        const reportId = isEditing ? report.id! : doc(collection(firestore, 'reports')).id;
 
-        const now = new Date().toISOString();
-        let isEditing = false;
-        
-        const reportToSave: ReportData = {
-            ...report,
+        const reportToSave: Omit<ReportData, 'id'> = {
+            category: report.category,
+            formData: report.formData,
             uid: user.uid,
-            updatedAt: now,
             numeroOcorrencia: numeroOcorrencia || undefined,
+            updatedAt: serverTimestamp(),
+            createdAt: isEditing ? report.createdAt : serverTimestamp(),
         };
 
-        let newReports = [];
+        await setDoc(doc(firestore, 'reports', reportId), reportToSave, { merge: true });
 
-        if (report.id) { // Editing existing report
-            isEditing = true;
-            newReports = savedReports.map((r: ReportData) => r.id === report.id ? reportToSave : r);
-        } else { // Creating new report
-            reportToSave.id = `report-${Date.now()}`;
-            reportToSave.createdAt = now;
-            newReports = [reportToSave, ...savedReports];
-        }
-
-        localStorage.setItem(historyKey, JSON.stringify(newReports));
-        
         logActivity(user.email, {
             type: 'report',
             description: `${isEditing ? 'Editou' : 'Criou'} relatório: ${getCategoryTitle(report.category)}`,
@@ -289,7 +265,7 @@ export default function PreviewPage() {
       localStorage.removeItem('reportPreview');
       router.push('/ocorrencias'); 
     } catch (error) {
-      console.error('Erro ao salvar o relatório no localStorage: ', error);
+      console.error('Erro ao salvar o relatório no Firestore: ', error);
       toast({
         variant: 'destructive',
         title: 'Erro ao Salvar',
@@ -302,7 +278,6 @@ export default function PreviewPage() {
 
   const handleEdit = () => {
       if (report) {
-          // Garante que o número da ocorrência seja salvo no preview antes de voltar para edição
           const updatedReport = { ...report, numeroOcorrencia };
           localStorage.setItem('reportPreview', JSON.stringify(updatedReport));
           router.push(`/${report.category}`);
