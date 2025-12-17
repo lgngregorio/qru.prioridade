@@ -239,11 +239,11 @@ export default function TO50Form({ categorySlug }: { categorySlug: string }) {
                 </RadioGroup>
             </Field>
             <Field label="LOCAL/ÁREA">
-                <RadioGroup value={generalInfo.localArea} onValueChange={(value) => handleGeneralInfoChange('localArea', value)} className="flex flex-col space-y-2">
-                    <div className="flex items-center space-x-2"><RadioGroupItem value="bso" id="la-bso" /><Label htmlFor="la-bso" className="text-xl font-normal">BSO</Label></div>
-                    <div className="flex items-center space-x-2"><RadioGroupItem value="praca_de_pedagio" id="la-praca_de_pedagio" /><Label htmlFor="la-praca_de_pedagio" className="text-xl font-normal">PRAÇA DE PEDÁGIO</Label></div>
-                    <div className="flex items-center space-x-2"><RadioGroupItem value="area_de_dominio" id="la-area_de_dominio" /><Label htmlFor="la-area_de_dominio" className="text-xl font-normal">ÁREA DE DOMÍNIO</Label></div>
-                </RadioGroup>
+              <RadioGroup value={generalInfo.localArea} onValueChange={(value) => handleGeneralInfoChange('localArea', value)} className="flex flex-col space-y-2">
+                  <div className="flex items-center space-x-2"><RadioGroupItem value="area_de_dominio" id="la-area_de_dominio" /><Label htmlFor="la-area_de_dominio" className="text-xl font-normal">ÁREA DE DOMÍNIO</Label></div>
+                  <div className="flex items-center space-x-2"><RadioGroupItem value="praca_de_pedagio" id="la-praca_de_pedagio" /><Label htmlFor="la-praca_de_pedagio" className="text-xl font-normal">PRAÇA DE PEDÁGIO</Label></div>
+                  <div className="flex items-center space-x-2"><RadioGroupItem value="bso_sau" id="la-bso_sau" /><Label htmlFor="la-bso_sau" className="text-xl font-normal">BSO/SAU</Label></div>
+              </RadioGroup>
             </Field>
             <Field label="TIPO DE SERVIÇO">
                 <Input className="text-xl placeholder:capitalize placeholder:text-sm" placeholder="Tipo de Serviço" value={generalInfo.tipoDeServico} onChange={(e) => handleGeneralInfoChange('tipoDeServico', e.target.value)}/>
