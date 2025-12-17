@@ -29,19 +29,23 @@ import { eventCategories } from '@/lib/events';
 import { useUser } from '@/app/layout';
 import { useRouter } from 'next/navigation';
 import { useToast } from '@/hooks/use-toast';
-import { Timestamp, collection, query, where, doc, deleteDoc } from 'firebase/firestore';
-import { useFirestore, useCollection, useMemoFirebase } from '@/firebase';
 
 
 interface Report {
   id: string;
   category: string;
-  createdAt: any; 
+  createdAt: any;
   formData: any;
-  uid?: string; 
+  uid?: string;
   updatedAt?: any;
   numeroOcorrencia?: string;
 }
+
+const getHistoryKey = (userEmail: string | null): string | null => {
+  if (!userEmail) return null;
+  return `ocorrencias-historico-${userEmail}`;
+};
+
 
 const LoadingSkeleton = () => (
   <div className="space-y-6">
@@ -64,13 +68,15 @@ const formatDate = (dateSource: any) => {
   
   let date: Date;
 
-  if (dateSource.seconds) { // Check if it's a Firestore Timestamp
-    date = new Timestamp(dateSource.seconds, dateSource.nanoseconds).toDate();
+  if (typeof dateSource === 'string') {
+      date = new Date(dateSource);
+  } else if (dateSource.seconds) {
+      date = new Date(dateSource.seconds * 1000);
   } else {
-    date = new Date(dateSource);
+      date = new Date(dateSource);
   }
 
-  if (isNaN(date.getTime())) return String(dateSource); // Return original if invalid
+  if (isNaN(date.getTime())) return String(dateSource);
 
   return date.toLocaleString('pt-BR', {
     day: '2-digit',
@@ -167,9 +173,9 @@ const formatValue = (value: any): string => {
   if (Array.isArray(value)) {
     return value.map(formatValue).join(', ').toUpperCase();
   }
-   if (value instanceof Date || (value && value.seconds && typeof value.seconds === 'number')) {
+   if (value instanceof Date || (value.seconds && typeof value.seconds === 'number')) {
       try {
-        const date = (value instanceof Timestamp) ? value.toDate() : new Date(value);
+        const date = value instanceof Date ? value : new Date(value.seconds * 1000);
         if(!isNaN(date.getTime())) {
             return date.toLocaleString('pt-BR', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' });
         }
@@ -318,7 +324,7 @@ function ReportCard({ report, onDelete }: { report: Report; onDelete: () => void
         {isExpanded && (
           <CardContent>
              <div className="mt-4 pt-4 border-t">
-                <ReportDetail formData={report.formData} numeroOcorrencia={report.numeroOcorrencia} />
+                <ReportDetail formData={report.formData} />
              </div>
           </CardContent>
         )}
@@ -359,33 +365,46 @@ function ReportCard({ report, onDelete }: { report: Report; onDelete: () => void
 export default function OcorrenciasPage() {
   const { user, isLoading: isUserLoading } = useUser();
   const { toast } = useToast();
-  const firestore = useFirestore();
+  const [reports, setReports] = useState<Report[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
     // Clear the edit-mode flag when entering this page
     localStorage.removeItem('reportPreview');
   }, []);
 
-  const reportsQuery = useMemoFirebase(() => {
-    if (!firestore || !user?.uid) return null;
-    return query(collection(firestore, 'reports'), where('uid', '==', user.uid));
-  }, [firestore, user?.uid]);
-
-  const { data: reports, isLoading: areReportsLoading } = useCollection<Report>(reportsQuery);
+  useEffect(() => {
+    if (user?.email) {
+      const key = getHistoryKey(user.email);
+      try {
+        const savedReports = localStorage.getItem(key);
+        setReports(savedReports ? JSON.parse(savedReports) : []);
+      } catch (error) {
+        console.error("Failed to load reports from localStorage", error);
+        setReports([]);
+      }
+    }
+    setIsLoading(false);
+  }, [user]);
 
   const sortedReports = useMemo(() => {
     if (!reports) return [];
     return [...reports].sort((a, b) => {
-        const dateA = a.updatedAt ? new Date(a.updatedAt.toDate()).getTime() : new Date(a.createdAt.toDate()).getTime();
-        const dateB = b.updatedAt ? new Date(b.updatedAt.toDate()).getTime() : new Date(b.createdAt.toDate()).getTime();
+        const dateA = a.updatedAt ? new Date(a.updatedAt).getTime() : new Date(a.createdAt).getTime();
+        const dateB = b.updatedAt ? new Date(b.updatedAt).getTime() : new Date(b.createdAt).getTime();
         return dateB - dateA;
     });
   }, [reports]);
 
   const handleDeleteReport = async (reportId: string) => {
-    if (!user) return;
+    if (!user?.email) return;
+    const key = getHistoryKey(user.email);
+    if (!key) return;
+
     try {
-        await deleteDoc(doc(firestore, 'reports', reportId));
+        const updatedReports = reports.filter(report => report.id !== reportId);
+        localStorage.setItem(key, JSON.stringify(updatedReports));
+        setReports(updatedReports);
         toast({
             title: 'Relatório apagado!',
             description: 'Seu relatório foi removido com sucesso.',
@@ -400,7 +419,7 @@ export default function OcorrenciasPage() {
     }
   };
 
-  const isLoading = isUserLoading || areReportsLoading;
+  const finalLoading = isUserLoading || isLoading;
 
   return (
     <main className="flex flex-col p-4 md:p-6">
@@ -422,9 +441,9 @@ export default function OcorrenciasPage() {
         </p>
       </div>
 
-      {isLoading && <LoadingSkeleton />}
+      {finalLoading && <LoadingSkeleton />}
 
-      {!isLoading && sortedReports.length === 0 && (
+      {!finalLoading && sortedReports.length === 0 && (
         <div className="text-center py-10 border-2 border-dashed rounded-lg">
           <p className="text-muted-foreground text-lg">Nenhum relatório encontrado.</p>
           <p className="text-muted-foreground">
@@ -433,7 +452,7 @@ export default function OcorrenciasPage() {
         </div>
       )}
 
-      {!isLoading && sortedReports.length > 0 && (
+      {!finalLoading && sortedReports.length > 0 && (
         <div className="space-y-6">
           {sortedReports.map((report) => (
             <ReportCard key={report.id} report={report} onDelete={() => handleDeleteReport(report.id)} />

@@ -8,7 +8,6 @@ import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, 
 import { Trash2, Edit, Share2, Loader2 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import type { Note } from '@/lib/types';
-import { Timestamp } from 'firebase/firestore';
 
 interface NoteCardProps {
   note: Note;
@@ -16,10 +15,10 @@ interface NoteCardProps {
   onDelete: () => void;
 }
 
-const formatDate = (dateSource: Timestamp | undefined) => {
+const formatDate = (dateSource: string | Date | undefined) => {
     if (!dateSource) return 'Data indisponível';
     try {
-        const date = dateSource.toDate();
+        const date = new Date(dateSource);
         return date.toLocaleString('pt-BR', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' });
     } catch {
         return 'Data inválida';
@@ -68,7 +67,7 @@ export function NoteCard({ note, onEdit, onDelete }: NoteCardProps) {
         <CardHeader className="cursor-pointer" onClick={() => setIsExpanded(!isExpanded)}>
           <CardTitle className="truncate pr-10">{note.title}</CardTitle>
           <CardDescription className="text-base font-bold text-muted-foreground">
-            {formatDate(displayDate)} {note.updatedAt && note.createdAt.seconds !== note.updatedAt.seconds ? '(Editado)' : ''}
+            {formatDate(displayDate)} {note.updatedAt && note.createdAt !== note.updatedAt ? '(Editado)' : ''}
           </CardDescription>
         </CardHeader>
         

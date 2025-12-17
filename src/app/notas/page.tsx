@@ -1,7 +1,7 @@
 
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import Link from 'next/link';
 import { Plus, ArrowLeft } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -11,8 +11,11 @@ import { NoteCard } from '@/components/NoteCard';
 import type { Note } from '@/lib/types';
 import { useUser } from '@/app/layout';
 import { useToast } from '@/hooks/use-toast';
-import { useFirestore, useCollection, useMemoFirebase } from '@/firebase';
-import { collection, query, where, doc, deleteDoc } from 'firebase/firestore';
+
+const getNotesKey = (userEmail: string | null): string | null => {
+  if (!userEmail) return null;
+  return `notas-historico-${userEmail}`;
+};
 
 const LoadingSkeleton = () => (
     <div className="space-y-4">
@@ -27,20 +30,24 @@ export default function NotasPage() {
     const [editingNote, setEditingNote] = useState<Note | null>(null);
     const { user, isLoading: isUserLoading } = useUser();
     const { toast } = useToast();
-    const firestore = useFirestore();
+    const [notes, setNotes] = useState<Note[]>([]);
+    const [isLoading, setIsLoading] = useState(true);
 
-    const notesQuery = useMemoFirebase(() => {
-        if (!user) return null;
-        return query(collection(firestore, 'notes'), where('uid', '==', user.uid));
-    }, [firestore, user]);
+    useEffect(() => {
+        if (user?.email) {
+            const key = getNotesKey(user.email);
+            if (key) {
+                const savedNotes = localStorage.getItem(key);
+                setNotes(savedNotes ? JSON.parse(savedNotes) : []);
+            }
+        }
+        setIsLoading(false);
+    }, [user]);
 
-    const { data: notes, isLoading: areNotesLoading } = useCollection<Note>(notesQuery);
-
-    const sortedNotes = useMemoFirebase(() => {
-        if (!notes) return [];
+    const sortedNotes = useMemo(() => {
         return [...notes].sort((a, b) => {
-            const dateA = a.updatedAt ? new Date(a.updatedAt.toDate()).getTime() : new Date(a.createdAt.toDate()).getTime();
-            const dateB = b.updatedAt ? new Date(b.updatedAt.toDate()).getTime() : new Date(b.createdAt.toDate()).getTime();
+            const dateA = a.updatedAt ? new Date(a.updatedAt).getTime() : new Date(a.createdAt).getTime();
+            const dateB = b.updatedAt ? new Date(b.updatedAt).getTime() : new Date(b.createdAt).getTime();
             return dateB - dateA;
         });
     }, [notes]);
@@ -55,15 +62,27 @@ export default function NotasPage() {
         setIsEditorOpen(true);
     };
 
-    const handleCloseEditor = () => {
+    const handleCloseEditor = (refresh = false) => {
         setIsEditorOpen(false);
         setEditingNote(null);
+        if (refresh && user?.email) {
+            const key = getNotesKey(user.email);
+            if (key) {
+                const savedNotes = localStorage.getItem(key);
+                setNotes(savedNotes ? JSON.parse(savedNotes) : []);
+            }
+        }
     };
     
     const handleDelete = async (noteId: string) => {
-        if (!user) return;
+        if (!user?.email) return;
+        const key = getNotesKey(user.email);
+        if (!key) return;
+
         try {
-            await deleteDoc(doc(firestore, 'notes', noteId));
+            const updatedNotes = notes.filter(note => note.id !== noteId);
+            localStorage.setItem(key, JSON.stringify(updatedNotes));
+            setNotes(updatedNotes);
             toast({
                 title: 'Nota apagada!',
                 description: 'Sua nota foi removida com sucesso.',
@@ -105,16 +124,16 @@ export default function NotasPage() {
                 </Button>
             </div>
 
-            {(isUserLoading || areNotesLoading) && <LoadingSkeleton />}
+            {(isUserLoading || isLoading) && <LoadingSkeleton />}
             
-            {!isUserLoading && !areNotesLoading && sortedNotes.length === 0 && (
+            {!isUserLoading && !isLoading && sortedNotes.length === 0 && (
                 <div className="text-center py-10 border-2 border-dashed rounded-lg mt-8">
                     <p className="text-muted-foreground text-lg">Nenhuma nota encontrada.</p>
                     <p className="text-muted-foreground">Clique em "Adicionar Nova Nota" para começar.</p>
                 </div>
             )}
 
-            {!isUserLoading && !areNotesLoading && sortedNotes.length > 0 && (
+            {!isUserLoading && !isLoading && sortedNotes.length > 0 && (
                 <div className="space-y-4">
                     {sortedNotes.map((note) => (
                         <NoteCard 
