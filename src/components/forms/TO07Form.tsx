@@ -11,7 +11,6 @@ import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useToast } from '@/hooks/use-toast';
 import { Checkbox } from '@/components/ui/checkbox';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
@@ -272,8 +271,8 @@ export default function TO07Form({ categorySlug }: { categorySlug: string }) {
                 </div>
               </div>
             </Field>
-            {otherInfo.destinacaoDoObjeto.includes('pr13') && (
-              <Field label="QTH EXATO">
+            {otherInfo.destinacaoDoObjeto.length > 0 && (
+              <Field label={`QTH ${otherInfo.destinacaoDoObjeto.join(', ')}`}>
                   <Input className="text-xl placeholder:capitalize placeholder:text-sm" placeholder="Ex: Km 123" value={otherInfo.qthExato} onChange={(e) => handleOtherInfoChange('qthExato', e.target.value)}/>
               </Field>
             )}
