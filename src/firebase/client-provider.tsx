@@ -1,15 +1,21 @@
+
 'use client';
 
 import React, {
   ReactNode,
   useState,
   useEffect,
+  createContext,
+  useContext
 } from 'react';
 import { FirebaseApp, getApp, getApps, initializeApp } from 'firebase/app';
 import { Auth, getAuth } from 'firebase/auth';
 import { Firestore, getFirestore } from 'firebase/firestore';
-import { Loader2 } from 'lucide-react';
 import { FirebaseProvider } from '@/firebase/provider';
+
+const FirebaseLoadingContext = createContext<boolean>(true);
+
+export const useFirebaseLoading = () => useContext(FirebaseLoadingContext);
 
 interface FirebaseClientProviderProps {
   children: ReactNode;
@@ -48,17 +54,11 @@ export function FirebaseClientProvider({
     }
   }, []);
 
-  if (isLoading) {
-    return (
-      <div className="flex justify-center items-center h-screen bg-background">
-        <Loader2 className="h-12 w-12 animate-spin text-primary" />
-      </div>
-    );
-  }
-
   return (
-    <FirebaseProvider app={app} auth={auth} firestore={firestore}>
-      {children}
-    </FirebaseProvider>
+    <FirebaseLoadingContext.Provider value={isLoading}>
+        <FirebaseProvider app={app} auth={auth} firestore={firestore}>
+            {children}
+        </FirebaseProvider>
+    </FirebaseLoadingContext.Provider>
   );
 }

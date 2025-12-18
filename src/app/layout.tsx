@@ -13,7 +13,7 @@ import { cn } from '@/lib/utils';
 import { Toaster } from '@/components/ui/toaster';
 import { ThemeProvider } from '@/components/theme-provider';
 import { Loader2 } from 'lucide-react';
-import { FirebaseClientProvider } from '@/firebase/client-provider';
+import { FirebaseClientProvider, useFirebaseLoading } from '@/firebase/client-provider';
 import { useAuth } from '@/firebase/provider';
 import { logActivity } from '@/lib/activity-logger';
 
@@ -39,7 +39,6 @@ export function UserProvider({ children }: { children: ReactNode }) {
       });
       return () => unsubscribe();
     } else {
-      // If auth is not ready, keep loading
       setIsLoading(true);
     }
   }, [auth]);
@@ -107,9 +106,12 @@ function BottomNavBar() {
 }
 
 function AuthGuard({ children }: { children: ReactNode }) {
-  const { user, isLoading } = useUser();
+  const { user, isLoading: isUserLoading } = useUser();
+  const isFirebaseLoading = useFirebaseLoading();
   const router = useRouter();
   const pathname = usePathname();
+
+  const isLoading = isUserLoading || isFirebaseLoading;
 
   useEffect(() => {
     if (!isLoading) {
@@ -127,7 +129,7 @@ function AuthGuard({ children }: { children: ReactNode }) {
     }
   }, [user, isLoading, router, pathname]);
 
-  if (isLoading || (!user && !publicRoutes.includes(pathname))) {
+  if (isLoading) {
     return (
       <div className="flex justify-center items-center h-screen bg-background">
         <Loader2 className="h-12 w-12 animate-spin text-primary" />
@@ -151,10 +153,6 @@ export default function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-
-  const pathname = usePathname();
-  const isAuthPage = publicRoutes.includes(pathname);
-
   return (
     <html lang="en" className="h-full" suppressHydrationWarning>
       <head>
@@ -182,14 +180,9 @@ export default function RootLayout({
         >
           <FirebaseClientProvider>
             <UserProvider>
-              {isAuthPage ? (
-                  children
-                ) : (
-                  <AuthGuard>
-                    {children}
-                  </AuthGuard>
-                )
-              }
+              <AuthGuard>
+                {children}
+              </AuthGuard>
               <Toaster />
             </UserProvider>
           </FirebaseClientProvider>
