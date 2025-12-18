@@ -3,22 +3,39 @@
 
 import { firebaseConfig } from '@/firebase/config';
 import { initializeApp, getApps, getApp, FirebaseApp } from 'firebase/app';
-import { getAuth } from 'firebase/auth';
-import { getFirestore } from 'firebase/firestore';
+import { getAuth, Auth } from 'firebase/auth';
+import { getFirestore, Firestore } from 'firebase/firestore';
 import { useMemo as useMemoReact } from 'react';
 export { FirebaseProvider, useFirebase, useFirebaseApp, useAuth, useFirestore } from './provider';
 
-let firebaseApp: FirebaseApp;
-if (!getApps().length) {
-    firebaseApp = initializeApp(firebaseConfig);
-} else {
-    firebaseApp = getApp();
+let firebaseApp: FirebaseApp | undefined;
+let auth: Auth | undefined;
+let firestore: Firestore | undefined;
+
+function initializeFirebase() {
+    if (typeof window !== 'undefined') {
+        if (!getApps().length) {
+            firebaseApp = initializeApp(firebaseConfig);
+        } else {
+            firebaseApp = getApp();
+        }
+        auth = getAuth(firebaseApp);
+        firestore = getFirestore(firebaseApp);
+    }
 }
 
-const auth = getAuth(firebaseApp);
-const firestore = getFirestore(firebaseApp);
+// Call initialization
+initializeFirebase();
 
 export function getFirebaseInstances() {
+    if (!firebaseApp || !auth || !firestore) {
+       // This can happen in a server-side context or if initialization fails.
+       // The provider will re-attempt initialization on the client.
+       initializeFirebase();
+       if (!firebaseApp || !auth || !firestore) {
+         throw new Error("Firebase has not been initialized. Make sure you are running in a client environment.");
+       }
+    }
     return { app: firebaseApp, auth, firestore };
 }
 

@@ -1,7 +1,7 @@
 
 'use client';
 
-import React, { createContext, useContext, ReactNode, useMemo } from 'react';
+import React, { createContext, useContext, ReactNode, useMemo, useState, useEffect } from 'react';
 import { FirebaseApp } from 'firebase/app';
 import { Auth } from 'firebase/auth';
 import { Firestore } from 'firebase/firestore';
@@ -16,8 +16,20 @@ interface FirebaseContextType {
 const FirebaseContext = createContext<FirebaseContextType | undefined>(undefined);
 
 export function FirebaseProvider({ children }: { children: ReactNode }) {
-    const { app, auth, firestore } = getFirebaseInstances();
-    const value = useMemo(() => ({ app, auth, firestore }), [app, auth, firestore]);
+    const [firebaseInstances, setFirebaseInstances] = useState<FirebaseContextType | null>(null);
+
+    useEffect(() => {
+        // getFirebaseInstances will initialize on the client if it hasn't already.
+        setFirebaseInstances(getFirebaseInstances());
+    }, []);
+
+    const value = useMemo(() => firebaseInstances, [firebaseInstances]);
+
+    if (!value) {
+        // You can return a loader here if you want
+        return null; 
+    }
+
     return (
         <FirebaseContext.Provider value={value}>
             {children}
