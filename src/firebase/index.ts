@@ -9,34 +9,42 @@ import { useMemo as useMemoReact } from 'react';
 export { FirebaseProvider, useFirebase, useFirebaseApp, useAuth, useFirestore } from './provider';
 
 let firebaseApp: FirebaseApp | undefined;
-let auth: Auth | undefined;
-let firestore: Firestore | undefined;
 
-function initializeFirebase() {
+function getFirebaseApp(): FirebaseApp {
+    if (firebaseApp) {
+        return firebaseApp;
+    }
+
     if (typeof window !== 'undefined') {
         if (!getApps().length) {
             firebaseApp = initializeApp(firebaseConfig);
         } else {
             firebaseApp = getApp();
         }
-        auth = getAuth(firebaseApp);
-        firestore = getFirestore(firebaseApp);
+        return firebaseApp;
     }
+    
+    // This should ideally not happen in client components
+    // but as a fallback, we handle server-side where window is not defined.
+    // In this case, getApps() should be used on the server if needed.
+    if (getApps().length) {
+        firebaseApp = getApp();
+        return firebaseApp;
+    }
+
+    // This will throw if run on server without a previous initialization.
+    // Which is the correct behavior.
+    firebaseApp = initializeApp(firebaseConfig);
+    return firebaseApp;
 }
 
-// Call initialization
-initializeFirebase();
 
 export function getFirebaseInstances() {
-    if (!firebaseApp || !auth || !firestore) {
-       // This can happen in a server-side context or if initialization fails.
-       // The provider will re-attempt initialization on the client.
-       initializeFirebase();
-       if (!firebaseApp || !auth || !firestore) {
-         throw new Error("Firebase has not been initialized. Make sure you are running in a client environment.");
-       }
-    }
-    return { app: firebaseApp, auth, firestore };
+    const app = getFirebaseApp();
+    const auth = getAuth(app);
+    const firestore = getFirestore(app);
+    
+    return { app, auth, firestore };
 }
 
 export { useCollection } from './firestore/use-collection';
