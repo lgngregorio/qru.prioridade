@@ -1,7 +1,7 @@
 
 'use client';
 
-import React, { createContext, useContext, ReactNode, useState, useEffect, useMemo } from 'react';
+import React, { createContext, useContext, ReactNode, useState, useEffect } from 'react';
 import { FirebaseApp, getApp, getApps, initializeApp } from 'firebase/app';
 import { Auth, getAuth } from 'firebase/auth';
 import { Firestore, getFirestore } from 'firebase/firestore';
@@ -19,17 +19,19 @@ export function FirebaseProvider({ children }: { children: ReactNode }) {
     const [firebaseInstances, setFirebaseInstances] = useState<FirebaseContextType | null>(null);
 
     useEffect(() => {
-        let app;
-        if (!getApps().length) {
-            app = initializeApp(firebaseConfig);
-        } else {
-            app = getApp();
-        }
+        if (firebaseConfig.apiKey) { // Ensure API key is available
+            let app;
+            if (!getApps().length) {
+                app = initializeApp(firebaseConfig);
+            } else {
+                app = getApp();
+            }
 
-        const auth = getAuth(app);
-        const firestore = getFirestore(app);
-        
-        setFirebaseInstances({ app, auth, firestore });
+            const auth = getAuth(app);
+            const firestore = getFirestore(app);
+            
+            setFirebaseInstances({ app, auth, firestore });
+        }
     }, []);
 
 
