@@ -11,6 +11,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { useToast } from '@/hooks/use-toast';
 import { Loader2 } from 'lucide-react';
+import { useFirebaseLoading } from '@/firebase/client-provider';
 
 export default function ForgotPasswordPage() {
   const [email, setEmail] = useState('');
@@ -18,6 +19,7 @@ export default function ForgotPasswordPage() {
   const auth = useAuth();
   const router = useRouter();
   const { toast } = useToast();
+  const isFirebaseLoading = useFirebaseLoading();
 
   const handlePasswordReset = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -45,6 +47,14 @@ export default function ForgotPasswordPage() {
       setIsLoading(false);
     }
   };
+
+  if (isFirebaseLoading) {
+    return (
+      <div className="flex justify-center items-center h-screen bg-background">
+        <Loader2 className="h-12 w-12 animate-spin text-primary" />
+      </div>
+    );
+  }
 
   return (
     <main className="flex items-center justify-center min-h-screen bg-background p-4">
