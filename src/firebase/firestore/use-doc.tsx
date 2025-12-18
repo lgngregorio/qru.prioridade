@@ -10,6 +10,7 @@ import {
 } from 'firebase/firestore';
 import { errorEmitter } from '@/firebase/error-emitter';
 import { FirestorePermissionError } from '@/firebase/errors';
+import { useMemo as useMemoReact } from 'react';
 
 /** Utility type to add an 'id' field to a given type T. */
 type WithId<T> = T & { id: string };
@@ -22,6 +23,22 @@ export interface UseDocResult<T> {
   data: WithId<T> | null; // Document data with ID, or null.
   isLoading: boolean;       // True if loading.
   error: FirestoreError | Error | null; // Error object, or null.
+}
+
+export function useMemoFirebase<T>(factory: () => T, deps: React.DependencyList): T {
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  const memoized = useMemoReact(factory, deps);
+  if(memoized && typeof memoized === 'object') {
+    try {
+      Object.defineProperty(memoized, '__memo', {
+        value: true,
+        enumerable: false
+      });
+    } catch(e) {
+      // ignore, this is a best effort
+    }
+  }
+  return memoized;
 }
 
 /**

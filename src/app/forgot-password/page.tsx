@@ -5,7 +5,7 @@ import { useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { sendPasswordResetEmail } from 'firebase/auth';
-import { useAuth } from '@/firebase';
+import { useAuth } from '@/firebase/provider';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -21,6 +21,10 @@ export default function ForgotPasswordPage() {
 
   const handlePasswordReset = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (!auth) {
+        toast({ variant: 'destructive', title: 'Erro', description: 'Serviço de autenticação não disponível.' });
+        return;
+    }
     setIsLoading(true);
 
     try {

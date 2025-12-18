@@ -19,7 +19,7 @@ import { useUser } from '@/app/layout';
 import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
 import { updateProfile, updateEmail, signOut } from 'firebase/auth';
-import { useAuth } from '@/firebase';
+import { useAuth } from '@/firebase/provider';
 
 export default function ConfiguracoesPage() {
   const { theme, setTheme, systemTheme } = useTheme();
@@ -87,6 +87,7 @@ export default function ConfiguracoesPage() {
   };
   
   const handleLogout = async () => {
+    if (!auth) return;
     await signOut(auth);
     router.push('/login');
   };

@@ -13,7 +13,7 @@ import { cn } from '@/lib/utils';
 import { Toaster } from '@/components/ui/toaster';
 import { ThemeProvider } from '@/components/theme-provider';
 import { Loader2 } from 'lucide-react';
-import { FirebaseProvider, useAuth } from '@/firebase';
+import { FirebaseProvider, useAuth } from '@/firebase/provider';
 import { logActivity } from '@/lib/activity-logger';
 
 // --- User Context for Firebase Auth ---
@@ -27,10 +27,14 @@ const UserContext = createContext<UserContextType | undefined>(undefined);
 export function UserProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [isLoading, setIsLoading] = useState(true);
-  const auth = useAuth(); // This hook will throw if FirebaseProvider is not ready
+  const auth = useAuth();
   const pathname = usePathname();
 
   useEffect(() => {
+    if (!auth) {
+        setIsLoading(false); // Firebase not ready yet
+        return;
+    }
     const unsubscribe = onAuthStateChanged(auth, (user) => {
       setUser(user);
       setIsLoading(false);
@@ -41,7 +45,6 @@ export function UserProvider({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     if (user && !isLoading && pathname) {
-      // Avoid logging auth pages
       if (!['/login', '/signup', '/forgot-password'].includes(pathname)) {
         logActivity(user.email, {
           type: 'navigation',

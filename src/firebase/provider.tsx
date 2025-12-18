@@ -1,24 +1,31 @@
+
 'use client';
 
-import React, { createContext, useContext, ReactNode, useState, useEffect } from 'react';
+import React, { createContext, useContext, ReactNode, useState, useEffect, useMemo } from 'react';
 import { FirebaseApp, getApp, getApps, initializeApp } from 'firebase/app';
 import { Auth, getAuth } from 'firebase/auth';
 import { Firestore, getFirestore } from 'firebase/firestore';
 import { firebaseConfig } from '@/firebase/config';
+import { Loader2 } from 'lucide-react';
 
 interface FirebaseContextType {
-    app: FirebaseApp;
-    auth: Auth;
-    firestore: Firestore;
+    app: FirebaseApp | null;
+    auth: Auth | null;
+    firestore: Firestore | null;
 }
 
 const FirebaseContext = createContext<FirebaseContextType | undefined>(undefined);
 
 export function FirebaseProvider({ children }: { children: ReactNode }) {
-    const [firebaseInstances, setFirebaseInstances] = useState<FirebaseContextType | null>(null);
+    const [firebaseInstances, setFirebaseInstances] = useState<FirebaseContextType>({
+      app: null,
+      auth: null,
+      firestore: null
+    });
+    const [isLoading, setIsLoading] = useState(true);
 
     useEffect(() => {
-        if (typeof window !== 'undefined' && firebaseConfig.apiKey) { 
+        if (typeof window !== 'undefined' && firebaseConfig.apiKey) {
             let app;
             if (!getApps().length) {
                 app = initializeApp(firebaseConfig);
@@ -31,12 +38,16 @@ export function FirebaseProvider({ children }: { children: ReactNode }) {
             
             setFirebaseInstances({ app, auth, firestore });
         }
+        setIsLoading(false);
     }, []);
 
 
-    if (!firebaseInstances) {
-        // Render nothing or a loader while Firebase is initializing on the client.
-        return null;
+    if (isLoading) {
+        return (
+          <div className="flex justify-center items-center h-screen bg-background">
+            <Loader2 className="h-12 w-12 animate-spin text-primary" />
+          </div>
+        );
     }
 
     return (
@@ -55,13 +66,13 @@ export function useFirebase() {
 }
 
 export function useFirebaseApp() {
-    return useFirebase().app;
+    return useFirebase()?.app;
 }
 
 export function useAuth() {
-    return useFirebase().auth;
+    return useFirebase()?.auth;
 }
 
 export function useFirestore() {
-    return useFirebase().firestore;
+    return useFirebase()?.firestore;
 }
