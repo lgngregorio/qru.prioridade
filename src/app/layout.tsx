@@ -7,14 +7,12 @@ import { onAuthStateChanged, User } from 'firebase/auth';
 import { Home, FileCode, ListOrdered, Notebook, Settings } from 'lucide-react';
 import Link from 'next/link';
 
-
 import './globals.css';
 import { cn } from '@/lib/utils';
 import { Toaster } from '@/components/ui/toaster';
 import { ThemeProvider } from '@/components/theme-provider';
 import { Loader2 } from 'lucide-react';
-import { FirebaseClientProvider, useFirebaseLoading } from '@/firebase/client-provider';
-import { useAuth } from '@/firebase/provider';
+import { useAuth, useFirebaseLoading, FirebaseClientProvider } from '@/firebase/client-provider';
 import { logActivity } from '@/lib/activity-logger';
 
 // --- User Context for Firebase Auth ---
@@ -32,20 +30,19 @@ export function UserProvider({ children }: { children: ReactNode }) {
   const pathname = usePathname();
 
   useEffect(() => {
-    // We are checking if auth is initialized.
-    // If not, we don't do anything, the loading state will be handled by the parent provider.
-    if (auth) {
-      const unsubscribe = onAuthStateChanged(auth, (user) => {
-        setUser(user);
-        setIsLoading(false);
-      });
-      return () => unsubscribe();
-    } else {
-      // When auth is null (still initializing in FirebaseClientProvider), we are still loading.
-      setIsLoading(true);
-    }
-  }, [auth]);
+    if (!auth) {
+        setIsLoading(true);
+        return;
+    };
 
+    const unsubscribe = onAuthStateChanged(auth, (user) => {
+      setUser(user);
+      setIsLoading(false);
+    });
+
+    return () => unsubscribe();
+  }, [auth]);
+  
   useEffect(() => {
     if (user && !isLoading && pathname) {
       if (!['/login', '/signup', '/forgot-password'].includes(pathname)) {
@@ -57,6 +54,7 @@ export function UserProvider({ children }: { children: ReactNode }) {
       }
     }
   }, [pathname, user, isLoading]);
+
 
   return (
     <UserContext.Provider value={{ user, isLoading }}>
@@ -117,22 +115,21 @@ function AuthGuard({ children }: { children: ReactNode }) {
   const isLoading = isUserLoading || isFirebaseLoading;
 
   useEffect(() => {
-    if (!isLoading) {
-      const isPublicRoute = publicRoutes.includes(pathname);
+    if (isLoading) return;
+    
+    const isPublicRoute = publicRoutes.includes(pathname);
 
-      if (user) {
-        if (isPublicRoute) {
-          router.replace('/');
-        }
-      } else {
-        if (!isPublicRoute) {
-          router.replace('/login');
-        }
-      }
+    if (user && isPublicRoute) {
+        router.replace('/');
     }
+    
+    if (!user && !isPublicRoute) {
+        router.replace('/login');
+    }
+    
   }, [user, isLoading, router, pathname]);
 
-  if (isLoading) {
+  if (isLoading || (!user && !publicRoutes.includes(pathname))) {
     return (
       <div className="flex justify-center items-center h-screen bg-background">
         <Loader2 className="h-12 w-12 animate-spin text-primary" />
@@ -141,7 +138,6 @@ function AuthGuard({ children }: { children: ReactNode }) {
   }
 
   const showNavBar = !publicRoutes.includes(pathname) && user;
-
 
   return (
     <>
