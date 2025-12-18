@@ -32,16 +32,16 @@ export function UserProvider({ children }: { children: ReactNode }) {
   const pathname = usePathname();
 
   useEffect(() => {
-    if (!auth) {
-        setIsLoading(false); // Firebase not ready yet
-        return;
+    if (auth) {
+      const unsubscribe = onAuthStateChanged(auth, (user) => {
+        setUser(user);
+        setIsLoading(false);
+      });
+      return () => unsubscribe();
+    } else {
+      // If auth is not ready, keep loading
+      setIsLoading(true);
     }
-    const unsubscribe = onAuthStateChanged(auth, (user) => {
-      setUser(user);
-      setIsLoading(false);
-    });
-
-    return () => unsubscribe();
   }, [auth]);
 
   useEffect(() => {
