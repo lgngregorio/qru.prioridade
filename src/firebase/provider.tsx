@@ -1,7 +1,7 @@
 
 'use client';
 
-import React, { createContext, useContext, ReactNode, useMemo, useState, useEffect } from 'react';
+import React, { createContext, useContext, ReactNode, useState, useEffect } from 'react';
 import { FirebaseApp } from 'firebase/app';
 import { Auth } from 'firebase/auth';
 import { Firestore } from 'firebase/firestore';
@@ -20,18 +20,20 @@ export function FirebaseProvider({ children }: { children: ReactNode }) {
 
     useEffect(() => {
         // getFirebaseInstances will initialize on the client if it hasn't already.
-        setFirebaseInstances(getFirebaseInstances());
+        // It's safe to call here because this provider is a client component.
+        const instances = getFirebaseInstances();
+        setFirebaseInstances(instances);
     }, []);
 
-    const value = useMemo(() => firebaseInstances, [firebaseInstances]);
 
-    if (!value) {
-        // You can return a loader here if you want
-        return null; 
+    if (!firebaseInstances) {
+        // This can happen in the very first render pass on the client before the effect runs.
+        // Render nothing or a loader.
+        return null;
     }
 
     return (
-        <FirebaseContext.Provider value={value}>
+        <FirebaseContext.Provider value={firebaseInstances}>
             {children}
         </FirebaseContext.Provider>
     );
