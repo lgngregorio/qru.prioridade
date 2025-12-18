@@ -12,7 +12,7 @@ import { cn } from '@/lib/utils';
 import { Toaster } from '@/components/ui/toaster';
 import { ThemeProvider } from '@/components/theme-provider';
 import { Loader2 } from 'lucide-react';
-import { useAuth, useFirebaseLoading, FirebaseClientProvider } from '@/firebase/client-provider';
+import { FirebaseClientProvider, useAuth, useFirebaseLoading } from '@/firebase/client-provider';
 import { logActivity } from '@/lib/activity-logger';
 
 // --- User Context for Firebase Auth ---
@@ -27,13 +27,13 @@ export function UserProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const auth = useAuth();
+  const isFirebaseLoading = useFirebaseLoading();
   const pathname = usePathname();
 
   useEffect(() => {
-    if (!auth) {
-        setIsLoading(true);
-        return;
-    };
+    if (!auth || isFirebaseLoading) {
+      return;
+    }
 
     const unsubscribe = onAuthStateChanged(auth, (user) => {
       setUser(user);
@@ -41,7 +41,7 @@ export function UserProvider({ children }: { children: ReactNode }) {
     });
 
     return () => unsubscribe();
-  }, [auth]);
+  }, [auth, isFirebaseLoading]);
   
   useEffect(() => {
     if (user && !isLoading && pathname) {

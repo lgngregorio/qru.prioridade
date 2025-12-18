@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useState, useEffect } from 'react';
@@ -80,7 +81,9 @@ export function useCollection<T = any>(
 
   useEffect(() => {
     if (!memoizedTargetRefOrQuery) {
-      setIsLoading(true);
+      setIsLoading(false);
+      setData(null);
+      setError(null);
       return;
     }
 

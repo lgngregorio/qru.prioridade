@@ -5,7 +5,7 @@ import { useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { createUserWithEmailAndPassword, updateProfile } from 'firebase/auth';
-import { useAuth } from '@/firebase/client-provider';
+import { useAuth, useFirebaseLoading } from '@/firebase/client-provider';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -21,6 +21,7 @@ export default function SignupPage() {
   const router = useRouter();
   const { toast } = useToast();
   const auth = useAuth();
+  const isFirebaseLoading = useFirebaseLoading();
 
   const handleSignup = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -73,6 +74,14 @@ export default function SignupPage() {
       setIsLoading(false);
     }
   };
+
+  if (isFirebaseLoading) {
+    return (
+        <main className="flex items-center justify-center min-h-screen bg-background p-4">
+            <Loader2 className="h-12 w-12 animate-spin text-primary" />
+        </main>
+    )
+  }
 
   return (
     <main className="flex items-center justify-center min-h-screen bg-background p-4">

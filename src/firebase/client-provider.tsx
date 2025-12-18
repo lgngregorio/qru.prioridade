@@ -6,6 +6,7 @@ import { initializeApp, getApps, getApp, FirebaseApp } from 'firebase/app';
 import { getAuth, Auth } from 'firebase/auth';
 import { getFirestore, Firestore } from 'firebase/firestore';
 import { FirebaseProvider, FirebaseContext } from './provider';
+import { Loader2 } from 'lucide-react';
 
 export function FirebaseClientProvider({ children }: { children: ReactNode }) {
     const [app, setApp] = useState<FirebaseApp | undefined>(undefined);
