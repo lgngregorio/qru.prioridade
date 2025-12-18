@@ -13,7 +13,7 @@ import { Toaster } from '@/components/ui/toaster';
 import { ThemeProvider } from '@/components/theme-provider';
 import { Loader2 } from 'lucide-react';
 import { logActivity } from '@/lib/activity-logger';
-import { FirebaseProvider, useAuth } from '@/firebase/provider';
+import { FirebaseProvider, useAuth, useFirebaseLoading } from '@/firebase/provider';
 
 const publicRoutes = ['/login', '/signup', '/forgot-password'];
 
@@ -59,23 +59,24 @@ const UserContext = createContext<UserContextType | undefined>(undefined);
 
 export function UserProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
+  const [isUserLoading, setIsUserLoading] = useState(true);
   const auth = useAuth();
 
   useEffect(() => {
     if (!auth) {
       // Auth might not be available right away, so we wait.
+      // The FirebaseProvider will show a loader until it is.
       return;
     }
     const unsubscribe = onAuthStateChanged(auth, (user) => {
       setUser(user);
-      setIsLoading(false);
+      setIsUserLoading(false);
     });
     return () => unsubscribe();
   }, [auth]);
 
   return (
-    <UserContext.Provider value={{ user, isLoading }}>
+    <UserContext.Provider value={{ user, isLoading: isUserLoading }}>
       {children}
     </UserContext.Provider>
   );
@@ -90,12 +91,13 @@ export function useUser() {
 }
 
 function AuthGuard({ children }: { children: ReactNode }) {
-  const { user, isLoading } = useUser();
+  const { user, isLoading: isUserLoading } = useUser();
+  const isFirebaseLoading = useFirebaseLoading();
   const router = useRouter();
   const pathname = usePathname();
 
    useEffect(() => {
-    if (user && !isLoading && pathname) {
+    if (user && !isUserLoading && pathname) {
       if (!['/login', '/signup', '/forgot-password'].includes(pathname)) {
         logActivity(user.email, {
           type: 'navigation',
@@ -104,10 +106,10 @@ function AuthGuard({ children }: { children: ReactNode }) {
         });
       }
     }
-  }, [pathname, user, isLoading]);
+  }, [pathname, user, isUserLoading]);
 
   useEffect(() => {
-    if (isLoading) return;
+    if (isUserLoading || isFirebaseLoading) return;
     
     const isPublicRoute = publicRoutes.includes(pathname);
 
@@ -119,9 +121,9 @@ function AuthGuard({ children }: { children: ReactNode }) {
         router.replace('/login');
     }
     
-  }, [user, isLoading, router, pathname]);
+  }, [user, isUserLoading, isFirebaseLoading, router, pathname]);
 
-  if (isLoading || (!user && !publicRoutes.includes(pathname))) {
+  if (isUserLoading || isFirebaseLoading || (!user && !publicRoutes.includes(pathname))) {
     return (
       <div className="flex justify-center items-center h-screen bg-background">
         <Loader2 className="h-12 w-12 animate-spin text-primary" />
