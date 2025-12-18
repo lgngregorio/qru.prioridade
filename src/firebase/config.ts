@@ -1,9 +1,5 @@
 
-export const firebaseConfig = {
-  projectId: "studio-2284671180-4b3bb",
-  appId: "1:1092911829966:web:dfcf6e3720a1a77bddd19f",
-  apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY,
-  authDomain: "studio-2284671180-4b3bb.firebaseapp.com",
-  measurementId: "",
-  messagingSenderId: "1092911829966"
-};
+// This file is intentionally left blank.
+// The Firebase config object is now constructed on the client-side
+// in src/firebase/client-provider.tsx to ensure environment variables are loaded correctly.
+export {};
