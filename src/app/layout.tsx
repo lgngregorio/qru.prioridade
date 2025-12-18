@@ -32,6 +32,8 @@ export function UserProvider({ children }: { children: ReactNode }) {
   const pathname = usePathname();
 
   useEffect(() => {
+    // We are checking if auth is initialized.
+    // If not, we don't do anything, the loading state will be handled by the parent provider.
     if (auth) {
       const unsubscribe = onAuthStateChanged(auth, (user) => {
         setUser(user);
@@ -39,6 +41,7 @@ export function UserProvider({ children }: { children: ReactNode }) {
       });
       return () => unsubscribe();
     } else {
+      // When auth is null (still initializing in FirebaseClientProvider), we are still loading.
       setIsLoading(true);
     }
   }, [auth]);

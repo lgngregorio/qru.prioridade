@@ -8,11 +8,14 @@ import React, {
   createContext,
   useContext
 } from 'react';
-import { FirebaseApp } from 'firebase/app';
-import { Auth } from 'firebase/auth';
-import { Firestore } from 'firebase/firestore';
+import { initializeApp, getApps, getApp, FirebaseApp, type FirebaseOptions } from 'firebase/app';
+import { getAuth, Auth } from 'firebase/auth';
+import { getFirestore, Firestore } from 'firebase/firestore';
+
 import { FirebaseProvider } from '@/firebase/provider';
-import { initializeFirebase } from '@/firebase';
+
+export { useCollection, useMemoFirebase } from './firestore/use-collection';
+export { useDoc } from './firestore/use-doc';
 
 const FirebaseLoadingContext = createContext<boolean>(true);
 
@@ -31,7 +34,7 @@ export function FirebaseClientProvider({
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-      const firebaseConfig = {
+      const firebaseConfig: FirebaseOptions = {
         projectId: "studio-2284671180-4b3bb",
         appId: "1:1092911829966:web:dfcf6e3720a1a77bddd19f",
         apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY,
@@ -46,10 +49,16 @@ export function FirebaseClientProvider({
         return;
       }
       
-      const { app, auth, firestore } = initializeFirebase(firebaseConfig);
-      setApp(app);
-      setAuth(auth);
-      setFirestore(firestore);
+      let firebaseApp: FirebaseApp;
+      if (getApps().length === 0) {
+          firebaseApp = initializeApp(firebaseConfig);
+      } else {
+          firebaseApp = getApp();
+      }
+
+      setApp(firebaseApp);
+      setAuth(getAuth(firebaseApp));
+      setFirestore(getFirestore(firebaseApp));
       setIsLoading(false);
   }, []);
 
@@ -61,3 +70,5 @@ export function FirebaseClientProvider({
     </FirebaseLoadingContext.Provider>
   );
 }
+
+export type { FirebaseApp };
