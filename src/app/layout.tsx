@@ -2,8 +2,8 @@
 'use client';
 
 import { usePathname, useRouter } from 'next/navigation';
-import React, { ReactNode, useEffect } from 'react';
-import { User } from 'firebase/auth';
+import React, { ReactNode, useEffect, useState, createContext, useContext } from 'react';
+import { User, onAuthStateChanged } from 'firebase/auth';
 import { Home, FileCode, ListOrdered, Notebook, Settings } from 'lucide-react';
 import Link from 'next/link';
 
@@ -12,8 +12,8 @@ import { cn } from '@/lib/utils';
 import { Toaster } from '@/components/ui/toaster';
 import { ThemeProvider } from '@/components/theme-provider';
 import { Loader2 } from 'lucide-react';
-import { FirebaseClientProvider, useAuth, useFirebaseLoading, useUser } from '@/firebase/client-provider';
 import { logActivity } from '@/lib/activity-logger';
+import { FirebaseProvider, useAuth } from '@/firebase/provider';
 
 const publicRoutes = ['/login', '/signup', '/forgot-password'];
 
@@ -49,13 +49,50 @@ function BottomNavBar() {
     );
 }
 
+// User Context
+interface UserContextType {
+  user: User | null;
+  isLoading: boolean;
+}
+
+const UserContext = createContext<UserContextType | undefined>(undefined);
+
+export function UserProvider({ children }: { children: ReactNode }) {
+  const [user, setUser] = useState<User | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const auth = useAuth();
+
+  useEffect(() => {
+    if (!auth) {
+      // Auth might not be available right away, so we wait.
+      return;
+    }
+    const unsubscribe = onAuthStateChanged(auth, (user) => {
+      setUser(user);
+      setIsLoading(false);
+    });
+    return () => unsubscribe();
+  }, [auth]);
+
+  return (
+    <UserContext.Provider value={{ user, isLoading }}>
+      {children}
+    </UserContext.Provider>
+  );
+}
+
+export function useUser() {
+  const context = useContext(UserContext);
+  if (context === undefined) {
+    throw new Error('useUser must be used within a UserProvider');
+  }
+  return context;
+}
+
 function AuthGuard({ children }: { children: ReactNode }) {
-  const { user, isLoading: isUserLoading } = useUser();
-  const isFirebaseLoading = useFirebaseLoading();
+  const { user, isLoading } = useUser();
   const router = useRouter();
   const pathname = usePathname();
-
-  const isLoading = isUserLoading || isFirebaseLoading;
 
    useEffect(() => {
     if (user && !isLoading && pathname) {
@@ -132,16 +169,16 @@ export default function RootLayout({
           defaultTheme="light"
           enableSystem
         >
-          <FirebaseClientProvider>
-              <AuthGuard>
-                {children}
-              </AuthGuard>
+          <FirebaseProvider>
+              <UserProvider>
+                <AuthGuard>
+                    {children}
+                </AuthGuard>
+              </UserProvider>
               <Toaster />
-          </FirebaseClientProvider>
+          </FirebaseProvider>
         </ThemeProvider>
       </body>
     </html>
   );
 }
-
-export { useUser };

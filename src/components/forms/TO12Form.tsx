@@ -69,7 +69,7 @@ interface Victim {
 export default function TO12Form({ categorySlug }: { categorySlug: string }) {
   const router = useRouter();
   const { toast } = useToast();
-
+  const [existingReport, setExistingReport] = useState<any>(null);
   const [dadosOperacionais, setDadosOperacionais] = useState<any>({});
   const [victims, setVictims] = useState<Victim[]>([
     { 
@@ -94,14 +94,19 @@ export default function TO12Form({ categorySlug }: { categorySlug: string }) {
   useEffect(() => {
     const savedData = localStorage.getItem('reportPreview');
     if (savedData) {
-      const { formData } = JSON.parse(savedData);
-      if (formData) {
-        setDadosOperacionais(formData.dadosOperacionais || {});
-        setVictims(formData.victims || victims);
-        setConsumoMateriais(formData.consumoMateriais || []);
-        setRelatorio(formData.relatorio || '');
+      const parsedData = JSON.parse(savedData);
+       if (parsedData.category === categorySlug) {
+        setExistingReport(parsedData);
+        const { formData } = parsedData;
+        if (formData) {
+          setDadosOperacionais(formData.dadosOperacionais || {});
+          setVictims(formData.victims || victims);
+          setConsumoMateriais(formData.consumoMateriais || []);
+          setRelatorio(formData.relatorio || '');
+        }
       }
     }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const handleOperationalDataChange = (key: string, value: any) => {
@@ -368,10 +373,13 @@ export default function TO12Form({ categorySlug }: { categorySlug: string }) {
         return null;
     }
     
-    return {
-      category: categorySlug,
-      formData: fillEmptyFields(reportData)
+    const finalReport = {
+        ...existingReport,
+        category: categorySlug,
+        formData: fillEmptyFields(reportData)
     };
+
+    return finalReport;
   };
 
   const handleGenerateReport = () => {
