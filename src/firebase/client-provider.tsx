@@ -24,9 +24,7 @@ export function FirebaseClientProvider({
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    // Check if running on the client
     if (typeof window !== 'undefined') {
-      
       const firebaseConfig = {
         projectId: "studio-2284671180-4b3bb",
         appId: "1:1092911829966:web:dfcf6e3720a1a77bddd19f",
@@ -42,16 +40,10 @@ export function FirebaseClientProvider({
         return;
       }
       
-      let firebaseApp;
-      if (getApps().length === 0) {
-        firebaseApp = initializeApp(firebaseConfig);
-      } else {
-        firebaseApp = getApp();
-      }
-
-      setApp(firebaseApp);
-      setAuth(getAuth(firebaseApp));
-      setFirestore(getFirestore(firebaseApp));
+      const app = getApps().length === 0 ? initializeApp(firebaseConfig) : getApp();
+      setApp(app);
+      setAuth(getAuth(app));
+      setFirestore(getFirestore(app));
       setIsLoading(false);
     }
   }, []);

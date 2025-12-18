@@ -1,25 +1,11 @@
 
 'use client';
 
-import { firebaseConfig } from '@/firebase/config';
 import { initializeApp, getApps, getApp, FirebaseApp } from 'firebase/app';
 import { getAuth, Auth } from 'firebase/auth';
 import { getFirestore, Firestore } from 'firebase/firestore';
 import { useMemo as useMemoReact } from 'react';
 export { FirebaseProvider, useFirebase, useFirebaseApp, useAuth, useFirestore } from './provider';
-
-export function getFirebaseInstances() {
-    let app;
-    if (!getApps().length) {
-        app = initializeApp(firebaseConfig);
-    } else {
-        app = getApp();
-    }
-    const auth = getAuth(app);
-    const firestore = getFirestore(app);
-    
-    return { app, auth, firestore };
-}
 
 export { useCollection } from './firestore/use-collection';
 export { useDoc } from './firestore/use-doc';
