@@ -24,18 +24,9 @@ function getFirebaseApp(): FirebaseApp {
         return firebaseApp;
     }
     
-    // This should ideally not happen in client components
-    // but as a fallback, we handle server-side where window is not defined.
-    // In this case, getApps() should be used on the server if needed.
-    if (getApps().length) {
-        firebaseApp = getApp();
-        return firebaseApp;
-    }
-
-    // This will throw if run on server without a previous initialization.
-    // Which is the correct behavior.
-    firebaseApp = initializeApp(firebaseConfig);
-    return firebaseApp;
+    // This will only happen on the server, where we should not initialize.
+    // Throw an error to make it clear that this should not be called server-side.
+    throw new Error("Firebase cannot be initialized on the server. Make sure this is only called in a client component.");
 }
 
 
@@ -68,3 +59,4 @@ export function useMemoFirebase<T>(factory: () => T, deps: React.DependencyList)
 
 export { initializeApp, getApps, getApp };
 export type { FirebaseApp };
+

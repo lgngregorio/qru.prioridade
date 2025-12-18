@@ -19,7 +19,7 @@ export function FirebaseProvider({ children }: { children: ReactNode }) {
     const [firebaseInstances, setFirebaseInstances] = useState<FirebaseContextType | null>(null);
 
     useEffect(() => {
-        // getFirebaseInstances will initialize on the client if it hasn't already.
+        // getFirebaseInstances will initialize on the client because it's in a useEffect.
         // It's safe to call here because this provider is a client component.
         const instances = getFirebaseInstances();
         setFirebaseInstances(instances);
@@ -27,8 +27,7 @@ export function FirebaseProvider({ children }: { children: ReactNode }) {
 
 
     if (!firebaseInstances) {
-        // This can happen in the very first render pass on the client before the effect runs.
-        // Render nothing or a loader.
+        // Render nothing or a loader while Firebase is initializing on the client.
         return null;
     }
 
@@ -58,3 +57,4 @@ export function useAuth() {
 export function useFirestore() {
     return useFirebase().firestore;
 }
+
