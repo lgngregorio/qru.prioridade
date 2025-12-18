@@ -1,5 +1,6 @@
 
 import type {NextConfig} from 'next';
+require('dotenv').config({ path: './.env.local' });
 
 const isDev = process.env.NODE_ENV === 'development';
 
