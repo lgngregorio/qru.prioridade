@@ -1,11 +1,11 @@
 
 'use client';
 
-import React, { createContext, useContext, ReactNode, useState, useEffect } from 'react';
-import { FirebaseApp } from 'firebase/app';
-import { Auth } from 'firebase/auth';
-import { Firestore } from 'firebase/firestore';
-import { getFirebaseInstances } from '@/firebase';
+import React, { createContext, useContext, ReactNode, useState, useEffect, useMemo } from 'react';
+import { FirebaseApp, getApp, getApps, initializeApp } from 'firebase/app';
+import { Auth, getAuth } from 'firebase/auth';
+import { Firestore, getFirestore } from 'firebase/firestore';
+import { firebaseConfig } from '@/firebase/config';
 
 interface FirebaseContextType {
     app: FirebaseApp;
@@ -19,10 +19,17 @@ export function FirebaseProvider({ children }: { children: ReactNode }) {
     const [firebaseInstances, setFirebaseInstances] = useState<FirebaseContextType | null>(null);
 
     useEffect(() => {
-        // getFirebaseInstances will initialize on the client because it's in a useEffect.
-        // It's safe to call here because this provider is a client component.
-        const instances = getFirebaseInstances();
-        setFirebaseInstances(instances);
+        let app;
+        if (!getApps().length) {
+            app = initializeApp(firebaseConfig);
+        } else {
+            app = getApp();
+        }
+
+        const auth = getAuth(app);
+        const firestore = getFirestore(app);
+        
+        setFirebaseInstances({ app, auth, firestore });
     }, []);
 
 
@@ -57,4 +64,3 @@ export function useAuth() {
 export function useFirestore() {
     return useFirebase().firestore;
 }
-

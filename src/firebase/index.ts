@@ -8,30 +8,13 @@ import { getFirestore, Firestore } from 'firebase/firestore';
 import { useMemo as useMemoReact } from 'react';
 export { FirebaseProvider, useFirebase, useFirebaseApp, useAuth, useFirestore } from './provider';
 
-let firebaseApp: FirebaseApp | undefined;
-
-function getFirebaseApp(): FirebaseApp {
-    if (firebaseApp) {
-        return firebaseApp;
-    }
-
-    if (typeof window !== 'undefined') {
-        if (!getApps().length) {
-            firebaseApp = initializeApp(firebaseConfig);
-        } else {
-            firebaseApp = getApp();
-        }
-        return firebaseApp;
-    }
-    
-    // This will only happen on the server, where we should not initialize.
-    // Throw an error to make it clear that this should not be called server-side.
-    throw new Error("Firebase cannot be initialized on the server. Make sure this is only called in a client component.");
-}
-
-
 export function getFirebaseInstances() {
-    const app = getFirebaseApp();
+    let app;
+    if (!getApps().length) {
+        app = initializeApp(firebaseConfig);
+    } else {
+        app = getApp();
+    }
     const auth = getAuth(app);
     const firestore = getFirestore(app);
     
@@ -59,4 +42,3 @@ export function useMemoFirebase<T>(factory: () => T, deps: React.DependencyList)
 
 export { initializeApp, getApps, getApp };
 export type { FirebaseApp };
-
