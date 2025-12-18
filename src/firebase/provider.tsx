@@ -1,4 +1,3 @@
-
 'use client';
 
 import React, { createContext, useContext, ReactNode, useState, useEffect } from 'react';
@@ -19,7 +18,7 @@ export function FirebaseProvider({ children }: { children: ReactNode }) {
     const [firebaseInstances, setFirebaseInstances] = useState<FirebaseContextType | null>(null);
 
     useEffect(() => {
-        if (firebaseConfig.apiKey) { // Ensure API key is available
+        if (typeof window !== 'undefined' && firebaseConfig.apiKey) { 
             let app;
             if (!getApps().length) {
                 app = initializeApp(firebaseConfig);

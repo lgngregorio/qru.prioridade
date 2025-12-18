@@ -27,7 +27,7 @@ const UserContext = createContext<UserContextType | undefined>(undefined);
 export function UserProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [isLoading, setIsLoading] = useState(true);
-  const auth = useAuth();
+  const auth = useAuth(); // This hook will throw if FirebaseProvider is not ready
   const pathname = usePathname();
 
   useEffect(() => {
