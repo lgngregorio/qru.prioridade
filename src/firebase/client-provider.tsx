@@ -7,15 +7,6 @@ import { getAuth, Auth } from 'firebase/auth';
 import { getFirestore, Firestore } from 'firebase/firestore';
 import { FirebaseProvider, FirebaseContext } from './provider';
 
-const firebaseConfig = {
-  projectId: "studio-2284671180-4b3bb",
-  appId: "1:1092911829966:web:dfcf6e3720a1a77bddd19f",
-  apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY,
-  authDomain: "studio-2284671180-4b3bb.firebaseapp.com",
-  measurementId: "",
-  messagingSenderId: "1092911829966"
-};
-
 export function FirebaseClientProvider({ children }: { children: ReactNode }) {
     const [app, setApp] = useState<FirebaseApp | undefined>(undefined);
     const [auth, setAuth] = useState<Auth | undefined>(undefined);
@@ -24,6 +15,21 @@ export function FirebaseClientProvider({ children }: { children: ReactNode }) {
 
     useEffect(() => {
         if (typeof window !== 'undefined') {
+            const firebaseConfig = {
+              projectId: "studio-2284671180-4b3bb",
+              appId: "1:1092911829966:web:dfcf6e3720a1a77bddd19f",
+              apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY,
+              authDomain: "studio-2284671180-4b3bb.firebaseapp.com",
+              measurementId: "",
+              messagingSenderId: "1092911829966"
+            };
+
+            if (!firebaseConfig.apiKey) {
+              console.error("Firebase API Key is missing. Make sure NEXT_PUBLIC_FIREBASE_API_KEY is set in your .env.local file.");
+              setIsLoading(false);
+              return;
+            }
+
             const currentApp = getApps().length === 0 ? initializeApp(firebaseConfig) : getApp();
             setApp(currentApp);
             setAuth(getAuth(currentApp));
