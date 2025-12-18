@@ -13,7 +13,8 @@ import { cn } from '@/lib/utils';
 import { Toaster } from '@/components/ui/toaster';
 import { ThemeProvider } from '@/components/theme-provider';
 import { Loader2 } from 'lucide-react';
-import { FirebaseProvider, useAuth } from '@/firebase/provider';
+import { FirebaseClientProvider } from '@/firebase/client-provider';
+import { useAuth } from '@/firebase/provider';
 import { logActivity } from '@/lib/activity-logger';
 
 // --- User Context for Firebase Auth ---
@@ -179,7 +180,7 @@ export default function RootLayout({
           defaultTheme="light"
           enableSystem
         >
-          <FirebaseProvider>
+          <FirebaseClientProvider>
             <UserProvider>
               {isAuthPage ? (
                   children
@@ -191,7 +192,7 @@ export default function RootLayout({
               }
               <Toaster />
             </UserProvider>
-          </FirebaseProvider>
+          </FirebaseClientProvider>
         </ThemeProvider>
       </body>
     </html>
