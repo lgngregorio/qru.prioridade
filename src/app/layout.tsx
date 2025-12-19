@@ -14,7 +14,6 @@ import { Loader2 } from 'lucide-react';
 import { logActivity } from '@/lib/activity-logger';
 import { FirebaseProvider, useUser, useFirebaseLoading } from '@/firebase/provider';
 
-const publicRoutes = ['/login', '/signup', '/forgot-password'];
 
 const navItems = [
     { href: '/', icon: Home, label: 'Início' },
@@ -48,40 +47,10 @@ function BottomNavBar() {
     );
 }
 
-function AuthGuard({ children }: { children: ReactNode }) {
-  const { user, isLoading } = useUser();
-  const isFirebaseLoading = useFirebaseLoading();
-  const router = useRouter();
-  const pathname = usePathname();
+function AppContent({ children }: { children: ReactNode }) {
+  const { isLoading } = useFirebaseLoading();
 
-   useEffect(() => {
-    if (user && !isLoading && pathname) {
-      if (!['/login', '/signup', '/forgot-password'].includes(pathname)) {
-        logActivity(user.email, {
-          type: 'navigation',
-          description: `Navegou para: ${pathname}`,
-          url: pathname,
-        });
-      }
-    }
-  }, [pathname, user, isLoading]);
-
-  useEffect(() => {
-    if (isLoading || isFirebaseLoading) return;
-    
-    const isPublicRoute = publicRoutes.includes(pathname);
-
-    if (user && isPublicRoute) {
-        router.replace('/');
-    }
-    
-    if (!user && !isPublicRoute) {
-        router.replace('/login');
-    }
-    
-  }, [user, isLoading, isFirebaseLoading, router, pathname]);
-
-  if (isLoading || isFirebaseLoading || (!user && !publicRoutes.includes(pathname))) {
+  if (isLoading) {
     return (
       <div className="flex justify-center items-center h-screen bg-background">
         <Loader2 className="h-12 w-12 animate-spin text-primary" />
@@ -89,12 +58,10 @@ function AuthGuard({ children }: { children: ReactNode }) {
     );
   }
 
-  const showNavBar = !publicRoutes.includes(pathname) && user;
-
   return (
     <>
-      <div className={cn(showNavBar && "pb-24")}>{children}</div>
-      {showNavBar && <BottomNavBar />}
+      <div className="pb-24">{children}</div>
+      <BottomNavBar />
     </>
   );
 }
@@ -130,9 +97,9 @@ export default function RootLayout({
           enableSystem
         >
           <FirebaseProvider>
-            <AuthGuard>
+            <AppContent>
               {children}
-            </AuthGuard>
+            </AppContent>
             <Toaster />
           </FirebaseProvider>
         </ThemeProvider>

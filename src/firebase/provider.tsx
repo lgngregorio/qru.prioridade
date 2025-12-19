@@ -1,22 +1,22 @@
+
 'use client';
 
 import React, { createContext, ReactNode, useContext, useState, useEffect } from 'react';
 import { initializeApp, getApps, getApp, FirebaseApp } from 'firebase/app';
-import { getAuth, Auth, onAuthStateChanged, User } from 'firebase/auth';
+import { getAuth, Auth, User } from 'firebase/auth';
 import { getFirestore, Firestore } from 'firebase/firestore';
 import { FirebaseErrorListener } from '@/components/FirebaseErrorListener';
 import { Loader2 } from 'lucide-react';
 
 // Combined Context
-interface FirebaseUserContextType {
+interface FirebaseContextType {
     app: FirebaseApp | null;
     auth: Auth | null;
     firestore: Firestore | null;
-    user: User | null;
     isLoading: boolean;
 }
 
-export const FirebaseUserContext = createContext<FirebaseUserContextType | undefined>(undefined);
+export const FirebaseContext = createContext<FirebaseContextType | undefined>(undefined);
 
 interface FirebaseProviderProps {
   children: ReactNode;
@@ -26,7 +26,6 @@ export function FirebaseProvider({ children }: FirebaseProviderProps) {
     const [app, setApp] = useState<FirebaseApp | null>(null);
     const [auth, setAuth] = useState<Auth | null>(null);
     const [firestore, setFirestore] = useState<Firestore | null>(null);
-    const [user, setUser] = useState<User | null>(null);
     const [isLoading, setIsLoading] = useState(true);
 
     useEffect(() => {
@@ -51,58 +50,46 @@ export function FirebaseProvider({ children }: FirebaseProviderProps) {
         setApp(currentApp);
         setAuth(currentAuth);
         setFirestore(getFirestore(currentApp));
+        setIsLoading(false);
 
-        const unsubscribe = onAuthStateChanged(currentAuth, (user) => {
-            setUser(user);
-            setIsLoading(false);
-        });
-
-        return () => unsubscribe();
     }, []);
 
-    if (isLoading) {
-        return (
-            <div className="flex justify-center items-center h-screen bg-background">
-                <Loader2 className="h-12 w-12 animate-spin text-primary" />
-            </div>
-        );
-    }
+    const value = { app, auth, firestore, isLoading };
     
     return (
-        <FirebaseUserContext.Provider value={{ app, auth, firestore, user, isLoading }}>
+        <FirebaseContext.Provider value={value}>
             {children}
             <FirebaseErrorListener />
-        </FirebaseUserContext.Provider>
+        </FirebaseContext.Provider>
     );
 }
 
 // Hooks to access context values
 export function useAuth() {
-    const context = useContext(FirebaseUserContext);
+    const context = useContext(FirebaseContext);
     if (context === undefined) throw new Error('useAuth must be used within a FirebaseProvider');
     return context.auth;
 }
 
 export function useFirestore() {
-    const context = useContext(FirebaseUserContext);
+    const context = useContext(FirebaseContext);
     if (context === undefined) throw new Error('useFirestore must be used within a FirebaseProvider');
     return context.firestore;
 }
 
 export function useFirebaseApp() {
-    const context = useContext(FirebaseUserContext);
+    const context = useContext(FirebaseContext);
     if (context === undefined) throw new Error('useFirebaseApp must be used within a FirebaseProvider');
     return context.app;
 }
 
 export function useUser() {
-    const context = useContext(FirebaseUserContext);
-    if (context === undefined) throw new Error('useUser must be used within a FirebaseProvider');
-    return { user: context.user, isLoading: context.isLoading };
+    // Mock user since auth is removed
+    return { user: { email: "usuario@example.com", uid: "mock-uid" }, isLoading: false };
 }
 
 export function useFirebaseLoading() {
-    const context = useContext(FirebaseUserContext);
+    const context = useContext(FirebaseContext);
     if (context === undefined) throw new Error('useFirebaseLoading must be used within a FirebaseProvider');
-    return context.isLoading;
+    return { isLoading: context.isLoading };
 }

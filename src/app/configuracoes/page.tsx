@@ -2,7 +2,7 @@
 'use client';
 
 import Link from 'next/link';
-import { ArrowLeft, Save, Moon, Sun, Monitor, Loader2, User, History, ShieldCheck, LogOut } from 'lucide-react';
+import { ArrowLeft, Save, Moon, Sun, Monitor, Loader2, User, History, ShieldCheck } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import {
@@ -15,17 +15,13 @@ import { useTheme } from 'next-themes';
 import { useState, useEffect } from 'react';
 import { useToast } from '@/hooks/use-toast';
 import { useRouter } from 'next/navigation';
-import { useUser, useAuth } from '@/firebase/provider';
 import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
-import { updateProfile, updateEmail, signOut } from 'firebase/auth';
 
 export default function ConfiguracoesPage() {
   const { theme, setTheme, systemTheme } = useTheme();
   const { toast } = useToast();
   const router = useRouter();
-  const { user, isLoading: isUserLoading } = useUser();
-  const auth = useAuth();
 
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
@@ -36,62 +32,28 @@ export default function ConfiguracoesPage() {
   useEffect(() => {
     const currentTheme = theme === 'system' ? systemTheme : theme;
     setSelectedTheme(currentTheme || 'light');
-    if (user) {
-        setName(user.displayName || '');
-        setEmail(user.email || '');
-    }
+    // Mock user for display
+    setName('Usuário Padrão');
+    setEmail('usuario@example.com');
     setIsLoaded(true);
-  }, [theme, systemTheme, user]);
+  }, [theme, systemTheme]);
   
   const handleSave = async () => {
-    if (!user) {
-        toast({
-            variant: "destructive",
-            title: "Erro",
-            description: "Usuário não autenticado.",
-        });
-        return;
-    }
-    
     setIsSaving(true);
     
     // Theme saving
     setTheme(selectedTheme);
 
-    // User data saving
-    try {
-        if (name !== user.displayName) {
-            await updateProfile(user, { displayName: name });
-        }
-        if (email !== user.email) {
-            await updateEmail(user, email);
-        }
-        
-        toast({
-            title: "Sucesso!",
-            description: "Suas configurações foram salvas.",
-        });
-        router.push('/');
-
-    } catch (error: any) {
-        console.error("Failed to save user data", error);
-        toast({
-            variant: "destructive",
-            title: "Erro ao salvar perfil",
-            description: error.message || "Não foi possível salvar os dados do perfil.",
-        });
-    }
+    toast({
+        title: "Sucesso!",
+        description: "Suas configurações de tema foram salvas.",
+    });
+    router.push('/');
 
     setIsSaving(false);
   };
   
-  const handleLogout = async () => {
-    if (!auth) return;
-    await signOut(auth);
-    router.push('/login');
-  };
-
-  if (!isLoaded || isUserLoading) {
+  if (!isLoaded) {
       return (
          <main className="flex flex-col items-center p-4 md:p-6">
             <div className="w-full max-w-2xl animate-pulse">
@@ -143,6 +105,7 @@ export default function ConfiguracoesPage() {
                             value={name}
                             onChange={(e) => setName(e.target.value)}
                             className="h-12 text-lg"
+                            disabled
                         />
                     </div>
                     <div className="space-y-2">
@@ -153,6 +116,7 @@ export default function ConfiguracoesPage() {
                             value={email}
                             onChange={(e) => setEmail(e.target.value)}
                             className="h-12 text-lg"
+                            disabled
                         />
                     </div>
                 </CardContent>
@@ -221,10 +185,6 @@ export default function ConfiguracoesPage() {
                  <ShieldCheck className="mr-3 h-5 w-5" />
                  Políticas do SGI
                </Link>
-             </Button>
-             <Button variant="destructive" className="w-full text-lg h-14" onClick={handleLogout}>
-               <LogOut className="mr-3 h-5 w-5" />
-               Sair
              </Button>
         </div>
       </div>
