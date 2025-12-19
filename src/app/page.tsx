@@ -17,7 +17,7 @@ import {
   type AlfabetoFonetico,
 } from '@/lib/codes';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { useUser } from '@/app/layout';
+import { useUser } from '@/firebase/provider';
 import { logActivity } from '@/lib/activity-logger';
 import { useDebounce } from 'use-debounce';
 

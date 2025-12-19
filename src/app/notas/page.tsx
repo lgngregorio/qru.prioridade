@@ -9,7 +9,7 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { NoteEditor } from '@/components/NoteEditor';
 import { NoteCard } from '@/components/NoteCard';
 import type { Note } from '@/lib/types';
-import { useUser } from '@/app/layout';
+import { useUser } from '@/firebase/provider';
 import { useToast } from '@/hooks/use-toast';
 
 const getNotesKey = (userEmail: string | null): string | null => {

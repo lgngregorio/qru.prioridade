@@ -6,7 +6,7 @@ import Link from 'next/link';
 import { ArrowLeft, Trash2, Loader2, History, Search, FileText, Notebook as NotebookIcon } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
-import { useUser } from '@/app/layout';
+import { useUser } from '@/firebase/provider';
 import { useToast } from '@/hooks/use-toast';
 import { getActivityLog, deleteActivity, clearAllActivities, type Activity } from '@/lib/activity-logger';
 import { useRouter } from 'next/navigation';

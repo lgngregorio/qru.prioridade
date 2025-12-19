@@ -10,7 +10,7 @@ import { Label } from '@/components/ui/label';
 import { useToast } from '@/hooks/use-toast';
 import { Loader2 } from 'lucide-react';
 import type { Note } from '@/lib/types';
-import { useUser } from '@/app/layout';
+import { useUser } from '@/firebase/provider';
 import { logActivity } from '@/lib/activity-logger';
 
 const getNotesKey = (userEmail: string | null): string | null => {

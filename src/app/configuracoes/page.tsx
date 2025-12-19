@@ -15,11 +15,10 @@ import { useTheme } from 'next-themes';
 import { useState, useEffect } from 'react';
 import { useToast } from '@/hooks/use-toast';
 import { useRouter } from 'next/navigation';
-import { useUser } from '@/app/layout';
+import { useUser, useAuth } from '@/firebase/provider';
 import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
 import { updateProfile, updateEmail, signOut } from 'firebase/auth';
-import { useAuth } from '@/firebase/provider';
 
 export default function ConfiguracoesPage() {
   const { theme, setTheme, systemTheme } = useTheme();

@@ -18,7 +18,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { eventCategories } from '@/lib/events';
 import ReportDetail from '@/components/ReportDetail';
-import { useUser } from '@/app/layout';
+import { useUser } from '@/firebase/provider';
 import { logActivity } from '@/lib/activity-logger';
 import { Timestamp } from 'firebase/firestore';
 

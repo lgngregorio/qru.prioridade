@@ -26,7 +26,7 @@ import {
 import { Skeleton } from '@/components/ui/skeleton';
 import ReportDetail from '@/components/ReportDetail';
 import { eventCategories } from '@/lib/events';
-import { useUser } from '@/app/layout';
+import { useUser } from '@/firebase/provider';
 import { useRouter } from 'next/navigation';
 import { useToast } from '@/hooks/use-toast';
 

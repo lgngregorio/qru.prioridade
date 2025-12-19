@@ -2,27 +2,31 @@
 
 import React, { createContext, ReactNode, useContext, useState, useEffect } from 'react';
 import { initializeApp, getApps, getApp, FirebaseApp } from 'firebase/app';
-import { getAuth, Auth } from 'firebase/auth';
+import { getAuth, Auth, onAuthStateChanged, User } from 'firebase/auth';
 import { getFirestore, Firestore } from 'firebase/firestore';
 import { FirebaseErrorListener } from '@/components/FirebaseErrorListener';
 import { Loader2 } from 'lucide-react';
 
-
-interface FirebaseContextType {
+// Combined Context
+interface FirebaseUserContextType {
     app: FirebaseApp | null;
     auth: Auth | null;
     firestore: Firestore | null;
+    user: User | null;
     isLoading: boolean;
 }
 
-export const FirebaseContext = createContext<FirebaseContextType | undefined>(undefined);
+export const FirebaseUserContext = createContext<FirebaseUserContextType | undefined>(undefined);
 
 interface FirebaseProviderProps {
   children: ReactNode;
 }
 
 export function FirebaseProvider({ children }: FirebaseProviderProps) {
-    const [firebaseInstances, setFirebaseInstances] = useState<Omit<FirebaseContextType, 'isLoading'>>({ app: null, auth: null, firestore: null });
+    const [app, setApp] = useState<FirebaseApp | null>(null);
+    const [auth, setAuth] = useState<Auth | null>(null);
+    const [firestore, setFirestore] = useState<Firestore | null>(null);
+    const [user, setUser] = useState<User | null>(null);
     const [isLoading, setIsLoading] = useState(true);
 
     useEffect(() => {
@@ -37,16 +41,23 @@ export function FirebaseProvider({ children }: FirebaseProviderProps) {
         
         if (!firebaseConfig.apiKey) {
             console.error("Firebase API Key is missing. Make sure NEXT_PUBLIC_FIREBASE_API_KEY is set in your .env.local file.");
-            setIsLoading(false); // Stop loading if key is missing
+            setIsLoading(false);
             return;
         }
 
-        const app = getApps().length === 0 ? initializeApp(firebaseConfig) : getApp();
-        const auth = getAuth(app);
-        const firestore = getFirestore(app);
+        const currentApp = getApps().length === 0 ? initializeApp(firebaseConfig) : getApp();
+        const currentAuth = getAuth(currentApp);
+        
+        setApp(currentApp);
+        setAuth(currentAuth);
+        setFirestore(getFirestore(currentApp));
 
-        setFirebaseInstances({ app, auth, firestore });
-        setIsLoading(false);
+        const unsubscribe = onAuthStateChanged(currentAuth, (user) => {
+            setUser(user);
+            setIsLoading(false);
+        });
+
+        return () => unsubscribe();
     }, []);
 
     if (isLoading) {
@@ -58,41 +69,40 @@ export function FirebaseProvider({ children }: FirebaseProviderProps) {
     }
     
     return (
-        <FirebaseContext.Provider value={{ ...firebaseInstances, isLoading }}>
+        <FirebaseUserContext.Provider value={{ app, auth, firestore, user, isLoading }}>
             {children}
             <FirebaseErrorListener />
-        </FirebaseContext.Provider>
+        </FirebaseUserContext.Provider>
     );
 }
 
+// Hooks to access context values
 export function useAuth() {
-    const context = useContext(FirebaseContext);
-    if (context === undefined) {
-        throw new Error('useAuth must be used within a FirebaseProvider');
-    }
+    const context = useContext(FirebaseUserContext);
+    if (context === undefined) throw new Error('useAuth must be used within a FirebaseProvider');
     return context.auth;
 }
 
 export function useFirestore() {
-    const context = useContext(FirebaseContext);
-    if (context === undefined) {
-        throw new Error('useFirestore must be used within a FirebaseProvider');
-    }
+    const context = useContext(FirebaseUserContext);
+    if (context === undefined) throw new Error('useFirestore must be used within a FirebaseProvider');
     return context.firestore;
 }
 
 export function useFirebaseApp() {
-    const context = useContext(FirebaseContext);
-    if (context === undefined) {
-        throw new Error('useFirebaseApp must be used within a FirebaseProvider');
-    }
+    const context = useContext(FirebaseUserContext);
+    if (context === undefined) throw new Error('useFirebaseApp must be used within a FirebaseProvider');
     return context.app;
 }
 
+export function useUser() {
+    const context = useContext(FirebaseUserContext);
+    if (context === undefined) throw new Error('useUser must be used within a FirebaseProvider');
+    return { user: context.user, isLoading: context.isLoading };
+}
+
 export function useFirebaseLoading() {
-    const context = useContext(FirebaseContext);
-    if (context === undefined) {
-        throw new Error('useFirebaseLoading must be used within a FirebaseProvider');
-    }
+    const context = useContext(FirebaseUserContext);
+    if (context === undefined) throw new Error('useFirebaseLoading must be used within a FirebaseProvider');
     return context.isLoading;
 }
